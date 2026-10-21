@@ -4,7 +4,7 @@
 
 ## 登录选项（TUI 登录对话框 / `/connect`）
 
-- **小米 MiMo 平台** —— OAuth 设备流（推荐）。
+- **小米 MiMo 平台** —— 在提供方列表中选择 `xiaomi`，输入 API key。
 - **Codex（ChatGPT Pro/Plus）** —— OpenAI OAuth 登录。
 - **从 Claude Code 导入** —— 从 `~/.claude/settings*.json` 读取 API key。
 - **xAI（Grok）** —— OAuth 登录，提供方 id 为 `xai`。

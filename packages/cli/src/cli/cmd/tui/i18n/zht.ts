@@ -527,11 +527,4 @@ export const dict = {
   "trust.dangerous.advice_root": "除非有明確的理由，否則不要信任檔案系統根目錄。",
   "trust.dangerous.option.yes": "我了解風險，僅本次信任",
   "trust.dangerous.option.no": "退出（推薦）",
-  "tui.dialog.login.flow.title": "MiMo 登入",
-  "tui.dialog.login.flow.placeholder": "貼上 Code（或等待瀏覽器回調）",
-  "tui.dialog.login.flow.busy": "登入中...",
-  "tui.dialog.login.flow.manual_hint": "瀏覽器未開啟？點擊下方連結以複製：",
-  "tui.dialog.login.flow.waiting": "等待瀏覽器授權中...",
-  "tui.dialog.login.flow.invalid_code": "Code 無效，請重試",
-  "tui.dialog.login.flow.copied": "已複製",
 } satisfies Partial<Record<Keys, string>>

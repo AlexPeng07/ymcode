@@ -20,7 +20,7 @@ import { createOpencodeClient } from "@ymcode/sdk"
 import { Flag } from "../flag/flag"
 import { CodexAuthPlugin } from "./codex"
 import { XaiAuthPlugin } from "./xai"
-import { MimoAuthPlugin, AnthropicProxyPlugin } from "./mimo"
+import { MimoPlugin, AnthropicProxyPlugin } from "./mimo"
 import { Session } from "../session"
 import type { SessionID } from "../session/schema"
 import { NamedError } from "@ymcode/shared/util/error"
@@ -142,7 +142,7 @@ export class Service extends Context.Service<Service, Interface>()("@opencode/Pl
 
 // Built-in plugins that are directly imported (not installed from npm)
 const INTERNAL_PLUGINS: PluginInstance[] = [
-  MimoAuthPlugin,
+  MimoPlugin,
   AnthropicProxyPlugin,
   CodexAuthPlugin,
   XaiAuthPlugin,

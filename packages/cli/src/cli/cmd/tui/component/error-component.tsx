@@ -37,7 +37,7 @@ export function ErrorComponent(props: {
     bg: isLight ? "#ffffff" : "#0a0a0a",
     text: isLight ? "#1a1a1a" : "#eeeeee",
     muted: isLight ? "#8a8a8a" : "#808080",
-    primary: isLight ? "#3b7dd8" : "#fab283",
+    primary: isLight ? "#2563eb" : "#60a5fa",
   }
 
   const report = [`ymcode ${InstallationVersion}`, props.error.message, props.error.stack].filter(Boolean).join("\n\n")

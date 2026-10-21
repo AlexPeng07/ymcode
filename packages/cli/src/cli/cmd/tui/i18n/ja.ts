@@ -466,21 +466,10 @@ export const dict = {
   "tui.command.plugins.list.title": "プラグイン",
   "tui.command.plugins.install.title": "プラグインをインストール",
 
-  // MiMo Auto (free) — TUI login dialog
-  "tui.dialog.login.flow.title": "MiMo ログイン",
-  "tui.dialog.login.flow.placeholder": "コードを貼り付け（またはブラウザコールバックを待機）",
-  "tui.dialog.login.flow.busy": "ログイン中...",
-  "tui.dialog.login.flow.manual_hint": "ブラウザが開きませんか？下のリンクをクリックしてコピー：",
-  "tui.dialog.login.flow.waiting": "ブラウザの認証を待機中...",
-  "tui.dialog.login.flow.invalid_code": "コードが無効です。再試行してください",
-  "tui.dialog.login.flow.copied": "コピー済み",
-
   // CLI: providers command (auth login)
   "cli.providers.select": "プロバイダーを選択",
   "cli.providers.other": "その他のプロバイダー",
-  "cli.providers.mimo.recommended_hint": "推奨",
-  "cli.providers.mimo_login.decrypt_retry": "復号に失敗しました、再試行してください（残り {remaining} 回）",
-  "cli.providers.mimo_login.decrypt_exhausted": "復号に失敗しました、最大再試行回数に達しました",
+  "cli.providers.mimo.recommended_hint": "API Key",
 
   // Question i18n — plan_exit
   "tui.question.plan_exit.question": "{{plan}} の計画が完了しました。build エージェントに切り替えて実装を開始しますか？",

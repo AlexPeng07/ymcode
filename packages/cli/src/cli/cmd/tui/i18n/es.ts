@@ -564,11 +564,4 @@ export const dict = {
   "trust.dangerous.advice_root": "A menos que tengas una razón muy específica, NO confíes en la raíz del sistema de archivos.",
   "trust.dangerous.option.yes": "Entiendo los riesgos, confiar solo esta sesión",
   "trust.dangerous.option.no": "Salir (recomendado)",
-  "tui.dialog.login.flow.title": "Inicio de sesión MiMo",
-  "tui.dialog.login.flow.placeholder": "Pega el código (o espera la devolución del navegador)",
-  "tui.dialog.login.flow.busy": "Iniciando sesión...",
-  "tui.dialog.login.flow.manual_hint": "¿El navegador no se abrió? Haz clic en el enlace para copiar:",
-  "tui.dialog.login.flow.waiting": "Esperando autorización del navegador...",
-  "tui.dialog.login.flow.invalid_code": "Código inválido, intenta de nuevo",
-  "tui.dialog.login.flow.copied": "Copiado",
 } satisfies Partial<Record<Keys, string>>

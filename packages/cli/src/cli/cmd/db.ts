@@ -72,7 +72,7 @@ const MigrateCommand = cmd({
     const sqlite = new BunDatabase(Database.Path)
     const tty = process.stderr.isTTY
     const width = 36
-    const orange = "\x1b[38;5;214m"
+    const blue = "\x1b[38;5;39m"
     const muted = "\x1b[0;2m"
     const reset = "\x1b[0m"
     let last = -1
@@ -87,7 +87,7 @@ const MigrateCommand = cmd({
             const fill = Math.round((percent / 100) * width)
             const bar = `${"■".repeat(fill)}${"･".repeat(width - fill)}`
             process.stderr.write(
-              `\r${orange}${bar} ${percent.toString().padStart(3)}%${reset} ${muted}${event.current}/${event.total}${reset} `,
+              `\r${blue}${bar} ${percent.toString().padStart(3)}%${reset} ${muted}${event.current}/${event.total}${reset} `,
             )
           } else {
             process.stderr.write(`sqlite-migration:${percent}${EOL}`)

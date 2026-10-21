@@ -21,6 +21,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - instincts：文件格式、service、FTS 类型、工具、CLI、`/instinct`、observer、注入、dream review。
 - 汉化：70 个内置技能、54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
 - 门禁与 Windows 构建通过；隔离环境端到端验证通过。
+- 默认主题为蓝色系；小米 OAuth 登录已移除，Xiaomi/MiMo 入口保留并统一走 API Key。
 
 未验证/未完成：
 

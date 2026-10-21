@@ -45,3 +45,12 @@
   - TUI 视觉验收未做（无终端截图通道）；核心界面通过 i18n 字典与组件测试验证。
   - Windows 下部分 plugin/TUI 测试因临时目录 EBUSY 清理失败（非功能失败）；已加清理重试与 Windows skip，仍有个别上游测试受文件锁影响。
   - 顶层 CLI `--help` 仍有部分英文子命令/选项描述；核心 TUI、技能、提示词、instinct/mcp CLI 已中文化。
+
+### 主题与登录调整（2026-10-21）
+
+- 默认主题 `ymcode` 改为蓝色系：primary `#3B82F6`、secondary `#60A5FA`；success 改绿色、info 改青色。系统生成主题（`generateSystem`）、崩溃页与数据库迁移进度条同步改蓝。
+- 移除小米 OAuth 浏览器登录：删除 `plugin/mimo.ts` 的 OAuth 授权/回调实现、CLI `mimoLogin` 与 TUI `MimoOAuthFlow`。
+- 保留 Xiaomi/MiMo 入口，统一走 API Key：provider 列表与 `/login` 仍显示 Xiaomi，选中后输入 API Key。
+- `/logout` 改为清除当前模型所属 provider 的凭据，而不是固定删除 xiaomi。
+- 清理相关 i18n 文案（en/zh/es/fr/ja/ru/zht）与插件测试。
+- 验证：`typecheck`、`check:brand`、`check:i18n`（706 en / 731 zh）、`check:skills`、`check:prompts` 通过；`test/plugin/mimo.test.ts` + `test/cli/tui/model.test.ts` 12 pass / 0 fail；离线构建 `--version` 冒烟通过。

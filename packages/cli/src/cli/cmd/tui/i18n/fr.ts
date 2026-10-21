@@ -526,21 +526,10 @@ export const dict = {
   "tui.command.plugins.list.title": "Plugins",
   "tui.command.plugins.install.title": "Installer un plugin",
 
-  // MiMo Auto (free) — TUI login dialog
-  "tui.dialog.login.flow.title": "Connexion MiMo",
-  "tui.dialog.login.flow.placeholder": "Collez le code (ou attendez le rappel du navigateur)",
-  "tui.dialog.login.flow.busy": "Connexion en cours...",
-  "tui.dialog.login.flow.manual_hint": "Le navigateur ne s'est pas ouvert ? Cliquez sur le lien ci-dessous pour copier :",
-  "tui.dialog.login.flow.waiting": "En attente de l'autorisation du navigateur...",
-  "tui.dialog.login.flow.invalid_code": "Code invalide, veuillez réessayer",
-  "tui.dialog.login.flow.copied": "Copié",
-
   // CLI: providers command (auth login)
   "cli.providers.select": "Sélectionner un fournisseur",
   "cli.providers.other": "Autre fournisseur",
-  "cli.providers.mimo.recommended_hint": "recommandé",
-  "cli.providers.mimo_login.decrypt_retry": "Échec du déchiffrement, veuillez réessayer ({remaining} tentatives restantes)",
-  "cli.providers.mimo_login.decrypt_exhausted": "Échec du déchiffrement, nombre maximal de tentatives atteint",
+  "cli.providers.mimo.recommended_hint": "API Key",
 
   // Question i18n — plan_exit
   "tui.question.plan_exit.question": "Le plan {{plan}} est terminé. Voulez-vous basculer vers l'agent build pour commencer l'implémentation ?",

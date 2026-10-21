@@ -537,21 +537,10 @@ export const dict = {
   "tui.command.plugins.list.title": "Плагины",
   "tui.command.plugins.install.title": "Установить плагин",
 
-  // MiMo Auto (free) — TUI login dialog
-  "tui.dialog.login.flow.title": "Вход в MiMo",
-  "tui.dialog.login.flow.placeholder": "Вставьте код (или дождитесь обратного вызова браузера)",
-  "tui.dialog.login.flow.busy": "Вход...",
-  "tui.dialog.login.flow.manual_hint": "Браузер не открылся? Нажмите на ссылку ниже, чтобы скопировать:",
-  "tui.dialog.login.flow.waiting": "Ожидание авторизации в браузере...",
-  "tui.dialog.login.flow.invalid_code": "Неверный код, попробуйте ещё раз",
-  "tui.dialog.login.flow.copied": "Скопировано",
-
   // CLI: providers command (auth login)
   "cli.providers.select": "Выберите провайдера",
   "cli.providers.other": "Другой провайдер",
-  "cli.providers.mimo.recommended_hint": "рекомендуется",
-  "cli.providers.mimo_login.decrypt_retry": "Ошибка расшифровки, повторите попытку (осталось попыток: {remaining})",
-  "cli.providers.mimo_login.decrypt_exhausted": "Ошибка расшифровки, превышено максимальное число попыток",
+  "cli.providers.mimo.recommended_hint": "API Key",
 
   // Question i18n — plan_exit
   "tui.question.plan_exit.question": "План {{plan}} завершён. Переключиться на агента build и начать реализацию?",

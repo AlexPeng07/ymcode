@@ -78,7 +78,7 @@
 | `/editor` | 在外部编辑器中编辑当前提示词 |
 | `/skills` | 浏览并选择可用技能 |
 | `/revoke-consent` | 撤销对免费服务的同意 |
-| `/voice` | 切换流式语音输入（需要 `sox` 与 MiMo 登录） |
+| `/voice` | 切换流式语音输入（需要 `sox` 与 MiMo API Key） |
 | `/voice-send` | 允许语音控制在你说「发送」/ "send it" 时提交（ASR 始终负责听写） |
 | `/voice-control` | 切换语音控制 |
 
