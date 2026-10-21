@@ -1,29 +1,29 @@
-# Mode: Root-cause investigation / 根因排查
+# 模式：根因排查
 
-Use when the user reports a **broken observation and wants to know why** — a regression ("this used to work"), an intermittent failure ("flaky, ~1 in 20"), a performance degradation ("2× slower since Friday"), a suspicious metric ("conversion dropped 8% overnight"), a mysterious behavior ("only fails in prod"). Triggers include "why is X broken", "root cause this", "debug this regression", "排查", "定位", "复盘", "find why the tests are flaky".
+当用户报告**一个异常观察并想知道原因**时使用——回归（「以前是好的」）、间歇性失败（「flake，约 1/20」）、性能下降（「周五以来慢了 2 倍」）、可疑指标（「转化率一夜跌了 8%」）、神秘行为（「只在生产环境失败」）。触发语包括「why is X broken」「root cause this」「debug this regression」「排查」「定位」「复盘」「find why the tests are flaky」。
 
-The failure mode this mode is designed against: **stopping at the first plausible-sounding explanation.** Almost every regression has multiple correlates; the first one you find is rarely the cause. Root cause requires a demonstration — the ability to turn the symptom on and off by touching one thing.
+本模式要防范的失败模式是：**停在第一个听起来合理的解释上。** 几乎每个回归都有多个相关因素；你找到的第一个很少是原因。根因需要演示——能够通过只动一处就把症状打开和关闭。
 
-## Contract fields
+## 契约字段
 
-1. **Symptom**: A crisp, reproducible statement of what's broken. Concrete example — command / input / URL / test name / metric threshold. If the user says "it's slow", negotiate to "endpoint /X p95 latency > 800ms on payload P (was ~150ms two weeks ago)". Vague symptoms produce vague investigations.
-2. **Repro**: A single command or script that reproduces the symptom on demand. If it's flaky, note the reproduction rate ("~1 in 20 runs"). If you cannot reproduce it at all, the first phase of the loop is *reproduction*, not root-cause — say so in the contract, don't skip ahead.
-3. **Known-good reference**: A commit, environment, config, or time window where the symptom was NOT observed. This is what makes bisection possible. If none is known, negotiate one — often the user knows "it worked on Monday" or "it works in staging".
-4. **Blast-radius rules**: What are you allowed to touch during investigation? Production reads are usually fine; production writes and destructive actions are not without explicit sign-off. Note these in the contract so you don't have to ask mid-loop.
-5. **Stopping criterion**: The default is "cause identified and demonstrated by a targeted fix or a targeted reintroduction". A weaker "here are the top-3 suspects, ranked" is acceptable only when the contract explicitly allows it (e.g. non-reproducible in the environment you have access to).
-6. **Working directory**: A dedicated `investigation/<tag>/` folder — the repro script, log, evidence, any patches.
+1. **症状**：清晰、可复现地陈述哪里坏了。给出具体例子——命令 / 输入 / URL / 测试名 / 指标阈值。如果用户说「它很慢」，协商成「端点 /X 在载荷 P 上的 p95 延迟 > 800ms（两周前约 150ms）」。含糊的症状产出含糊的排查。
+2. **复现**：一条能按需复现症状的命令或脚本。如果是 flake，记录复现率（「约 1/20 次运行」）。如果完全无法复现，循环的第一阶段是*复现*，而不是根因——在契约中说明，不要跳到后面。
+3. **已知良好参照**：一个未观察到症状的提交、环境、配置或时间窗。这是二分法可行的前提。如果不知道，就协商一个——用户通常知道「周一还是好的」或「staging 上没问题」。
+4. **影响范围规则**：排查期间允许触碰什么？生产只读通常可以；生产写入与破坏性操作未经明确批准则不行。把这些写进契约，这样循环中途就不必再问。
+5. **停止判据**：默认是「原因已确定，并通过定向修复或定向复现予以证明」。较弱的「这里是前三名嫌疑，已排序」只有在契约明确允许时才可接受（例如在你可访问的环境中无法复现）。
+6. **工作目录**：专用的 `investigation/<tag>/` 文件夹——复现脚本、日志、证据、任何补丁。
 
-## Baseline — quantify the symptom
+## 基线——把症状量化
 
-Your baseline is not "the code before my changes"; it's the **symptom made measurable**. Before any hypothesizing:
+你的基线不是「我改动之前的代码」；而是**被变得可度量的症状**。在任何假设之前：
 
-- Run the repro N times (10–30 for flakes) and record: pass/fail rate, timing distribution, error messages verbatim. Save this to `baseline.md`. This is what you're going to move.
-- Run the same repro against the known-good reference and record the same numbers. The gap between these two is the size of the effect you're trying to explain.
-- Any hypothesis that doesn't predict a change of the right sign and rough magnitude in this gap is a distraction. Later, this baseline is also how you'll verify the fix.
+- 运行复现 N 次（flake 用 10–30 次），记录：通过/失败率、时间分布、原始错误信息。保存到 `baseline.md`。这就是你要推动的东西。
+- 对已知良好参照运行同样的复现，记录同样的数字。两者之间的差距，就是你要解释的效应大小。
+- 任何不能预测该差距方向正确、量级大致相符的假设都是干扰项。之后，这份基线也是你验证修复的方式。
 
-## The hypothesis log
+## 假设日志
 
-`hypotheses.tsv` (tab-separated), one row per hypothesis considered — including ones you rule out early:
+`hypotheses.tsv`（制表符分隔），每考虑一个假设一行——包括很早就排除的：
 
 ```
 id	hypothesis	prediction	test	result	status	notes
@@ -33,43 +33,43 @@ H03	abc123's off-by-one causes double-close on retry	reverting abc123 alone fixe
 H04	load balancer stickiness change same day	drops out under H03 if we can reintroduce symptom on isolated node	—	—	unexplored	deprioritized after H03 confirmed
 ```
 
-- **prediction** — what you'd expect to see if the hypothesis were true, before you run the test. Fill this in *before* the result column. If you can only articulate the prediction after seeing the result, you're pattern-matching, not testing.
-- **status** — `unexplored` / `testing` / `ruled-out` / `suspect` / `confirmed`. A `suspect` becomes `confirmed` only when both directions of the causal test agree.
+- **prediction** —— 在运行测试之前，如果假设成立你预期看到什么。要在结果列**之前**填写。如果你只能在看到结果之后才说出预测，那你是在模式匹配，不是在检验。
+- **status** —— `unexplored` / `testing` / `ruled-out` / `suspect` / `confirmed`。`suspect` 只有在因果检验的两个方向都一致时才升级为 `confirmed`。
 
-**Log ruled-out hypotheses.** They are the evidence that you actually tried to falsify your favorite theory instead of just confirming it. A log with one entry and status=confirmed is not investigation, it's a guess written down.
+**记录被排除的假设。** 它们是你确实试图证伪自己偏爱的理论、而不只是确认它的证据。只有一行且 status=confirmed 的日志不是排查，而是写下来的猜测。
 
-## The loop
+## 循环
 
-LOOP UNTIL a hypothesis is `confirmed` OR the stopping criterion is otherwise met:
+循环直到某个假设 `confirmed`，或停止判据以其他方式满足：
 
-1. **If the repro is flaky or absent, fix that first.** Investigation on top of an unreliable baseline is folly — you cannot tell whether your intervention worked. Adjust seeds, isolate the failing case, run more iterations, until the repro rate is stable enough to distinguish signal from noise.
-2. Pick the most informative next hypothesis — the one whose test result would split the remaining space of causes fastest.
-   - **Prefer bisection over guessing.** If a bad commit exists between last-good and HEAD, `git bisect` finds it in log₂(N) steps and doesn't rely on cleverness. Do this before elaborate theorizing.
-   - **Prefer diffing environments.** For "works here, fails there" problems, systematically diff env vars, versions, config, hardware, timing — the two environments are the two conditions of a natural experiment.
-3. Write the prediction *before* running the test. Then run it.
-4. Log the result. Update the status.
-5. **Never stop at `suspect`.** A hypothesis is confirmed only when the causal test passes in both directions: (a) removing the suspect eliminates the symptom, AND (b) reintroducing the suspect (or its critical part) brings the symptom back at the baseline rate. One direction can pass for confounded reasons. Two directions rarely both agree by accident.
-6. Loop.
+1. **如果复现是 flaky 或缺失，先解决它。** 在不可靠的基线之上做排查是徒劳——你无法判断干预是否奏效。调整随机种子、隔离失败用例、增加迭代次数，直到复现率稳定到足以区分信号与噪声。
+2. 选择下一个信息量最大的假设——其测试结果能最快切分剩余原因空间的那个。
+   - **优先二分而非猜测。** 如果 last-good 与 HEAD 之间存在坏提交，`git bisect` 能在 log₂(N) 步内找到它，且不依赖你的聪明才智。在做复杂推理之前先做这个。
+   - **优先对比环境差异。** 对「这里能跑、那里失败」的问题，系统性地对比环境变量、版本、配置、硬件、时序——这两个环境就是一次自然实验的两个条件。
+3. 在运行测试**之前**写下预测。然后再运行。
+4. 记录结果。更新状态。
+5. **绝不停在 `suspect`。** 假设只有在双向因果检验都通过时才确认：(a) 去掉嫌疑项能消除症状，**且** (b) 把嫌疑项（或其关键部分）放回去能按基线速率带回症状。单向通过可能是混杂因素；两个方向同时巧合一致则很罕见。
+6. 继续循环。
 
-## Judgment
+## 判断
 
-**Correlation is not cause; two-way reversal is cause.** The bisected commit, the changed env var, the newly deployed dependency — all are suspects, not conclusions. Until you have shown "remove it → symptom gone, put it back → symptom returns", you have a lead, not a root cause. This distinction is the difference between real debugging and confident hand-waving.
+**相关不是因果；双向反转才是因果。** 二分出的提交、改动的环境变量、新部署的依赖——都只是嫌疑，不是结论。在你展示出「去掉它 → 症状消失，放回它 → 症状回归」之前，你拥有的只是线索，不是根因。这个区别就是真正调试与自信地挥手的差别。
 
-**Beware the fix that "just makes it work".** Sprinkling a `try/except`, adding a retry, bumping a timeout — these can silence a symptom without touching the cause. If the mechanism you can articulate does not predict the exact symptom you observed, keep going. "It works now" is the second-easiest way to fool yourself, right after "I found something suspicious in the diff".
+**警惕「只要让它跑起来」的修复。** 撒上一段 `try/except`、加个重试、调大超时——这些都能在不触碰原因的情况下压住症状。如果你能说清的机制无法预测你观察到的确切症状，就继续排查。「现在能跑了」是自欺第二容易的方式，仅次于「我在差异里发现了可疑之处」。
 
-**Prefer disproof to proof.** Ask "what test result would prove me wrong?" — if you can't articulate one, the hypothesis isn't scientific yet, it's a story. Design tests to falsify your leading candidate, not to reconfirm it.
+**优先证伪而非证明。** 问「什么测试结果能证明我错了？」——如果你说不出来，这个假设还不科学，只是一个故事。设计测试去证伪你最看好的候选，而不是再次确认它。
 
-**Contributing factors vs root cause.** Sometimes the honest answer is "A is the trigger but only because B was already there" — e.g. a race that had always been possible was exposed by a scheduler change. Report both. Naming only the trigger leaves the vulnerability; naming only the latent bug leaves the reader wondering why now.
+**促成因素与根因。** 有时诚实的答案是「A 是触发因素，但只是因为 B 早已存在」——例如一场一直可能的竞态被调度器改动暴露出来。两者都要报告。只指出触发因素会留下漏洞；只指出潜在缺陷会让读者疑惑为何此时爆发。
 
-**When you can't confirm, say what you narrowed it to.** An investigation that ends with "confirmed in {A, B}, ruled out {C, D, E, F}" is far more useful than one that ends with a guess dressed up as an answer.
+**无法确认时，说清你把范围收窄到了哪里。** 以「在 {A, B} 中已确认，排除了 {C, D, E, F}」结尾的排查，远比以「伪装成答案的猜测」结尾的排查有用。
 
-## Final report
+## 最终报告
 
-See "Reporting" in SKILL.md. Mode-specific body:
+参见 SKILL.md 的「报告」。模式专属正文：
 
-- **Root cause** — one sentence naming the cause, with the demonstrated two-way reversal ("reverting X fixes; reapplying X breaks").
-- **Symptom → cause chain** — the mechanism, one paragraph. Include contributing factors.
-- **Evidence** — pointer to `hypotheses.tsv` and the specific H-IDs that carried the demonstration.
-- **Ruled out** — the top alternatives you eliminated, with the tests that eliminated them. This is what distinguishes a diagnosis from a guess.
-- **Fix / mitigation** — the minimal change that addresses the root cause (if in scope), and any latent-bug follow-ups worth filing.
-- **Where to look**: `hypotheses.tsv`, `baseline.md`, the repro script, `investigation/<tag>/`.
+- **根因**——一句话点明原因，并给出已演示的双向反转（「回退 X 修复；重放 X 复现」）。
+- **症状 → 原因链**——机制，一段话。包含促成因素。
+- **证据**——指向 `hypotheses.tsv` 以及承载该演示的具体 H-ID。
+- **已排除**——你排除的主要替代项，以及排除它们所用的测试。这正是诊断与猜测的区别。
+- **修复 / 缓解**——针对根因的最小改动（若在范围内），以及值得立项的潜在缺陷后续项。
+- **去哪里看**：`hypotheses.tsv`、`baseline.md`、复现脚本、`investigation/<tag>/`。

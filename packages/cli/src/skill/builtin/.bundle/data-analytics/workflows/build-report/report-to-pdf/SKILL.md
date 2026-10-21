@@ -1,27 +1,27 @@
 ---
 name: report-to-pdf
-description: "Narrow conversion skill. Invoke only when the user explicitly asks to convert an existing Data Analytics report, dashboard, or inline chart export into a PDF artifact."
+description: "窄范围的转换技能。仅当用户明确要求把现有的数据分析报告、仪表盘或内联图表导出转换为 PDF 产物时调用。 | Trigger keywords: report to PDF, HTML to PDF, Chrome headless print-to-PDF, dashboard export, chart export."
 ---
 
-# Report To PDF
+# 报告转 PDF
 
-Use this skill only when the user explicitly needs a PDF from an existing Data Analytics report, dashboard, or chart artifact. Prefer a static HTML export or another portable report file as the source.
+仅当用户明确需要从现有数据分析报告、仪表盘或图表产物得到 PDF 时，使用本技能。优先使用静态 HTML 导出或其他可移植报告文件作为源。
 
-The expected path is static HTML -> browser headless print-to-PDF -> PDF verification. If only a non-portable source exists, create or retrieve the matching static HTML/export source first.
+预期路径是静态 HTML -> 浏览器无头打印为 PDF -> PDF 校验。如果只存在不可移植的源，先创建或获取匹配的静态 HTML/导出源。
 
-## Workflow
+## 工作流
 
-1. Resolve the static source.
+1. 确定静态源。
 
-   Use an absolute local path to a static HTML report/export or a local URL served from that static export. If the source is a blob stub, sign-in page, redirect page, incomplete viewer, or an app shell that contains boot scripts but not the report content, stop and obtain a static HTML/export source before continuing.
+   使用静态 HTML 报告/导出的绝对本地路径，或由该静态导出提供服务的本地 URL。如果源是 blob 存根、登录页、重定向页、不完整的查看器，或只包含启动脚本而不含报告内容的应用外壳，停止并在继续之前获取静态 HTML/导出源。
 
-   When the user provides a hosted artifact URL, first determine whether it exposes a usable static export or package source. If the static export is unavailable but the validated artifact payload is still available in the current run, create the matching static HTML/export from that payload and preserve source provenance in the handoff. If neither a static export nor the artifact payload is available, stop with a blocker instead of printing the live app shell or rebuilding the report from memory.
+   当用户提供托管产物 URL 时，先判断它是否提供可用的静态导出或打包源。如果静态导出不可用，但已校验的产物载荷在当前运行中仍可获得，则从该载荷创建匹配的静态 HTML/导出，并在交付说明中保留来源出处。如果静态导出和产物载荷都不可用，以阻塞项停止，而不是打印正在运行的应用外壳或凭记忆重建报告。
 
-   When creating or repairing the static source, keep visible metadata reader-facing. Do not copy internal artifact runtime fields, package plumbing, or validator/debug state into the report body, header, footer, or source section. For example, omit raw labels such as snapshot status, package path, widget type, manifest path, renderer IDs, validation status, and local temp paths from the visible PDF. If a runtime detail matters for audit or troubleshooting, preserve it in support notes rather than the visible PDF. Translate data-state caveats into reader language only when they affect interpretation, such as "synthetic demo data" or "partial source coverage."
+   创建或修复静态源时，要让可见元数据面向读者。不要把内部产物运行时字段、打包管线细节或校验器/调试状态复制到报告正文、页眉、页脚或来源章节。例如，不要在可见 PDF 中出现快照状态、打包路径、组件类型、manifest 路径、渲染器 ID、校验状态和本地临时路径等原始标签。如果某项运行时细节对审计或排障重要，请将其保留在支撑说明中，而不是可见 PDF 里。只有当数据状态说明会影响解读时，才将其转换为读者语言，例如“合成演示数据”或“源数据覆盖不完整”。
 
-2. Generate the PDF with Chrome CLI headless print-to-PDF.
+2. 使用 Chrome CLI 无头打印为 PDF 生成 PDF。
 
-   Use the platform-specific Chrome executable available in the environment. Common examples are `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` on macOS and `google-chrome`, `chromium`, or `chromium-browser` on Linux. This is the primary conversion method because it prints the static HTML with a browser rendering engine and usually preserves selectable text, layout, charts, tables, and print CSS.
+   使用环境中可用的、与平台对应的 Chrome 可执行文件。常见示例包括 macOS 上的 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`，以及 Linux 上的 `google-chrome`、`chromium` 或 `chromium-browser`。这是首选的转换方法，因为它用浏览器渲染引擎打印静态 HTML，通常能保留可选中文本、布局、图表、表格和打印 CSS。
 
    ```bash
    chrome \
@@ -34,49 +34,49 @@ The expected path is static HTML -> browser headless print-to-PDF -> PDF verific
      /absolute/path/to/report.html
    ```
 
-3. If Chrome is unavailable or cannot produce a valid PDF, use a renderer-backed fallback.
+3. 如果 Chrome 不可用或无法生成有效 PDF，使用基于渲染器的回退方案。
 
-   Use the next available local mechanism that renders the same static HTML/export source and prints or saves that rendered page to PDF. Keep the fallback tool-agnostic: the requirement is faithful HTML rendering followed by PDF output, not a specific implementation. Do not replace this with a model-authored PDF layout, manually redrawn charts, or a report reconstructed from memory.
+   使用下一个可用的本地机制，渲染同一静态 HTML/导出源，并将渲染后的页面打印或保存为 PDF。回退方案应与工具无关：要求是忠实的 HTML 渲染后输出 PDF，而不是某种特定实现。不要用模型自行编写的 PDF 版式、手工重绘的图表或凭记忆重建的报告来替代。
 
-   A fallback is acceptable only when:
+   仅在以下情况下回退方案才是可接受的：
 
-   - the static HTML/export remains the source of truth
-   - the rendered output preserves the report title, narrative, charts, tables, caveats, and source details
-   - app-only controls are omitted
-   - the resulting PDF passes the same verification checks as the primary Chrome path
+   - 静态 HTML/导出仍是事实来源
+   - 渲染输出保留报告标题、叙述、图表、表格、注意事项和来源细节
+   - 省略仅应用内才有的控件
+   - 生成的 PDF 通过与主 Chrome 路径相同的校验检查
 
-   If no available local renderer can print the static HTML/export faithfully, stop and report the blocker with the missing capability and the source file that could not be converted.
+   如果没有可用的本地渲染器能忠实打印静态 HTML/导出，停止并报告阻塞项，说明缺少的能力以及无法转换的源文件。
 
-4. Verify the PDF itself.
+4. 校验 PDF 本身。
 
-   Confirm page count and metadata with `pdfinfo` or equivalent. Extract text with `pdftotext` or equivalent when the PDF should contain selectable text. Render representative pages with `pdftoppm` or equivalent and inspect them for blank charts, clipped content, missing source details, unwanted controls, internal runtime metadata, and layout regressions. For short reports, render every page. Include a negative check for app-only control labels such as share, edit, refresh, publish, toolbar, menu, and drag affordances, plus internal artifact labels such as snapshot status, widget type, manifest path, package path, validation status, and local temp paths.
+   使用 `pdfinfo` 或等价工具确认页数和元数据。当 PDF 应包含可选中文本时，使用 `pdftotext` 或等价工具提取文本。使用 `pdftoppm` 或等价工具渲染有代表性的页面，并检查是否存在空白图表、内容被裁剪、来源细节缺失、多余控件、内部运行时元数据和布局回归。对于短报告，渲染每一页。包含反向检查：不应出现分享、编辑、刷新、发布、工具栏、菜单和拖拽等仅应用内才有的控件标签，也不应出现快照状态、组件类型、manifest 路径、打包路径、校验状态和本地临时路径等内部产物标签。
 
-5. Repair before handoff.
+5. 交付前修复。
 
-   If the output is blank, clipped, missing charts, missing source details, or includes app-only chrome, fix the static HTML/export source, print stylesheet, or renderer invocation and regenerate. Do not hand off an unverified PDF unless the user explicitly accepts the limitation.
+   如果输出为空白、被裁剪、缺少图表、缺少来源细节，或包含仅应用内才有的外围控件，修复静态 HTML/导出源、打印样式表或渲染器调用并重新生成。除非用户明确接受该限制，否则不要交付未经校验的 PDF。
 
-6. Hand off the PDF.
+6. 交付 PDF。
 
-   Return the PDF path and, when useful, the source HTML path or URL. Keep routine check details in support artifacts. Do not list internal checks in the user-facing handoff unless a check failed, was unavailable, or produced a user-relevant caveat. If the static HTML/export had to be created from an artifact payload because the hosted URL did not expose one, say that briefly. If required checks could not be completed, state the gap clearly.
+   返回 PDF 路径，并在有用时返回源 HTML 路径或 URL。将常规检查细节保留在支撑产物中。不要在面向用户的交付说明中列出内部检查，除非某项检查失败、不可用或产生了与用户相关的注意事项。如果因为托管 URL 未暴露静态导出而不得不从产物载荷创建静态 HTML/导出，简要说明这一点。如果必需检查无法完成，清楚说明缺口。
 
-## Standards
+## 标准
 
-- Preserve the reader-facing artifact content: title, narrative, charts, tables, caveats, source details, and generated-at or source freshness details when present.
-- Omit app-only controls: top bars, share menus, edit controls, refresh controls, drag handles, hover-only menus, and interactive-only affordances.
-- Omit internal artifact and conversion metadata from the visible PDF. Do not show raw runtime fields, implementation state, package labels, local paths, validator/debug labels, or status strings that exist only to operate the app or export pipeline. Keep audit-useful internals in support files, and use plain reader-facing caveats in the PDF when a data state affects interpretation.
-- Prefer a text PDF with selectable/searchable text. Use a screenshot/image PDF only when a faithful text PDF is not viable, and state that text may not be selectable or searchable.
-- Keep the static source as the PDF source of truth. Do not reconstruct the report from memory when a source HTML/export exists.
-- Do not create a model-authored PDF from scratch as a normal fallback. Direct PDF construction is acceptable only as an explicitly labeled last-resort workaround after the user accepts the quality limitation.
-- Keep generated PDF support files together when possible: static HTML source, PDF output, extracted text, page previews, and any notes about source retrieval or renderer fallback.
+- 保留面向读者的产物内容：标题、叙述、图表、表格、注意事项、来源细节，以及存在时的生成时间或源数据新鲜度细节。
+- 省略仅应用内才有的控件：顶栏、分享菜单、编辑控件、刷新控件、拖拽手柄、仅悬停显示的菜单以及仅交互可用的功能提示。
+- 从可见 PDF 中省略内部产物与转换元数据。不要显示原始运行时字段、实现状态、打包标签、本地路径、校验器/调试标签，或仅为运行应用或导出管道而存在的状态字符串。将审计有用的内部信息保留在支撑文件中，当数据状态影响解读时，在 PDF 中使用面向读者的平实注意事项。
+- 优先使用文本型 PDF，文本可选中、可搜索。仅当忠实的文本 PDF 不可行时才使用截图/图片型 PDF，并说明文本可能无法选中或搜索。
+- 将静态源作为 PDF 的事实来源。当存在源 HTML/导出时，不要凭记忆重建报告。
+- 不要把模型自行编写的 PDF 作为常规回退方案从零创建。仅当用户接受质量限制后，才可作为明确标注的最后手段变通方案直接构建 PDF。
+- 尽可能将生成的 PDF 支撑文件放在一起：静态 HTML 源、PDF 输出、提取的文本、页面预览，以及关于源获取或渲染器回退的任何说明。
 
-## Verification Guidance
+## 校验指引
 
-Before handoff, verify the PDF with the local tools available in the environment:
+交付前，使用环境中可用的本地工具校验 PDF：
 
-- Confirm the PDF exists, is non-empty, and has the expected page count and page size.
-- Confirm text is selectable/searchable when a text PDF is expected.
-- Render or preview representative pages; for short reports, prefer checking every page.
-- Inspect for blank pages, clipped charts, missing tables, missing source details, unwanted app controls, and leaked internal artifact or conversion metadata.
-- If the skill file itself was edited, run the repository's normal markdown or diff checks.
+- 确认 PDF 存在、非空，且页数和页面尺寸符合预期。
+- 在预期为文本 PDF 时，确认文本可选中/可搜索。
+- 渲染或预览有代表性的页面；对于短报告，优先检查每一页。
+- 检查空白页、被裁剪的图表、缺失的表格、缺失的来源细节、多余的应用控件，以及泄露的内部产物或转换元数据。
+- 如果技能文件本身被编辑过，运行仓库常规的 markdown 或 diff 检查。
 
-Examples when available: `pdfinfo`, `pdftotext`, `pdftoppm`, file-size checks, and `git diff --check`.
+可用时的示例：`pdfinfo`、`pdftotext`、`pdftoppm`、文件大小检查以及 `git diff --check`。

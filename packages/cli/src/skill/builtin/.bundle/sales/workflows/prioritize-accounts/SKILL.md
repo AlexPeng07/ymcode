@@ -1,70 +1,70 @@
 ---
 name: prioritize-accounts
-description: "Use when the user asks which existing accounts to work now, which leads are hottest in a grounded list or pipeline, how to rank a territory, book, pipeline, ICP list, or account list, where to focus this week, or what rep-ready next actions to take. Prioritize accounts using current evidence, suppress or account for in-flight motion, and identify reachable contacts when supported. Use enrichment instead for net-new company discovery or missing-data completion."
+description: "当用户问现在该推进哪些现有账户、在某个有据名单或管道中哪些线索最热、如何给区域、账户簿、管道、ICP 名单或账户名单排序、本周该聚焦哪里，或该采取哪些销售代表可直接使用的下一步动作时使用。基于当前证据给账户排优先级，抑制或计入进行中的动作，并在有支持时识别可达联系人。对于全新的公司发现或缺失数据补全，请改用数据丰富技能。 | account prioritization, territory ranking, pipeline, next actions, watchlist"
 ---
 
-# Prioritize Accounts
+# 账户优先级排序
 
-Prepare a sales person with a small, evidence-grounded account action view: which accounts deserve attention now, why they rose, who to engage, and what safe next step to take.
+让销售人员获得一个小巧、以证据为基础的账户行动视图：现在哪些账户值得关注、它们为何上升、该联系谁，以及该采取什么安全的下一步。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices.
+强制要求：若尚未在上下文中，请阅读并严格遵循 plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices。
 
-## Account Ranking
+## 账户排序
 
-Use this priority order when the account set, ranking basis, or motion is ambiguous.
+当账户集合、排序依据或动作类型不明确时，使用以下优先顺序。
 
-1. Explicit user request, named account list, owner scope, territory, ranking basis, or stated preference
-2. CRM-backed open pipeline or user-provided CRM-equivalent account truth
-3. Accounts with a source-grounded why-now signal, clear net_new or expansion branch, and reachable primary contact
-4. Accounts with meaningful deal value, timing, momentum, risk, or actionability
-5. Accounts without active motion, duplicate outreach risk, ownership ambiguity, or another hard suppressor
-6. Accounts that fit the rep's stated capacity window
+1. 用户明确请求、点名的账户名单、负责人范围、区域、排序依据或明确说明的偏好
+2. CRM 支撑的开放管道，或用户提供的等效 CRM 账户真相
+3. 具有有来源支撑的“为什么是现在”信号、清晰的 net_new 或扩展分支，以及可达主要联系人的账户
+4. 具有重要交易价值、时间安排、动能、风险或可执行性的账户
+5. 没有进行中动作、存在重复外联风险、归属不明确或有其他硬性抑制条件的账户
+6. 符合销售代表所述产能窗口的账户
 
-Default broad requests to open pipeline deals, deal value / ACV adjusted by timing, momentum, risk, and actionability, with a mixed motion goal. Do not create the candidate universe from enrichment, public context, calendar, or messages alone.
+默认把宽泛请求落在开放管道交易上，按时间安排、动能、风险和可执行性调整后的交易价值 / ACV 排序，并采用混合动作目标。不要仅凭数据丰富、公开上下文、日历或消息构建候选范围。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-It is **critical** to use **all** of these categories if you can, if any relevant plugins or connectors are available, to ensure high quality responses. If the user declines, or connectors aren't available, state that limitation in your final answer. You can also use other relevant connectors as needed.
+如果可以的话，使用**所有**这些类别是**关键**的——只要有任何相关的插件或连接器可用，以确保高质量的回答。如果用户拒绝，或连接器不可用，请在最终回答中说明该限制。你也可以按需使用其他相关连接器。
 
-- [Blocking] ~~CRM for account truth, ownership, customer status, opportunities, stage, amount, forecast posture, contacts, and recent activity. It blocks unless an authoritative account universe and account truth are already grounded in context.
-- ~~Calendar for active-motion suppression and timing
-- ~~Meeting Transcripts for objections, buying process, and stakeholder continuity
-- ~~Email for recent engagement and promised next steps
-- ~~Internal Messaging for duplicate motion, blockers, and owners
-- ~~Knowledge & Files for ICP guidance, target lists, territory rules, account plans, sales plays, and suppression conventions
-- ~~Sales Intelligence for fit, contactability, tech stack, funding, hiring, and source-grounded why-now context after CRM anchors the set
+- [Blocking] ~~CRM 用于账户真相、归属、客户状态、商机、阶段、金额、预测态势、联系人和近期活动。除非权威的账户范围与账户真相已在上下文中落地，否则它会阻塞。
+- ~~Calendar 用于抑制进行中的动作和判断时间安排
+- ~~Meeting Transcripts 用于异议、采购流程和利益相关方的连续性
+- ~~Email 用于近期互动和承诺的后续步骤
+- ~~Internal Messaging 用于重复动作、阻塞项和负责人
+- ~~Knowledge & Files 用于 ICP 指引、目标名单、区域规则、账户计划、销售剧本和抑制约定
+- ~~Sales Intelligence 用于匹配度、可联系性、技术栈、融资、招聘，以及 CRM 锚定账户集合后有来源支撑的“为什么是现在”上下文
 
-## Overall Rules
+## 总体规则
 
-- Always cite sources using hyperlinks when useful links are available.
-- Sources must list every material dependency category, its status, and whether it affected the recommendation.
-- Keep the account as the primary unit of work and prefer fewer executable rows over a noisy list.
-- Put each account in exactly one of Suggested Focus, Monitor, or Suppress Or Block. When an account has both actionable work and a suppressor such as duplicate-outreach risk, keep it in Suggested Focus and describe the constrained action there; use Suppress Or Block only when no rep action should be taken now.
-- CRM owns the account universe and account truth. Other sources can enrich, suppress, or re-rank after the universe is anchored.
-- Calendar, meeting notes, messages, documents, and Sales Intelligence may change timing, suppression, contact choice, confidence, or why-now context after CRM anchors the account set; they must not create or overwrite the account universe.
-- Never fabricate contacts, urgency, opportunity posture, why-now signals, ownership, or account facts.
-- Do not execute outreach, create records, update CRM, or send messages in this workflow unless the user explicitly requests the separate approved action.
-- Use references/suppression-and-fallbacks.md when a row may be suppressed, blocked, monitored, or recovered through a fallback lane.
+- 在有可用链接时，始终用超链接引用来源。
+- 来源必须列出每个重要依赖类别、其状态，以及它是否影响了建议。
+- 以账户为主要工作单元，宁可给出更少可执行的行，也不要嘈杂的清单。
+- 把每个账户放在 Suggested Focus、Monitor 或 Suppress Or Block 三者之一。当某个账户既有可执行工作又有抑制因素（例如重复外联风险）时，保留在 Suggested Focus 并在那里描述受限的动作；只有在当前不应采取任何销售代表动作时才使用 Suppress Or Block。
+- CRM 拥有账户范围和账户真相。其他来源可以在范围锚定后做补充、抑制或重新排序。
+- 在 CRM 锚定账户集合后，日历、会议笔记、消息、文档和 Sales Intelligence 可以改变时间安排、抑制、联系人选择、置信度或“为什么是现在”上下文；它们不得创建或覆盖账户范围。
+- 绝不编造联系人、紧迫性、商机态势、“为什么是现在”信号、归属或账户事实。
+- 在本工作流中不要执行外联、创建记录、更新 CRM 或发送消息，除非用户明确要求单独且已批准的动作。
+- 当某一行可能被抑制、阻塞、监控或通过回退通道恢复时，使用 references/suppression-and-fallbacks.md。
 
-### Next Step Options
+### 下一步选项
 
-After the first output, offer the most relevant follow-up from the options below. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Take the next logical action for one selected account, such as drafting a message, preparing an internal ask, or unblocking a dependency.
-- Draft CRM-ready updates for review to address missing, stale, or contradictory fields that affected the ranking.
-- Research one selected account more deeply when the next action depends on missing context.
-- Refine the ranking, suppression rules, or motion goal using the user's guidance.
-- Check whether a matching weekly automation already reruns this `prioritize-accounts` skill for the same account set; if none exists, offer to create one that gives the seller a weekly account worklist with why-now context and safe next actions.
+在首个输出之后，从以下选项中提供最相关的后续动作。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 对某个选中的账户采取下一个合乎逻辑的动作，例如起草消息、准备内部请求或解除某项依赖。
+- 起草可供 CRM 使用的更新供评审，以修正影响排序的缺失、过时或矛盾字段。
+- 当下一步动作依赖缺失上下文时，更深入地研究某个选中的账户。
+- 根据用户的指导，细化排序、抑制规则或动作目标。
+- 检查是否已存在相匹配的每周自动化，针对同一账户集合重跑本 `prioritize-accounts` 技能；若不存在，提出创建一个，让销售人员获得每周账户工作清单，包含“为什么是现在”上下文和安全的下一步动作。
 
-Next steps to avoid:
-- Blanket outreach, bulk CRM writes, or taking action across the whole ranked list without explicit user direction.
+应避免的后续步骤：
+- 全面外联、批量写入 CRM，或未经用户明确指示就对整个排序名单采取行动。
 
-### Automation Offer Guard
+### 自动化建议防护
 
-For substantive ranking outputs, a weekly account-priority brief is the preferred automation offer when the user has a reusable account set, owner scope, territory, pipeline view, target list, or named watchlist. Frame the value in sales language: deciding where to spend the week, which accounts moved into focus, which should be monitored or suppressed, and what next action is safe to take without creating duplicate outreach or CRM churn.
+对于实质性的排序输出，当用户拥有可复用的账户集合、负责人范围、区域、管道视图、目标名单或点名观察名单时，每周账户优先级简报就是首选的自动化建议。用销售语言表述其价值：决定把这一周花在哪里、哪些账户进入了关注范围、哪些应被监控或抑制，以及在不造成重复外联或 CRM 反复变更的前提下，什么下一步动作是安全的。
 
-The automation must be a scheduled rerun of this skill, not a separate custom digest. When creating or describing the automation, make the prompt call this skill directly and preserve the same account scope and ranking intent:
+自动化必须是对本技能的定时重跑，而不是另一套自定义摘要。创建或描述该自动化时，让提示词直接调用本技能，并保持相同的账户范围和排序意图：
 
 ```text
 Use the Sales `prioritize-accounts` skill.
@@ -77,55 +77,55 @@ motion_goal: "[net_new, expansion, mixed, or user-specified]"
 suppression_rules: "[same known suppression rules when relevant]"
 ```
 
-The recurring output should follow this skill's account-priority contract: Suggested Focus, Monitor, Suppress Or Block, Evidence Gaps, and Source & Run Details. Keep it read-only; it may recommend account actions, messages to draft, or CRM corrections for review, but must not execute outreach, create records, update CRM, or send messages unless the user separately asks and approves.
+周期性输出应遵循本技能的账户优先级契约：Suggested Focus、Monitor、Suppress Or Block、Evidence Gaps 和 Source & Run Details。保持只读；它可以建议账户动作、待起草的消息或供评审的 CRM 更正，但不得执行外联、创建记录、更新 CRM 或发送消息，除非用户另行要求并批准。
 
-Before offering the weekly account-priority brief, check whether the user already has a matching local automation installed. Inspect local automation records under `$CODEX_HOME/automations/*/automation.toml`, or `~/.codex/automations/*/automation.toml` when `CODEX_HOME` is unset, and match by name, prompt, skill name, cadence, account set, owner, territory, pipeline view, ranking basis, motion goal, or other stable scope details. Treat active and paused matches as already installed.
+在提供每周账户优先级简报之前，检查用户是否已安装了相匹配的本地自动化。查看 `$CODEX_HOME/automations/*/automation.toml` 下的本地自动化记录，或在 `CODEX_HOME` 未设置时查看 `~/.codex/automations/*/automation.toml`，并按名称、提示词、技能名、频率、账户集合、负责人、区域、管道视图、排序依据、动作目标或其他稳定范围细节进行匹配。将启用中和已暂停的匹配都视为已安装。
 
-- If a matching automation exists, do not suggest creating another one. Continue with the next most relevant non-automation follow-up.
-- If no matching automation exists, end with one clear offer to check/create a weekly rerun of `prioritize-accounts` for the same scope. Describe the recurring output as a seller-ready weekly worklist of accounts to focus, accounts to monitor, accounts to suppress, why each matters, and the recommended next move. Do not create or update the automation until the user explicitly agrees.
-- If the automation surface is unavailable, do not mention tool details; offer to help set up a recurring account-priority brief when automations are available.
+- 如果存在匹配的自动化，不要再建议创建另一个。继续提供下一个最相关的非自动化后续动作。
+- 如果不存在匹配的自动化，以一个明确的建议结束：检查/创建针对同一范围的 `prioritize-accounts` 每周重跑。将周期性输出描述为可直接供销售人员使用的每周工作清单，包含要聚焦的账户、要监控的账户、要抑制的账户、各自的重要性以及建议的下一步动作。在用户明确同意之前，不要创建或更新该自动化。
+- 如果自动化能力不可用，不要提及工具细节；在自动化可用时，提出帮助搭建周期性的账户优先级简报。
 
-## Modes
+## 模式
 
-### 1. Account Action View
+### 1. 账户行动视图
 
-- This is the required default mode whenever stable connected-source or source-of-truth links are available.
-- Do not choose Chat Fallback merely because the candidate set is small, the result can fit in chat, or some links need to be constructed from a trusted connector-returned org or instance base URL.
-- Use for substantive ranking runs when CRM, another searchable connected source, or stable source-of-truth links can open useful row context.
-- Build Work now, Watch, Paused, Evidence Gaps, and Source & Run Details. Map Suggested Focus to Work now, Monitor to Watch, and Suppress Or Block to Paused so the pane and any chat readout stay semantically identical.
-- Use the bundled template exactly:
+- 只要存在稳定的已连接来源或真相来源链接，这就是必需的默认模式。
+- 不要仅因候选集很小、结果能放进聊天，或某些链接需要根据连接器返回的可信组织或实例基础 URL 构造，就选择聊天回退。
+- 用于实质性的排序运行，当 CRM、另一个可搜索的已连接来源或稳定的真相来源链接能打开有用的行上下文时。
+- 构建 Work now、Watch、Paused、Evidence Gaps 和 Source & Run Details。把 Suggested Focus 映射到 Work now、Monitor 映射到 Watch、Suppress Or Block 映射到 Paused，使面板与聊天速览在语义上保持完全一致。
+- 完全按原样使用内置模板：
 
   `assets/account-priority-pane.template.html`
 
-- The template is standalone UTF-8 HTML with inline CSS and browser JavaScript only. It has no external assets, no script imports, no npm dependencies, no Node dependency, and no helper scripts.
-- Do not inline, rewrite, restyle, summarize, or recompose the template. The only allowed HTML mutation is replacing its exact data placeholder with the escaped payload described below.
+- 该模板是独立的 UTF-8 HTML，仅使用内联 CSS 和浏览器 JavaScript。它没有外部资源、没有脚本导入、没有 npm 依赖、没有 Node 依赖，也没有辅助脚本。
+- 不要内联、重写、重新设计样式、摘要或重新组合该模板。唯一允许的 HTML 变更是用下述转义后的负载替换其确切的数据占位符。
 
-#### View Generation Rules
+#### 视图生成规则
 
-- Generate the view whenever stable connected-source or source-of-truth links are available. A pasted unlinked list stays in chat unless the user explicitly asks for an offline view.
-- Generate one local file in an OS-appropriate temporary directory:
-  - macOS/Linux: `${TMPDIR:-/tmp}/prioritize-accounts/index.html`
-  - Windows: `%TEMP%\prioritize-accounts\index.html`
-- Build the account action package using Work now, Watch, Paused, Evidence Gaps, and Source & Run Details.
-- Serialize the three account groups under `workNow`, `watch`, and `paused` respectively.
-- Give every account row the seller-facing fields required by the payload schema: `rank`, `account`, `motion`, `stage`, `value`, `whyItMatters`, `nextAction`, `owner`, `dueDate`, `confidence`, and `status`. Include `accountUrl`, `primaryContact`, and `evidence` when grounded and available.
-- Keep row copy compact enough to scan: `whyItMatters` should explain the timing, value, momentum, or risk in one or two short sentences, and `nextAction` should name one immediate safe action, watch trigger, or unblocking step.
-- Never invent display fields. Use `Value unavailable`, `Unassigned`, or `No date set` when the connected source does not provide value, owner, or due-date truth.
-- Serialize the same package as JSON that conforms exactly to `references/template-payload.schema.json`. Treat the schema's required root keys and account-row fields as the canonical payload contract.
-- Escape the JSON for safe embedding in a script tag by replacing every `<` with `\u003c`.
-- Replace the exact template placeholder `__PRIORITIZE_ACCOUNTS_DATA_JSON__` with the escaped JSON.
-- Write the resulting HTML as UTF-8 to the local output path.
-- Sanity check that the generated file contains no unresolved placeholder.
-- Return the actual clickable view link first in the final response, then a short summary and proposed next step. Do not hardcode macOS-only `/private/tmp` in Windows-facing output. URL-encode spaces if emitting a `file://` URL.
-- If local file links do not open in the client, start a tiny local HTTP server yourself only when necessary and return the localhost URL.
-- Do not mention templates, JSON, placeholders, local files, or HTML mechanics in ordinary user-facing copy.
+- 只要存在稳定的已连接来源或真相来源链接，就生成该视图。粘贴的无链接名单保留在聊天中，除非用户明确要求离线视图。
+- 在适合操作系统的临时目录中生成一个本地文件：
+  - macOS/Linux：`${TMPDIR:-/tmp}/prioritize-accounts/index.html`
+  - Windows：`%TEMP%\prioritize-accounts\index.html`
+- 使用 Work now、Watch、Paused、Evidence Gaps 和 Source & Run Details 构建账户行动包。
+- 将三个账户分组分别序列化到 `workNow`、`watch` 和 `paused` 之下。
+- 为每个账户行提供负载 schema 要求的、面向销售人员的字段：`rank`、`account`、`motion`、`stage`、`value`、`whyItMatters`、`nextAction`、`owner`、`dueDate`、`confidence` 和 `status`。在有据且可用时包含 `accountUrl`、`primaryContact` 和 `evidence`。
+- 保持行文案足够紧凑以便扫读：`whyItMatters` 应在一两句短句中说明时间、价值、动能或风险，`nextAction` 应点明一个可立即执行的安全动作、观察触发条件或解除阻塞的步骤。
+- 绝不编造展示字段。当已连接来源未提供价值、负责人或截止日期真相时，使用 `Value unavailable`、`Unassigned` 或 `No date set`。
+- 将同一个包序列化为严格符合 `references/template-payload.schema.json` 的 JSON。把该 schema 的必需根键和账户行字段视为权威的负载契约。
+- 替换每个 `<` 为 `\u003c`，以便安全地把 JSON 嵌入 script 标签。
+- 用转义后的 JSON 替换确切的模板占位符 `__PRIORITIZE_ACCOUNTS_DATA_JSON__`。
+- 将生成的 HTML 以 UTF-8 写入本地输出路径。
+- 检查生成的文件中不残留未解析的占位符。
+- 在最终回答中先返回实际可点击的视图链接，随后是简短摘要和建议的下一步。不要在面向 Windows 的输出中硬编码仅 macOS 可用的 `/private/tmp`。若给出 `file://` URL，请对空格进行 URL 编码。
+- 如果本地文件链接在客户端中无法打开，仅在必要时自行启动一个极小的本地 HTTP 服务器，并返回 localhost URL。
+- 在常规的面向用户文案中，不要提及模板、JSON、占位符、本地文件或 HTML 实现机制。
 
-### 2. Chat Fallback
+### 2. 聊天回退
 
-- Use when no useful source search/linking is available, local view creation is impossible, the user asks for plain text, or a parent flow requires chat-only output.
-- State why the account action view was skipped when the missing source/link condition caused the fallback.
+- 当没有可用的来源搜索/链接、无法创建本地视图、用户要求纯文本，或上级流程要求仅聊天输出时使用。
+- 当缺失来源/链接条件导致回退时，说明为何跳过账户行动视图。
 
-#### Output Format
+#### 输出格式
 
 ```md
 # Prioritize Accounts

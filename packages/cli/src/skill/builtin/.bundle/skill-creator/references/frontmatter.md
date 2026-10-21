@@ -1,8 +1,8 @@
-# YAML Frontmatter Reference
+# YAML frontmatter 参考
 
-The frontmatter is always loaded into the agent's system prompt. It is the first level of progressive disclosure and the only thing the agent sees when deciding whether to load the skill.
+frontmatter 始终被加载到智能体的系统提示词中。它是渐进披露的第一层，也是智能体在决定是否加载技能时唯一能看到的内容。
 
-## Required fields
+## 必填字段
 
 ```yaml
 ---
@@ -13,20 +13,20 @@ description: What it does and when to use it. Include specific trigger phrases.
 
 ### name
 
-- kebab-case only: `notion-project-setup` — no spaces, underscores, or capitals
-- Should match the folder name
-- Reserved: names containing "claude" or "anthropic" are rejected
+- 只能用 kebab-case：`notion-project-setup`——不含空格、下划线或大写字母
+- 应与文件夹名一致
+- 保留项：包含 "claude" 或 "anthropic" 的名称会被拒绝
 
 ### description
 
-- MUST include both WHAT the skill does and WHEN to use it (trigger conditions)
-- Under 1024 characters
-- No XML angle brackets
-- Include specific tasks/phrases users might say; mention file types if relevant
+- 必须同时包含技能做什么（WHAT）以及何时使用（WHEN，即触发条件）
+- 少于 1024 字符
+- 不含 XML 尖括号
+- 包含用户可能说出的具体任务/短语；相关时说明文件类型
 
-Structure: `[What it does] + [When to use it] + [Key capabilities / negative triggers]`
+结构：`[What it does] + [When to use it] + [Key capabilities / negative triggers]`
 
-## Optional fields
+## 可选字段
 
 ```yaml
 disable-model-invocation: true    # user-only: hidden from the agent, still reachable via /skill-name
@@ -43,28 +43,28 @@ metadata:                        # any custom key-value pairs
 
 ### disable-model-invocation
 
-Controls model reachability, not authorization. With `true`:
+控制模型能否触达，而不是授权。设为 `true` 时：
 
-| Surface | Behavior |
+| 入口 | 行为 |
 |---------|----------|
-| Skill catalog in the system prompt | omitted |
-| `skill_search` | never returned, never auto-loaded |
-| `skill` tool | refuses, telling the agent the user must run `/skill-name` |
-| `/skill-name` typed by the user | loads normally |
+| 系统提示词中的技能目录 | 省略 |
+| `skill_search` | 永不返回，永不自动加载 |
+| `skill` 工具 | 拒绝，并告知智能体必须由用户运行 `/skill-name` |
+| 用户输入的 `/skill-name` | 正常加载 |
 
-Use it when the workflow is long, interrupting, or has side effects and the user should own the timing. Default is `false` — an unseen skill is one the agent cannot offer. Authorization is separate: a `permission.skill` `deny` rule makes a skill unusable by everyone, the user included.
+当工作流耗时、会打断工作或有副作用，且时机应由用户掌控时使用它。默认为 `false`——看不见的技能，智能体无法主动提供。授权是另一回事：`permission.skill` 的 `deny` 规则会让技能对所有人不可用，包括用户。
 
-## Security restrictions
+## 安全限制
 
-Frontmatter is injected into the system prompt, so:
+frontmatter 会被注入系统提示词，因此：
 
-- No XML angle brackets anywhere
-- Safe-YAML parsing only — no code execution
-- No "claude"/"anthropic" in the name (reserved)
+- 任何地方都不得出现 XML 尖括号
+- 只做 Safe-YAML 解析——不执行代码
+- 名称中不得含 "claude"/"anthropic"（保留）
 
-## Description examples
+## 描述示例
 
-### Good
+### 好的示例
 
 ```yaml
 # Specific and actionable
@@ -84,7 +84,7 @@ description: End-to-end customer onboarding workflow for PayFlow. Handles
   account".
 ```
 
-### Bad
+### 差的示例
 
 ```yaml
 # Too vague — will never trigger reliably
@@ -97,7 +97,7 @@ description: Creates sophisticated multi-page documentation systems.
 description: Implements the Project entity model with hierarchical relationships.
 ```
 
-### Controlling over-triggering
+### 控制过度触发
 
 ```yaml
 # Negative triggers

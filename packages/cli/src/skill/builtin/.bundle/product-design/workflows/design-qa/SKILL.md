@@ -1,108 +1,108 @@
 ---
 name: design-qa
-description: "Internal prototype QA helper. Use only after a Product Design prototype, URL-to-code build, or image-to-code build has a source visual target and a rendered implementation to compare before handoff. Do not use for broad UX critique, design critique, product audits, or flow reviews; route those user-facing requests to audit."
+description: "内部原型 QA 辅助。仅在产品设计原型、URL-to-code 构建或 image-to-code 构建同时具备来源视觉目标与已渲染实现、需要在交接前对比时使用。不要用于宽泛的 UX 评审、设计评审、产品审计或流程审查；将这些面向用户的请求路由到 audit。 | Trigger keywords: design QA, prototype QA, fidelity check, compare implementation to design."
 ---
 
-# Design QA
+# 设计 QA
 
-Use this internal helper to compare a prototype's source design against the rendered implementation before handoff.
+使用此内部辅助，在交接前将原型的来源设计与已渲染实现进行对比。
 
-Do not use this skill for broad UX critique, design critique, product audits, or flow reviews. Use [audit](../audit/SKILL.md) for those user-facing requests.
+不要将本技能用于宽泛的 UX 评审、设计评审、产品审计或流程审查。此类面向用户的请求请使用 [audit](../audit/SKILL.md)。
 
-Use this skill before every Product Design build handoff.
+在每次产品设计构建交接前使用本技能。
 
-A passing QA run requires both:
+一次通过的 QA 运行需要同时具备：
 
-- a source visual target: Figma node, image, screenshot, mockup, or source capture
-- a rendered implementation: local URL, deployed URL, app screen, component, or screenshot
+- 来源视觉目标：Figma 节点、图片、截图、mockup 或来源捕获
+- 已渲染实现：本地 URL、已部署 URL、应用界面、组件或截图
 
-If either artifact cannot be opened, captured, or compared, write `design-qa.md` with `final result: blocked` and name the blocker. Do not let the build skill hand off as done.
+如果任一产物无法打开、捕获或对比，写入 `design-qa.md`，标记 `final result: blocked` 并说明阻塞项。不要让构建技能以完成状态交接。
 
-## Critical Overrides
+## 关键覆盖规则
 
-Follow [critical-overrides](../../references/critical-overrides.md).
+遵循 [critical-overrides](../../references/critical-overrides.md)。
 
-## Workflow
+## 工作流
 
-Compare the intended design to the implementation as a product-quality reviewer, not as a generic aesthetic critic. The output must be a prioritized fix list grounded in evidence from both artifacts.
+以产品质量评审者而非泛泛的审美批评者身份，将预期设计与实现进行对比。输出必须是基于两个产物证据的、按优先级排序的修复清单。
 
-Do not write the QA review from memory, code, or file paths alone. Open or capture both the source design and the implementation first, then compare what is actually visible.
+不要仅凭记忆、代码或文件路径撰写 QA 审查。先打开或捕获来源设计与实现，然后对比实际可见的内容。
 
-Do not pretend separate image views are side-by-side comparison. Put the source image and the implementation screenshot together in the same comparison input, then judge the visible differences from that combined input.
+不要把分开的图片视图假装成并排对比。将来源图片与实现截图放入同一对比输入中，然后基于该合并输入判断可见差异。
 
-Design QA is an iteration loop. The first comparison may pass only when it finds no actionable P0/P1/P2 differences and no visual fixes are made in response.
+设计 QA 是一个迭代循环。只有当首次对比未发现可操作的 P0/P1/P2 差异、且未因此进行任何视觉修复时，首次对比才可通过。
 
-When a comparison finds any P0/P1/P2 issue:
+当对比发现任何 P0/P1/P2 问题时：
 
-- Record the finding and keep the current result blocked.
-- Apply the fix.
-- Capture the revised implementation at the same viewport and state.
-- Compare the revised capture against the source again.
+- 记录发现，并保持当前结果为阻塞。
+- 应用修复。
+- 在相同视口与状态下捕获修订后的实现。
+- 再次将修订后的捕获与来源对比。
 
-A later pass must identify the earlier findings, the fixes made, and the post-fix visual evidence. Build, dependency, lint, deployment, and preview troubleshooting do not count as design-QA iterations.
+后续一轮必须指出先前的发现、所做的修复以及修复后的视觉证据。构建、依赖、lint、部署与预览排障不计入设计 QA 迭代。
 
-1. Identify the comparison target.
-   - Determine the source design: Figma node, image, design board, screenshot, spec, or mockup.
-   - Determine the implementation: local URL, deployed URL, app screen, component, screenshot, or code-rendered view.
-   - Match the same viewport, state, theme, device density, route, content, auth state, and interaction state before judging.
-   - If artifacts do not represent the same state, call that out first and avoid false precision.
+1. 确定对比目标。
+   - 确定来源设计：Figma 节点、图片、设计画板、截图、规格或 mockup。
+   - 确定实现：本地 URL、已部署 URL、应用界面、组件、截图或代码渲染视图。
+   - 评判前匹配相同的视口、状态、主题、设备密度、路由、内容、认证状态与交互状态。
+   - 如果产物不代表相同状态，先指出这一点，避免虚假的精确性。
 
-2. Capture evidence.
-   - For Figma, use design context and screenshot tools when available.
-   - For web/app implementations, follow the Browser Choice rule in [index](../index/SKILL.md#browser-choice). In ChatGPT Work Mode, follow the active build skill's "Previewing prototypes in ChatGPT Work Mode" section before opening a local implementation. Then capture screenshots at the intended viewport.
-   - Capture additional states when relevant: mobile/desktop, hover/focus/active, empty/loading/error, dark/light, and key responsive breakpoints.
-   - Save paths or URLs for screenshots when available so findings can cite evidence.
-   - Capturing screenshots is not enough. Put the source image and the implementation screenshot together in the same comparison input before judging.
+2. 捕获证据。
+   - 对于 Figma，在可用时使用设计上下文与截图工具。
+   - 对于 Web/应用实现，遵循 [index](../index/SKILL.md#browser-choice) 中的浏览器选择规则。在 ChatGPT Work Mode 中，打开本地实现之前遵循当前构建技能中“Previewing prototypes in ChatGPT Work Mode”一节。然后在预期视口捕获截图。
+   - 在相关时捕获更多状态：移动端/桌面端、悬停/聚焦/激活、空/加载/错误、深色/浅色，以及关键的响应式断点。
+   - 在可用时保存截图的路径或 URL，以便发现引用证据。
+   - 仅捕获截图还不够。评判前将来源图片与实现截图放入同一对比输入。
 
-3. Normalize before comparing.
-   - Align crop, viewport size, scale, and device frame. Do not compare a framed mockup to an unframed page without noting the mismatch.
-   - Prefer comparing content regions over full browser chrome or surrounding canvas.
+3. 对比前先标准化。
+   - 对齐裁剪、视口尺寸、缩放与设备边框。不要在有边框的 mockup 与无边框页面之间对比而不指出不匹配。
+   - 优先对比内容区域，而不是完整浏览器外壳或周边画布。
 
-4. Compare at the right level of detail.
-   - Use a full-view comparison to judge overall composition, hierarchy, layout, density, and responsive structure.
-   - Use focused region comparisons when important details are too small to judge in the full-view comparison.
-   - Choose focused regions from the actual source and implementation. Use them where fidelity depends on precise typography, alignment, imagery, assets, icons, logos, controls, forms, navigation, tables, dense UI, or visible interaction states.
-   - If no focused region is needed, say why in `design-qa.md`.
-   - Do not pass QA from a full-view comparison alone when important details are not clearly readable.
+4. 以正确的细节层级进行对比。
+   - 用全视图对比判断整体构图、层级、布局、密度与响应式结构。
+   - 当重要细节在全视图对比中太小而无法判断时，使用聚焦区域对比。
+   - 从实际的来源与实现中选择聚焦区域。在保真度取决于精确排版、对齐、图像、资源、图标、logo、控件、表单、导航、表格、密集 UI 或可见交互状态时使用它们。
+   - 如果不需要聚焦区域，在 `design-qa.md` 中说明原因。
+   - 当重要细节不够清晰可读时，不要仅凭全视图对比通过 QA。
 
-5. Review systematically.
-   - Read [qa-rubric](./references/qa-rubric.md) when the QA pass spans more than a quick visual check.
-   - Check information architecture, layout, spacing, typography/fonts, color, imagery/image quality, icons, copy, affordances, interaction states, responsiveness, accessibility, and polish.
-   - Always make a specific pass over the five required fidelity surfaces: fonts/typography, spacing/layout rhythm, colors/tokens, image quality, and copy/content. Do this even if the user did not name those areas explicitly.
-   - If the mock does not address some issue you're seeing (e.g. a null state), call that out as a separate finding as a shortcoming of the mock to be addressed.
-   - Your other goal is to decide whether the implementation "looks as good" as the mock. If there are stylistic problems, call them out. If the user's prompt is leaking into the implementation (vs letting the app stand on its own), call that out as well.
-   - Distinguish design drift from intentional product/code constraints. If a deviation may be intentional, phrase it as a question or assumption.
+5. 系统性地审查。
+   - 当 QA 检查超出快速视觉核对范围时，阅读 [qa-rubric](./references/qa-rubric.md)。
+   - 检查信息架构、布局、间距、排版/字体、颜色、图像/图像质量、图标、文案、可供性、交互状态、响应式、无障碍与精修程度。
+   - 始终对五个必需的保真面做一次专门检查：字体/排版、间距/布局节奏、颜色/tokens、图像质量与文案/内容。即使用户未明确提及这些方面也要执行。
+   - 如果 mock 未处理你看到的某个问题（例如空状态），将其作为单独发现指出，视为 mock 需要弥补的不足。
+   - 你的另一个目标是判断实现是否与 mock“看起来一样好”。如果有风格问题，请指出。如果用户的提示词泄漏到了实现中（而不是让应用自成一体），也要指出。
+   - 区分设计漂移与有意的产品/代码约束。如果某处偏离可能是有意的，用问题或假设的形式表述。
 
-6. Produce a fix-oriented QA report.
-   - Lead with findings, ordered by severity and user impact.
-   - For each finding include: severity, location, what differs, evidence, why it matters, and the concrete fix.
-   - Include exact CSS/component/token suggestions when the implementation context is available.
-   - Separate objective mismatches from subjective polish recommendations.
-   - Do not say a design matches, is done, or is as good as it can get until the required fidelity surfaces have been checked and any remaining differences are explicitly classified as acceptable, expected, or still actionable.
-   - End with a concise implementation checklist.
+6. 产出一份以修复为导向的 QA 报告。
+   - 以发现开头，按严重度与用户影响排序。
+   - 每项发现包含：严重度、位置、差异内容、证据、为何重要以及具体修复。
+   - 在实现上下文可用时，包含确切的 CSS/组件/token 建议。
+   - 将客观不匹配与主观精修建议分开。
+   - 在检查完必需的保真面、并明确将任何剩余差异归类为可接受、预期或仍可操作之前，不要说设计与设计稿匹配、已完成或已达到最佳状态。
+   - 以简洁的实现清单结尾。
 
-## Required Fidelity Surfaces
+## 必需的保真面
 
-Every QA report must explicitly evaluate these surfaces:
+每份 QA 报告都必须明确评估以下方面：
 
-- Fonts and typography: family, fallback, weight, size, line height, letter spacing, antialiasing, hierarchy, wrapping, truncation, and whether display text and small UI text use appropriate optical weights. It is incredibly important to check fonts carefully for fidelity, including looking up similar typefaces or using image analysis to find the font differences.
-- Spacing and layout rhythm: frame size, crop, alignment, margins, padding, grid tracks, section gaps, component spacing, radii, shadows/elevation, and vertical rhythm.
-- Colors and visual tokens: sampled or inferred palette, gradients, opacity, contrast, semantic state colors, foreground/background balance, and whether CSS tokens map to the source design.
-- Image quality and asset fidelity: subject correctness, crop, scale, sharpness, compression, transparency halos, masking, background treatment, raster-vs-vector appropriateness, and whether generated assets match the source art direction. Fail QA if logos, illustrations, decorative marks, product imagery, non-standard icons, or other visible image assets from the visual target were replaced with custom inline SVG, handcrafted SVG, HTML elements, div/span shapes, CSS drawings, gradients, emoji, text glyphs, placeholder shapes, or code-native approximations.
-- Copy and content of app-specific text
+- 字体与排版：字族、回退字体、字重、字号、行高、字距、抗锯齿、层级、换行、截断，以及展示文本与小号 UI 文本是否使用了合适的光学字重。仔细检查字体对保真度极为重要，包括查找相似字体或使用图像分析找出字体差异。
+- 间距与布局节奏：框架尺寸、裁剪、对齐、外边距、内边距、网格轨道、区块间距、组件间距、圆角、阴影/高度，以及垂直节奏。
+- 颜色与视觉 tokens：采样或推断的调色板、渐变、不透明度、对比度、语义状态色、前景/背景平衡，以及 CSS tokens 是否映射到来源设计。
+- 图像质量与资源保真度：主体正确性、裁剪、缩放、清晰度、压缩、透明光晕、遮罩、背景处理、栅格与矢量的适用性，以及生成的资源是否符合来源艺术指导。如果视觉目标中的 logo、插画、装饰标记、产品图像、非标准图标或其他可见图像资源被替换为自定义内联 SVG、手工 SVG、HTML 元素、div/span 形状、CSS 绘制、渐变、emoji、文字字形、占位形状或代码原生近似物，则 QA 判定失败。
+- 应用特定文本的文案与内容
 
-## Severity
+## 严重度
 
-- `P0`: Blocks core use, severe accessibility failure, broken layout, or impossible task.
-- `P1`: Major design mismatch or usability regression likely to be noticed by users.
-- `P2`: Moderate visual drift, inconsistent state, responsive issue, or fixable polish gap.
-- `P3`: Minor refinement that improves fidelity but does not block acceptance.
+- `P0`：阻断核心使用、严重的无障碍失败、布局破损或任务无法完成。
+- `P1`：用户很可能察觉的重大设计不匹配或可用性退步。
+- `P2`：中度的视觉漂移、状态不一致、响应式问题或可修复的精修差距。
+- `P3`：提升保真度但不阻断验收的小幅优化。
 
-Treat viewport overflow that hides persistent app controls, and mismatches that materially change above-the-fold content, major-region proportions, text wrapping, or interface density, as P2 or higher.
+将遮挡常驻应用控件的视口溢出，以及实质性改变首屏内容、主要区域比例、文本换行或界面密度的不匹配，视为 P2 或更高。
 
-## Output Format
+## 输出格式
 
-Use this structure unless the user asks otherwise:
+除非用户另有要求，使用以下结构：
 
 ```markdown
 **Findings**
@@ -122,27 +122,27 @@ Use this structure unless the user asks otherwise:
 - P3 refinements that can improve fidelity after handoff.
 ```
 
-If there are no substantive mismatches, say that clearly and list any residual test gaps.
+如果没有实质性的不匹配，明确说明，并列出任何剩余的测试缺口。
 
-When this skill is used before handoff, save the latest QA report as project-root `design-qa.md`.
+在交接前使用本技能时，将最新的 QA 报告保存为项目根目录的 `design-qa.md`。
 
-`design-qa.md` must include:
+`design-qa.md` 必须包含：
 
-- source visual truth path
-- implementation screenshot path
-- viewport
-- state
-- full-view comparison evidence
-- focused region comparison evidence, or why it was not needed
-- findings
-- comparison history for every P0/P1/P2 iteration: earlier findings, fixes made, and post-fix visual evidence
-- final result
+- 来源视觉真值路径
+- 实现截图路径
+- 视口
+- 状态
+- 全视图对比证据
+- 聚焦区域对比证据，或说明为何不需要
+- 发现
+- 每次 P0/P1/P2 迭代的对比历史：先前发现、所做修复与修复后的视觉证据
+- 最终结果
 
-For ChatGPT Work Mode builds, `design-qa.md` must include the browser-rendered implementation screenshot, viewport, primary interactions tested, console errors checked, and final result. If browser-rendered evidence is missing, `final result` is `blocked`.
+对于 ChatGPT Work Mode 构建，`design-qa.md` 必须包含浏览器渲染的实现截图、视口、已测试的主要交互、已检查的控制台错误与最终结果。如果缺少浏览器渲染的证据，`final result` 为 `blocked`。
 
-`final result` must be exactly `passed` or `blocked`.
+`final result` 必须严格为 `passed` 或 `blocked`。
 
-Use `passed` when there are no actionable P0/P1/P2 findings. P3 findings may remain as follow-up polish.
-Use `blocked` when actionable P0/P1/P2 findings remain and name the blocker.
+当没有可操作的 P0/P1/P2 发现时使用 `passed`。P3 发现可作为后续精修保留。
+当仍存在可操作的 P0/P1/P2 发现时使用 `blocked`，并说明阻塞项。
 
-Return the file path with the QA report.
+返回 QA 报告的文件路径。

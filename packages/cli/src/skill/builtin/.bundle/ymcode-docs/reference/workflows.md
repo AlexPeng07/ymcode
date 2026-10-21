@@ -1,21 +1,21 @@
-# ymcode Dynamic Workflows Reference
+# ymcode Dynamic Workflow 参考
 
-Dynamic Workflow scripts let you orchestrate many subagents **deterministically** from a small JavaScript script — fan-out, pipelines, nested workflows — instead of driving each subagent by hand. The script runs in a sandbox; you call `agent()` to spawn work and combine results with plain JS.
+Dynamic Workflow 脚本让你用一个小的 JavaScript 脚本**确定性地**编排大量子代理——扇出、流水线、嵌套工作流——而不是逐个手工驱动子代理。脚本在沙箱中运行；你调用 `agent()` 派生工作，并用普通 JS 组合结果。
 
-## Where to write workflow files
+## 在哪里编写工作流文件
 
-Save a workflow as a `.js` file in either directory (searched nearest-first, walking up from cwd to the worktree root; project overrides parent):
+把工作流保存为 `.js` 文件，放在以下任一目录（就近优先，从 cwd 向上走到工作树根；项目覆盖父级）：
 
 ```
 .ymcode/workflows/<name>.js      # preferred
 .claude/workflows/<name>.js        # also read
 ```
 
-The file name (minus `.js`) is **not** the workflow's identity — the `meta.name` inside is. Names must match `[A-Za-z0-9._-]+`.
+文件名（去掉 `.js`）**不是**工作流的身份——内部 `meta.name` 才是。名称必须匹配 `[A-Za-z0-9._-]+`。
 
-## Required script shape
+## 必需的脚本形态
 
-Every workflow **must begin** with a `meta` export (a pure data literal — it is parsed, not executed):
+每个工作流都**必须以** `meta` 导出开头（纯数据字面量——它被解析，而非执行）：
 
 ```js
 export const meta = {
@@ -35,29 +35,29 @@ export default async function () {
 }
 ```
 
-Only `name` and `description` are required. The body is ordinary async JS with the sandbox globals below.
+只有 `name` 与 `description` 是必填的。正文是普通异步 JS，可使用下面的沙箱全局。
 
-`meta.permissions` declares permissions the run will need: each entry is asked ONCE up-front (interactively when the run is foreground), the grant lands in the session ruleset, and background subagents inherit it — no mid-run permission stalls. A denial doesn't abort the run.
+`meta.permissions` 声明本次运行将需要的权限：每个条目一次性提前询问（前台运行时以交互方式），授权落入会话规则集，后台子代理继承它——运行中途不会因权限卡住。拒绝不会中止运行。
 
-## In-script API (sandbox globals)
+## 脚本内 API（沙箱全局）
 
-| Global | Signature | Returns |
+| 全局 | 签名 | 返回 |
 |--------|-----------|---------|
-| `agent(prompt, opts?)` | spawn one subagent | Promise → its deliverable (text, or a validated object if `opts.schema`), or **`null`** on failure. Never throws. |
-| `parallel(thunks)` | run an array of `() => Promise` concurrently | `Promise<any[]>` (a throwing thunk rejects the batch) |
-| `pipeline(items, ...stages)` | run each item through sequential stages, items in parallel | `Promise<any[]>` |
-| `workflow(nameOrScript, args?, opts?)` | run a child workflow as its own sub-run and await it | Promise → child result, or `null` on runtime failure |
-| `readFile(path)` | read a workspace file | `Promise<string \| null>` (null if absent) |
-| `writeFile(path, content)` | write a workspace file (auto-creates dirs) | `Promise<void>` |
-| `glob(pattern)` | list matching workspace paths (relative, sorted) | `Promise<string[]>` |
-| `exists(path)` | whether a workspace path exists | `Promise<boolean>` |
-| `phase(title)` | mark a progress phase | — |
-| `log(message)` | emit a progress line | — |
-| `args` | the JSON value passed when the workflow started | (value) |
+| `agent(prompt, opts?)` | 派生一个子代理 | Promise → 其交付物（文本；若指定 `opts.schema` 则为校验过的对象），失败时为 **`null`**。绝不抛异常。 |
+| `parallel(thunks)` | 并发运行一组 `() => Promise` | `Promise<any[]>`（某个 thunk 抛异常会让整批 reject） |
+| `pipeline(items, ...stages)` | 让每个条目依次经过各阶段，条目之间并行 | `Promise<any[]>` |
+| `workflow(nameOrScript, args?, opts?)` | 把子工作流作为独立子运行来执行并等待 | Promise → 子结果，运行时失败为 `null` |
+| `readFile(path)` | 读取工作区文件 | `Promise<string \| null>`（不存在为 null） |
+| `writeFile(path, content)` | 写工作区文件（自动创建目录） | `Promise<void>` |
+| `glob(pattern)` | 列出匹配的工作区路径（相对、已排序） | `Promise<string[]>` |
+| `exists(path)` | 工作区路径是否存在 | `Promise<boolean>` |
+| `phase(title)` | 标记一个进度阶段 | — |
+| `log(message)` | 输出一行进度 | — |
+| `args` | 工作流启动时传入的 JSON 值 | （该值） |
 
-File primitives are **jailed to the workspace root** (the worktree by default, or the `workspace` you pass at run). `..`/absolute escapes throw. Use `glob()` to enumerate work units — don't spawn an agent just to list files.
+文件原语**被限制在工作区根内**（默认是工作树，或运行时传入的 `workspace`）。`..`/绝对路径逃逸会抛异常。用 `glob()` 枚举工作单元——不要为了列文件就派一个智能体。
 
-### `agent()` options
+### `agent()` 选项
 
 ```js
 const out = await agent("Summarize src/parser.ts", {
@@ -71,52 +71,52 @@ const out = await agent("Summarize src/parser.ts", {
 })
 ```
 
-With `schema`, the deliverable is a **validated object** (never prose). Without it, you get the agent's final text.
+指定 `schema` 时，交付物是**校验过的对象**（绝非散文）。未指定时，你拿到智能体的最终文本。
 
-## Determinism constraints
+## 确定性约束
 
-The sandbox removes non-deterministic APIs so a run can be replayed/resumed identically: no `Date`, `crypto`, `fetch`, timers, or `process`; `Math.random` is a seeded PRNG. Do network/time-dependent work **inside** `agent()` (a real subagent), not in the orchestration script.
+沙箱移除了非确定性 API，使运行可以完全一致地重放/恢复：没有 `Date`、`crypto`、`fetch`、定时器或 `process`；`Math.random` 是带种子的 PRNG。把网络/时间相关工作放在 `agent()`（真实子代理）**内部**，而不是编排脚本里。
 
-## Running a workflow
+## 运行工作流
 
-Use the `workflow` tool (or ask the agent to run one):
+使用 `workflow` 工具（或让智能体去运行）：
 
-| Operation | Purpose |
+| 操作 | 用途 |
 |-----------|---------|
-| `run` | Start and block until terminal; provide `name` (a saved/built-in workflow) **or** `script` (inline JS). Optional `args`, `workspace`, `async`. |
-| `status` | Snapshot a run by `run_id` without blocking |
-| `wait` | Block on a run's result (optional `timeout_ms`) |
-| `cancel` | Best-effort cancel a running workflow |
-| `resume` | Re-launch a persisted run under the same `run_id` (journal replay makes it convergent) |
+| `run` | 启动并阻塞到终态；提供 `name`（已保存/内置工作流）**或** `script`（内联 JS）。可选 `args`、`workspace`、`async`。 |
+| `status` | 按 `run_id` 获取运行快照，不阻塞 |
+| `wait` | 阻塞等待运行结果（可选 `timeout_ms`） |
+| `cancel` | 尽力取消正在运行的工作流 |
+| `resume` | 在同一 `run_id` 下重新启动已持久化的运行（journal 重放使其收敛） |
 
-- `async: false` (default) streams the transcript inline and returns the result.
-- `async: true` returns a `run_id` immediately; the result arrives as an inbox notification.
-- Provide **either** `name` **or** `script`, never both.
+- `async: false`（默认）会内联流式输出记录并返回结果。
+- `async: true` 立即返回一个 `run_id`；结果以收件箱通知送达。
+- 提供 `name` **或** `script`，绝不同时提供。
 
-### Built-in workflows
+### 内置工作流
 
-Runnable by `name` without writing a file:
+无需写文件即可按 `name` 运行：
 
-- **`deep-research`** — comprehensive research report generator (brief → plan → parallel sub-agent research → reflect gap-check → single-writer cited Markdown report → cold review). Pass `args: { dir, question, today, depth?, context? }`. Convergent: file checkpoints enable resume after interruption.
-- **`fact-check`** — adversarial fact verification (plan → parallel web search → source extraction → group duplicates → 3-juror crosscheck → structured JSON findings). Pass the question as `args`. Best for verifying specific claims.
-- **`research-experiment`** — autonomous loop for improving a mechanically verifiable metric. Pass `args: { dir, goal, metric, evalCmd, editable, guardCmd?, lowerIsBetter?, maxIters?, targetValue? }` and use the same `dir` as the workflow workspace. It records a baseline, runs guarded hypothesis/implementation/evaluation iterations, audits metric gaming, and writes a traceable report. Do not use it when success cannot be reduced to one numeric metric.
+- **`deep-research`** —— 综合研究报告生成器（brief → plan → 并行子代理研究 → 反思缺口检查 → 单写者带引用的 Markdown 报告 → 冷审）。传 `args: { dir, question, today, depth?, context? }`。收敛式：文件检查点使中断后可恢复。
+- **`fact-check`** —— 对抗式事实核验（plan → 并行网络搜索 → 来源抽取 → 归组去重 → 3 位评审交叉核查 → 结构化 JSON findings）。把问题作为 `args` 传入。最适合核实具体论断。
+- **`research-experiment`** —— 用于改进可机械验证指标的自主循环。传 `args: { dir, goal, metric, evalCmd, editable, guardCmd?, lowerIsBetter?, maxIters?, targetValue? }`，并使用与工作流工作区相同的 `dir`。它记录基线，运行受保护的 假设/实现/评估 迭代，审计指标造假，并写出可追溯的报告。当成功无法归结为单一数值指标时，不要使用它。
 
-## Semantics worth knowing
+## 值得了解的语义
 
-- **Failed `agent()` resolves to `null`, never throws** — check for null; a hung agent is cancelled and also yields `null` so it can't stall a `parallel`/`pipeline` barrier.
-- **Failed child `workflow()` resolves to `null`** for runtime failures, but **structural faults throw** and propagate up the whole tree: cycle detected (a saved name calling itself), nesting past `maxDepth`, or an unknown workflow name.
-- **Concurrency** is one process-wide semaphore sized by `workflow.maxConcurrentAgents`; a per-run value can only narrow it. Excess `agent()` calls queue automatically.
-- **Communicate between workflows by dataflow** — return a value from a child and pass it as `args` to the next, or write a shared file with `writeFile` and read it later. Workflows don't message each other directly.
+- **失败的 `agent()` 解析为 `null`，绝不抛异常**——检查 null；挂死的智能体会被取消，同样产出 `null`，因此不会卡住 `parallel`/`pipeline` 的屏障。
+- **失败的子 `workflow()`** 在运行时失败时解析为 `null`，但**结构性故障会抛异常**并沿整棵树向上传播：检测到循环（已保存的名称调用自己）、嵌套超过 `maxDepth`，或未知的工作流名。
+- **并发**由一个进程级信号量控制，大小由 `workflow.maxConcurrentAgents` 决定；单次运行的值只能收窄它。超出的 `agent()` 调用会自动排队。
+- **工作流之间通过数据流通信**——从子工作流返回值并作为 `args` 传给下一个，或用 `writeFile` 写共享文件稍后读取。工作流之间不直接发消息。
 
-## Watching a run (TUI)
+## 观察运行（TUI）
 
-A running workflow shows a bounded inline panel (capped to ~12 lines) with live spinner, phase, and status counters. After a workflow tool message, the `view workflow agents` keybind opens the full-screen workflow page — message-style cards per agent, colored status counters, and drill-down into each subagent's (and nested workflow's) full conversation, with scroll position preserved across navigation.
+运行中的工作流会显示一个有限高度的内联面板（上限约 12 行），带实时 spinner、阶段与状态计数。工作流工具消息之后，`view workflow agents` 快捷键会打开全屏工作流页面——每个智能体一张消息式卡片、带颜色的状态计数，并可下钻到每个子代理（以及嵌套工作流）的完整对话，导航时保留滚动位置。
 
-## Config knobs (`workflow.*`)
+## 配置旋钮（`workflow.*`）
 
-| Key | Default | Purpose |
+| 键 | 默认值 | 用途 |
 |-----|---------|---------|
-| `maxConcurrentAgents` | `min(16, 2×cores)` | Process-wide ceiling on concurrent subagents across all runs (incl. nested). No upper clamp — set deliberately. |
-| `maxDepth` | `8` | Max `workflow()`-calls-`workflow()` nesting; exceeding fails the run |
-| `maxLifecycleAgents` | `1000` | Hard ceiling on total agents one run spawns over its life; over-cap `agent()` → `null` |
-| `scriptDeadlineMs` | `43200000` (12h) | Wall-clock budget for the whole script; enforced as a hard kill |
+| `maxConcurrentAgents` | `min(16, 2×cores)` | 所有运行（含嵌套）并发子代理的进程级上限。无上限夹紧——请审慎设置。 |
+| `maxDepth` | `8` | `workflow()` 调 `workflow()` 的最大嵌套层数；超出会使运行失败 |
+| `maxLifecycleAgents` | `1000` | 单次运行生命周期内派生的智能体总数硬上限；超出的 `agent()` → `null` |
+| `scriptDeadlineMs` | `43200000`（12h） | 整个脚本的实际耗时预算；以硬杀方式执行 |

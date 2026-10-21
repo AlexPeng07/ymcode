@@ -1,37 +1,37 @@
-Execute a workflow script that orchestrates multiple subagents deterministically. The script is plain JavaScript that runs in a sandbox and fans out subagents via agent(), parallel(), and pipeline(). The "run" operation BLOCKS until the workflow reaches a terminal status (completed/failed/cancelled) and returns the full transcript (phase transitions + log() messages) followed by the script's return value. Phase and log lines stream into the conversation as the workflow runs.
+执行一个工作流脚本，以确定性的方式编排多个子代理。脚本是在沙箱中运行的纯 JavaScript，通过 agent()、parallel() 和 pipeline() 扇出子代理。"run" 操作会一直阻塞，直到工作流进入终止状态（completed/failed/cancelled），并返回完整记录（阶段转换 + log() 消息）以及脚本的返回值。工作流运行期间，阶段和日志行会实时流入对话。
 
-operation "run": start a workflow and block until it terminates. Provide either `name` (a built-in workflow, see the catalog below) or `script` (inline JS; must begin with `export const meta = { name, description }`). Returns the transcript + result. Optionally provide `workspace` (a dir the script's file primitives are jailed to; defaults to the worktree). Note: long workflows (e.g. deep-research) hold the agent's turn for the full duration — that is intentional, mirroring skill semantics.
-operation "status": check a run's status by run_id.
-operation "wait": block until a run completes (or times out), returning its result.
-operation "cancel": cancel a running workflow by run_id (best-effort; in-flight subagents stop at their next safe point, not instantly).
-operation "resume": re-launch a persisted workflow by run_id under the same run_id (re-runs its script; a convergent script does less work the second time).
+operation "run"：启动工作流并阻塞直到其终止。提供 `name`（内置工作流，见下方目录）或 `script`（内联 JS；必须以 `export const meta = { name, description }` 开头）。返回记录 + 结果。可选提供 `workspace`（脚本的文件原语被限制在该目录内；默认是工作树）。注意：长时间工作流（例如 deep-research）会在整个持续时间内占用智能体的回合——这是有意为之，与技能语义保持一致。
+operation "status"：按 run_id 检查某次运行的状态。
+operation "wait"：阻塞直到某次运行完成（或超时），返回其结果。
+operation "cancel"：按 run_id 取消正在运行的工作流（尽力而为；进行中的子代理会在下一个安全点停止，而非立即停止）。
+operation "resume"：按 run_id 重新启动已持久化的工作流，沿用同一 run_id（重新运行其脚本；收敛型脚本第二次会做更少的工作）。
 
-Inside the script you can call:
-- agent(prompt, opts?) -> Promise: spawn one subagent; resolves to its result (a validated object if opts.schema given, else its final text) or null on failure. Never throws.
-- parallel(thunks) -> Promise<any[]>: run thunks concurrently; a thunk that throws resolves to null.
-- pipeline(items, ...stages) -> Promise<any[]>: run each item through all stages; no barrier between stages.
-- workflow(nameOrScript, args?, opts?) -> Promise: run a CHILD workflow as its own sub-run and await its result. nameOrScript is either an inline script (starts with `export const meta`) or a saved workflow name resolved from .ymcode/workflows/ or .claude/workflows/. args is passed to the child as its `args`. opts: { workspace?, maxConcurrentAgents? }. A failed child resolves to null (never throws); an unknown name or a cycle/over-depth throws (fails the run). Children share the process-wide concurrency ceiling and inherit the parent workspace by default.
-- readFile(path) -> Promise<string|null>: read a file in the workspace (null if absent).
-- writeFile(path, content) -> Promise: write a file in the workspace (parent dirs auto-created).
-- glob(pattern) -> Promise<string[]>: list workspace paths matching the glob, sorted, files and dirs. Use this to enumerate work units — do NOT spawn an agent to list files.
-- exists(path) -> Promise<boolean>: whether a workspace path exists.
-- phase(title), log(message): progress reporting.
-- args: the JSON value passed when starting the workflow.
+在脚本内可以调用：
+- agent(prompt, opts?) -> Promise：启动一个子代理；解析为其结果（若给出 opts.schema，则为经过校验的对象，否则为其最终文本），失败时为 null。绝不抛出异常。
+- parallel(thunks) -> Promise<any[]>：并发运行各个 thunk；抛出异常的 thunk 解析为 null。
+- pipeline(items, ...stages) -> Promise<any[]>：让每个 item 依次通过所有阶段；阶段之间没有屏障。
+- workflow(nameOrScript, args?, opts?) -> Promise：将子工作流作为独立的子运行执行，并等待其结果。nameOrScript 可以是内联脚本（以 `export const meta` 开头），也可以是从 .ymcode/workflows/ 或 .claude/workflows/ 解析出的已保存工作流名称。args 会作为子工作流的 `args` 传入。opts：{ workspace?, maxConcurrentAgents? }。失败的子工作流解析为 null（绝不抛异常）；未知名称或循环/超深度会抛出异常（导致本次运行失败）。子工作流共享进程级并发上限，并默认继承父工作区。
+- readFile(path) -> Promise<string|null>：读取工作区中的文件（不存在时为 null）。
+- writeFile(path, content) -> Promise：写入工作区中的文件（父目录会自动创建）。
+- glob(pattern) -> Promise<string[]>：列出工作区中匹配 glob 的路径，已排序，包含文件和目录。用它来枚举工作单元——不要为了列出文件而启动智能体。
+- exists(path) -> Promise<boolean>：工作区路径是否存在。
+- phase(title)、log(message)：进度报告。
+- args：启动工作流时传入的 JSON 值。
 
-Concurrency is capped by the host (default min(16, 2x cores)); excess agent() calls queue automatically.
+并发由宿主限制（默认 min(16, 2x cores)）；多余的 agent() 调用会自动排队。
 
-Communicate between workflows by dataflow: return a value from a child and pass it as args to the next (or write a shared file via writeFile and read it in a later phase). Workflows do not message each other directly. File primitives are jailed to the workspace root (the project worktree by default, or the `workspace` you pass to the run op) by a LEXICAL name check — it blocks `..` and absolute escapes, but does not resolve symlinks, so treat it as scoping, not a hard security boundary.
+工作流之间通过数据流通信：从子工作流返回值并将其作为 args 传给下一个（或通过 writeFile 写共享文件，并在后续阶段读取）。工作流之间不会直接互发消息。文件原语通过词法名称检查被限制在工作区根目录内（默认是项目工作树，或你传给 run 操作的 `workspace`）——它会阻止 `..` 和绝对路径逃逸，但不解析符号链接，因此请把它当作范围限定，而非硬性安全边界。
 
-workflow() cycle detection is asymmetric: a SAVED name is checked by name (so A calling A is a cycle regardless of args), while an INLINE script is checked by content+args (so an inline body that calls itself with DIFFERENT args is not flagged as a cycle and is bounded only by maxDepth). A cycle, over-maxDepth, or unknown name THROWS at the workflow() call site, which fails the run if uncaught — but a try/catch around workflow() in the guest will silence those throws, so don't wrap workflow() in try/catch unless you intend to ignore configuration bugs.
+workflow() 的循环检测是不对称的：已保存的名称按名称检查（因此 A 调用 A 无论参数如何都是循环），而内联脚本按内容+参数检查（因此用不同参数调用自身的内联主体不会被判定为循环，仅受 maxDepth 限制）。循环、超过 maxDepth 或未知名称会在 workflow() 调用处抛出异常；若未捕获，会导致本次运行失败——但 guest 中 workflow() 外层的 try/catch 会吞掉这些异常，因此除非你打算忽略配置错误，否则不要用 try/catch 包裹 workflow()。
 
-## Built-in workflow args reference
+## 内置工作流参数参考
 
-When invoking a named built-in, `args` can be a bare string (auto-normalized to the workflow's primary arg) or an object.
+调用命名的内置工作流时，`args` 可以是裸字符串（会自动规范化为该工作流的主参数）或对象。
 
 ### deep-research
-`args`: string (treated as `question`) | object with:
-  - `question` (required): the research question. A bare string arg is auto-normalized to `{question: <string>}`.
-  - `depth` (optional): "quick" | "standard" | "deep" (default "standard")
-  - `context` (optional): additional context for the brief step
-  - `dir` and `today` are auto-injected by the host (workspace root and host YYYY-MM-DD respectively) — you do NOT need to pass them.
-Example: `workflow({operation:"run", name:"deep-research", args:"What are the latest advances in X?"})`
+`args`：string（视作 `question`）| 对象，包含：
+  - `question`（必需）：研究问题。裸字符串参数会自动规范化为 `{question: <string>}`。
+  - `depth`（可选）："quick" | "standard" | "deep"（默认 "standard"）
+  - `context`（可选）：为简报步骤提供的额外上下文
+  - `dir` 和 `today` 由宿主自动注入（分别为工作区根目录和宿主日期 YYYY-MM-DD）——你不需要传入它们。
+示例：`workflow({operation:"run", name:"deep-research", args:"What are the latest advances in X?"})`

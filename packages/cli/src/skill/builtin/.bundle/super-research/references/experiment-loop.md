@@ -1,72 +1,72 @@
-# Mode: Experiment loop
+# 模式：实验循环
 
-Use when the user wants to iteratively improve a measurable outcome by editing code — "optimize", "tune", "run experiments overnight", "hill-climb this metric", any code-in-repo goal with a single number.
+当用户想通过修改代码迭代改进某个可度量结果时使用——「optimize」「tune」「run experiments overnight」「hill-climb this metric」，以及任何围绕单一数字的仓库内代码目标。
 
-## Contract fields
+## 契约字段
 
-Establish these six before starting. Infer as much as you can from the repo, confirm the rest in one turn.
+开始前先确定这六项。尽可能从仓库中推断，其余的在一轮对话内确认。
 
-1. **Metric**: One number, one direction. E.g. `val_bpb` (lower better), tokens/sec (higher), test pass rate (higher). If the user offers multiple goals, make them pick a single primary metric — multi-objective loops stall because "keep or revert" becomes ambiguous. Secondary quantities (memory, wall time) become logged soft constraints.
-2. **Run command**: A single shell command that runs one experiment end-to-end and prints the metric, e.g. `uv run train.py`. Establish how to extract the metric (e.g. `grep "^val_bpb:" run.log`).
-3. **Budget per experiment**: A fixed wall-clock budget makes experiments directly comparable regardless of what changed (model size, batch, algorithm). If the run doesn't self-limit, agree on a timeout. Aim for ≤10 min/experiment; kill runs exceeding ~2× the budget.
-4. **Mutable vs frozen files**: Ideally ONE mutable file (keeps diffs reviewable). The evaluation/metric code is ALWAYS frozen — an agent that edits its own judge produces meaningless numbers. Data prep and dependency manifests default to frozen. No new packages unless the user explicitly allows it.
-5. **Stopping condition**: Default is "loop until the human interrupts". User may specify N iterations or a time limit — honor exactly.
-6. **Branch**: Fresh `research/<tag>` (tag from today's date, e.g. `research/jul7`). Must not already exist. All experiment commits go here; master stays untouched.
+1. **指标**：一个数字，一个方向。例如 `val_bpb`（越低越好）、tokens/sec（越高越好）、测试通过率（越高越好）。如果用户提出多个目标，让他们选定一个主指标——多目标循环会停滞，因为「保留还是回退」变得含糊。次要量（内存、实际耗时）转为记录在案的软约束。
+2. **运行命令**：一条端到端运行一次实验并打印指标的 shell 命令，例如 `uv run train.py`。确定如何提取指标（例如 `grep "^val_bpb:" run.log`）。
+3. **每次实验的预算**：固定的实际耗时预算能让实验直接可比，无论改了什么（模型规模、batch、算法）。如果运行本身不自我限时，就约定一个超时。目标 ≤10 分钟/实验；超过约 2 倍预算就终止运行。
+4. **可变与冻结文件**：理想情况下只有一个可变文件（让差异可审查）。评测/指标代码**永远**冻结——修改自己裁判的智能体产出的数字毫无意义。数据准备与依赖清单默认冻结。未经用户明确许可，不新增依赖包。
+5. **停止条件**：默认是「一直循环到人中断」。用户可指定 N 次迭代或时间上限——严格照办。
+6. **分支**：新建 `research/<tag>`（tag 取自当天日期，例如 `research/jul7`）。该分支必须尚不存在。所有实验提交都进入这里；master 保持不变。
 
-## Baseline
+## 基线
 
-The first run is always the unmodified code. No exceptions — without a baseline, "improved" means nothing, and the baseline verifies the harness works before you start attributing crashes to your ideas.
+第一次运行永远是未修改的代码。没有例外——没有基线，「有改进」毫无意义，而且基线能在你把崩溃归因于自己的想法之前验证测试支架是否正常。
 
-Create `results.tsv` (tab-separated) with this header and log the baseline as row 1:
+创建 `results.tsv`（制表符分隔），包含以下表头，并把基线记为第 1 行：
 
 ```
 commit	metric	resource	status	description
 a1b2c3d	0.997900	44.0	keep	baseline
 ```
 
-- **commit** — short git hash (7 chars). Row for a crash gets the commit before the crashed change was rolled back.
-- **metric** — the number. Use `0` for crashes.
-- **resource** — one secondary number worth tracking (peak memory GB, wall time, etc.). `0` for crashes.
-- **status** — `keep` / `discard` / `crash`.
-- **description** — short plain-text hypothesis for this experiment.
+- **commit** —— 短 git 哈希（7 位）。崩溃行使用崩溃改动被回滚前的那个提交。
+- **metric** —— 数字。崩溃时用 `0`。
+- **resource** —— 一个值得跟踪的次要数字（峰值内存 GB、实际耗时等）。崩溃时用 `0`。
+- **status** —— `keep` / `discard` / `crash`。
+- **description** —— 本次实验的简短纯文本假设。
 
-Keep `results.tsv` untracked by git.
+让 `results.tsv` 保持不被 git 跟踪。
 
-## The loop
+## 循环
 
-LOOP FOREVER (or until stopping condition):
+永久循环（或直到停止条件）：
 
-1. Note current branch/commit — this is your fallback point.
-2. Form ONE hypothesis and edit the mutable file. One idea per experiment: if you change three things and the metric moves, you've learned nothing about which one did it.
-3. `git commit` the change (message = the hypothesis).
-4. Run: `<run command> > run.log 2>&1`. **Always redirect** — training output will flood your context and drown the signal you need for the next fifty experiments.
-5. Extract the metric from `run.log`.
-6. If extraction is empty, the run crashed. `tail -n 50 run.log` for the trace. Dumb bug (typo, missing import, shape mismatch) — fix and re-run. Fundamentally broken idea — log `crash`, revert, move on. Give up on a single idea after a few fix attempts.
-7. Append the row to `results.tsv`.
-8. **Keep or revert**: metric improved → keep the commit, advance. Equal or worse → `git reset --hard` back to the fallback point. Ties go to simpler code.
-9. Go to 1.
+1. 记下当前分支/提交——这是你的回退点。
+2. 形成一个假设并修改可变文件。每次实验一个想法：如果改了三个东西而指标移动，你就无法知道是哪个造成的。
+3. `git commit` 该改动（提交信息 = 假设）。
+4. 运行：`<run command> > run.log 2>&1`。**始终重定向**——训练输出会淹没你的上下文，冲掉你接下来五十次实验所需的信号。
+5. 从 `run.log` 中提取指标。
+6. 如果提取为空，说明运行崩溃了。用 `tail -n 50 run.log` 查看堆栈。低级错误（拼写、缺 import、形状不匹配）——修复后重跑。想法根本性错误——记录 `crash`，回退，继续。一个想法尝试几次修复后仍不行就放弃。
+7. 把该行追加到 `results.tsv`。
+8. **保留或回退**：指标变好 → 保留提交，前进。持平或变差 → `git reset --hard` 回到回退点。平局时选择更简单的代码。
+9. 回到第 1 步。
 
-## Judgment
+## 判断
 
-**Simplicity criterion.** All else equal, simpler wins. A 0.001 improvement that adds 20 lines of hacky code is usually not worth it. An equal result from *deleting* code is a clear win.
+**简洁性准则。** 其他条件相同时，更简单者胜。带来 20 行 hacky 代码的 0.001 提升通常不值得。*删掉*代码却得到相同结果是明确的胜利。
 
-**Resource constraints are soft.** Some increase in memory/cost is fine for real gains, but don't let it blow up quietly.
+**资源约束是软性的。** 为了真实收益，内存/成本有所增加可以接受，但不要让它悄悄膨胀。
 
-**Out of ideas → think harder, don't stop.** Re-read in-scope files for new angles. Combine previous near-misses (two individually-neutral changes sometimes compose). Revisit discarded ideas with different magnitudes. Try more radical structural changes once incremental ones plateau. Rewinding the branch is allowed but should be very rare.
+**没有想法 → 更努力地想，不要停。** 重读范围内的文件寻找新角度。组合此前差一点成功的想法（两个单独看中性的改动有时能叠加）。用不同的量级重访被丢弃的想法。当增量改动进入平台期后，尝试更激进的结构性改动。允许回卷分支，但应非常罕见。
 
-**When the well is really dry — mine the literature.** If several consecutive experiments cluster around the same failure mode, treat that as a signal that you're out of local ideas, not that the metric is optimal. Use the shared toolbox to import approaches from published work:
+**当思路真的枯竭时——去挖文献。** 如果连续几次实验都聚集在同一失败模式上，把它视为「本地想法用尽」的信号，而不是「指标已最优」。用共享工具箱从已发表工作中引入方法：
 
 ```bash
 python3 scripts/paper_search.py "<technique> improve <metric>" --sources arxiv,s2 --limit 15 --out papers.json
 python3 scripts/fetch_paper.py <arxiv_id> --out /tmp/paper.txt
 ```
 
-Read abstracts (not summaries — the abstracts) and pull the most testable idea into the next hypothesis. Log the paper id in the `description` column so a reviewer can trace an experiment back to its inspiration. Don't let this become a full survey — the loop is the primary work; this is 15 minutes to escape a plateau, not a new mode.
+读摘要（是摘要本身，不是二次总结），并把其中最具可检验性的想法带入下一次假设。把论文 id 记在 `description` 列，以便审阅者能把实验追溯回灵感来源。不要让这变成一次完整调研——循环才是主要工作；这是用 15 分钟跳出平台期，不是切换模式。
 
-## Final report
+## 最终报告
 
-See the "Reporting" section in SKILL.md. Extras specific to this mode:
+参见 SKILL.md 的「报告」一节。本模式特有的补充：
 
-- **Baseline metric vs best metric**, plus the delta.
-- **# experiments** (kept / discarded / crashed).
-- Point to `results.tsv` and the `research/<tag>` branch.
+- **基线指标与最佳指标**，以及差值。
+- **实验数量**（保留 / 丢弃 / 崩溃）。
+- 指向 `results.tsv` 与 `research/<tag>` 分支。

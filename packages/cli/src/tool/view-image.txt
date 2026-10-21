@@ -1,7 +1,7 @@
-View a local image file from the filesystem when visual inspection is needed. Use this for images already available on disk.
+当需要视觉检查时，查看文件系统中的本地图像文件。用于磁盘上已有（already）的图像。
 
-Usage:
-- The `path` parameter identifies the image file to view.
-- Supported image formats are JPEG, PNG, GIF, and WebP.
-- The detail parameter defaults to `high`; use `original` to request the original image detail when the provider supports it.
-- You may issue several view-image calls in one step for independent images.
+用法：
+- `path` 参数指定要查看的图像文件。
+- 支持的图像格式为 JPEG、PNG、GIF 和 WebP。
+- detail 参数默认为 `high`；当 provider 支持时，使用 `original` 请求原始图像细节。
+- 对于相互独立的图像，你可以在一步中发起多次 view-image 调用。

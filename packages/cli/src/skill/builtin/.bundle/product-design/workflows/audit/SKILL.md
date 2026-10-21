@@ -1,160 +1,160 @@
 ---
 name: audit
-description: "Audit or critique a product flow, journey, workflow, funnel, onboarding path, checkout path, settings path, screen, or multi-step product experience by capturing screenshots first, then reporting UX, design, and accessibility findings inline from that evidence. Use Figma only when the user explicitly asks for a board. Use when the user asks to audit, review, critique, inspect, assess, analyze, evaluate, or give feedback on a product experience."
+description: "先捕获截图，再基于这些证据以内联方式报告 UX、设计与无障碍发现，从而审计或评审产品流程、旅程、工作流、漏斗、引导路径、结账路径、设置路径、界面或多步骤产品体验。仅当用户明确提出需要画板时才使用 Figma。当用户要求审计、审查、评审、检查、评估、分析、评价产品体验或对其给出反馈时使用。 | Trigger keywords: audit product experience, UX review, design critique, accessibility findings, Figma audit board."
 ---
 
-# Audit
+# 审计
 
-Use this skill when the user wants to audit, review, critique, inspect, assess, analyze, evaluate, or give feedback on a product flow, journey, funnel, onboarding path, checkout path, settings path, screen, or other product experience.
+当用户想要审计、审查、评审、检查、评估、分析、评价产品流程、旅程、漏斗、引导路径、结账路径、设置路径、界面或其他产品体验，或对其给出反馈时，使用本技能。
 
-The output is not a loose opinion. The output is:
+输出不是随意的观点。输出包括：
 
-- Screenshots of the flow
-- Those screenshots rendered inline in the report
-- A numbered step list
-- UX and design findings tied to steps or screenshots
-- Accessibility risks tied to steps or screenshots
-- Clear limits on what could not be checked from screenshots alone
+- 流程截图
+- 这些截图在报告中内联渲染
+- 编号的步骤列表
+- 与步骤或截图绑定的 UX 与设计发现
+- 与步骤或截图绑定的无障碍风险
+- 明确说明仅凭截图无法检查的内容边界
 
-## Critical Overrides
+## 关键覆盖规则
 
-- Refer to the Plugin router [$index](../index/SKILL.md) before proceeding.
-- Follow [$critical-overrides](../../references/critical-overrides.md).
+- 继续之前，先参考插件路由 [$index](../index/SKILL.md)。
+- 遵循 [$critical-overrides](../../references/critical-overrides.md)。
 
-## User Context
+## 用户上下文
 
-Before starting, load [$user-context](../user-context/SKILL.md) and run its preflight script when local shell access is available.
+开始之前，加载 [$user-context](../user-context/SKILL.md)，并在本地 shell 可用时运行其预检脚本。
 
-Use saved product URLs, Figma files, screenshots, reference images, codebase paths, Storybook, tokens, design systems, brand assets, component refs, browser preferences, and share targets as grounding material when relevant.
+在相关时，使用已保存的产品 URL、Figma 文件、截图、参考图片、代码库路径、Storybook、tokens、设计系统、品牌资源、组件引用、浏览器偏好与分享目标作为依据材料。
 
-Do not inspect every saved reference. Inspect only what the current task needs.
+不要检查每个已保存的参考。只检查当前任务所需的内容。
 
-## Route
+## 路由
 
-Before auditing:
+审计之前：
 
-1. Identify the product or surface.
-2. Identify the flow or task.
-3. Choose the capture tool.
-4. Capture the flow.
-5. Save and inspect each screenshot.
-6. Return the audit inline with the accepted screenshots.
+1. 确定产品或界面。
+2. 确定流程或任务。
+3. 选择捕获工具。
+4. 捕获流程。
+5. 保存并检查每张截图。
+6. 将审计与已接受的截图一起内联返回。
 
-Output rules:
+输出规则：
 
-- Default to a concise inline report with screenshots rendered in the chat.
-- Saving screenshots and notes in the workspace is an internal implementation detail. Do not ask the user to choose a local folder.
-- If the user explicitly asks for Figma, create the Figma audit board in addition to the inline report.
-- After the inline report, ask once: `Want me to plot this out in Figma with the screenshots and notes?`
+- 默认输出简洁的内联报告，截图在聊天中渲染。
+- 将截图与笔记保存在工作区属于内部实现细节。不要要求用户选择本地文件夹。
+- 如果用户明确要求 Figma，在内联报告之外额外创建 Figma 审计画板。
+- 在内联报告之后，询问一次：`Want me to plot this out in Figma with the screenshots and notes?`
 
-Capture rules:
+捕获规则：
 
-- Follow the Browser Choice rule in [$index](../index/SKILL.md#browser-choice).
-- If none of those can capture valid screenshots or control the flow, stop and report the blocker.
+- 遵循 [$index](../index/SKILL.md#browser-choice) 中的浏览器选择规则。
+- 如果这些方式都无法捕获有效截图或控制流程，停止并报告阻塞项。
 
-Browser capture order:
+浏览器捕获顺序：
 
-1. Load the Browser skill before browser work.
-2. Connect to the browser and use the current tab when it already shows the target.
-3. Do not reload or navigate away unless the audit needs a fresh start.
-4. Observe the visible state before acting.
-5. Before each click, type, or key press, use the latest DOM snapshot to target one clear control.
-6. After each action, take the cheapest fresh check that proves what changed: DOM for structure, screenshot for visual state.
-7. Save and inspect the accepted screenshot before using it as audit evidence.
+1. 进行浏览器工作前加载 Browser 技能。
+2. 连接浏览器，当前标签页已显示目标时直接使用它。
+3. 除非审计需要全新开始，否则不要重新加载或跳转离开。
+4. 操作前观察可见状态。
+5. 每次点击、输入或按键前，使用最新的 DOM 快照定位一个明确的控件。
+6. 每次操作后，采用能证明变化的最省力的最新检查：结构用 DOM，视觉状态用截图。
+7. 在将截图用作审计证据前，保存并检查已接受的截图。
 
-Figma rules:
+Figma 规则：
 
-- If Figma is the destination, load the required Figma skills before creating or editing the file.
-- Keep a local copy of every screenshot even when Figma succeeds.
-- Do not upload a screenshot to Figma until the saved local file has been inspected and accepted.
-- Figma is not done until the screenshots are visibly placed in the Figma output.
-- After placing screenshots in Figma, render or inspect the board and confirm every flow step has the correct screenshot visible in the correct card.
-- If an image is missing, misplaced, blank, or only uploaded as an unused asset, fix it before handoff.
-- If Figma tools cannot create files or place images, return the inline audit and explain the missing Figma capability.
+- 如果目标是 Figma，在创建或编辑文件前加载所需的 Figma 技能。
+- 即使 Figma 成功，也要保留每张截图的本地副本。
+- 在已保存的本地文件经过检查并被接受之前，不要将其上传到 Figma。
+- 只有当截图可见地放入 Figma 输出中，Figma 工作才算完成。
+- 将截图放入 Figma 后，渲染或检查画板，确认每个流程步骤都在正确的卡片中显示正确的截图。
+- 如果图片缺失、错位、空白或仅作为未使用资源上传，请在交接前修复。
+- 如果 Figma 工具无法创建文件或放置图片，返回内联审计并说明缺失的 Figma 能力。
 
-Evidence rules:
+证据规则：
 
-- Use only evidence captured in the current audit run.
-- Do not use memory, prior chats, old traces, cached screenshots, or prior generated artifacts as audit evidence unless the user explicitly provides them.
-- Do not audit until the product, flow, and capture tool are known.
-- Do not claim full accessibility compliance from screenshots alone.
+- 仅使用本次审计运行中捕获的证据。
+- 不要将记忆、先前聊天、旧轨迹、缓存截图或先前生成的产物用作审计证据，除非用户明确提供。
+- 在产品、流程与捕获工具明确之前不要开始审计。
+- 不要仅凭截图声称完全符合无障碍要求。
 
-## Capture And Audit The Flow
+## 捕获并审计流程
 
-You are an expert design, UX, and accessibility auditor. For each step in the flow, capture what the user sees, observe how the screen behaves, inspect the screenshot, and write audit notes before moving on.
+你是设计、UX 与无障碍方面的专家审计员。对于流程中的每个步骤，捕获用户所见，观察界面行为，检查截图，并在继续之前撰写审计笔记。
 
-Follow [references/design-audit-framework.md](references/design-audit-framework.md) when deciding what to inspect and how to describe strengths, UX issues, accessibility risks, limits, and recommendations.
+在决定检查什么、如何描述优点、UX 问题、无障碍风险、限制与建议时，遵循 [references/design-audit-framework.md](references/design-audit-framework.md)。
 
-Screenshot source rule:
+截图来源规则：
 
-- Use the screenshot you actually saw.
-- Save that exact screenshot to the local audit folder.
-- Open or inspect the saved file before accepting it.
-- If the saved file shows the wrong window, wrong state, blank page, crop, or loading screen, reject it and capture again.
-- When Figma is the destination, upload that accepted local file.
-- After upload, verify the Figma board shows the same step.
-- Do not replace a Browser, Chrome, or Computer Use screenshot with an OS screenshot unless you first prove the saved file shows the same window and state.
+- 使用你实际看到的截图。
+- 将该截图原样保存到本地审计文件夹。
+- 在接受之前打开或检查已保存的文件。
+- 如果保存的文件显示错误的窗口、错误的状态、空白页、裁剪或加载界面，拒绝它并重新捕获。
+- 当目标是 Figma 时，上传该已接受的本地文件。
+- 上传后，验证 Figma 画板显示的是同一步骤。
+- 除非先证明保存的文件显示相同的窗口与状态，否则不要用操作系统截图替换 Browser、Chrome 或 Computer Use 的截图。
 
-For every step:
+对于每个步骤：
 
-1. Move to the next step in the requested flow.
-2. Wait until the screen is loaded and visually stable.
-3. Check for loading spinners, blank areas, login walls, error pages, blocked states, cookie dialogs, and half-rendered content.
-4. Capture the screenshot.
-5. Inspect the screenshot before accepting it.
-6. Reject the screenshot if it is blank, loading, cropped, blocked, or showing the wrong state.
-7. Observe behavior that matters for the audit, such as navigation, focus, loading, validation, error handling, empty states, motion, and whether the next action is clear.
-8. Write notes for that step.
-9. In the notes, report strengths, UX issues, accessibility risks, and any limits that made the step difficult to audit.
-10. Save accepted screenshots with numbered names, such as `01-start.png`, `02-form-filled.png`, and `03-confirmation.png`.
-11. Inspect the saved screenshot file before upload or handoff.
-12. Keep each accepted screenshot and its notes together for the final inline report.
-13. If the user explicitly requested Figma, add each accepted screenshot and its notes to the board immediately.
+1. 进入所请求流程的下一个步骤。
+2. 等待界面加载完成且视觉上稳定。
+3. 检查加载指示器、空白区域、登录墙、错误页、阻塞状态、Cookie 对话框与半渲染内容。
+4. 捕获截图。
+5. 在接受前检查截图。
+6. 如果截图为空白、加载中、被裁剪、被阻塞或显示错误状态，拒绝该截图。
+7. 观察对审计有意义的行为，例如导航、焦点、加载、校验、错误处理、空状态、动效，以及下一步操作是否清晰。
+8. 为该步骤撰写笔记。
+9. 在笔记中报告优点、UX 问题、无障碍风险，以及任何使该步骤难以审计的限制。
+10. 用带编号的名称保存已接受的截图，例如 `01-start.png`、`02-form-filled.png` 和 `03-confirmation.png`。
+11. 在上传或交接前检查已保存的截图文件。
+12. 将每张已接受的截图与其笔记放在一起，供最终内联报告使用。
+13. 如果用户明确要求 Figma，立即将每张已接受的截图及其笔记添加到画板。
 
-Default inline report:
+默认内联报告：
 
-- Render accepted screenshots in flow order.
-- Keep the report pithy: overall verdict, numbered steps, highest-impact changes, and evidence limits.
-- Tie every finding to the screenshot or step that supports it.
+- 按流程顺序渲染已接受的截图。
+- 保持报告简洁：总体结论、编号步骤、影响最大的改动与证据边界。
+- 将每项发现绑定到支持它的截图或步骤。
 
-If the user explicitly requested Figma:
+如果用户明确要求 Figma：
 
-- Place screenshots in order, left to right on the same row, with 200px between each one. Go to a new row every 15 screenshots, and separate those rows by 600px.
-- Underneath the screenshot, add text with the Step number and its name, and notes.
-- Keep a local folder copy even when Figma succeeds.
-- When you are done, wrap all of the assets you added in a Section and title the section.
+- 按顺序放置截图，在同一行从左到右排列，每张之间间隔 200px。每 15 张截图换一行，行间距 600px。
+- 在截图下方添加文本，包含步骤编号、步骤名称与笔记。
+- 即使 Figma 成功，也保留本地文件夹副本。
+- 完成后，将添加的所有资源包在一个 Section 中，并为该 Section 命名。
 
-Acceptance checks:
+验收检查：
 
-- Every important step in the requested flow has a valid screenshot or a named blocker.
-- Screenshots are saved in order.
-- Screenshots are rendered inline in the final report.
-- When Figma was explicitly requested, screenshots and notes are placed in the board as they are captured.
-- Every note points to the screenshot or step it describes.
-- Notes explain strengths, UX issues, accessibility risks, and evidence limits when those apply.
-- Accessibility risks say what can be seen from screenshots and what still needs testing.
-- The final screenshot set and notes are enough to support the requested audit.
+- 所请求流程中的每个重要步骤都有有效截图或已命名的阻塞项。
+- 截图按顺序保存。
+- 截图在最终报告中内联渲染。
+- 当明确要求 Figma 时，截图与笔记在捕获时即放入画板。
+- 每条笔记都指向其所描述的截图或步骤。
+- 笔记在适用时说明优点、UX 问题、无障碍风险与证据边界。
+- 无障碍风险说明截图中能看到什么，以及哪些仍需测试。
+- 最终截图集与笔记足以支撑所请求的审计。
 
-Blockers:
+阻塞项：
 
-- The flow cannot be completed.
-- A required step cannot be screenshotted.
-- The source changes in a way that makes the flow unclear.
-- Screenshots cannot be saved or rendered inline.
-- Notes cannot be written.
-- The requested claim would require evidence that screenshots cannot provide.
-- Do not claim an audit if the actual flow could not be accessed and captured. Help Center pages, web searches, and other indirect evidence are research, not an audit.
+- 流程无法完成。
+- 某个必需步骤无法截图。
+- 来源发生变化，导致流程不清晰。
+- 截图无法保存或内联渲染。
+- 无法撰写笔记。
+- 所请求的结论需要截图无法提供的证据。
+- 如果无法访问并捕获实际流程，就不要声称完成了审计。帮助中心页面、网络搜索及其他间接证据属于研究，而非审计。
 
-## Final Response
+## 最终回复
 
-After the flow is captured and notes are written, list every step in the final response.
+在流程捕获并撰写笔记后，在最终回复中列出每个步骤。
 
-The final step list MUST include:
+最终步骤列表必须包含：
 
-- step number
-- short description of the step
-- general health of that step
+- 步骤编号
+- 步骤的简短描述
+- 该步骤的总体健康度
 
-Also include where the full output was saved or placed.
+同时说明完整输出的保存或放置位置。
 
-Keep the language direct. Do not use broad design jargon when a plain phrase works.
+语言要直接。若普通说法可行，就不要使用宽泛的设计术语。

@@ -1,10 +1,10 @@
-# Session Formats
+# 会话格式
 
-Use these as defaults, adapting length and labels to the learner and topic.
+把这些作为默认格式，按学员与主题调整长度和标签。
 
-## Course state (`learn/<slug>/course-state.md`, or portable state block)
+## 课程状态（`learn/<slug>/course-state.md`，或可移植状态块）
 
-The persistent record. With file tools, keep it as a file updated at chapter boundaries. Without file tools, emit the same content as a fenced block at each chapter checkpoint, prefaced with one line telling the learner they can save it and paste it back later to resume.
+持久记录。有文件工具时，把它作为文件在章节边界更新。没有文件工具时，在每个章节检查点把同样内容作为代码围栏块输出，并在前面加一行说明，告诉学员可以保存它、日后粘贴回来继续。
 
 ```markdown
 # Course state: [subject]
@@ -27,9 +27,9 @@ The persistent record. With file tools, keep it as a file updated at chapter bou
 - [chapter N]: [main error class, one line]
 ```
 
-Keep it compact — this is working state, not lesson notes. Retire concept rows answered correctly twice across sessions.
+保持紧凑——这是工作状态，不是课堂笔记。跨会话两次正确回答的概念行可以退役。
 
-## Course map
+## 课程地图
 
 ```markdown
 # Learning plan: [subject]
@@ -48,7 +48,7 @@ Keep it compact — this is working state, not lesson notes. Retire concept rows
 [Diagnostic or Lesson 1 opening]
 ```
 
-## Lesson
+## 单课
 
 ```markdown
 # Chapter [N]: [title]
@@ -71,9 +71,9 @@ Keep it compact — this is working state, not lesson notes. Retire concept rows
 [One short active-recall question]
 ```
 
-Continue with the next explanation or practice after the learner responds when the material is dense.
+材料密集时，等学员回应后继续下一段讲解或练习。
 
-## Practice prompt
+## 练习提示
 
 ```markdown
 ## Practice [N]
@@ -84,9 +84,9 @@ Continue with the next explanation or practice after the learner responds when t
 Reply with your reasoning, not only the final answer.
 ```
 
-Do not include solution text in the same response.
+不要在同一份回复中包含解法文本。
 
-## Feedback
+## 反馈
 
 ```markdown
 **Verdict:** [Correct / Mostly correct / Partially correct / Needs revision]
@@ -98,7 +98,7 @@ Do not include solution text in the same response.
 **Next step:** [revision request, follow-up question, or advancement]
 ```
 
-## Chapter checkpoint
+## 章节检查点
 
 ```markdown
 ## Chapter checkpoint
@@ -113,7 +113,7 @@ Do not include solution text in the same response.
 3. ...
 ```
 
-## Progress report
+## 进度报告
 
 ```markdown
 # Progress

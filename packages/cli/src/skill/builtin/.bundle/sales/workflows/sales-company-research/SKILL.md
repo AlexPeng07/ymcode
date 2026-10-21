@@ -1,53 +1,53 @@
 ---
 name: sales-company-research
-description: Research companies, partners, and referral channels to shape draft outreach approaches, messages, or partner motions; exclude descriptive company profiling, list enrichment, and internal source finding.
+description: 研究公司、合作伙伴和转介绍渠道，以形成外联方式、消息或合作伙伴动作的草稿；不包含描述性的公司画像、名单数据丰富和内部来源查找。 | company research, partner research, referral channel, outreach draft
 ---
 
-# Sales Company Research
+# 销售公司研究
 
-Turn external company or partner research into a grounded, draft-only outreach approach. This skill owns research-to-outreach work: company or partner context, fit hypotheses, likely motion, and message drafts. It does not own data-first prospect-list enrichment, internal source-of-truth lookup, sending messages, or CRM writes.
+将外部的公司或合作伙伴研究转化为有据可依、仅出草稿的外联方案。本技能负责从研究到外联的工作：公司或合作伙伴上下文、匹配假设、可能的动作和消息草稿。它不负责以数据为先的潜客名单丰富、内部真相来源查找、发送消息或写入 CRM。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`.
+强制要求：若尚未在上下文中，请阅读并严格遵循 `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-- ~~Sales Intelligence for company, contact, partner, firmographic, similarity, and external-signal context
-- ~~CRM for existing account, ownership, lifecycle, opportunity, and prior-engagement truth
-- ~~Knowledge & Files for approved positioning, proof points, partner criteria, and outreach guardrails
-- Public research for company-controlled facts, reputation, partner programs, and current market context
+- ~~Sales Intelligence 用于公司、联系人、合作伙伴、企业属性、相似度和外部信号上下文
+- ~~CRM 用于现有账户、归属、生命周期、商机和过往互动的真实情况
+- ~~Knowledge & Files 用于已批准的价值定位、论据、合作伙伴标准和外联约束
+- 公开研究用于公司自述事实、声誉、合作伙伴计划和当前市场背景
 
-Use the user-provided company, domain, partner type, product, or offer as the anchor. If a material anchor is missing, ask only for the smallest input that changes the research path; otherwise proceed with clearly labeled assumptions.
+以用户提供的公司、域名、合作伙伴类型、产品或报价作为锚点。如果缺少重要锚点，只询问能改变研究路径的最小输入；否则在明确标注假设的前提下继续。
 
-## Workflow
+## 工作流
 
-1. Resolve the research target and commercial purpose: company fit, partner fit, referral landscape, reputation, or outreach approach.
-2. Gather the narrowest useful evidence from authoritative sources first. Keep sourced company or partner facts distinct from inferred fit, likely buyer need, and recommended motion.
-3. Explain why the target or partner type is promising, uncertain, or a poor fit. Name material evidence gaps instead of filling them with generic claims.
-4. Draft only the outreach artifact the user asked for, such as an approach, short email, message, connection request, or partner script. Do not send, post, create a draft in an external system, or update CRM.
+1. 确定研究目标与商业目的：公司匹配度、合作伙伴匹配度、转介绍格局、声誉或外联方式。
+2. 首先从权威来源收集最窄范围内的有用证据。将带来源的公司或合作伙伴事实，与推断出的匹配度、可能的买方需求和推荐动作区分开。
+3. 解释该目标或合作伙伴类型为何有前景、存在不确定性或匹配度差。点名重要的证据缺口，而不是用泛泛的说法填补。
+4. 仅起草用户要求的外联产物，例如外联方式、简短邮件、消息、连接请求或合作伙伴话术。不要发送、发布、在外部系统中创建草稿，也不要更新 CRM。
 
-## Routing Boundaries
+## 路由边界
 
-- Use `enrich-company-and-contact-data` when the primary output is a list, missing fields, contact discovery, segmentation, qualification, or firmographic comparison.
-- Use `find-key-internal-sources` when the primary question is which internal owner, document, channel, approver, or source of truth to use.
-- Use `plan-deal-strategy` when the primary job is advancing a defined sale, negotiation, renewal, buying process, or initial sales motion rather than researching a target to shape outreach.
+- 当主要产出是名单、缺失字段、联系人发现、分层、资格认定或企业属性比较时，使用 `enrich-company-and-contact-data`。
+- 当核心问题是应使用哪个内部负责人、文档、渠道、审批人或真相来源时，使用 `find-key-internal-sources`。
+- 当主要任务是推进一项已确定的销售、谈判、续约、采购流程或初始销售动作，而不是研究目标以形成外联时，使用 `plan-deal-strategy`。
 
-### Next Step Options
+### 下一步选项
 
-After the first output, offer the most relevant follow-up from the options below. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Improve the fit hypothesis, audience, angle, or sequencing using the user's guidance.
-- Draft an alternate outreach version for a different stakeholder or channel.
-- Hand the target to meeting prep or deal strategy when an active conversation or motion exists.
-- Create a concise research brief or internal account-team note after the content is reviewed.
-- Close the smallest material evidence gap that would change the outreach approach.
+在首个输出之后，从以下选项中提供最相关的后续动作。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 根据用户的指导改进匹配假设、受众、切入角度或排期顺序。
+- 为不同的利益相关方或渠道起草另一个外联版本。
+- 当存在活跃对话或销售动作时，将该目标交给会议准备或交易策略。
+- 内容评审后，创建一份简洁的研究简报或内部账户团队备忘录。
+- 补齐会改变外联方式的最小重要证据缺口。
 
-Next steps to avoid:
-- Sending outreach, creating external drafts, or writing CRM without a separate explicit request.
+应避免的后续步骤：
+- 在未单独明确请求的情况下发送外联、创建外部草稿或写入 CRM。
 
-## Output
+## 输出
 
-Return a compact research-to-outreach package:
+返回一个紧凑的“研究到外联”交付包：
 
 ```md
 # Sales Research: [Target or Partner Segment]
@@ -75,8 +75,8 @@ No message was sent and no CRM record was changed.
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-## Rules
+## 规则
 
-- Cite material sourced claims with useful links when available.
-- Label inference clearly; do not invent company facts, partner terms, contacts, reputation claims, or fit evidence.
-- Keep outreach draft-only. Never send, post, create external drafts, or write CRM in this workflow.
+- 对重要的带来源主张，在有可用链接时引用链接。
+- 清晰标注推断；不要编造公司事实、合作伙伴条款、联系人、声誉声明或匹配证据。
+- 外联仅限草稿。绝不在本工作流中发送、发布、创建外部草稿或写入 CRM。

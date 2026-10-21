@@ -1,22 +1,21 @@
 ---
 name: report-to-google-doc
-description: "Narrow conversion skill. Invoke only when the user explicitly asks to convert an existing local or blob-hosted HTML analytics report into a Google Doc, DOCX, or shareable document."
+description: "窄范围的转换技能。仅当用户明确要求把现有的本地或 blob 托管的 HTML 分析报告转换为 Google Doc、DOCX 或可分享文档时调用。 | Trigger keywords: HTML report to Google Doc, DOCX, shareable document, Google Drive upload."
 ---
 
-# Report To Google Doc
+# 报告转 Google Doc
 
-Use this skill only when the user explicitly needs a shareable Google Drive document from an existing HTML analytics report. The source must be an HTML report: a local file, a downloaded blob-hosted report, or a report produced by `$build-report`
-HTML mode or an equivalent local portable report source.
+仅当用户明确需要从现有 HTML 分析报告得到可分享的 Google Drive 文档时，使用本技能。源文件必须是 HTML 报告：本地文件、已下载的 blob 托管报告，或由 `$build-report` 的 HTML 模式或等价的本地可移植报告来源产出的报告。
 
-The expected path is HTML -> DOCX -> Drive upload. It is acceptable for Drive to host the upload as a DOCX-backed viewer file rather than a native Google Docs MIME type. Do not use the old Google Docs batch-update request path.
+预期路径是 HTML -> DOCX -> 上传到 Drive。Drive 以 DOCX 作为底层格式的查看器文件（而非原生 Google Docs MIME 类型）承载上传内容是可以接受的。不要使用旧的 Google Docs 批量更新请求路径。
 
-## Workflow
+## 工作流
 
-1. Resolve the HTML report.
+1. 定位 HTML 报告。
 
-   Use an absolute local path. If the user provides a remote report, retrieve it first and pass the local HTML file to the helper. If the file is a sign-in page, redirect page, or tiny stub, stop and obtain the real report.
+   使用绝对本地路径。如果用户提供的是远程报告，先下载它，再把本地 HTML 文件传给辅助脚本。如果文件是登录页、重定向页或极小的存根，停止并获取真实报告。
 
-2. Run the bundled helper.
+2. 运行随包提供的辅助脚本。
 
    ```bash
    python3 <REPORT_TO_GOOGLE_DOC_SKILL_DIR>/scripts/report_to_google_doc_plan.py \
@@ -24,24 +23,22 @@ The expected path is HTML -> DOCX -> Drive upload. It is acceptable for Drive to
      --out-dir /tmp/report_to_google_doc_plan
    ```
 
-   Omit `--render-workers` on the normal path. Only pass a worker count after benchmarking the same report family locally. If dependencies are missing,
-   use a local virtual environment with `beautifulsoup4`, `pillow`, and `python-docx`; `cairosvg` or headless Playwright are optional renderers.
+   正常路径下省略 `--render-workers`。只有在本地对同一类报告做过基准测试后，才传入 worker 数量。如果缺少依赖，使用安装了 `beautifulsoup4`、`pillow` 和 `python-docx` 的本地虚拟环境；`cairosvg` 或无头 Playwright 是可选渲染器。
 
-3. Inspect helper outputs.
+3. 检查辅助脚本的输出。
 
-   Required outputs:
+   必需的输出：
 
-   - `skeleton.txt`: source text with stable placeholders
-   - `manifest.json`: parsed headings, tables, callouts, lists, styles, links,
-     and rendered visual inventory
-   - `preflight_checks.json`: source, width, DOCX, and rendered-image checks
-   - `report.docx`: generated local Word document
-   - `docx_upload_plan.json`: compact upload instructions
-   - `placeholder_queries.json`: source mapping debug labels
+   - `skeleton.txt`：带稳定占位符的源文本
+   - `manifest.json`：解析出的标题、表格、标注块、列表、样式、链接以及渲染视觉清单
+   - `preflight_checks.json`：源、宽度、DOCX 与渲染图片检查
+   - `report.docx`：生成的本地 Word 文档
+   - `docx_upload_plan.json`：精简的上传说明
+   - `placeholder_queries.json`：源映射调试标签
 
-   Do not upload until `preflight_checks.json` has `status: "passed"` with zero errors. Warnings must either be fixed or called out in the handoff.
+   在 `preflight_checks.json` 的 `status: "passed"` 且错误数为零之前，不要上传。警告必须修复，或在交付说明中明确指出。
 
-4. Upload the DOCX.
+4. 上传 DOCX。
 
    ```json
    mcp__codex_apps__google_drive._upload_file({
@@ -51,54 +48,46 @@ The expected path is HTML -> DOCX -> Drive upload. It is acceptable for Drive to
    })
    ```
 
-   Treat the returned Drive URL as the deliverable. Do not attempt to force native Google Docs conversion, and do not fall back to `_batch_update_document`.
+   将返回的 Drive URL 视为交付物。不要试图强制转换为原生 Google Docs，也不要回退到 `_batch_update_document`。
 
-5. Validate the uploaded result.
+5. 校验上传结果。
 
-   Confirm the uploaded file is readable and non-empty. Compare uploaded text against the source inventory: title, section headings, executive summary or answer callout, caveats, recommendations, source notes, and source links.
-   Inspect the local `report.docx` structure when available: heading counts,
-   lists, tables, hyperlink relationships, and image relationships should match `manifest.json`.
+   确认上传文件可读且非空。将上传文本与源清单对照：标题、章节标题、执行摘要或结论标注、注意事项、建议、来源说明和来源链接。在可用时检查本地 `report.docx` 的结构：标题数量、列表、表格、超链接关系和图片关系应与 `manifest.json` 一致。
 
-6. Hand off the link.
+6. 交付链接。
 
-   Return the Drive/Docs URL and, when useful, the local DOCX path or source HTML path. Connector success alone is not enough; the handoff is complete only after the uploaded file and local DOCX structure have been checked against the source report. Keep routine check and preflight details in support artifacts. Do not list internal checks in the user-facing handoff unless a check failed, was unavailable, or produced a user-relevant caveat.
+   返回 Drive/Docs URL，并在有用时返回本地 DOCX 路径或源 HTML 路径。仅连接器调用成功还不够；只有在上传文件和本地 DOCX 结构都已对照源报告检查之后，交付才算完成。将常规检查和 preflight 细节保留在支撑产物中。不要在面向用户的交付说明中列出内部检查，除非某项检查失败、不可用或产生了与用户相关的注意事项。
 
-## Standards
+## 标准
 
-- Preserve every section, headline claim, metric card, metric definition,
-  source note, chart takeaway, recommendation, caveat, and link from the HTML report.
-- Preserve semantic formatting: headings, paragraphs, inline bold/emphasis,
-  inline code, positive/negative colors, links, lists, callouts, metric-card grids, tables, notes, captions, and charts.
-- Use DOCX-native structures wherever practical: headings, paragraphs, tables,
-  bullets/numbered lists, links, inline images, paragraph shading, table cell shading, and text styles.
-- Keep the report text column readable. Tables, charts, rendered table grids,
-  screenshots, and visual blocks must not exceed the DOCX page text width.
-- Preserve charts as inline images rendered from the source visual or its same-data SVG fallback, aligned to the same left edge as text and tables. A chart with missing bars, missing legend swatches, or all-black/all-white marks fails validation even if the DOCX contains an image object.
-- Preserve multi-column report blocks. A two-column grid made only of titled mini-tables can remain a two-column rendered image capped to the text width;
-  mixed two-column blocks with narrative text, pills, callouts, or non-table panels should preserve that content natively instead of dropping it.
-- Do not expose customer-level details or sensitive links that were intentionally omitted from a sanitized report.
-- Do not write Google Docs batch-update artifacts such as `seed_requests.json`,
-  `remote_write_plan.json`, or `all_requests*.json`.
+- 保留 HTML 报告中的每个章节、头条主张、指标卡、指标定义、来源说明、图表要点、建议、注意事项和链接。
+- 保留语义化格式：标题、段落、内联加粗/强调、内联代码、正/负向颜色、链接、列表、标注块、指标卡网格、表格、注释、图注和图表。
+- 尽可能使用 DOCX 原生结构：标题、段落、表格、项目符号/编号列表、链接、内联图片、段落底纹、表格单元格底纹和文本样式。
+- 保持报告文本列可读。表格、图表、渲染的表格网格、截图和视觉块不得超过 DOCX 页面的文本宽度。
+- 将图表保留为内联图片，由源视觉或其同数据 SVG 回退渲染，并与文本和表格保持相同的左边缘对齐。缺少条形、缺少图例色块或全黑/全白标记的图表即使 DOCX 中包含图片对象，也无法通过校验。
+- 保留多列报告块。仅由带标题的小表格组成的双列网格，可以保留为限制在文本宽度内的双列渲染图片；包含叙述文字、胶囊标签、标注块或非表格面板的混合双列块，应原生保留这些内容，而不是丢弃。
+- 不要暴露被有意从脱敏报告中省略的客户级细节或敏感链接。
+- 不要写入 Google Docs 批量更新产物，例如 `seed_requests.json`、`remote_write_plan.json` 或 `all_requests*.json`。
 
-## Repairs
+## 修复
 
-Use these fixes when validation exposes a conversion issue:
+当校验暴露出转换问题时，使用以下修复方法：
 
-| Problem | Fix |
+| 问题 | 修复 |
 | --- | --- |
-| Heading is regular weight | Fix the DOCX writer heading style or explicit run bolding. |
-| Blank line after title or heading | Delete spacer paragraphs; skeletons should emit `\n`, not `\n\n`, after headings. |
-| Body paragraphs have too much space | Delete literal blank paragraphs and set modest style spacing. |
-| Table/image too wide | Set table columns or image width to the DOCX text column width. |
-| Chart has labels but missing bars | Inline SVG class styles or use a headless screenshot before inserting. |
-| Two-column table group is flattened | Treat the grid as one layout block with mini-table titles preserved. |
-| Executive summary, metric cards, or section is missing | Fix parser inventory before upload. |
-| Chart overlaps table | Insert the image on its own paragraph after the table. |
-| Chart duplicated | Remove the extra image; keep exactly one source-order copy. |
-| Inline bold/code/color missing | Fix manifest range splitting in the DOCX writer. |
-| Source links show raw URLs | Replace with native linked labels or native bullets using HTML link text. |
+| 标题为常规字重 | 修正 DOCX 写入器的标题样式，或对文本显式加粗。 |
+| 标题或小标题后出现空行 | 删除占位空段落；骨架在标题之后应输出 `\n` 而非 `\n\n`。 |
+| 正文段落间距过大 | 删除字面上的空段落，并设置适度的样式间距。 |
+| 表格/图片过宽 | 将表格列宽或图片宽度设为 DOCX 文本列宽。 |
+| 图表有标签但缺少条形 | 内联 SVG 的 class 样式，或在插入前使用无头截图。 |
+| 双列表格组被压平 | 将该网格视为一个布局块，并保留小表格的标题。 |
+| 执行摘要、指标卡或章节缺失 | 上传前修正解析器的清单。 |
+| 图表与表格重叠 | 将图片插入到表格之后的独立段落中。 |
+| 图表重复 | 删除多余的图片；只保留一份与源顺序一致的副本。 |
+| 内联加粗/代码/颜色丢失 | 修正 DOCX 写入器中 manifest 的范围切分。 |
+| 来源链接显示原始 URL | 使用原生带链接的标签，或使用 HTML 链接文本的原生项目符号替换。 |
 
-## Local Checks
+## 本地检查
 
 ```bash
 python3 -m py_compile <REPORT_TO_GOOGLE_DOC_SKILL_DIR>/scripts/report_to_google_doc_plan.py

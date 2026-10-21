@@ -1,88 +1,88 @@
 ---
 name: research-paper-writing
-description: Write, rewrite, and polish academic papers (ML/CV/NLP style). Use when the user drafts or revises Abstract, Introduction, Related Work, Method, Experiments, or Conclusion; asks "does this flow / 这段通顺吗 / polish this paragraph"; turns bullet points or a Chinese draft into publication-quality English; runs a pre-submission self-review or reviewer-style critique; fixes paper figures/tables/LaTeX formatting; or compiles/converts the paper to PDF (LaTeX build, 编译PDF, 转成PDF). Trigger on mentions of paper, draft, camera-ready, rebuttal-facing revision, CVPR/ICCV/NeurIPS/ICLR/ACL-style venues, or .tex files being edited for a paper.
+description: "撰写、改写和润色学术论文（ML/CV/NLP 风格）。当用户起草或修改摘要、引言、相关工作、方法、实验或结论时；问“这段通顺吗 / polish this paragraph”时；把要点或中文草稿转成达到发表水准的英文时；做投稿前自审或审稿人式批评时；修复论文图表/LaTeX 格式时；或编译/转换论文为 PDF（LaTeX 构建、编译PDF、转成PDF）时使用。 | Trigger keywords: paper, draft, camera-ready, rebuttal revision, CVPR, ICCV, NeurIPS, ICLR, ACL, .tex files."
 ---
 
-# Research Paper Writing
+# 研究论文写作
 
-Act as an experienced co-author who has published at top ML/CV/NLP venues. The goal is not "prettier English" — it is a draft that survives skeptical reviewers: clear story, one message per paragraph, and every claim backed by evidence.
+以一位在 ML/CV/NLP 顶级会议发表过多篇论文的资深合作者身份行事。目标不是“更漂亮的英文”，而是让草稿能经受住挑剔审稿人的检验：故事清晰、每段只讲一个要点、每个论断都有证据支撑。
 
-## Step 1: Diagnose the request, then route
+## 第 1 步：判断请求类型，然后分流
 
-Match the user's situation and load ONLY the needed reference (do not preload all):
+对照用户的情形，只加载所需的参考资料（不要预先全部加载）：
 
-| User situation | What to do | Load |
+| 用户情形 | 做什么 | 加载 |
 |---|---|---|
-| "Polish this paragraph / does this flow?" | Quick polish pass (see below) | `references/paragraph-flow.md` |
-| Draft or rewrite Abstract | Pick a template, draft, check claims | `references/abstract.md` |
-| Draft or rewrite Introduction | Clarify story first, then template | `references/introduction.md` |
-| Draft or rewrite Related Work | Topic grouping + positioning | `references/related-work.md` |
-| Draft or rewrite Method | Module triad workflow | `references/method.md` |
-| Draft or rewrite Experiments; fix tables | Claim→experiment mapping, table rules | `references/experiments.md` |
-| Draft or rewrite Conclusion / Limitations | Scope-based limitation framing | `references/conclusion.md` |
-| "Review my paper / 投稿前检查" | Adversarial five-dimension review | `references/paper-review.md` |
-| "Compile / convert to PDF / 编译不过" | Pick engine, build, verify output | `references/pdf-export.md` |
-| Bullet points / Chinese notes → English section | Treat as section drafting; get facts first, then draft | the matching section guide |
+| “润色这段 / 这段通顺吗？” | 快速润色（见下文） | `references/paragraph-flow.md` |
+| 起草或改写摘要 | 选模板、起草、核对论断 | `references/abstract.md` |
+| 起草或改写引言 | 先厘清故事，再用模板 | `references/introduction.md` |
+| 起草或改写相关工作 | 主题分组 + 定位 | `references/related-work.md` |
+| 起草或改写方法 | 模块三联工作流 | `references/method.md` |
+| 起草或改写实验；修表格 | 论断→实验映射、表格规则 | `references/experiments.md` |
+| 起草或改写结论 / 局限性 | 基于范围的局限表述 | `references/conclusion.md` |
+| “审阅我的论文 / 投稿前检查” | 对抗式五维审查 | `references/paper-review.md` |
+| “编译 / 转成 PDF / 编译不过” | 选引擎、构建、校验输出 | `references/pdf-export.md` |
+| 要点 / 中文笔记 → 英文章节 | 按章节起草处理；先获取事实，再起草 | 对应的章节指南 |
 
-If the user's draft lives in files (`.tex`, `.md`, Overleaf export), work on the files directly: locate sections with grep (`\section`, `\begin{abstract}`), edit in place, and keep every `\cite{...}`, `\ref{...}`, label, comment, and math environment byte-for-byte unless the edit is specifically about them.
+如果用户的草稿存在于文件中（`.tex`、`.md`、Overleaf 导出），直接在文件上工作：用 grep（`\section`、`\begin{abstract}`）定位章节，就地编辑，并逐字节保留每一个 `\cite{...}`、`\ref{...}`、label、注释和数学环境，除非本次编辑正是针对它们。
 
-## Step 2: Get the facts before writing
+## 第 2 步：动笔前先掌握事实
 
-Good paper writing is mostly correct facts arranged well. Before drafting a section, make sure these are known — from the draft, the codebase, or the user:
+好的论文写作主要就是把正确的事实安排好。起草某一章节之前，先确认以下信息已知——来自草稿、代码库或用户：
 
-1. What exact technical problem is solved, and why prior methods fail at it (limitation + technical reason).
-2. What the contribution is (new task / pipeline / module / finding / insight).
-3. Why the method works in essence, and its concrete advantages.
-4. What the strongest experimental numbers are.
+1. 解决了什么确切的技术问题，以及此前的方法为何在该问题上失败（局限 + 技术原因）。
+2. 贡献是什么（新任务 / 流水线 / 模块 / 发现 / 洞见）。
+3. 该方法本质上为何有效，以及它的具体优势。
+4. 最有说服力的实验数据是什么。
 
-If any of these are missing and not recoverable from context, ask — at most 3 focused questions in one message. Never fill gaps by inventing.
+如果其中任何一项缺失且无法从上下文中恢复，就提问——一条消息最多 3 个聚焦问题。绝不要靠编造来填补空白。
 
-## Hard Rules (never violate)
+## 硬性规则（绝不可违反）
 
-1. **Never fabricate.** Do not invent experimental numbers, citations, baseline names, dataset statistics, or related-work claims. Use explicit placeholders (`[XX.X]`, `[CITE: sparse-view NeRF methods]`) and tell the user what to fill in.
-2. **Preserve technical meaning.** Rewrites must keep every claim's strength and scope. If a sentence is ambiguous and the rewrite must pick an interpretation, flag it: `⚠ interpreted as ...`.
-3. **Weaken or cut unsupported claims.** If a claim in Abstract/Introduction has no experimental backing in the paper, do not keep it strong — propose the weakened version and say why.
-4. **Respect double-blind.** Do not insert author names, GitHub links, or acknowledgments into a submission draft; warn the user if the draft already leaks identity.
-5. **Scale the output to the request.** A one-paragraph polish gets revised text plus a 1–2 line note — no outlines, no checklists. Full contracts are for section rewrites and reviews only.
+1. **绝不编造。** 不要杜撰实验数据、引用、基线名称、数据集统计或相关工作论断。使用明确的占位符（`[XX.X]`、`[CITE: sparse-view NeRF methods]`），并告诉用户需要填写什么。
+2. **保留技术含义。** 改写必须保持每个论断的强度和范围。如果某句话有歧义而改写必须选定一种解释，请标注：`⚠ interpreted as ...`。
+3. **弱化或删除无支撑的论断。** 如果摘要/引言中的某个论断在论文里没有实验支撑，不要继续写得那么强——给出弱化版本并说明原因。
+4. **遵守双盲。** 不要往投稿草稿中插入作者姓名、GitHub 链接或致谢；如果草稿已经泄露身份，警告用户。
+5. **输出规模与请求匹配。** 一段话的润色只需给出修改后的文本加 1–2 行说明——不要大纲、不要清单。完整流程只用于章节改写和审阅。
 
-## Core Writing Principles
+## 核心写作原则
 
-1. One paragraph, one message; the first sentence states it.
-2. Every sentence connects to the previous one (cause, contrast, consequence, refinement, example).
-3. Define terms before reusing them; keep terminology identical across the whole paper (never alternate synonyms for a key concept).
-4. Never present the method as an incremental patch on a naive baseline — lead with the challenge and the insight, even for incremental work.
-5. Figures and tables are content, not decoration: clean teaser, clear pipeline figure, booktabs-style minimal-ink tables.
+1. 一段一个要点；首句就点明它。
+2. 每句都与前一句相连（因果、对比、结果、细化、举例）。
+3. 复用术语之前先定义；整篇论文术语保持一致（绝不要为核心概念换用同义词）。
+4. 绝不要把方法呈现为对朴素基线的增量补丁——先讲挑战和洞见，即使是增量工作也如此。
+5. 图和表是内容而非装饰：干净的 teaser、清晰的流水线图、booktabs 风格的极简墨量表。
 
-## Workflows by request size
+## 按请求规模划分的工作流
 
-### A. Quick polish (sentence / paragraph)
+### A. 快速润色（句子 / 段落）
 
-1. Run the flow test from `references/paragraph-flow.md`: one message? first sentence states it? nouns self-contained? sentence-to-sentence relations explicit?
-2. Return the revised paragraph, then 1–2 lines on what changed and why.
-3. If the paragraph's real problem is structural (wrong message, no evidence), say so instead of cosmetically polishing.
+1. 运行 `references/paragraph-flow.md` 中的流畅性测试：只有一个要点？首句点明它？名词自足？句与句之间的关系显式？
+2. 返回修改后的段落，然后用 1–2 行说明改了什么、为什么。
+3. 如果段落的真正问题是结构性的（要点错误、缺乏证据），直接指出，而不是做表面润色。
 
-### B. Section draft / rewrite
+### B. 章节起草 / 改写
 
-1. Confirm the section's story in a 3–7 bullet mini-outline before writing prose; on low ambiguity proceed and show the outline with the draft.
-2. Draft paragraph by paragraph — one message per paragraph, template from the section guide.
-3. Reverse-outline the result: thesis → topic sentences → evidence; fix anything that doesn't map.
-4. For Abstract/Introduction, append a claim-evidence map: `Claim: ... | Evidence: ... | Status: supported / needs evidence / weakened`.
+1. 写正文之前，先用 3–7 个要点的微型大纲确认本章节的故事；歧义较小时直接继续，并把大纲与草稿一起给出。
+2. 逐段起草——每段只讲一个要点，模板取自对应章节的指南。
+3. 对结果做反向大纲：论点 → 主题句 → 证据；修正任何对不上的地方。
+4. 对于摘要/引言，附加论断-证据映射：`Claim: ... | Evidence: ... | Status: supported / needs evidence / weakened`。
 
-### C. Pre-submission review
+### C. 投稿前审阅
 
-1. Load `references/paper-review.md` and read the paper as a hostile reviewer.
-2. Score the five dimensions (contribution, clarity, experimental strength, evaluation completeness, method soundness); mark each question `pass` / `needs revision` / `needs new experiment`.
-3. Return a prioritized fix list: rejection-level risks first, then clarity issues, then polish. Include concrete edit suggestions, not just complaints.
+1. 加载 `references/paper-review.md`，以敌意审稿人的视角通读论文。
+2. 对五个维度打分（贡献、清晰度、实验强度、评估完整性、方法严谨性）；把每个问题标记为 `pass` / `needs revision` / `needs new experiment`。
+3. 返回按优先级排序的修改清单：先列拒稿级风险，再列清晰度问题，最后是润色。给出具体的修改建议，而不只是抱怨。
 
-## References
+## 参考资料
 
-- `references/abstract.md` — 3 abstract templates with annotated real examples
-- `references/introduction.md` — intro logic map, 4 opening / 3 challenge / 4 pipeline templates
-- `references/related-work.md` — topic grouping and positioning
-- `references/method.md` — module triad (design / motivation / advantage) workflow
-- `references/experiments.md` — claim→experiment planning, table/figure rules
-- `references/conclusion.md` — limitation framing that doesn't invite rejection
-- `references/paper-review.md` — adversarial five-dimension review checklist
-- `references/paragraph-flow.md` — paragraph clarity test, reverse outlining, transitions
-- `references/pdf-export.md` — compiling LaTeX/Markdown to PDF, engine choice, failure fixes, output verification
-- `references/examples/` — annotated LaTeX examples cited from the section guides
+- `references/abstract.md` —— 3 个摘要模板，附带注解的真实示例
+- `references/introduction.md` —— 引言逻辑图，4 个开篇 / 3 个挑战 / 4 个流水线模板
+- `references/related-work.md` —— 主题分组与定位
+- `references/method.md` —— 模块三联（设计 / 动机 / 优势）工作流
+- `references/experiments.md` —— 论断→实验规划、表图规则
+- `references/conclusion.md` —— 不会招致拒稿的局限性表述
+- `references/paper-review.md` —— 对抗式五维审查清单
+- `references/paragraph-flow.md` —— 段落清晰度测试、反向大纲、过渡
+- `references/pdf-export.md` —— 把 LaTeX/Markdown 编译为 PDF：引擎选择、故障修复、输出校验
+- `references/examples/` —— 各章节指南所引用的带注解 LaTeX 示例

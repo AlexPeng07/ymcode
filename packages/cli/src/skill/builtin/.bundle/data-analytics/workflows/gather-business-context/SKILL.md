@@ -1,67 +1,67 @@
 ---
 name: gather-business-context
-description: "Gather business context from connected or provided sources so downstream analysis starts with the right framing. Use when an analytical question depends on missing context, such as what a metric means, what changed recently, or which sources should be checked. If the same prompt asks for diagnosis, recommendation, or a deliverable, gather context first and continue to the focused skill."
+description: "从已连接或提供的来源收集业务上下文，使后续分析从正确的框架出发。当分析问题依赖缺失的上下文时使用，例如某个指标的含义、最近发生了什么变化，或应检查哪些来源。如果同一提示还要求诊断、建议或交付物，先收集上下文，再继续到相应的聚焦技能。 | Trigger keywords: business context, missing definitions, ownership, what changed, source discovery, framing."
 ---
 
-## Boundary
+## 边界
 
-Use this skill to gather framing context, not to complete the downstream analysis.
+使用本技能收集框架性上下文，而不是完成下游分析。
 
-If the same request also asks for a diagnosis, recommendation, dashboard, report, or other analytical deliverable, return only the context needed for that next step and continue with the appropriate focused skill, such as $metric-diagnostics, $product-business-analysis, $build-dashboard, or $build-report.
+如果同一请求还要求诊断、建议、仪表盘、报告或其他分析交付物，只返回该下一步所需的上下文，并继续使用合适的聚焦技能，例如 $metric-diagnostics、$product-business-analysis、$build-dashboard 或 $build-report。
 
-# Gather Business Context
+# 收集业务上下文
 
-Use this skill to collect the business context needed to understand an analytical question before doing deeper work. Focus on what the topic is, why it matters, what changed or is being decided, who or what source is closest to the work, and which definitions or artifacts should frame the analysis. This is a retrieval and extraction skill: gather enough context to set up the next step, not a final report, root-cause analysis, or broad background scan. Skip it when the prompt already provides the needed context or the task is fully self-contained.
+使用本技能收集理解分析问题所需的业务上下文，然后再做更深入的工作。聚焦于：主题是什么、为何重要、发生了什么变化或正在决定什么、谁或哪个来源最接近这项工作，以及哪些定义或产物应作为分析的框架。这是一个检索与提取技能：收集足够搭建下一步的上下文，而不是最终报告、根因分析或宽泛的背景扫描。当提示已提供所需上下文或任务完全自包含时，跳过本技能。
 
-## Workflow
+## 工作流
 
-### 1. Identify The Retrieval Target
+### 1. 确定检索目标
 
-Establish the analytical topic that needs context and why it matters for the next step. Capture the boundary needed to search and interpret sources, such as the relevant product area, audience, time period, or decision. If the timeframe is missing, use the narrowest reasonable window implied by the task and label it as an assumption.
+确定需要上下文的分析主题，以及它对下一步为何重要。记录搜索与解读来源所需的边界，例如相关的产品领域、受众、时间段或决策。如果缺少时间范围，使用任务所暗示的最窄合理窗口，并将其标注为假设。
 
-### 2. Build Search Anchors
+### 2. 构建搜索锚点
 
-Search with concrete identifiers rather than broad topic guesses. Start with the names the user provided or the sources surfaced, then expand with adjacent terms that help recall, such as aliases, owners, teams, dates, source names, related entities, or entities found in earlier results.
+使用具体标识符搜索，而不是宽泛的主题猜测。先从用户提供的名称或被呈现的来源开始，再用有助于召回的相邻术语扩展，例如别名、负责人、团队、日期、来源名称、相关实体，或早前结果中发现的实体。
 
-Start broad enough to avoid missing relevant context. If too much comes back and a quick scan suggests the results are mostly unrelated, combine anchors to narrow retrieval, for example a metric plus a dashboard name, a feature plus a launch window, or a customer plus the relevant workflow. If a likely source comes back thin, revise the anchors before treating the source as missing.
+起始范围要足够宽，以免遗漏相关上下文。如果返回内容过多，且快速浏览表明结果大多无关，则组合锚点收窄检索，例如指标加仪表盘名称、功能加发布窗口，或客户加相关工作流。如果某个很可能的来源返回内容单薄，在将其视为缺失之前先调整锚点。
 
-### 3. Search From Discovery Points Toward Authoritative Artifacts
+### 3. 从发现点搜索到权威产物
 
-1. **Explore all possible sources.** Search every enabled or provided source family that could contain useful context or task-relevant data. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. User-named sources, known tables, dashboards, and semantic-layer anchors are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare authority, freshness, definition, scope, and directness. Prefer artifacts closest to what was decided, defined, implemented, or measured; follow linked evidence when useful. Note material conflicts and explain which source or combination should guide downstream analysis.
+1. **探索所有可能的来源。** 搜索每个已启用或已提供、可能包含有用上下文或任务相关数据的来源族。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。用户指定的来源、已知的表、仪表盘和语义层锚点都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较权威性、新鲜度、定义、范围和直接程度。优先选择最接近已决定、已定义、已实现或已度量内容的产物；在有用时沿链接证据追溯。记录实质性冲突，并说明哪个来源或组合应指导下游分析。
 
-### 4. Extract Only Decision-Shaping Context
+### 4. 只提取塑造决策的上下文
 
-Treat business context as a fixed extraction target, not an open-ended summary. Capture the facts that will shape the downstream analysis: the topic's business meaning, why it matters now, how it is defined or measured, where to verify it, what recently changed, and what uncertainty should travel with the analysis. Examples can include a metric definition, current rollout state, dashboard link, owner note, source conflict, or stated next step.
+把业务上下文当作固定的提取目标，而不是开放式总结。记录将塑造下游分析的事实：主题的业务含义、为何现在重要、如何定义或度量、到哪里核验、最近发生了什么变化，以及哪些不确定性应随分析一起传递。示例可包括指标定义、当前上线状态、仪表盘链接、负责人备注、来源冲突或明确的下一步。
 
-Keep the context note focused on details that help frame the next analysis. Skip broad background, adjacent history, or long source excerpts unless they add useful context.
+让上下文说明聚焦于有助于搭建下一次分析的细节。跳过宽泛背景、相邻历史或冗长的来源摘录，除非它们能增加有用的上下文。
 
-### 5. Keep Source Notes Compact And Attributable
+### 5. 保持来源说明精简且可归因
 
-For each useful source, record enough attribution for the downstream work to be checked later: when the source applies, what kind of source it is, what factual context it established, and any important caveat or conflict. Distinguish source facts from inference and do not imply source review, stakeholder views, metric certainty, or confidence beyond what was actually established.
+对每个有用的来源，记录足以让下游工作在日后被核对的归属信息：来源何时适用、属于哪种来源、确立了哪些事实性上下文，以及任何重要的注意事项或冲突。区分来源事实与推断，不要暗示超出了实际确立范围所做的来源审阅、利益相关方观点、指标确定性或置信度。
 
-### 6. Reconcile Conflicts Explicitly
+### 6. 明确调和冲突
 
-When sources disagree in a way that could change the downstream framing, preserve the disagreement instead of smoothing it over. Prefer the newest explicit decision artifact over older plans, owner-written docs over third-party summaries, and implementation artifacts over aspirational plans when the question is what is live, shipped, logged, or queryable now. Treat an informal source as stronger than a canonical artifact only when it clearly records a later decision or owner confirmation.
+当来源之间的分歧可能改变下游框架时，保留分歧而不是抹平它。当问题是“现在什么在运行、已交付、已记录或可查询”时，优先选择最新的明确决策产物而非较早的计划、负责人撰写的文档而非第三方摘要、实现产物而非理想化计划。只有当非正式来源清楚记录了较晚的决策或负责人确认时，才将其视为强于权威产物。
 
-If disagreement remains, present both views, label the conflict, and state what source or owner would resolve it. If context is stale or incomplete, say what is missing and where to look next.
+如果分歧仍然存在，呈现两种观点、标注冲突，并说明哪些来源或负责人可以解决它。如果上下文过期或不完整，说明缺少什么以及接下来该去哪里找。
 
-### 7. Stop Once The Framing Is Sound
+### 7. 框架足够可靠时就停止
 
-Stop gathering context when the downstream task can be framed well enough to proceed and the likely enabled or provided source families have been checked, ruled out as unavailable, or identified as too thin. Before stopping, make sure the next step has a clear enough understanding of the topic, why it matters, where the important definitions came from, what recent context applies, and what gaps remain.
+当下游任务可以被充分框定以继续，且可能的已启用或已提供来源族都已检查、被排除为不可用，或被认定为过于单薄时，停止收集上下文。停止之前，确保下一步对主题、为何重要、重要定义来自何处、适用哪些近期上下文以及还剩哪些缺口都有足够清楚的理解。
 
-Continue searching when a relevant enabled or provided source is likely to add useful context. If an expected source was not found, name that as a gap rather than implying it does not exist.
+如果某个相关的已启用或已提供来源很可能补充有用的上下文，则继续搜索。如果预期的来源没有找到，将其列为缺口，而不是暗示它不存在。
 
-### 8. Return A Lightweight Context Note When Useful
+### 8. 在有用时返回轻量的上下文说明
 
-Prefer a focused context note over a full report or raw retrieval dump. Include enough context for the next analysis to proceed without redoing the search: a short summary, the relevant context, important definitions or source links, uncertainty or caveats, and citations. Keep it readable, but do not compress away details that explain the framing or source quality.
+相比完整报告或原始检索转储，优先提供聚焦的上下文说明。包含足够让下一轮分析无需重做搜索即可继续的上下文：简短摘要、相关上下文、重要定义或来源链接、不确定性或注意事项，以及引用。保持可读，但不要压缩掉解释框架或来源质量的细节。
 
-If the user asked only for quick orientation, shorten the structure while preserving citations, conflicts, and missing canonical artifacts.
+如果用户只要求快速定位，可缩短结构，但保留引用、冲突和缺失的权威产物。
 
-## Standards
+## 标准
 
-Judge sources by what they can actually establish. Informal discussion can be useful for discovery and recent context, but durable artifacts are usually stronger evidence for definitions, decisions, status, and measured results once found. Prefer sources close to the work, recent enough to reflect current reality, and explicit about what they establish. Surface missing source-of-truth artifacts as context gaps.
+按来源实际能确立的内容来评判来源。非正式讨论对发现和近期上下文有用，但一旦找到持久产物，它们通常是定义、决策、状态和度量结果的更强证据。优先选择接近工作的来源、足够新以反映当前现实的来源，以及明确说明其能确立什么的来源。将缺失的事实来源产物作为上下文缺口暴露出来。
 
-Keep important claims attributable. Treat a source as useful only when it clarifies how the downstream task should be framed or interpreted; sources that merely mention the topic are incidental. Preserve enough evidence to check the work later, and label interpretation, assumptions, conflicts, and uncertainty when support is thin, stale, indirect, or conflicting.
+保持重要主张可归因。仅当来源能澄清下游任务应如何框定或解读时，才视为有用；仅提及主题的来源是偶然的。保留足够证据以便日后核对工作，并在支撑单薄、过期、间接或冲突时标注解读、假设、冲突和不确定性。
 
-Preserve disagreements that could change the framing. Prefer owner-authored or decision-adjacent material and evidence of what is current over secondhand summaries or speculation. Do not infer consensus from silence. Say what source or owner would resolve an important conflict.
+保留可能改变框架的分歧。优先选择负责人撰写或与决策相邻的材料，以及能证明当前状态的证据，而不是二手摘要或猜测。不要从沉默中推断共识。说明哪些来源或负责人可以解决重要冲突。

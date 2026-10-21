@@ -1,15 +1,15 @@
 ---
 name: mate
-description: "Create custom desktop pet (Mate) characters with spritesheet and manifest. Use when the user asks to 'create a pet', 'make a desktop companion', 'design a mate character', 'generate a spritesheet for my pet', or wants to customize their desktop buddy. Generates a WebP spritesheet + manifest.json that can be loaded by MiMo Desktop's Mate system."
+description: 创建自定义桌面宠物（Mate）角色，包含精灵图与 manifest。当用户要求「创建宠物」「做一个桌面伙伴」「设计一个 mate 角色」「为我的宠物生成精灵图」，或想定制自己的桌面伙伴时使用。生成 WebP 精灵图 + manifest.json，可由 MiMo Desktop 的 Mate 系统加载。 | Create a desktop pet character with spritesheet and manifest for MiMo Desktop.
 ---
 
-# Mate Pet Creator
+# Mate 桌宠创建器
 
-Create animated desktop pet characters for MiMo Desktop's Mate (桌面伙伴) system.
+为 MiMo Desktop 的 Mate（桌面伙伴）系统创建有动画的桌面宠物角色。
 
-## Output Structure
+## 输出结构
 
-A valid custom pet lives in a folder with this structure:
+一个有效的自定义宠物位于如下结构的文件夹中：
 
 ```
 <pet-id>/
@@ -17,9 +17,9 @@ A valid custom pet lives in a folder with this structure:
 └── spritesheet.webp  # Required — all animation frames in a grid
 ```
 
-The user places this folder in their MiMo Desktop custom pets directory (`userData/pets/<pet-id>/`), then clicks "Refresh" in Settings → Mate to load it.
+用户把这个文件夹放进 MiMo Desktop 的自定义宠物目录（`userData/pets/<pet-id>/`），然后在 设置 → Mate 中点击「Refresh」加载它。
 
-## Manifest Schema
+## manifest 结构
 
 ```json
 {
@@ -38,89 +38,89 @@ The user places this folder in their MiMo Desktop custom pets directory (`userDa
 }
 ```
 
-### Required Fields
+### 必填字段
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |-------|------|-------------|
-| `id` | string | Unique identifier (kebab-case) |
-| `name` | string | Display name |
-| `version` | number | Always `1` |
-| `spritesheet` | string | Filename of the spritesheet image |
-| `frameWidth` | number | Width of each frame in pixels |
-| `frameHeight` | number | Height of each frame in pixels |
-| `columns` | number | Number of columns in the spritesheet grid |
-| `totalFrames` | number | Total number of frames across all animations |
-| `animations` | object | At minimum must include `idle` |
+| `id` | string | 唯一标识符（kebab-case） |
+| `name` | string | 显示名称 |
+| `version` | number | 始终为 `1` |
+| `spritesheet` | string | 精灵图文件名 |
+| `frameWidth` | number | 每帧宽度（像素） |
+| `frameHeight` | number | 每帧高度（像素） |
+| `columns` | number | 精灵图网格的列数 |
+| `totalFrames` | number | 所有动画的帧总数 |
+| `animations` | object | 至少必须包含 `idle` |
 
-### Optional Fields
+### 可选字段
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |-------|------|-------------|
-| `description` | string | Shown in settings UI |
-| `anchorX` | number | Horizontal anchor (0–1, default 0.5) for centering |
+| `description` | string | 在设置界面中显示 |
+| `anchorX` | number | 用于居中的水平锚点（0–1，默认 0.5） |
 
-### Animation Definition
+### 动画定义
 
-Each animation entry:
+每个动画条目：
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |-------|------|-------------|
-| `row` | number | Row index in the spritesheet (0-based) |
-| `frames` | number | Number of frames in this animation |
-| `fps` | number | Playback speed (recommended: 6–12) |
-| `loop` | boolean | Whether the animation loops |
+| `row` | number | 精灵图中的行索引（从 0 开始） |
+| `frames` | number | 该动画的帧数 |
+| `fps` | number | 播放速度（建议 6–12） |
+| `loop` | boolean | 动画是否循环 |
 
-The `idle` animation is **required** — it plays by default when the pet is loaded.
+`idle` 动画是**必需的**——宠物加载时默认播放它。
 
-## Spritesheet Layout
+## 精灵图布局
 
-- Frames are arranged left-to-right, top-to-bottom in a grid.
-- Each row corresponds to one animation (matched by the `row` field in the animation definition).
-- All frames must have identical dimensions (`frameWidth × frameHeight`).
-- Transparent background (alpha channel) is required — the pet window has no background.
-- Recommended frame size: 240×240 px (renders well at 1× scale on desktop).
-- Format: WebP with transparency (lossless or near-lossless for crisp pixel art).
+- 帧按网格从左到右、从上到下排列。
+- 每行对应一个动画（通过动画定义中的 `row` 字段匹配）。
+- 所有帧必须尺寸一致（`frameWidth × frameHeight`）。
+- 需要透明背景（alpha 通道）——宠物窗口没有背景。
+- 建议帧尺寸：240×240 px（在桌面 1× 缩放下渲染良好）。
+- 格式：带透明度的 WebP（无损或近无损，以保持像素画清晰）。
 
-## Workflow
+## 工作流
 
-### Step 1: Understand the Character
+### 第 1 步：理解角色
 
-Ask the user:
-- What animal/creature/character?
-- Art style preference (pixel art, cartoon, flat vector, kawaii)?
-- Any specific colors or features?
+询问用户：
+- 什么动物/生物/角色？
+- 美术风格偏好（像素画、卡通、扁平矢量、kawaii）？
+- 有特定的颜色或特征吗？
 
-### Step 2: Generate the Spritesheet
+### 第 2 步：生成精灵图
 
-Use the `imagegen` skill to generate the spritesheet image. Construct the prompt with these guidelines:
-- Request a **sprite sheet** with specific grid layout (e.g., "8 frames in a single horizontal row, each frame 240×240 pixels")
-- Specify **transparent background** (alpha channel)
-- Describe the **idle animation** motion: gentle breathing, blinking, tail wag, bobbing, etc.
-- Keep the character **centered** in each frame with consistent sizing
-- Style: match the user's preference; default to cute/kawaii if unspecified
+使用 `imagegen` 技能生成精灵图。按以下准则构造提示词：
+- 要求生成**sprite sheet**，并指定网格布局（例如「8 帧排成一行，每帧 240×240 像素」）
+- 指定**透明背景**（alpha 通道）
+- 描述 **idle 动画**的动作：轻柔呼吸、眨眼、摇尾巴、上下浮动等
+- 让角色在每帧中保持**居中**且尺寸一致
+- 风格：与用户偏好一致；未指定时默认可爱/kawaii
 
-If the generated image is already WebP, use it directly. If it is PNG or another format, convert to WebP:
+如果生成的图片已经是 WebP，直接使用。如果是 PNG 或其他格式，转换为 WebP：
 
 ```bash
 # Convert to lossless WebP preserving transparency
 cwebp -lossless -q 100 spritesheet.png -o spritesheet.webp
 ```
 
-If `cwebp` is not available, check for `sips` (macOS Ventura+ supports WebP export):
+如果 `cwebp` 不可用，检查 `sips`（macOS Ventura+ 支持 WebP 导出）：
 
 ```bash
 sips -s format webp spritesheet.png --out spritesheet.webp
 ```
 
-If neither tool is available, instruct the user to install one:
+如果两个工具都不可用，指导用户安装其一：
 
 ```
 brew install webp   # provides cwebp
 ```
 
-Do NOT silently rename a PNG to .webp — the file must have valid WebP encoding (RIFF/WEBP header). If conversion genuinely cannot be performed, fail explicitly and tell the user what tool to install.
+不要悄悄把 PNG 改名为 .webp——文件必须是有效的 WebP 编码（RIFF/WEBP 头）。如果确实无法完成转换，就明确失败，并告诉用户需要安装什么工具。
 
-If `imagegen` is unavailable (skill not enabled or image generation fails), fall back to generating pixel-art frames directly as SVG, then rasterize. Compute dimensions from the manifest:
+如果 `imagegen` 不可用（技能未启用或图片生成失败），退而直接用 SVG 生成像素画帧，再栅格化。从 manifest 计算尺寸：
 
 ```bash
 # Calculate actual spritesheet dimensions from manifest
@@ -132,27 +132,27 @@ rsvg-convert -w $WIDTH -h $HEIGHT spritesheet.svg -o spritesheet.png
 cwebp -lossless spritesheet.png -o spritesheet.webp
 ```
 
-As a last resort, output the SVG file directly and instruct the user to convert it manually.
+作为最后手段，直接输出 SVG 文件，并指导用户手动转换。
 
-### Step 3: Write the Manifest
+### 第 3 步：编写 manifest
 
-Generate `manifest.json` with correct dimensions matching the actual spritesheet output. Verify:
-- `frameWidth × columns` = spritesheet total width
-- `frameHeight × (max animation row index + 1)` = spritesheet total height
-- `animations.idle` exists with valid `row`, `frames`, `fps`, `loop`
-- Each animation's `frames` ≤ `columns` (frames per row cannot exceed grid columns)
+生成 `manifest.json`，其尺寸必须与实际输出的精灵图一致。核对：
+- `frameWidth × columns` = 精灵图总宽度
+- `frameHeight × (max animation row index + 1)` = 精灵图总高度
+- `animations.idle` 存在，且 `row`、`frames`、`fps`、`loop` 均有效
+- 每个动画的 `frames` ≤ `columns`（每行帧数不能超过网格列数）
 
-### Step 4: Deliver
+### 第 4 步：交付
 
-Write both files to the current working directory under a folder named with the pet ID. Tell the user to:
-1. Copy the folder to their MiMo Desktop pets directory (Settings → Mate → click "Open Folder" to find it)
-2. Click "Refresh" in Settings → Mate
-3. Select their new pet from the list
+把两个文件写到当前工作目录下以宠物 ID 命名的文件夹中。告诉用户：
+1. 把该文件夹复制到他们的 MiMo Desktop 宠物目录（设置 → Mate → 点击「Open Folder」可找到它）
+2. 在 设置 → Mate 中点击「Refresh」
+3. 从列表中选择新宠物
 
-## Constraints
+## 约束
 
-- The `idle` animation MUST exist — the system falls back to it.
-- Frame dimensions must be consistent across the entire spritesheet.
-- Keep total file size under 2MB for smooth loading.
-- Pet ID must be unique; if it conflicts with a preset (`koala`, `panda`), the preset wins.
-- Do NOT reference or depend on any external URLs — all assets must be local files.
+- `idle` 动画必须存在——系统会回退到它。
+- 帧尺寸必须在整张精灵图中保持一致。
+- 总文件大小保持在 2MB 以内，以便流畅加载。
+- 宠物 ID 必须唯一；如果与预设（`koala`、`panda`）冲突，预设优先。
+- 不要引用或依赖任何外部 URL——所有资源都必须是本地文件。

@@ -1,10 +1,10 @@
-Writes a file to the local filesystem.
+将文件写入本地文件系统。
 
-Usage:
-- The `file_path` parameter identifies the file to write.
-- This tool will overwrite the existing file if there is one at the provided path.
-- If this is an existing file, prefer using the Read tool first so you overwrite intentional content rather than a stale guess.
-- ALWAYS prefer editing existing files in the codebase. NEVER write new files unless explicitly required.
-- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-- Only use emojis if the user explicitly requests it. Avoid writing emojis to files unless asked.
-- For large files, prefer writing the content in multiple smaller steps rather than one big call: a single very large write may exceed the output limit and get truncated, leaving the file incomplete or corrupted. Write an initial portion with this tool, then add the remaining sections with follow-up Edit tool calls.
+用法：
+- `file_path` 参数指定要写入的文件。
+- 如果所给路径上已存在文件，此工具会覆盖它。
+- 如果是已有文件，建议先使用 Read 工具读取，这样你覆盖的是有意保留的内容，而不是过时的猜测。
+- 始终优先编辑代码库中已有的文件。除非明确要求，绝不要创建新文件。
+- 绝不主动创建文档文件（*.md）或 README 文件。仅在用户明确要求时创建文档文件。
+- 仅在用户明确要求时使用 emoji。除非被要求，避免在文件中写入 emoji。
+- 对于大文件，建议分多个较小的步骤写入内容，而不是一次巨大的调用：单次超大写入可能超出输出限制而被截断，导致文件不完整或损坏。先用此工具写入初始部分，然后用后续 Edit 工具调用补充其余章节。

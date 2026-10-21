@@ -1,28 +1,28 @@
-Persistent work-item tool. Tasks are bounded, referenceable entities with
-IDs (T1, T2, ...; subtasks T1.1, T1.2, ...). This is the only work-item
-tool — use it to track every multi-step piece of work: what you're doing
-now, what's queued, what's blocked, what's done.
+持久化工作项工具。任务是带有 ID 的有界、可引用的实体
+（T1、T2、……；子任务 T1.1、T1.2、……）。这是唯一的工作项
+工具——用它跟踪每一项多步骤工作：你正在做什么、
+排队了什么、被什么阻塞、完成了什么。
 
-JSON calls always wrap the action in an `operation` object — see examples below.
+JSON 调用总是把动作包装在 `operation` 对象中——参见下方示例。
 
-## Operations
+## 操作
 
-- create:     register a new task. `summary` required. optional: `parent_id`.
-- list:       enumerate tasks. defaults to open+in_progress+blocked, excluding archived.
-              optional: `status` filter, `include_terminal`, `include_archived`.
-- get:        fetch one task by id.
-- start:      mark a task in_progress (you're working on it now). `id` required.
-- block:      transition → blocked. `id` required. optional: `event_summary`.
-- unblock:    transition blocked → open. `id` required. optional: `event_summary`.
-- done:       mark task complete. `id` required. optional: `event_summary`.
-- abandon:    drop task without completing. `id` required. optional: `event_summary`.
-- rename:     change a task's summary. `id` + `summary` required.
+- create:     注册新任务。`summary` 必需。可选：`parent_id`。
+- list:       枚举任务。默认包含 open+in_progress+blocked，排除已归档项。
+              可选：`status` 过滤、`include_terminal`、`include_archived`。
+- get:        按 id 获取单个任务。
+- start:      将任务标记为 in_progress（你正在处理它）。`id` 必需。
+- block:      状态转换 → blocked。`id` 必需。可选：`event_summary`。
+- unblock:    状态转换 blocked → open。`id` 必需。可选：`event_summary`。
+- done:       将任务标记为完成。`id` 必需。可选：`event_summary`。
+- abandon:    放弃任务而不完成。`id` 必需。可选：`event_summary`。
+- rename:     更改任务的摘要。`id` 与 `summary` 必需。
 
-Status lifecycle: open ⇄ in_progress, either → blocked → open, either → done | abandoned.
-Mark a task `start` before working it; `done` immediately after finishing.
-Terminal states clean up automatically after 7 days.
+状态生命周期：open ⇄ in_progress，任一状态 → blocked → open，任一状态 → done | abandoned。
+开始处理任务前先 `start`；完成后立即 `done`。
+终止状态会在 7 天后自动清理。
 
-## JSON examples
+## JSON 示例
 
 {"operation":{"action":"create","summary":"Implement auth"}}
 {"operation":{"action":"create","summary":"Lexer","parent_id":"T1"}}
@@ -35,22 +35,20 @@ Terminal states clean up automatically after 7 days.
 {"operation":{"action":"abandon","id":"T1","event_summary":"out of scope"}}
 {"operation":{"action":"rename","id":"T1","summary":"Updated title"}}
 
-## Discipline
+## 纪律
 
-- Only mark `done` when the work is FULLY accomplished. If tests fail, the
-  implementation is partial, or you hit an unresolved error, keep it
-  in_progress or `block` it — never `done`.
-- If blocked, `block` the task or create a new task describing the blocker.
-- Keep one task in_progress at a time when working solo (not enforced —
-  parallel subagents may each have their own in_progress task).
+- 仅在工作完全完成时才标记 `done`。如果测试失败、实现只完成了一部分，
+  或遇到未解决的错误，请保持 in_progress 或 `block` 它——绝不要 `done`。
+- 如果被阻塞，`block` 该任务，或创建一个描述阻塞原因的新任务。
+- 独自工作时一次只保持一个任务为 in_progress（不做强制——
+  并行的子代理可以各自拥有自己的 in_progress 任务）。
 
-## When to use
+## 何时使用
 
-Use task whenever work has 3+ steps, spans multiple turns, will be referenced
-again (by you, the user, or a subagent), or needs to be visible in the session.
-Skip it for a single trivial action.
+只要工作有 3 个以上步骤、跨多轮对话、会被再次引用（被你、用户或子代理），
+或需要在会话中可见，就使用 task。单个琐碎动作则跳过。
 
-## Don't repeat in your reply
+## 不要在回复中重复
 
-Do not list out the task tree in your reply — the UI already renders it.
-Summarize what task you're working on or what changed since the last call.
+不要在回复中列出任务树——UI 已经（already）渲染了它。
+只需概述你正在处理哪个任务，或自上次调用以来发生了什么变化。

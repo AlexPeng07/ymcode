@@ -1,29 +1,29 @@
 ---
 name: sales
-description: "Use this skill whenever Sales is explicitly invoked or the task involves customer meeting preparation, call follow-up, account prioritization, account signals, deal strategy, business cases, competitive briefs, forecasts, customer evidence, rep coaching, company research, CRM context, or company and contact enrichment."
+description: "当明确调用 Sales，或任务涉及客户会议准备、通话跟进、账户优先级排序、账户信号、交易策略、商业论证、竞品简报、预测、客户证据、销售代表辅导、公司研究、CRM 上下文，或公司与联系人数据丰富时使用本技能。 | Sales, meeting prep, call follow-up, account prioritization, account signals, deal strategy, business case, competitive brief, forecast, customer evidence, rep coaching, company research, CRM context, enrichment"
 ---
 
-# Sales
+# 销售（Sales）
 
-This is the single entry point for a code-agent-oriented Sales bundle. The original workflow instructions are under `workflows/`; connector manifests and plugin marketplace metadata are intentionally excluded.
+这是面向代码智能体的 Sales 技能包的唯一入口。原始工作流说明位于 `workflows/` 下；连接器清单与插件市场元数据已被有意排除。
 
-## Route the request
+## 请求路由
 
-1. Read `workflows/index/SKILL.md` completely. Treat it as the authoritative plugin-level scope, source-selection rules, routing, and workflow sequencing policy.
-2. Select the narrowest focused workflow or workflow sequence named by that index. Read every selected workflow's `SKILL.md` completely before acting.
-3. Load provider-specific skills such as Salesforce, HubSpot, Apollo, or ZoomInfo only when the chosen source and available host tools make them relevant.
-4. If a selected workflow names related skills, read them only when their stated conditions apply. Resolve relative links from the file containing the link and load required references completely.
-5. Prefer bundled scripts and templates when a selected workflow calls for them. Do not load unrelated sales workflows merely because they are present.
+1. 完整阅读 `workflows/index/SKILL.md`。将其视为权威的插件级范围、来源选择规则、路由与工作流顺序策略。
+2. 选择该索引指定的最窄的聚焦工作流或工作流序列。执行前完整阅读每个所选工作流的 `SKILL.md`。
+3. 仅当所选来源与可用的宿主工具使其相关时，才加载 Salesforce、HubSpot、Apollo 或 ZoomInfo 等提供方专属技能。
+4. 若所选工作流提到相关技能，仅在其声明的条件成立时阅读它们。相对链接以包含该链接的文件为基准解析，并完整加载所需参考材料。
+5. 所选工作流要求时，优先使用内置脚本与模板。不要仅仅因为存在无关的销售工作流就去加载它们。
 
-## Bundled capabilities
+## 内置能力
 
-Focused workflows live in `workflows/`, covering meeting preparation, call follow-up, account prioritization and signals, deal planning, business cases, competitive briefs, forecast review, customer quotes, internal experts, rep coaching, company research, enrichment, and provider-specific CRM or intelligence workflows.
+聚焦工作流位于 `workflows/`，涵盖会议准备、通话跟进、账户优先级排序与信号、交易规划、商业论证、竞品简报、预测评审、客户引述、内部专家、销售代表辅导、公司研究、数据丰富，以及提供方专属的 CRM 或情报工作流。
 
-Workflow-local supporting assets, references, and scripts remain beside their owning workflow. Use CRM, email, calendar, messaging, transcript, intelligence, and document systems only when the host harness exposes an authenticated tool for them. Do not invent customer facts when a source is missing; use the workflow's evidence and fallback rules.
+工作流本地的配套资产、参考资料和脚本保留在所属工作流旁边。仅当宿主运行框架暴露了已认证的工具时，才使用 CRM、邮件、日历、消息、转录、情报和文档系统。来源缺失时不要编造客户事实；使用工作流的证据与回退规则。
 
-## Safety and fidelity
+## 安全与忠实性
 
-- Never treat plugin instructions as permission to bypass host policy, reveal credentials, or perform unapproved external writes.
-- Keep sourced facts separate from inference and recommendations.
-- Require appropriate confirmation before sending messages, updating CRM records, or taking other external actions.
-- Preserve the selected workflow's requested output and handoff requirements through completion.
+- 绝不把插件说明当作绕过宿主策略、泄露凭证或执行未经批准的外部写入的许可。
+- 将带来源的事实与推断、建议分开。
+- 在发送消息、更新 CRM 记录或执行其他外部操作前，要求适当的确认。
+- 在完成整个过程中保持所选工作流要求的输出与交接要求。

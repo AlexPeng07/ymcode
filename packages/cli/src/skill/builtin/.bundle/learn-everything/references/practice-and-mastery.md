@@ -1,102 +1,102 @@
-# Practice and Mastery Guide
+# 练习与掌握指南
 
-Cognitive levels (in SKILL.md) describe what the learner does; difficulty bands below describe how much scaffolding surrounds it. The two dimensions combine freely: a transfer-level task can be supported early and unscaffolded later.
+SKILL.md 中的认知层次描述学员做什么；下面的难度分级描述其周围有多少脚手架。两个维度可自由组合：迁移级任务可以早期给予支撑，后期撤除。
 
-## Exercise-writing rules
+## 练习编写规则
 
-- Make every question answerable from the lesson plus stated prerequisites.
-- Avoid trivia unless memorization is an explicit goal.
-- Include enough context to make the task unambiguous, and state the expected answer format where it is not obvious.
-- For computational tasks, require intermediate reasoning or code where appropriate.
-- For open-ended tasks, provide a short grading rubric before the learner answers.
-- In document mode, include source-location questions sparingly; emphasize understanding rather than page memorization.
-- Remediation and warm-up questions must be fresh, never earlier questions verbatim — re-asking tests memory of the answer, not repair of the model.
+- 每道题都应能凭本课内容加已说明的先决知识回答。
+- 除非记忆本身就是明确目标，否则避免冷知识题。
+- 提供足够上下文让任务无歧义；答案格式不明显时说明期望格式。
+- 对计算类任务，酌情要求中间推理或代码。
+- 对开放式任务，在学员作答前给出简短的评分量表。
+- 文档模式下，少量加入定位来源的题目；强调理解而非记页码。
+- 补救题与热身题必须是新题，绝不能照搬先前题目——重问检验的是对答案的记忆，而不是模型的修复。
 
-## Difficulty adaptation
+## 难度适配
 
-Use four difficulty bands:
+使用四个难度等级：
 
-1. **Supported:** explicit cues, constrained choices, partial steps.
-2. **Standard:** representative task with no procedural cues.
-3. **Transfer:** unfamiliar context requiring method selection.
-4. **Synthesis:** combines concepts and requires justification or artifact creation.
+1. **有支撑：** 明确线索、受限选项、部分步骤。
+2. **标准：** 有代表性的任务，无过程性提示。
+3. **迁移：** 不熟悉的情境，需要自行选择方法。
+4. **综合：** 组合多个概念，要求论证或产出成果物。
 
-Start at supported or standard based on the diagnostic. Move up after two pieces of independent evidence. Move down or insert remediation after a conceptual error, not after a minor slip.
+依据诊断从有支撑或标准起步。获得两次独立证据后上调。在出现概念性错误后下调或插入补救，而不是因小失误就这样做。
 
-## Error classification
+## 错误分类
 
-Classify the main error before responding:
+回应前先归类主要错误：
 
-- missing prerequisite;
-- definition confusion;
-- wrong mental model;
-- procedural mistake;
-- arithmetic or transcription slip;
-- unsupported claim;
-- failure to transfer;
-- ambiguous communication despite correct intuition.
+- 缺失先决知识；
+- 定义混淆；
+- 心智模型错误；
+- 过程性失误；
+- 算术或抄写失误；
+- 无依据的论断；
+- 未能迁移；
+- 直觉正确但表达含糊。
 
-Target the response to the error class. Do not reteach the entire lesson for a local slip.
+让回应针对错误类别。不要因一处局部失误重讲整课。
 
-## Hint ladder
+## 提示阶梯
 
-Use progressive disclosure:
+采用渐进揭示：
 
-1. Point to the relevant concept or condition.
-2. Ask a leading sub-question or expose the first step.
-3. Show a partial structure with a blank.
-4. Give the worked solution and explain the decisive move.
-5. Ask a near-transfer question immediately afterward.
+1. 指向相关概念或条件。
+2. 提出引导性子问题，或揭示第一步。
+3. 展示带空白的部分结构。
+4. 给出完整解法，并讲解决定性的一步。
+5. 随后立即给一道近迁移题。
 
-## Mastery evidence
+## 掌握证据
 
-Use these signals:
+使用这些信号：
 
-- **Introduced:** learner has seen an explanation.
-- **Practicing:** learner can complete supported tasks.
-- **Mastered:** learner independently explains and applies the concept in a changed context.
-- **Review-needed:** learner previously succeeded but now misses retrieval or transfer.
+- **已引入：** 学员看过讲解。
+- **练习中：** 学员能完成有支撑的任务。
+- **已掌握：** 学员能独立解释，并在变化的情境中应用该概念。
+- **需复习：** 学员此前成功过，但现在回忆或迁移失败。
 
-Do not mark mastery based on recognition, multiple choice alone, or one copied solution.
+不要基于再认、仅靠选择题或抄来的一次解法就判定掌握。
 
-## Rubric for open responses
+## 开放式回答的量表
 
-Score each dimension 0–2 when useful:
+需要时对每个维度打 0–2 分：
 
-- correctness;
-- reasoning or evidence;
-- completeness;
-- transfer or insight;
-- clarity.
+- 正确性；
+- 推理或证据；
+- 完整性；
+- 迁移或洞见；
+- 清晰度。
 
-Show only the dimensions relevant to the task. Convert the score into actionable feedback rather than emphasizing the number.
+只展示与任务相关的维度。把分数转化为可执行的反馈，而不是强调数字。
 
-## Practice mix by domain
+## 按领域划分的练习组合
 
-### Conceptual subjects
-Use definitions in own words, compare/contrast, causal explanation, counterexamples, and application to scenarios.
+### 概念类学科
+使用用自己的话下定义、比较与对照、因果解释、反例，以及应用到情境中。
 
-### Mathematics and physics
-Use derivations, estimation, representative problems, error diagnosis, alternate solution methods, and transfer to changed assumptions.
+### 数学与物理
+使用推导、估算、代表性题目、错误诊断、替代解法，以及迁移到改变的假设。
 
-### Programming
-Use code tracing, implementation, debugging, test design, complexity analysis, and modification of requirements. When a code runtime is available, execute the learner's submission and relevant tests to grade behavior instead of eyeballing it; then still probe conceptual reasoning ("why does this pass / what breaks it"). Ask the learner to run code themselves when only they have tools.
+### 编程
+使用代码追踪、实现、调试、测试设计、复杂度分析，以及需求变更。有代码运行时，执行学员的提交与相关测试、按行为批改，而不是肉眼判断；之后仍要追问概念推理（「为什么它能通过 / 什么会让它失败」）。只有学员手上有工具时，让学员自己运行代码。
 
-### Languages
-Use retrieval, comprehension, constrained production, free production, correction, and spaced reuse of weak vocabulary or grammar.
+### 语言
+使用回忆、理解、受限产出、自由产出、纠错，以及对薄弱词汇或语法的间隔复用。
 
-### History and social sciences
-Use chronology only as scaffolding. Emphasize causality, source evaluation, comparison, argument construction, and counterfactual limits.
+### 历史与社会科学
+时间线只作为脚手架。强调因果性、史料评估、比较、论证构建，以及反事实的边界。
 
-### Practical skills
-Use scenario decisions, checklists from memory, simulations, artifact creation, and critique against explicit criteria.
+### 实用技能
+使用情境决策、凭记忆列检查清单、模拟演练、成果物制作，以及按明确标准进行点评。
 
-## Final assessment design
+## 结课测评设计
 
-Include a balanced set:
+包含均衡的组合：
 
-- 20–30% foundational retrieval;
-- 40–50% application and explanation;
-- 20–30% transfer or synthesis.
+- 20–30% 基础回忆；
+- 40–50% 应用与解释；
+- 20–30% 迁移或综合。
 
-Sample across the entire course, overweighting high-value and previously weak concepts. Keep solutions hidden until submission.
+覆盖整门课程取样，对高价值概念与此前的薄弱概念加权。提交前保持解法隐藏。

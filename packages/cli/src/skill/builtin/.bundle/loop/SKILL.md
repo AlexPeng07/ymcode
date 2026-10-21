@@ -1,82 +1,81 @@
 ---
 name: loop
-description: Schedule a prompt to fire on a fixed cadence (recurring loop). Use when the user asks to "run X every N minutes/hours/days", "loop X", "babysit Y", "be proactive about Y every N", or invokes `/loop` directly. Parses `[interval] <prompt>`, picks a clean cron expression, registers the job via the `cron` tool, and executes the prompt once immediately so the user sees activity without waiting for the first cron tick.
+description: 按固定节奏触发提示词（周期性循环）。当用户要求「每 N 分钟/小时/天跑一次 X」「loop X」「babysit Y」「每 N 主动关注 Y」，或直接调用 `/loop` 时使用。解析 `[interval] <prompt>`，挑选干净的 cron 表达式，通过 `cron` 工具注册任务，并立即执行一次提示词，让用户无需等待第一个 cron 触发就能看到动作。 | Schedule a recurring prompt (run X every N minutes/hours/days, loop X, babysit Y).
 ---
 
-# /loop — schedule a recurring prompt
+# /loop — 安排周期性提示词
 
-This skill turns a free-form `[interval] <prompt>` line into a `cron` tool call and runs the prompt once right away.
+本技能把自由形式的 `[interval] <prompt>` 一行文本转成一次 `cron` 工具调用，并立刻把提示词执行一次。
 
-## 1. Parse the input
+## 1. 解析输入
 
-The user's text is whatever appears after `/loop `. Apply the three rules below **in order** and stop at the first match.
+用户的文本就是 `/loop ` 之后出现的全部内容。**按顺序**应用下面三条规则，命中第一条即停止。
 
-1. **Leading interval token.** If the first whitespace-separated token matches the regex `^\d+[smhd]$` (case-insensitive), that token is the interval. Examples: `5m`, `2h`, `1d`, `30s`. The rest of the input is the prompt.
+1. **前置间隔标记。** 如果按空白分隔的第一个 token 匹配正则 `^\d+[smhd]$`（不区分大小写），该 token 就是间隔。示例：`5m`、`2h`、`1d`、`30s`。输入其余部分是提示词。
 
-2. **Trailing `every <N><unit>` clause.** Otherwise, look for a clause at the end of the input of the form `every <N><unit>` or `every <N> <unit-word>` where `<unit>` is `s|m|h|d` and `<unit-word>` is `second(s)|minute(s)|hour(s)|day(s)`. Strip the clause; what's left is the prompt; the captured `<N><unit>` is the interval. Examples: `every 20m`, `every 5 minutes`, `every 2 hours`.
+2. **尾部 `every <N><unit>` 从句。** 否则，在输入末尾查找形如 `every <N><unit>` 或 `every <N> <unit-word>` 的从句，其中 `<unit>` 为 `s|m|h|d`，`<unit-word>` 为 `second(s)|minute(s)|hour(s)|day(s)`。剥离该从句；剩下的是提示词；捕获的 `<N><unit>` 是间隔。示例：`every 20m`、`every 5 minutes`、`every 2 hours`。
 
-3. **Default.** No interval found → interval is `10m`, the whole input is the prompt.
+3. **默认值。** 未找到间隔 → 间隔为 `10m`，整个输入都是提示词。
 
-If the input is empty, or is *only* an interval with no prompt body, reply with a one-line usage hint (`/loop [interval] <prompt>`) and stop. Do not schedule anything.
+如果输入为空，或*仅*有间隔而没有提示词正文，回复一行用法提示（`/loop [interval] <prompt>`）后停止。不要安排任何任务。
 
-## 2. Special: empty prompt with autonomous opt-in
+## 2. 特殊情况：空提示词与自主模式选择加入
 
-When the user types `/loop <interval>` (interval only) **and** the project has explicitly opted into autonomous-loop mode (a session-level flag the runtime sets), the prompt body is the sentinel `<<autonomous-loop>>`. The scheduler expands this sentinel at fire time into a self-directed tick instruction. If autonomous mode is not enabled, treat empty as the usage-hint case above.
+当用户输入 `/loop <interval>`（只有间隔）**且**项目已明确选择加入自主循环模式（由运行时设置的会话级标志）时，提示词正文为哨兵值 `<<autonomous-loop>>`。调度器在触发时把这个哨兵展开为一段自主决策的 tick 指令。如果未启用自主模式，按上面的用法提示情况处理。
 
-## 3. Map interval → 5-field cron expression
+## 3. 把间隔映射为 5 字段 cron 表达式
 
-| Pattern | Cron expression |
+| 模式 | cron 表达式 |
 |---|---|
-| `Ns` | treat as `ceil(N/60)m`; minimum is `1m` |
-| `Nm` where `N` is 1–59 and divides cleanly (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30) | `*/N * * * *` |
-| `Nm` where `N ≥ 60` and `N/60` divides 24 (1, 2, 3, 4, 6, 8, 12) | `0 */(N/60) * * *` |
-| `Nh` where `N` is 1–23 and divides 24 | `0 */N * * *` |
-| `Nd` where `N` divides 31 sensibly (1, 2) | `0 0 */N * *` |
+| `Ns` | 视为 `ceil(N/60)m`；最小为 `1m` |
+| `Nm`，`N` 为 1–59 且能整除（1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30） | `*/N * * * *` |
+| `Nm`，`N ≥ 60` 且 `N/60` 能整除 24（1, 2, 3, 4, 6, 8, 12） | `0 */(N/60) * * *` |
+| `Nh`，`N` 为 1–23 且能整除 24 | `0 */N * * *` |
+| `Nd`，`N` 能合理整除 31（1, 2） | `0 0 */N * *` |
 
-Cron fields are UTC. These interval patterns are timezone-agnostic; the `Nd`
-row fires at midnight UTC, not local midnight.
+cron 字段使用 UTC。这些间隔模式与时区无关；`Nd` 这一行在 UTC 午夜触发，而不是本地午夜。
 
-**Rounding rule.** If `N` does not divide its wrap-around cleanly (e.g. `7m`, `90m`, `5h`, `7d`), pick the **nearest interval that does** and tell the user explicitly what you rounded to and why. Acceptable nearby values:
+**取整规则。** 如果 `N` 不能干净地整除其回绕周期（例如 `7m`、`90m`、`5h`、`7d`），选择**能整除的最近间隔**，并明确告诉用户你取整成了多少以及原因。可接受的邻近值：
 
-- minutes < 60: 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30
-- hours: 1, 2, 3, 4, 6, 8, 12
-- days: 1, 2
+- 分钟 < 60：1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30
+- 小时：1, 2, 3, 4, 6, 8, 12
+- 天：1, 2
 
-Examples of rounding messages:
-- `7m` → "rounding 7m to 6m so the fires stay evenly spaced; `*/7` skews at the hour wrap"
-- `90m` → "rounding 90m to 2h; cron's hour field can't express 1.5h"
+取整提示示例：
+- `7m` → 「把 7m 取整为 6m，让触发间隔保持均匀；`*/7` 在跨小时处会偏斜」
+- `90m` → 「把 90m 取整为 2h；cron 的小时字段无法表达 1.5h」
 
-## 4. Call the cron tool
+## 4. 调用 cron 工具
 
-With the parsed `cron` expression and `prompt`, invoke the `cron` tool's `schedule` verb. Use whichever call form the tool's own prompt describes — pass `cron` and `prompt` as required, leave `durable: false` (the default; only set true when the user explicitly asked the job to persist across sessions), leave it recurring (the default; one-shot is wrong for `/loop` — one-shots come from natural-language scheduling).
+用解析出的 `cron` 表达式和 `prompt`，调用 `cron` 工具的 `schedule` 动词。调用形式按该工具自身提示词描述的方式——按要求传 `cron` 与 `prompt`，保持 `durable: false`（这是默认值；仅当用户明确要求任务跨会话保留时才设为 true），保持周期性（默认值；一次性任务对 `/loop` 是错的——一次性任务来自自然语言调度）。
 
-The cron tool returns a job id. Mention it briefly so the user can cancel with `/loops cancel <id>`.
+cron 工具会返回任务 id。简要提及它，以便用户用 `/loops cancel <id>` 取消。
 
-## 5. Execute the prompt once immediately
+## 5. 立即执行一次提示词
 
-After the cron call succeeds, **do not wait for the first scheduled tick**. Run the prompt body once right now:
+cron 调用成功后，**不要等待第一个计划触发点**。现在就执行一次提示词正文：
 
-- If the prompt starts with `/` (e.g. `/loop 5m /standup` → prompt is `/standup`), invoke it as a slash command — load the corresponding skill or command via the `skill` tool.
-- Otherwise, act on the prompt directly in this turn.
+- 如果提示词以 `/` 开头（例如 `/loop 5m /standup` → 提示词为 `/standup`），按斜杠命令调用——通过 `skill` 工具加载对应技能或命令。
+- 否则，在本轮直接执行该提示词。
 
-This is the "don't make the user wait" rule. The cron job carries the recurring behavior; the immediate run is for responsiveness.
+这就是「别让用户干等」规则。周期性行为由 cron 任务承载；立即执行是为了响应速度。
 
-## 6. Examples
+## 6. 示例
 
-| User input | Interval | Cron | Prompt |
+| 用户输入 | 间隔 | cron | 提示词 |
 |---|---|---|---|
-| `/loop 5m /babysit-prs` | `5m` (leading) | `*/5 * * * *` | `/babysit-prs` |
-| `/loop check the deploy every 20m` | `20m` (trailing) | `*/20 * * * *` | `check the deploy` |
+| `/loop 5m /babysit-prs` | `5m`（前置） | `*/5 * * * *` | `/babysit-prs` |
+| `/loop check the deploy every 20m` | `20m`（后置） | `*/20 * * * *` | `check the deploy` |
 | `/loop /standup every 2 hours` | `2h` | `0 */2 * * *` | `/standup` |
-| `/loop tidy inbox` | `10m` (default) | `*/10 * * * *` | `tidy inbox` |
+| `/loop tidy inbox` | `10m`（默认） | `*/10 * * * *` | `tidy inbox` |
 | `/loop 30s ping` | `30s` → `1m` | `*/1 * * * *` | `ping` |
-| `/loop 7m ping` | `7m` → `6m` (rounded, explain) | `*/6 * * * *` | `ping` |
-| `/loop` | (usage hint) | — | — |
-| `/loop 5m` | autonomous-only | (if enabled) | `<<autonomous-loop>>` |
+| `/loop 7m ping` | `7m` → `6m`（取整并说明） | `*/6 * * * *` | `ping` |
+| `/loop` | （用法提示） | — | — |
+| `/loop 5m` | 仅自主模式 | （如已启用） | `<<autonomous-loop>>` |
 
-## 7. Do not
+## 7. 禁止事项
 
-- Do not invent intervals the user didn't ask for. If unsure, default to `10m` and say so.
-- Do not pass `--one-shot`. This skill is for recurring loops.
-- Do not list active jobs in your reply. Use `/loops` for that.
-- Do not re-derive the cron expression in your reply unless the user asked. A one-line confirmation ("scheduled `<prompt>` every `<interval>`; job id `<id>`") is enough.
+- 不要凭空发明用户没有要求的间隔。不确定时默认 `10m` 并说明。
+- 不要传 `--one-shot`。本技能用于周期性循环。
+- 不要在回复中列出活动任务。用 `/loops` 查看。
+- 除非用户要求，不要在回复中重新推导 cron 表达式。一行确认（「已安排 `<prompt>` 每 `<interval>`；任务 id `<id>`」）就够了。

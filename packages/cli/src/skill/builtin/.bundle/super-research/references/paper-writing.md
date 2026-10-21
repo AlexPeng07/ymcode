@@ -1,24 +1,24 @@
-# Mode: Paper writing + citation audit / 写论文 & 引用校验
+# 模式：写论文 + 引用校验
 
-Use when the user asks to write, polish, or verify the bibliography of an academic paper — "write a paper on X", "polish this draft", "check every citation", "查引用", "citation audit". Also usable standalone on an existing PDF/tex whose citations you don't trust.
+当用户要求撰写、打磨或核实学术论文的参考文献时使用——「write a paper on X」「polish this draft」「check every citation」「查引用」「citation audit」。也可独立用于你信不过其引用的现有 PDF/tex。
 
-The failure mode this mode is designed against: fabricated references, and (worse) real papers cited for claims they don't actually make. A polished draft with a hallucinated bibliography looks perfect until a reviewer opens one of the papers you cited — then everything collapses. **Every citation in the final draft must trace to an API-returned record.**
+本模式要防范的失败模式是：编造的参考文献，以及（更糟的）用真实论文去支撑它们并未提出的论断。一份参考文献是幻觉的打磨稿在审阅者打开你引用的某篇论文之前看起来完美无瑕——之后一切崩塌。**最终稿中的每条引用都必须追溯到 API 返回的记录。**
 
-This mode has two parts. They can run together (writing a new paper) or independently (auditing someone else's).
+本模式分两部分。它们可以一起运行（写新论文），也可以独立运行（审计别人的论文）。
 
-## Part A: Writing
+## 第一部分：写作
 
-### Contract fields (writing)
+### 契约字段（写作）
 
-1. **Inputs on hand**: prior draft (path), experiment logs / `results.tsv` (path — this may be the output of an experiment-loop run), figures, target venue + template, page limit.
-2. **Claim spine**: The 3–7 empirical claims the paper will make. Written before drafting. Every claim maps to (a) a specific `results.tsv` row / figure, or (b) a cited paper. If a claim maps to neither, it gets cut or hedged NOW — not discovered by a reviewer.
-3. **Outline**: Section structure with 1–2 sentence purpose + the key claim per section. Confirm with user before drafting.
-4. **Bibliography source**: The `refs.bib` is built from `scripts/paper_search.py` results as you write. Every entry originates from an API record — metadata copied from JSON, never recalled from memory.
-5. **Working directory**: `paper/<tag>/` — draft.tex or draft.md, `refs.bib`, `claims.tsv`, `citation_audit.json`, revision `LOG.md`.
+1. **手头输入**：既有草稿（路径）、实验日志 / `results.tsv`（路径——可能是某次实验循环运行的输出）、图表、目标会议/期刊 + 模板、页数限制。
+2. **论断主轴**：论文将提出的 3–7 条实证论断。在起草前写好。每条论断映射到 (a) 具体的 `results.tsv` 行/图，或 (b) 被引论文。如果某条论断两者都不映射，现在就被删减或加限定——而不是被审阅者发现。
+3. **大纲**：章节结构，每节 1–2 句目的 + 关键论断。起草前与用户确认。
+4. **参考文献来源**：`refs.bib` 随写随从 `scripts/paper_search.py` 的结果构建。每条条目都源于 API 记录——元数据从 JSON 复制，绝不凭记忆回忆。
+5. **工作目录**：`paper/<tag>/`——draft.tex 或 draft.md、`refs.bib`、`claims.tsv`、`citation_audit.json`、修订 `LOG.md`。
 
-### Baseline — the claim map
+### 基线——论断映射
 
-Before drafting: write `claims.tsv`, one row per empirical claim, each mapped to its evidence source. This is your baseline artifact.
+起草前：编写 `claims.tsv`，每条实证论断一行，各自映射到其证据来源。这是你的基线产物。
 
 ```
 id	claim	evidence_kind	evidence_ref	confidence	notes
@@ -28,11 +28,11 @@ K3	Muon has been shown to outperform AdamW at small scale	cited paper	@karpathy2
 K4	our approach is "significantly better"	???	—	—	CUT — no evidence source, drop or hedge
 ```
 
-Rows with no evidence get cut or hedged before drafting. Every remaining row must survive Part B's audit.
+没有证据的行在起草前删减或加限定。其余每一行都必须通过第二部分的审计。
 
-### The revision log
+### 修订日志
 
-`LOG.md` (append-only), one entry per drafting or revision pass:
+`LOG.md`（仅追加），每次起草或修订一轮记一条：
 
 ```
 2026-07-07T14:30  outline confirmed with user (3 sections, 6 pages)
@@ -41,79 +41,79 @@ Rows with no evidence get cut or hedged before drafting. Every remaining row mus
 2026-07-07T17:20  reviewer subagent pass — flagged §4 overclaims "significantly"; softened to "consistently"
 ```
 
-### The drafting loop
+### 起草循环
 
-For each section in the outline:
+对大纲中的每一节：
 
-1. Draft it, section by section. Numbers come from `results.tsv` and figures — never rounded, never eyeballed.
-2. Every citation is inserted at the point the claim is made. As you insert `\cite{key}`, ensure `key` exists in `refs.bib` and came from a `paper_search.py` result. If it doesn't yet, run the search now, add the entry, then cite.
-3. After each section, re-read: does every non-trivial sentence carry a citation or a `results.tsv` reference? Empty citations are anti-patterns.
-4. After the full draft: run Part B (citation audit) before the review pass — you don't want a reviewer to find fabrications you could have caught mechanically.
-5. **Reviewer subagent pass** — spawn a fresh subagent with only the draft path (not your `claims.tsv`, not your confidence). Ask it for the strongest rejection argument: weakest claim, missing baseline, overclaiming. Address in text or explicitly concede. 1–3 rounds; stop when new findings become cosmetic.
-6. **Refinement tightens, never inflates.** If a revision pass ends with claims stronger than the baseline, revert — you drifted into overclaiming.
+1. 逐节起草。数字来自 `results.tsv` 与图表——绝不四舍五入，绝不肉眼估计。
+2. 每条引用都插入在提出论断的位置。插入 `\cite{key}` 时，确保 `key` 存在于 `refs.bib` 且来自某条 `paper_search.py` 结果。如果还没有，立刻运行搜索、补上条目，再引用。
+3. 每节写完后重读：每条非平凡句子是否都带有引用或 `results.tsv` 引用？空引用是反模式。
+4. 全稿完成后：在评审轮之前先跑第二部分（引用校验）——你不希望审阅者发现本可由机器发现的编造内容。
+5. **审稿子代理轮**——派生一个全新子代理，只给它草稿路径（不给你的 `claims.tsv`，不给你的置信度）。让它给出最强的拒稿理由：最弱的论断、缺失的基线、过度声称。在文中回应或明确让步。1–3 轮；当新发现开始变成吹毛求疵时停止。
+6. **精炼只会收紧，绝不膨胀。** 如果某一轮修订结束时论断比基线更强，就回退——你已漂向过度声称。
 
-## Part B: Citation audit
+## 第二部分：引用校验
 
-Run on any paper/draft with a bibliography. Standalone-usable ("查引用" on an existing PDF/tex).
+对任何有参考文献的论文/草稿运行。可独立使用（对现有 PDF/tex「查引用」）。
 
-### Contract fields (audit-only)
+### 契约字段（仅审计）
 
-1. **Bib source**: Path to `refs.bib` (or the paper's PDF/tex from which to extract a bib).
-2. **Draft source**: Path to the tex/md draft (needed for Part B step 2 — the context audit).
-3. **Deliverables**: `citation_audit.json` (per-entry verdict), `audit_report.md` (summary + repairs).
-4. **Repair authority**: What the auditor may auto-do vs must ask (see repair matrix below).
+1. **参考文献来源**：`refs.bib` 的路径（或用于抽取 bib 的论文 PDF/tex）。
+2. **草稿来源**：tex/md 草稿路径（第二部分第 2 步的上下文审计需要）。
+3. **交付物**：`citation_audit.json`（逐条判定）、`audit_report.md`（摘要 + 修复）。
+4. **修复权限**：审计者可以自动做什么、必须询问什么（见下面修复矩阵）。
 
-### Baseline — the mechanical audit
+### 基线——机械审计
 
-Before any context analysis, run the metadata check on the full bib:
+在任何上下文分析之前，先对整份 bib 跑元数据检查：
 
 ```bash
 python3 scripts/verify_citation.py --bib refs.bib --out citation_audit.json
 ```
 
-Per-entry mechanical verdicts:
+逐条机械判定：
 
-| Verdict | Meaning |
+| 判定 | 含义 |
 |---|---|
-| `VERIFIED` | title/author/year match a real record in Crossref / S2 / OpenAlex / arXiv |
-| `MISMATCH` | a record found but metadata disagrees (wrong year, wrong venue, wrong first author) |
-| `NOT_FOUND` | nothing found across all 4 APIs — possible fabrication |
-| `UNCERTAIN` | multiple weak matches, ambiguous |
+| `VERIFIED` | 标题/作者/年份与 Crossref / S2 / OpenAlex / arXiv 中的真实记录一致 |
+| `MISMATCH` | 找到记录但元数据不一致（年份错、会议错、第一作者错） |
+| `NOT_FOUND` | 4 个 API 均未找到——可能是编造 |
+| `UNCERTAIN` | 多个弱匹配，含糊 |
 
-`citation_audit.json` becomes the audit log for this run. Every entry must have a verdict; nothing silently skipped.
+`citation_audit.json` 成为本次运行的审计日志。每条条目必须有判定；不得静默跳过。
 
-### The context audit — the failure mode that matters
+### 上下文审计——最要紧的失败模式
 
-A real paper cited for a claim it doesn't make is worse than an obviously fabricated citation, because it survives mechanical checks. For every citation in the draft:
+用真实论文支撑它并未提出的论断，比明显编造的引用更糟，因为它能通过机械检查。对草稿中的每条引用：
 
-1. Extract the sentence containing `\cite{key}` and identify the specific claim it supports.
-2. Fetch the cited paper's abstract (from `citation_audit.json`'s `matched` field, or `scripts/fetch_paper.py <arxiv_id>`).
-3. Judge one of: `SUPPORTS` / `WEAK` (abstract hints but doesn't say so directly) / `WRONG` (abstract does not contain this claim) / `UNKNOWN` (needs full-text fetch — flag for later).
-4. For **load-bearing citations** (a claim the paper's contribution depends on) read more than the abstract — spend the fetch budget there.
+1. 抽取包含 `\cite{key}` 的句子，并识别它所支撑的具体论断。
+2. 抓取被引论文的摘要（来自 `citation_audit.json` 的 `matched` 字段，或 `scripts/fetch_paper.py <arxiv_id>`）。
+3. 判定其一：`SUPPORTS` / `WEAK`（摘要暗示但未直接说明）/ `WRONG`（摘要不含此论断）/ `UNKNOWN`（需抓全文——标记待查）。
+4. 对**承重引用**（论文贡献所依赖的论断）要读摘要之外的内容——把抓取预算花在那里。
 
-Batch this with subagents for long bibliographies. Each subagent gets the sentence + abstract + the citation key — NOT your expectation of the verdict. Fresh eyes prevent confirmation bias.
+参考文献很长时，用子代理分批处理。每个子代理拿到句子 + 摘要 + 引用 key——**不要**给它你对判定的预期。新鲜的眼光能防止确认偏差。
 
-Append the context verdict to each entry in `citation_audit.json`.
+把上下文判定追加到 `citation_audit.json` 的每条条目。
 
-### The repair matrix — four verdicts, four actions
+### 修复矩阵——四种判定，四种动作
 
-| Combined verdict | Action | Automatic? |
+| 组合判定 | 动作 | 自动？ |
 |---|---|---|
-| VERIFIED + SUPPORTS | KEEP | yes |
-| VERIFIED + WEAK | REVIEW (hedge the claim in text if needed) | ask user |
-| MISMATCH + SUPPORTS | FIX metadata from `matched` fields | yes |
-| MISMATCH + WRONG | REPLACE | ask user |
-| NOT_FOUND | REPLACE (search for a real substitute) or REMOVE | ask user |
-| any + WRONG | REPLACE (find a paper that actually supports the claim) or REMOVE + hedge | ask user |
-| UNCERTAIN / UNKNOWN | leave marked; do NOT guess a verdict | — |
+| VERIFIED + SUPPORTS | 保留 | 是 |
+| VERIFIED + WEAK | 复核（必要时在文中对论断加限定） | 询问用户 |
+| MISMATCH + SUPPORTS | 按 `matched` 字段修正元数据 | 是 |
+| MISMATCH + WRONG | 替换 | 询问用户 |
+| NOT_FOUND | 替换（搜索真实替代）或删除 | 询问用户 |
+| 任意 + WRONG | 替换（找一篇真正支撑该论断的论文）或删除 + 加限定 | 询问用户 |
+| UNCERTAIN / UNKNOWN | 保持标记；不要猜判定 | — |
 
-**Never leave a dangling `\cite` after a REMOVE.** Deleting a `.bib` entry AND deleting the `\cite` are one operation. If a claim only stood on a removed citation, that claim is now unsupported — hedge it or cut it.
+**删除后绝不留下悬空的 `\cite`。** 删除 `.bib` 条目与删除 `\cite` 是同一个操作。如果某条论断只靠一条被移除的引用支撑，该论断现在已失去支撑——加限定或删掉。
 
-**Fixes come from API-returned records, never from memory.** If the API says the year is 2023 and the bib says 2022, the API wins. Never edit metadata from what you think the paper's year is.
+**修复来自 API 返回的记录，绝不来自记忆。** 如果 API 说年份是 2023 而 bib 写 2022，以 API 为准。绝不要按你「以为」的论文年份去改元数据。
 
-### The audit report
+### 审计报告
 
-`audit_report.md`:
+`audit_report.md`：
 
 ```
 Total entries: 47
@@ -124,21 +124,21 @@ WRONG context:       1   → replaced (@brown2020 cited for a claim only @wei202
 UNCERTAIN:           0   remaining after review
 ```
 
-## Anti-patterns (both parts)
+## 反模式（两个部分）
 
-- Rounding a number favorably.
-- Using "significantly" without a statistical test.
-- Citing a paper for a claim its abstract doesn't contain (checked in Part B step 2).
-- Expanding claims during refinement (refinement tightens, never inflates).
-- Filling in bib metadata from memory instead of an API result.
-- Marking a load-bearing citation `VERIFIED` from title match alone, without reading the abstract.
+- 把数字往有利方向四舍五入。
+- 没有统计检验却使用「significantly（显著）」。
+- 用论文支撑其摘要中并不包含的论断（第二部分第 2 步会检查）。
+- 在精炼过程中扩张论断（精炼只收紧，绝不膨胀）。
+- 凭记忆而非 API 结果填写 bib 元数据。
+- 仅凭标题匹配就把承重引用标为 `VERIFIED`，而不读摘要。
 
-## Final report
+## 最终报告
 
-See "Reporting" in SKILL.md. Mode-specific body:
+参见 SKILL.md 的「报告」。模式专属正文：
 
-- **What was written / audited** — one paragraph.
-- **Claim map summary** — how many claims total, how many backed by own experiments vs cited work, how many cut/hedged during writing.
-- **Audit outcome** — entry counts by verdict, actions taken, unresolved `UNCERTAIN` entries.
-- **Residual risks** — any WEAK or UNKNOWN citations that survived into the final draft with a hedge, and why.
-- **Where to look**: `claims.tsv`, `refs.bib`, `citation_audit.json`, `audit_report.md`, the draft, `paper/<tag>/`.
+- **写了/审计了什么**——一段话。
+- **论断映射摘要**——共多少条论断，多少由自己的实验支撑、多少由引用文献支撑，写作过程中删减/加限定了多少。
+- **审计结果**——按判定分类的条目计数、采取的动作、未解决的 `UNCERTAIN` 条目。
+- **残余风险**——带限定进入最终稿的 WEAK 或 UNKNOWN 引用，以及原因。
+- **去哪里看**：`claims.tsv`、`refs.bib`、`citation_audit.json`、`audit_report.md`、草稿、`paper/<tag>/`。

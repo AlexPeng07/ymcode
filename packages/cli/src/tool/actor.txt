@@ -1,174 +1,171 @@
-Launch a new actor (subagent) to handle complex, multi-step tasks autonomously.
+启动一个新的 actor（子代理），自主处理复杂、多步骤的任务。
 
-**Subagent restriction:** When you are running as a subagent, you can ONLY use
-`actor send` to communicate with the parent agent. Other actions (spawn, run,
-cancel, etc.) are restricted to primary agents. Use `actor send` with
-to_actor_id="main" to report progress, findings, or blockers to the parent.
+**子代理限制：** 当你以子代理身份运行时，你只能使用
+`actor send` 与父智能体通信。其他动作（spawn、run、
+cancel 等）仅限主智能体使用。使用 `actor send` 并通过
+to_actor_id="main" 向父智能体汇报进度、发现或阻塞问题。
 
-JSON calls wrap the action payload inside an `operation` object; `action` is the discriminator field.
+JSON 调用会把动作负载包装在 `operation` 对象内；`action` 是判别字段。
 
-**`spawn` is the DEFAULT.** It launches the subagent in the BACKGROUND and returns
-its actor_id immediately, so several subagents run in PARALLEL and you keep
-responding to the user while they work. `run` waits for the subagent's result until
-completion, user input, or timeout — it is the rare exception, not the normal path.
+**`spawn` 是默认方式。** 它在后台启动子代理并立即返回
+其 actor_id，因此多个子代理可以并行运行，而你在它们工作期间
+仍能继续回应用户。`run` 会等待子代理的结果直到
+完成、用户输入或超时——它是罕见的例外，不是常规路径。
 
-Examples:
+示例：
 {"operation":{"action":"spawn","subagent_type":"explore","description":"Find error recovery","prompt":"<full task>"}}
 {"operation":{"action":"spawn","subagent_type":"explore","description":"Investigate T4","prompt":"<full task>","task_id":"T4"}}
 {"operation":{"action":"status","actor_id":"<existing>"}}
 {"operation":{"action":"wait","actor_id":"<existing>"}}
 {"operation":{"action":"cancel","actor_id":"<existing>"}}
 {"operation":{"action":"send","to_actor_id":"<existing>","content":"<message>"}}
-THE EXCEPTION — `run` blocks the conversation; only for a tiny lookup that gates this very turn:
+例外情况——`run` 会阻塞对话；仅用于决定当前回合走向的极小查询：
 {"operation":{"action":"run","subagent_type":"explore","description":"One tiny blocking lookup","prompt":"<full task>"}}
 
-## Operations (the `operation.action` field selects one)
+## 操作（由 `operation.action` 字段选择）
 
-- spawn:  **THE DEFAULT.** Launch a subagent in the BACKGROUND; returns actor_id
-          IMMEDIATELY so work proceeds in PARALLEL and your turn stays responsive.
-          Use it for essentially all delegation: investigation, analysis, review,
-          implementation, long searches — anything that takes real time.
-          required: subagent_type, description, prompt
-          optional: command
-- run:    **RARE EXCEPTION.** Same launch, but waits for the result inline until
-          completion, user input, or timeout. Allowed ONLY when you
-          cannot make your very next decision without the result in THIS turn, and
-          the work is a tiny, fast, strictly-blocking lookup. NEVER use `run` for
-          ordinary analysis, review, or implementation work — those go to `spawn`.
-          If you are unsure, use `spawn`. Like `wait`, user input or timeout returns
-          actor_id and the latest execution snapshot without cancelling the child.
-          Handle the user first after interruption; do not immediately wait again.
-          The timeout is a fixed wait deadline, not a failure or cancellation signal.
-          Inspect status and concrete outputs before deciding to send, wait, or cancel.
-          required: subagent_type, description, prompt
-          optional: timeout_ms, command
-- status: poll actor state without blocking. required: actor_id.
-          Returns: { status: "pending"|"running"|"idle"|"unknown", executionState, actor_id, turnCount, ... }
-          Use executionState to distinguish running, completed, failed, cancelled, and stopped.
-          "idle" only means not executing; it does NOT mean the task completed.
-          "stopped" means no active execution and no recorded terminal outcome. Partial text or
-          turnCount is not proof of completion. Do not promise a pending completion notification;
-          use send to resume unfinished work when appropriate. Only "completed" confirms success.
-- wait:   block until actor completes (success/failure/cancelled) or timeout (default 10 min).
-          required: actor_id. optional: timeout_ms.
-          Returns: { status, executionState?, actor_id, result?, error? }; the same completion rules apply.
-- cancel: stop a running actor (graceful). required: actor_id. Idempotent.
-- send:   deliver message to another actor's inbox, waking it for another turn.
-          required: to_actor_id, content.
-          optional: to_session_id, type (default "text").
-          Receiver sees wrapped in <inbox from="..." sent_at="...">...</inbox> at next iteration.
-          Returns once queued, not when the woken turn finishes — that turn's result arrives as a completion notification.
+- spawn:  **默认方式。** 在后台启动子代理；立即返回 actor_id，
+          使工作并行推进、你的回合保持可响应。
+          几乎所有委托都用它：调查、分析、评审、
+          实现、长搜索——任何需要真实耗时的工作。
+          必需：subagent_type、description、prompt
+          可选：command
+- run:    **罕见例外。** 相同的启动方式，但会在行内等待结果直到
+          完成、用户输入或超时。仅当你没有该结果
+          就无法在本回合做出下一个决定，且工作是
+          极小、快速、严格阻塞的查询时才允许。绝不要用 `run` 做
+          常规分析、评审或实现工作——那些交给 `spawn`。
+          如果不确定，用 `spawn`。与 `wait` 一样，用户输入或超时都会返回
+          actor_id 和最新执行快照，且不会取消子代理。
+          被中断后先处理用户；不要立刻再次等待。
+          超时是固定的等待期限，不是失败或取消信号。
+          在决定 send、wait 或 cancel 之前，先检查 status 和具体输出。
+          必需：subagent_type、description、prompt
+          可选：timeout_ms、command
+- status: 非阻塞地轮询 actor 状态。必需：actor_id。
+          返回：{ status: "pending"|"running"|"idle"|"unknown", executionState, actor_id, turnCount, ... }
+          用 executionState 区分 running、completed、failed、cancelled 和 stopped。
+          "idle" 只表示未在执行；不表示任务已完成。
+          "stopped" 表示没有活动执行，也没有记录终止结果。部分文本或
+          turnCount 不是完成的证据。不要承诺待定的完成通知；
+          适当时使用 send 恢复未完成的工作。只有 "completed" 才确认成功。
+- wait:   阻塞直到 actor 完成（成功/失败/已取消）或超时（默认 10 分钟）。
+          必需：actor_id。可选：timeout_ms。
+          返回：{ status, executionState?, actor_id, result?, error? }；同样的完成规则适用。
+- cancel: 停止运行中的 actor（优雅停止）。必需：actor_id。幂等。
+- send:   将消息投递到另一个 actor 的收件箱，唤醒它再进行一个回合。
+          必需：to_actor_id、content。
+          可选：to_session_id、type（默认 "text"）。
+          接收方在下一轮迭代中会看到包装为 <inbox from="..." sent_at="...">...</inbox> 的消息。
+          排队后即返回，而不是在唤醒的回合结束时返回——该回合的结果会以完成通知形式到达。
 
-## When to use actor
+## 何时使用 actor
 
-- **Parallelize (the normal case)**: `spawn` every independent search/analysis at once so
-  they run concurrently; collect later via notification, or `wait`/`status` when you must
-  synchronize.
-- **Isolate heavy lifting**: `spawn` a subagent for 10+ file reads; you get only the synthesis.
-- **Specialized search**: use `explore` for read-only code discovery (finding definitions, callers).
-- **Custom review**: `general` subagent verifies implementation against spec without bias.
-- **Working on a tracked task**: when you spawn a subagent to do work for one of your active tasks (T1, T2, …) — investigation, focused review, dedicated implementation — pass `task_id` so the subagent's verbatim findings get captured to `tasks/<TID>/progress.md`. Pass ONLY a task ID the Task tool returned this session; never invent one. If you haven't created the task yet, create it with the Task tool first, or omit `task_id` and spawn ad-hoc.
-- **Don't delegate at all for**: trivial single-file lookups, answers already in your context, or decisions on partial outputs.
+- **并行化（常规情况）**：一次性 `spawn` 所有独立的搜索/分析，让它们
+  并发运行；稍后通过通知收集，或在必须同步时用 `wait`/`status`。
+- **隔离繁重工作**：为 10 个以上文件的读取 `spawn` 一个子代理；你只拿到综合结论。
+- **专用搜索**：使用 `explore` 进行只读代码发现（查找定义、调用方）。
+- **定制评审**：`general` 子代理会不带偏见地对照规格验证实现。
+- **处理受跟踪任务**：当你为某个活动任务（T1、T2、……）spawn 子代理执行工作时——调查、聚焦评审、专门实现——传入 `task_id`，使子代理的逐字发现被记录到 `tasks/<TID>/progress.md`。只传入 Task 工具在本次会话中返回的任务 ID；绝不要杜撰。如果你还没创建任务，先用 Task 工具创建，或省略 `task_id` 做临时 spawn。
+- **完全不要委托的情况**：琐碎的单文件查找、已在上下文中的答案，或基于部分输出的决策。
 
-## Collecting spawned work
+## 收集已 spawn 的工作
 
-`spawn` hands you an actor_id, not a result. Three ways to pick the result up:
+`spawn` 交给你一个 actor_id，而不是结果。有三种取回结果的方式：
 
-- **Notification (preferred)**: when a background subagent finishes, its result arrives as a
-  notification in this conversation. Keep working while it runs. Before the main turn can
-  finish, the engine waits for active subagents and returns their notifications to the loop.
-  Each automatic wait window has a fixed 10-minute deadline; activity and partial completion
-  do not extend it. On timeout, control returns to main with the still-active actor IDs:
-  inspect status and available results, request concrete progress or partial results via send,
-  or cancel if necessary and confirm execution has exited. Do not blindly repeat waits.
-  User input can interrupt that wait without cancelling the subagents; handle the input first.
-  Waiting after handling new user input starts a fresh window.
-- **`wait`**: block on one actor_id only when you have genuinely run out of other work and
-  must have that result before continuing. `timeout_ms` limits this wait, not the actor's
-  execution; timeout and user-input interruption do not cancel the actor. Both include
-  the latest execution snapshot.
-- **`status`**: non-blocking execution snapshot. `executionActive` reflects a live fiber or
-  a reserved execution awaiting attachment, not a persisted running label. A completed
-  fiber is inactive even if its Runner still says busy. `executionState: stopped` means
-  no live execution and no trustworthy terminal outcome; never treat it as success.
-  Old outcome/error/result fields are omitted while a new execution is active or orphaned.
+- **通知（首选）**：后台子代理完成时，其结果会作为通知出现在
+  本次对话中。它运行期间继续工作。主回合结束前，
+  引擎会等待活动子代理并将它们的通知返回给循环。
+  每个自动等待窗口都有固定的 10 分钟期限；活动和部分完成
+  不会延长期限。超时后，控制权连同仍活动的 actor ID 返回主智能体：
+  检查 status 和可用结果，通过 send 请求具体进度或部分结果，
+  或在必要时 cancel 并确认执行已退出。不要盲目重复等待。
+  用户输入可以中断该等待而不取消子代理；先处理输入。
+  处理新的用户输入后再次等待会重新开始一个窗口。
+- **`wait`**：仅当你确实没有其他工作、必须在继续前拿到该结果时，
+  才对单个 actor_id 阻塞。`timeout_ms` 限制的是这次等待，而不是 actor
+  的执行；超时和用户输入中断都不会取消 actor。两者都包含
+  最新执行快照。
+- **`status`**：非阻塞的执行快照。`executionActive` 反映的是活动 fiber 或
+  等待挂接的已预留执行，而不是持久化的 running 标签。已完成的
+  fiber 是非活动的，即使其 Runner 仍报告 busy。`executionState: stopped` 表示
+  没有活动执行，也没有可信的终止结果；绝不要把它当作成功。
+  当新的执行处于活动或孤立状态时，旧的 outcome/error/result 字段会被省略。
 
-Fan-out then fan-in: `spawn` 2-3 subagents in one message, then `wait` on each in turn.
+扇出再扇入：在一条消息中 `spawn` 2-3 个子代理，然后依次对每个 `wait`。
 
-## Writing the prompt
+## 编写提示词
 
-You are the subagent's only briefing — it hasn't seen this conversation.
-- Explain what you're trying to accomplish and why.
-- Say what you've already learned or ruled out.
-- Give enough context for judgment calls, not just narrow steps.
-- If you need short output, say so ("report in under 200 words").
-- For investigation: hand over the question; prescribed steps become dead weight.
+你是子代理唯一的简报——它没有看过本次对话。
+- 解释你试图达成什么以及为什么。
+- 说明你已经了解或排除了什么。
+- 为判断留出足够的上下文，而不只是狭窄的步骤。
+- 如果需要简短输出，就明说（"用 200 词以内汇报"）。
+- 对于调查：交出问题本身；规定的步骤会成为累赘。
 
-## Actor ID vs Task ID
+## Actor ID 与 Task ID
 
-`actor_id` identifies a live subagent. It is returned by `spawn`/`run` and accepted by
-`status`, `wait`, `cancel`, and `send`. Task IDs (T1, T2, ...) come from the Task tool — only pass a `task_id` you got from a Task tool call this session. If the `task_id` is malformed or unknown, the binding is dropped: the subagent's findings won't be captured to any task, and the tool result tells you so.
+`actor_id` 标识一个活动的子代理。它由 `spawn`/`run` 返回，并被
+`status`、`wait`、`cancel` 和 `send` 接受。任务 ID（T1、T2、……）来自 Task 工具——只传入你在本次会话中通过 Task 工具调用得到的 `task_id`。如果 `task_id` 格式错误或未知，绑定会被丢弃：子代理的发现不会记录到任何任务，工具结果会告诉你这一点。
 
-## Following up with an existing subagent
+## 跟进已有的子代理
 
-To give more work to a subagent you already have, `send` it a message:
+要给你已经有的子代理更多工作，`send` 一条消息：
 
   `{"operation":{"action":"send","to_actor_id":"explore-1","content":"<follow-up>"}}`
 
-`send` appends your message to that subagent's own history and wakes it for another
-turn, so it keeps every prior message and tool output — including a subagent that has
-already gone idle. It returns as soon as the message is queued; the woken turn's
-result reaches you as a completion notification.
+`send` 会把你的消息追加到该子代理自己的历史中，并唤醒它再进行一个
+回合，因此它会保留此前的每条消息和工具输出——包括已经进入空闲状态的
+子代理。消息一入队它就返回；被唤醒回合的
+结果会以完成通知的形式到达你。
 
-## Binding a subagent to a task
+## 将子代理绑定到任务
 
-When you `spawn` (or, exceptionally, `run`) a subagent that's doing work for a
-specific task, pass the task's TID via `task_id` (e.g. `task_id: "T4"`) — but only
-a TID the Task tool actually returned this session. After the subagent finishes,
-the system checks that `tasks/<task_id>/progress.md` exists with the required
-structure — if not, the subagent gets one more chance to write it before
-terminating.
+当你 `spawn`（或例外地 `run`）一个为特定任务工作的子代理时，
+通过 `task_id` 传入该任务的 TID（例如 `task_id: "T4"`）——但只能传
+Task 工具在本次会话中实际返回的 TID。子代理完成后，
+系统会检查 `tasks/<task_id>/progress.md` 是否存在且具有要求的
+结构——如果不存在，子代理会在终止前再获得一次写入机会。
 
-If `task_id` is malformed or names no existing task, the binding is dropped —
-the subagent's findings won't be captured to that task, and the tool result
-says so. Leave `task_id` OFF for ad-hoc work that isn't bound to a task; the
-postStop check then becomes a no-op.
+如果 `task_id` 格式错误或指向不存在的任务，绑定会被丢弃——
+子代理的发现不会记录到该任务，工具结果
+会说明这一点。对于未绑定任务的临时工作，把 `task_id` 留空；此时
+postStop 检查会变成空操作。
 
-## Usage notes
+## 使用说明
 
-- **`spawn` vs `run` result delivery**: `spawn` returns the actor_id immediately and lets you continue useful work. Use `wait` when you need its result; the main turn also waits for active subagents before finishing. These waits are interruptible by user input without cancelling the child. An actor with no live execution is stopped, not still running merely because its stored status says so. Lack of recent activity alone does not prove failure. `run` waits for its result inline without a duplicate completion notification. After a run wait is interrupted or times out, the child continues and its result is delivered as a completion notification instead.
-- **`wait` on persistent peers caveat**: `wait` is designed for ephemeral subagents you spawned via `spawn`/`run`. Persistent peers idle between turns and never produce a "done" outcome on success — `wait` on a peer will block until that peer fails or is cancelled. Use `send` + `status` to coordinate with peers instead.
-- **`send` semantics**: fire-and-forget; returns within ~5 ms regardless of receiver load. It also WAKES the receiver — an idle subagent runs another turn on its own history, so `send` is how you give one follow-up work. The woken turn's result reaches you as a completion notification, not from the `send` call. On unknown `to_actor_id`, `send` returns `{inboxID: null, error: "receiver not found"}` rather than throwing — handle the error path.
-- **Subagent failure is not final**: if `status`/`wait` reports `idle` + `failure` (including process-restart abandon), the subagent can often still continue. Prefer a follow-up `{"operation":{"action":"send","to_actor_id":"<id>","content":"<message>"}}`, then `wait`/`status`. Only re-`spawn` if send does not recover it or the task needs a clean slate.
-- Trust the subagent's outputs generally, but the subagent only sees the prompt you wrote; brief it accordingly.
+- **`spawn` 与 `run` 的结果投递**：`spawn` 立即返回 actor_id，让你继续有用的工作。需要结果时使用 `wait`；主回合在结束前也会等待活动子代理。这些等待可被用户输入中断，且不会取消子代理。没有活动执行的 actor 已停止，不能仅因其存储的 status 如此说就认为仍在运行。仅仅缺乏近期活动不能证明失败。`run` 在行内等待其结果，不会重复发送完成通知。run 的等待被中断或超时后，子代理继续运行，其结果会以完成通知形式投递。
+- **对持久同伴使用 `wait` 的注意事项**：`wait` 是为通过 `spawn`/`run` 启动的临时子代理设计的。持久同伴在回合之间空闲，成功后从不会产生 "done" 结果——对同伴 `wait` 会阻塞到它失败或被取消。请改用 `send` + `status` 与同伴协调。
+- **`send` 语义**：发后即忘；无论接收方负载如何都会在约 5 毫秒内返回。它还会唤醒接收方——空闲子代理会基于自身历史再运行一个回合，因此 `send` 是你给子代理后续工作的方式。被唤醒回合的结果会以完成通知到达你，而不是来自 `send` 调用。当 `to_actor_id` 未知时，`send` 返回 `{inboxID: null, error: "receiver not found"}` 而不是抛出异常——请处理该错误路径。
+- **子代理失败不是终局**：如果 `status`/`wait` 报告 `idle` + `failure`（包括进程重启导致的放弃），子代理通常仍能继续。优先发送后续的 `{"operation":{"action":"send","to_actor_id":"<id>","content":"<message>"}}`，然后再 `wait`/`status`。仅在 send 无法恢复它或任务需要干净状态时才重新 `spawn`。
+- 总体上信任子代理的输出，但子代理只能看到你写的提示词；请据此做好简报。
 
-## Examples
+## 示例
 
 <example>
-user: "Find all places where parser.ts handles error recovery"
-assistant: I'll spawn an explore subagent in the background to scan parser-related files.
+用户："找出 parser.ts 处理错误恢复的所有位置"
+助手：我会在后台 spawn 一个 explore 子代理来扫描与 parser 相关的文件。
 [actor({"operation":{"action":"spawn","subagent_type":"explore","description":"Find error recovery in parser","prompt":"Search src/parser.ts and adjacent files for error-recovery patterns. Return: each location's file:line + a one-sentence description of how it recovers. If you find catch blocks, panic-mode synchronization, or recovery sentinels, list them all."}})]
 </example>
 
 <example>
-user: "Audit the type checker: spec compliance, test coverage, and perf hot spots"
-assistant: Three independent questions — I'll spawn all three at once so they run in parallel, then collect.
+用户："审计类型检查器：规格符合度、测试覆盖率和性能热点"
+助手：三个独立问题——我会一次 spawn 全部三个，让它们并行运行，然后再收集。
 [actor({"operation":{"action":"spawn","subagent_type":"general","description":"Type checker spec review","prompt":"Read docs/spec.md §3 (Type System), then src/types.ts. Report every §3 requirement not implemented. Don't fix anything."}})]
 [actor({"operation":{"action":"spawn","subagent_type":"general","description":"Type checker coverage gaps","prompt":"Read docs/spec.md §3 and tests/types.test.ts. Report every §3 requirement with no test covering it. Don't fix anything."}})]
 [actor({"operation":{"action":"spawn","subagent_type":"explore","description":"Type checker hot spots","prompt":"Find the hottest loops and repeated allocations in src/types.ts. Report file:line + why it's hot."}})]
-assistant: All three are running. I'll fold their results in as they report; if I need them before then I'll `wait` on each actor_id.
+助手：三个都在运行。它们汇报时我会把结果汇入；若需提前获取，我会对每个 actor_id 使用 `wait`。
 </example>
 
 <example>
-user: "investigate T4's failing tests in the type checker"
-assistant: T4 is an active task in my tracker. I'll spawn an explore subagent bound to T4 so its findings end up in tasks/T4/progress.md.
+用户："调查 T4 在类型检查器中失败的测试"
+助手：T4 是我跟踪器中的活动任务。我会 spawn 一个绑定到 T4 的 explore 子代理，使其发现落入 tasks/T4/progress.md。
 [actor({"operation":{"action":"spawn","subagent_type":"explore","description":"Investigate T4 type checker failures","prompt":"Run `bun test src/types.test.ts` and report each failing case. For each failure: file:line of the assertion, the expected vs actual values, and the most likely root-cause hypothesis based on reading src/types.ts. Don't fix anything.","task_id":"T4"}})]
 </example>
 
 <example>
-THE EXCEPTION — `run` blocks the conversation, so only for a tiny lookup whose answer
-gates your very next decision in this same turn.
-user: "Rename the config field everywhere — but only if it isn't part of the public API"
-assistant: I can't pick between a rename and a deprecation shim until I know whether the field is exported. That's a one-shot blocking lookup, so I'll use `run`.
+例外情况——`run` 会阻塞对话，因此仅用于答案决定你在同一回合下一个决定的极小查询。
+用户："在所有地方重命名该配置字段——但仅当它不属于公共 API 时"
+助手：在知道该字段是否被导出之前，我无法在重命名和弃用兼容层之间做选择。这是一次性的阻塞查询，所以我会用 `run`。
 [actor({"operation":{"action":"run","subagent_type":"explore","description":"Is the field public API","prompt":"Check whether `retryLimit` in src/config.ts is re-exported from src/index.ts or any public entrypoint. Answer yes/no with file:line evidence. Nothing else."}})]
 </example>

@@ -1,8 +1,8 @@
-# Report format
+# 报告格式
 
-Write `REPORT.md` in one pass, alone. Input: `brief.md` + every `findings/*.md`. Do not re-search during writing; if a gap blocks a section, state the gap instead of filling it from memory.
+独自一遍写完 `REPORT.md`。输入：`brief.md` + 所有 `findings/*.md`。写作期间不要重新搜索；如果某个缺口阻塞了某一节，说明该缺口，而不是凭记忆填补。
 
-## Structure
+## 结构
 
 ```markdown
 # <Title: the refined research question>
@@ -35,19 +35,19 @@ Unresolved gaps from Phase 4 + anything the evidence couldn't settle.
 [2] ...
 ```
 
-## Rules
+## 规则
 
-- Every `[n]` must resolve to a Sources entry whose URL appears in some findings file. Never cite from memory.
-- Number sources in first-mention order. Dedupe URLs across findings files.
-- Report language follows the user's language; keep technical terms/quotes in original.
-- Length: proportional to evidence, not padded. quick ≈ 1-2 pages, standard ≈ 3-5, deep ≈ 5-10.
-- Prefer information density: entities, exact numbers, dates, versions — not filler prose.
+- 每个 `[n]` 都必须解析到某个 Sources 条目，且该条目的 URL 出现在某个 findings 文件中。绝不要凭记忆引用。
+- 按首次提及顺序编号来源。跨 findings 文件对 URL 去重。
+- 报告语言跟随用户语言；技术术语/引文保留原文。
+- 长度与证据成正比，不要注水。quick ≈ 1-2 页，standard ≈ 3-5 页，deep ≈ 5-10 页。
+- 优先信息密度：实体、精确数字、日期、版本——而不是填充性文字。
 
-## Critique pass (deep mode only)
+## 批判性通读（仅深度模式）
 
-After drafting, reread as a hostile reviewer and fix in place:
-1. Any claim without a citation that needs one?
-2. Any [n] whose source doesn't actually support the sentence?
-3. Any section relying entirely on sources older than the brief's time frame?
-4. Is the strongest counter-argument represented?
-5. Executive summary consistent with the body?
+起草完成后，以敌意审稿人的身份重读并就地修正：
+1. 是否存在需要引用却没有引用的论断？
+2. 是否存在某个 [n] 其实并不支持那句话？
+3. 是否有章节完全依赖早于 brief 时间范围的来源？
+4. 最强的反方论证是否被呈现？
+5. 执行摘要与正文是否一致？

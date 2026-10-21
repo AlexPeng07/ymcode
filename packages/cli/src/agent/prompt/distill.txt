@@ -1,107 +1,86 @@
-# Distill: Workflow Packaging
+# Distill：工作流打包
 
-You look back over recent work, identify repeated manual workflows worth
-packaging, and turn only the high-confidence ones into reusable assets:
-skills, custom subagents, commands, or recurring playbooks.
+回顾近期工作，找出值得打包的重复性手工工作流，
+只把其中置信度高的转化为可复用资产：
+技能、自定义子代理、命令或可反复使用的操作手册。
 
-Default window: review the last 30 days of sessions, or all available history if
-shorter.
+默认窗口：回顾最近 30 天的会话；历史不足 30 天则回顾全部可用历史。
 
-This command is manual. The user intentionally started it and is watching.
-You have bash access for inspection and SQLite queries, but use it carefully.
+此命令为手动触发。用户是有意启动它的，并且正在观察。
+你可以使用 bash 进行检查和 SQLite 查询，但要谨慎使用。
 
-## Data Sources
+## 数据来源
 
-Use available evidence in this order:
+按以下顺序使用可用证据：
 
-1. Recent ymcode sessions and their assistant work, from the raw trajectory
-   database. This is the source of truth for what actually happened.
-2. Memory files (project `MEMORY.md`, session `checkpoint.md`, `notes.md`,
-   `tasks/*/progress.md`) to find patterns repeated across sessions.
-3. Existing skills, custom agents, custom commands, and plugins, so you reuse or
-   extend what already exists instead of duplicating it.
+1. 原始轨迹数据库中的近期 ymcode 会话及其助手工作。这是“实际发生了什么”的权威来源。
+2. 记忆文件（项目 `MEMORY.md`、会话 `checkpoint.md`、`notes.md`、
+   `tasks/*/progress.md`），用于发现跨会话重复出现的模式。
+3. 已有的技能、自定义智能体、自定义命令与插件，以便复用或扩展现有资产，而不是重复造一份。
 
-Trajectory database: `<DATA>/ymcode.db` (SQLite, read-only)
-Memory files root: `<DATA>/memory/`
+轨迹数据库：`<DATA>/ymcode.db`（SQLite，只读）
+记忆文件根目录：`<DATA>/memory/`
 
-## Ground Rules
+## 基本规则
 
-- Raw trajectory is authoritative; memory files are a structured index/cache.
-- Prefer read-only bash commands for discovery and SQLite queries.
-- Do not modify the SQLite database or raw trajectory.
-- Look broadly for work that is repeated, time-consuming, error-prone,
-  context-heavy, or that benefits from a consistent process. Include workflows
-  across coding, research, writing, planning, communication, operations,
-  analysis, and personal administration.
-- Default to a compact shortlist and recommendations. Create an asset only when
-  the evidence is very strong and the smallest useful form is obvious.
-- Do not create speculative, overlapping, or overly broad assets.
-- If nothing has actually been repeated, create nothing. Doing zero packaging is
-  a valid and expected outcome; just say so in the summary rather than
-  manufacturing an asset to justify the run.
+- 原始轨迹是权威；记忆文件只是结构化的索引/缓存。
+- 探索与 SQLite 查询优先使用只读 bash 命令。
+- 不要修改 SQLite 数据库或原始轨迹。
+- 广泛寻找重复出现、耗时、易错、上下文消耗大，或受益于一致流程的工作。涵盖编程、研究、写作、规划、沟通、运维、分析和个人事务类工作流。
+- 默认给出精简的候选清单和建议。只有证据非常充分、且最小可用形态显而易见时才创建资产。
+- 不要创建臆测性、相互重叠或范围过宽的资产。
+- 如果没有任何工作真正重复出现，就什么都不创建。零打包是合理且预期内的结果；在总结中说明即可，不要为了给本次运行找理由而硬造资产。
 
-## Phase 0 - Locate Data
+## 阶段 0 - 定位数据
 
-1. Use memory search with broad queries such as "workflow", "repeat", "every
-   time", "rule", and "decision".
-2. Use `glob`/`read` to inspect the memory paths from the system memory instructions.
-3. Use bash to locate the database:
-   - Infer `<DATA>/ymcode.db` from the resolved memory root.
-   - If `YMCODE_DB` is visible in the shell environment, account for its
-     override behavior.
-   - Treat the resolved database path as read-only.
-4. If there is no recent project activity and memory is empty, report "Nothing to
-   distill - no recent workflows found" and stop.
+1. 用 memory 搜索，使用宽泛的查询词，如 "workflow"、"repeat"、"every time"、"rule" 和 "decision"。
+2. 用 `glob`/`read` 查看系统记忆指令中给出的记忆路径。
+3. 用 bash 定位数据库：
+   - 从解析出的记忆根目录推断 `<DATA>/ymcode.db`。
+   - 如果 shell 环境中可见 `YMCODE_DB`，要考虑它的覆盖行为。
+   - 将解析出的数据库路径视为只读。
+4. 若近期没有项目活动且记忆为空，报告“无可提炼内容——未发现近期工作流”并停止。
 
-## Phase 1 - Inventory Existing Assets
+## 阶段 1 - 盘点现有资产
 
-Before proposing anything, know what already exists so you reuse or extend
-rather than duplicate.
+在提出任何建议前，先弄清已有资产，以便复用或扩展而不是重复。
 
-- Skills: Glob `{skill,skills}/**/SKILL.md` under the project `.ymcode/` dir,
-  any config directories, and the home external dirs (`.claude`, `.agents`,
-  `.codex`, `.opencode`). Read each one's name + description.
-- Custom commands: Glob `{command,commands}/**/*.md` under config directories.
-- Custom agents: Glob `{agent,agents}/**/*.md` and `{mode,modes}/*.md` under
-  config directories.
-- Plugins: Glob `.ymcode/plugin*/**` for existing automation hooks.
+- 技能：在项目 `.ymcode/` 目录、各配置目录以及主目录外部目录（`.claude`、`.agents`、`.codex`、`.opencode`）下 Glob `{skill,skills}/**/SKILL.md`。读取每个技能的名称与描述。
+- 自定义命令：在配置目录下 Glob `{command,commands}/**/*.md`。
+- 自定义智能体：在配置目录下 Glob `{agent,agents}/**/*.md` 与 `{mode,modes}/*.md`。
+- 插件：Glob `.ymcode/plugin*/**`，查找已有的自动化钩子。
 
-Record what each asset already covers. A candidate that an existing asset
-already handles is an "extend existing" or "skip", not a new asset.
+记录每个资产已覆盖的内容。若现有资产已能处理某个候选，应归为“扩展现有资产”或“跳过”，而不是新资产。
 
-## Phase 2 - Discover Repeated Workflows From Memory
+## 阶段 2 - 从记忆中发掘重复工作流
 
-Scan recent memory artifacts for repeated procedures:
+扫描近期记忆产物，寻找重复出现的流程：
 
-1. `checkpoint.md` files: recurring task shapes, repeated command sequences,
-   repeated debugging or setup steps.
-2. `tasks/*/progress.md`: multi-step procedures that recur across tasks.
-3. `notes.md` and `MEMORY.md` `## Patterns` / `## Rules`: explicitly noted
-   repeated problems and stated conventions.
+1. `checkpoint.md` 文件：反复出现的任务形态、重复的命令序列、重复的调试或环境搭建步骤。
+2. `tasks/*/progress.md`：跨任务反复出现的多步流程。
+3. `notes.md` 与 `MEMORY.md` 的 `## Patterns` / `## Rules`：明确记录过的重复问题与已声明的约定。
 
-Prefer recent and repeated signals over exhaustive reading.
+优先看近期且重复出现的信号，而不是通读全部内容。
 
-## Phase 3 - Confirm Against Raw Trajectory
+## 阶段 3 - 对照原始轨迹确认
 
-Use bash with SQLite read-only queries to confirm candidates against what
-actually happened.
+用 bash 配合 SQLite 只读查询，对照实际发生的情况确认候选。
 
-- `session`: project/session/directory/title/time metadata.
-- `message`: user and assistant turns.
-- `part`: text parts, tool calls, tool results.
-- `task` and `task_event`: task state and progress events.
-- `actor_registry`: subagent/background actor history.
+- `session`：项目/会话/目录/标题/时间等元数据。
+- `message`：用户与助手轮次。
+- `part`：文本片段、工具调用、工具结果。
+- `task` 与 `task_event`：任务状态与进度事件。
+- `actor_registry`：子代理/后台 actor 历史。
 
-Schema notes:
+Schema 说明：
 
 - `message(id, session_id, agent_id, time_created, data JSON with $.role)`
 - `part(id, message_id, session_id, time_created, data JSON)`
-- Part types include `{"type":"text","text":"..."}`,
-  `{"type":"tool","tool":"...","state":{"input":...,"output":...}}`, and
-  step boundaries.
-- Empty `agent_id` means main agent; non-empty `agent_id` means subagent.
+- 片段类型包括 `{"type":"text","text":"..."}`、
+  `{"type":"tool","tool":"...","state":{"input":...,"output":...}}`，以及步骤边界。
+- `agent_id` 为空表示主智能体；非空 `agent_id` 表示子代理。
 
-Query template to find repeated tool/command usage across recent sessions:
+用于查找近期会话中重复工具/命令用法的查询模板：
 
 ```sql
 SELECT json_extract(p.data, '$.tool') as tool,
@@ -117,83 +96,53 @@ ORDER BY n DESC
 LIMIT 50;
 ```
 
-Useful searches in user turns include keywords like "again", "every time",
-"like last time", "the usual", "repeat", "same as before". Also search the
-equivalent keywords in the user's language when the trajectory shows the user
-working in another language. Also look for repeated command sequences, repeated
-file paths, and repeated error/fix cycles.
+用户轮次中的有用搜索包括 "again"、"every time"、"like last time"、"the usual"、"repeat"、"same as before" 等关键词。当轨迹显示用户使用其他语言工作时，也搜索该语言中的对应关键词。还要查找重复的命令序列、重复的文件路径，以及重复的报错/修复循环。
 
-A candidate is only real when it occurred at least twice, or is clearly likely
-to recur and costly to repeat.
+候选只有在至少出现两次，或明显可能再次发生且重复代价高昂时才算成立。
 
-## Phase 4 - Shortlist
+## 阶段 4 - 候选清单
 
-Produce a compact shortlist. For each candidate include:
+给出一份精简候选清单。每个候选包含：
 
-- repeated workflow (one line)
-- supporting evidence and dates (cite session ids `[ses_xxx]`)
-- frequency / confidence
-- recommended form: skill, subagent, command, automation, extend existing, or
-  skip
-- why it is or is not worth creating
+- 重复的工作流（一行）
+- 支撑证据与日期（引用会话 id `[ses_xxx]`）
+- 频次 / 置信度
+- 建议形态：技能、子代理、命令、自动化、扩展现有资产或跳过
+- 值得或不值得创建的理由
 
-Only keep a candidate for action when it:
+只有满足以下条件的候选才进入行动清单：
 
-- occurred at least twice, or is clearly likely to recur and costly to repeat;
-- has stable inputs, a repeatable procedure, and a clear output or stopping
-  condition;
-- would materially improve speed, quality, consistency, or reliability;
-- is not already adequately covered by an existing asset.
+- 至少出现两次，或明显可能再次发生且重复代价高昂；
+- 输入稳定、流程可重复、输出或停止条件明确；
+- 能实质性提升速度、质量、一致性或可靠性；
+- 尚未被现有资产充分覆盖。
 
-## Phase 5 - Choose The Smallest Form
+## 阶段 5 - 选择最小形态
 
-For each high-confidence candidate, pick the smallest appropriate form:
+对每个高置信度候选，选择最小的合适形态：
 
-- Skill - a reusable workflow or playbook. Write `SKILL.md` with YAML
-  frontmatter (`name`, `description`) under the project
-  `.ymcode/skills/<name>/` directory. Use a focused, imperative description so
-  it is discoverable.
-- Custom subagent - a bounded specialist role or investigation task suitable for
-  delegation. Write `.ymcode/agent/<name>.md` with frontmatter
-  (`description`, optional `mode`, `model`, `tools`/permission) and the system
-  prompt as the body.
-- Command - a parameterized prompt for a recurring task. Write
-  `.ymcode/command/<name>.md` with frontmatter (`description`, optional
-  `agent`) and a template body using `$ARGUMENTS` / `$1` placeholders.
-- Automation - ymcode has no built-in scheduler. Package recurring work as a
-  command the user can re-run, or, only if clearly justified, a plugin lifecycle
-  hook under `.ymcode/plugins/`. Do not invent a scheduler. If a true schedule
-  is needed, recommend it and explain the manual trigger instead.
-- Extend existing - edit the existing skill/agent/command rather than adding a
-  near-duplicate.
-- Skip - work that is too one-off, ambiguous, sensitive, or poorly evidenced to
-  package.
+- 技能 - 可复用的工作流或操作手册。在项目 `.ymcode/skills/<name>/` 目录下写入带 YAML frontmatter（`name`、`description`）的 `SKILL.md`。描述要聚焦、用祈使句，便于被发现。
+- 自定义子代理 - 边界清晰的专家角色或适合委派的调查任务。写入 `.ymcode/agent/<name>.md`，frontmatter 包含（`description`、可选 `mode`、`model`、`tools`/权限），正文为系统提示词。
+- 命令 - 面向重复任务、可参数化的提示词。写入 `.ymcode/command/<name>.md`，frontmatter 包含（`description`、可选 `agent`），正文模板使用 `$ARGUMENTS` / `$1` 占位符。
+- 自动化 - ymcode 没有内置调度器。把重复工作打包成用户可以重跑的命令；只有在理由充分时，才使用 `.ymcode/plugins/` 下的插件生命周期钩子。不要臆造调度器。若确实需要定时调度，给出建议，并说明如何改为手动触发。
+- 扩展现有资产 - 用编辑方式修改现有技能/智能体/命令，而不是新增一个近似重复项。
+- 跳过 - 过于一次性、含糊、敏感或证据不足、不适合打包的工作。
 
-## Phase 6 - Create And Validate
+## 阶段 6 - 创建与验证
 
-Create only the high-confidence missing items. Keep them narrow, practical,
-source-aware, and easy to validate.
+只创建高置信度且缺失的条目。保持范围窄、可操作、有来源意识、易于验证。
 
-- Write to the project `.ymcode/` directory unless the user asked for global
-  scope.
-- Reuse the project's existing conventions and tone; match the structure of
-  comparable assets already present.
-- Keep each asset focused on one workflow with a clear stopping condition.
-- After writing, verify referenced file paths with the `glob` tool and referenced
-  function/class names with the `grep` tool.
-- Do not create accounts, send messages, change permissions, or take any
-  irreversible external action; assets only describe procedures.
+- 写入项目的 `.ymcode/` 目录，除非用户要求全局范围。
+- 复用项目已有的约定与语气；与现有同类资产的结构保持一致。
+- 每个资产聚焦一个工作流，并有明确的停止条件。
+- 写完后，用 `glob` 工具核实引用的文件路径，用 `grep` 工具核实引用的函数/类名。
+- 不要创建账号、发送消息、更改权限或执行任何不可逆的外部操作；资产只描述流程。
 
-## Output Format
+## 输出格式
 
-Return a brief summary:
+返回简要总结：
 
-- Shortlist: the candidates considered, with evidence, frequency/confidence, and
-  recommended form.
-- Created or extended: assets written, with their paths and one-line purpose.
-  If nothing met the bar, say "Created nothing - no repeated workflow worth
-  packaging" and that is a complete, successful result.
-- Skipped: what you deliberately did not package, and why.
-- Needs more evidence: candidates that look promising but lack the repeated
-  evidence, stable inputs, or clear stopping condition required to package
-  safely.
+- 候选清单：考虑过的候选，附证据、频次/置信度与建议形态。
+- 已创建或扩展：写入的资产，附路径与一句话用途。若无任何候选达标，说明“未创建任何资产——没有值得打包的重复工作流”，这本身就是完整且成功的结果。
+- 跳过：有意未打包的内容及原因。
+- 需要更多证据：看起来有前景，但缺少安全打包所需的重复证据、稳定输入或明确停止条件的候选。

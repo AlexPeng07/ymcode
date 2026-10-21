@@ -1,23 +1,21 @@
 ---
 name: report-to-google-slides
-description: "Narrow conversion skill. Invoke only when the user explicitly asks to convert an existing HTML analytics report into a native Google Slides deck."
+description: "窄范围的转换技能。仅当用户明确要求把现有的 HTML 分析报告转换为原生 Google Slides 演示文稿时调用。 | Trigger keywords: HTML report to Google Slides, deck, PPTX import, native Google Slides."
 ---
 
-# Report To Google Slides
+# 报告转 Google Slides
 
-Use this skill only when the user explicitly has an existing HTML analytics report and wants a Google Slides deliverable. The output should be a deck, not a pasted report. A stakeholder skimming the slides should understand the answer, evidence,
-caveats, and recommended follow-up without opening the source report.
+仅当用户明确拥有现成的 HTML 分析报告并希望得到 Google Slides 交付物时，使用本技能。输出应当是一套演示文稿，而不是粘贴的报告。随手翻阅幻灯片的利益相关方应能在不打开源报告的情况下理解结论、证据、注意事项和建议的后续行动。
 
-This skill consumes a local portable report, preferably self-contained HTML. If another format is the only source, first create an equivalent local HTML or structured report from the same evidence.
+本技能消费本地可移植报告，最好是自包含 HTML。如果只有其他格式可用作源，先用同一份证据创建等价的本地 HTML 或结构化报告。
 
-## Workflow
+## 工作流
 
-1. Resolve the local HTML report.
+1. 定位本地 HTML 报告。
 
-   Use an absolute file path. If the user provides a remote report, retrieve it outside this skill first. If the local file is a sign-in page, redirect page,
-   or very small stub, stop and obtain the real report before continuing.
+   使用绝对文件路径。如果用户提供的是远程报告，先在本技能之外下载它。如果本地文件是登录页、重定向页或极小的存根，停止并在继续之前获取真实报告。
 
-2. Run the helper.
+2. 运行辅助脚本。
 
    ```bash
    python3 <REPORT_TO_GOOGLE_SLIDES_SKILL_DIR>/scripts/report_to_google_slides.py \
@@ -25,49 +23,43 @@ This skill consumes a local portable report, preferably self-contained HTML. If 
      --out-dir /tmp/report_to_google_slides
    ```
 
-3. Inspect local outputs.
+3. 检查本地输出。
 
-   Required outputs:
+   必需的输出：
 
-   - `deck.pptx`: editable local PowerPoint file
-   - `manifest.json`: parsed source inventory and coverage counts
-   - `deck_plan.json`: slide-by-slide plan with named elements
-   - `preflight_checks.json`: local quality checks and pass/fail status
-   - `assets/`: rendered chart images
+   - `deck.pptx`：可编辑的本地 PowerPoint 文件
+   - `manifest.json`：解析出的源清单与覆盖计数
+   - `deck_plan.json`：逐页计划，含命名的元素
+   - `preflight_checks.json`：本地质量检查与通过/失败状态
+   - `assets/`：渲染出的图表图片
 
-   Do not import the PPTX until `preflight_checks.json` has `status: "passed"`.
-   Then run `unzip -t <out-dir>/deck.pptx`.
+   在 `preflight_checks.json` 的 `status: "passed"` 之前，不要导入 PPTX。随后运行 `unzip -t <out-dir>/deck.pptx`。
 
-4. Import and verify in Google Slides.
+4. 在 Google Slides 中导入并验证。
 
-   Import `deck.pptx` with `mcp__codex_apps__google_drive._import_presentation` using `upload_mode="native_google_slides"`. Verify the imported deck with `_get_presentation_outline` and `_get_slide_thumbnail` for every slide when possible. At minimum, inspect the cover, one chart slide, one table slide,
-   and the caveats/sources slides.
+   使用 `mcp__codex_apps__google_drive._import_presentation` 并传入 `upload_mode="native_google_slides"` 来导入 `deck.pptx`。尽可能对每一页使用 `_get_presentation_outline` 和 `_get_slide_thumbnail` 验证导入结果。至少检查封面、一个图表页、一个表格页，以及注意事项/来源页。
 
-5. Repair before handoff.
+5. 交付前修复。
 
-   If thumbnails show clipped text, missing charts, low contrast, blank images,
-   or awkward sizing, revise the helper output or source assumptions and regenerate before handing off the deck URL.
+   如果缩略图显示文字被截断、图表缺失、对比度低、图片空白或尺寸别扭，修改辅助脚本的输出或源假设，并在交付演示文稿 URL 之前重新生成。
 
-6. Hand off the deck.
+6. 交付演示文稿。
 
-   Return the Google Slides URL and, when useful, the local PPTX path or source HTML path. Keep routine check, preflight, thumbnail-inspection, and import-check details in support artifacts. Do not list internal checks in the user-facing handoff unless a check failed, was unavailable, or produced a user-relevant caveat.
+   返回 Google Slides URL，并在有用时返回本地 PPTX 路径或源 HTML 路径。将常规检查、preflight、缩略图检查与导入检查的细节保留在支撑产物中。不要在面向用户的交付说明中列出内部检查，除非某项检查失败、不可用或产生了与用户相关的注意事项。
 
-## Standards
+## 标准
 
-- Preserve the report's decision-critical information: headline claim,
-  executive summary, major findings, metric definitions, material charts,
-  decision-critical tables, recommendations, implications, caveats,
-  assumptions, freshness notes, and source/provenance notes.
-- Translate report prose into slide-native communication. Lead with the takeaway, use one main idea per slide, and put supporting detail in concise callouts, bullets, tables, chart annotations, or speaker notes.
-- Tighten copy before shrinking fonts.
-- Keep gross metric reads, net/incremental reads, causal claims, and caveats visibly separated when the source report distinguishes those lenses.
-- Use editable text and native PPTX tables wherever practical. Use native PPTX bullets; do not fake bullets with typed dashes.
-- Preserve source charts as evidence images. Do not screenshot the whole HTML report or paste whole report sections.
-- Support self-contained HTML reports whose chart evidence is available as inline SVG, accessible tables, or embedded images; render those into local chart evidence images before building the deck.
-- Use one chart per evidence slide unless the report has a stronger grouped comparison.
-- Keep table slides legible. If a full table is too dense, keep the main comparison in the deck and move extra detail to speaker notes or source slides.
-- Source notes should be visible but quiet.
+- 保留报告中对决策至关重要的信息：头条主张、执行摘要、主要发现、指标定义、重要图表、决策关键的表格、建议、影响、注意事项、假设、新鲜度说明以及来源/出处说明。
+- 将报告行文翻译为幻灯片原生的表达。以要点开头，每页只讲一个主要观点，把支撑细节放入简洁的标注块、项目符号、表格、图表注释或演讲者备注。
+- 先精简文案，再缩小字号。
+- 当源报告区分毛额指标读数、净额/增量读数、因果主张和注意事项时，在幻灯片中也要让这些视角保持可见的区分。
+- 尽可能使用可编辑文本和原生 PPTX 表格。使用原生 PPTX 项目符号；不要用键入的短横线伪造项目符号。
+- 将源图表保留为证据图片。不要截取整个 HTML 报告，也不要粘贴整段报告章节。
+- 支持图表证据以行内 SVG、无障碍表格或内嵌图片形式提供的自包含 HTML 报告；在构建演示文稿之前，先将它们渲染为本地图表证据图片。
+- 除非报告中有更强的分组对比，否则每张证据幻灯片只放一张图表。
+- 保持表格幻灯片清晰可读。如果完整表格过于密集，把主要对比留在演示文稿中，将额外细节移到演讲者备注或来源幻灯片。
+- 来源说明应可见但不喧宾夺主。
 
-## Visual System
+## 视觉体系
 
-The helper derives colors and hierarchy from the HTML report CSS and chart palette, then applies a restrained analytics deck layout. It does not follow external deck files or company-specific branding.
+辅助脚本从 HTML 报告的 CSS 和图表调色板中推导颜色与层级，然后应用克制的分析型演示布局。它不遵循外部演示文稿文件或公司专属品牌。

@@ -1,35 +1,35 @@
-# Mode: Quantitative analysis / 量化分析
+# 模式：量化分析
 
-Use when the user wants a data-driven answer computed from a dataset — "analyze this data", "量化分析", "test whether X relates to Y", "estimate the effect of Z", "investigate this dataset".
+当用户想要一个由数据集计算出的数据驱动答案时使用——「analyze this data」「量化分析」「test whether X relates to Y」「estimate the effect of Z」「investigate this dataset」。
 
-The failure mode this mode is designed against: producing a plausible-looking chart or statistic that the user cannot reproduce, verify, or understand the caveats of. Every reported number must trace back to a script, and every script must run on the raw data end-to-end.
+本模式要防范的失败模式是：产出看起来合理、但用户无法复现、核实或理解其局限的图表或统计量。每个报告的数字都必须追溯到某个脚本，而每个脚本都必须能在原始数据上端到端跑通。
 
-## Contract fields
+## 契约字段
 
-1. **Question**: A crisp hypothesis or estimation target. Not "look at this data" — "does feature X predict outcome Y after controlling for Z?", or "what's the median time-to-first-response by team?". If the user only has a dataset and no question, negotiate to a specific question in the contract.
-2. **Dataset**: Path, format (CSV / parquet / JSON / DB connection), row count if known, schema if known. Note anything the user warns about (known missing values, duplicated columns, sample bias).
-3. **Deliverables**: A `report.md` with the finding, `analysis_log.tsv` (one row per analytical step), and a `scripts/` folder with numbered scripts that reproduce every figure and number in the report. Optionally a `figures/` folder.
-4. **Constraints**: What's off-limits? (e.g. "don't merge with the internal HR table", "compute must run under 10 min per script", "no ML libraries — keep it interpretable statistics").
-5. **Working directory**: A dedicated `analysis/<tag>/` folder. Everything goes there.
+1. **问题**：清晰的假设或估计目标。不是「看看这份数据」，而是「在控制 Z 之后，特征 X 能否预测结果 Y？」，或「各团队首次响应时间的中位数是多少？」。如果用户只有数据集没有问题，就在契约中协商出一个具体问题。
+2. **数据集**：路径、格式（CSV / parquet / JSON / DB 连接）、已知行数、已知 schema。记下用户提醒的任何事项（已知缺失值、重复列、样本偏差）。
+3. **交付物**：包含发现的 `report.md`、`analysis_log.tsv`（每个分析步骤一行），以及一个 `scripts/` 文件夹，其中的编号脚本能复现报告里的每个图和数字。可选 `figures/` 文件夹。
+4. **约束**：哪些是禁区？（例如「不要与内部 HR 表关联」「每个脚本的计算必须在 10 分钟内完成」「不用 ML 库——保持可解释的统计学」）。
+5. **工作目录**：专用的 `analysis/<tag>/` 文件夹。一切都放在那里。
 
-## Baseline — the data audit
+## 基线——数据审计
 
-Before ANY modeling or hypothesis testing, you produce a data audit. This is your baseline artifact; if the audit surfaces something bad enough (wrong schema, wrong units, corrupt file), the analysis stops here and you report that instead.
+在**任何**建模或假设检验之前，先产出数据审计。这是你的基线产物；如果审计暴露出足够严重的问题（schema 错误、单位错误、文件损坏），分析就停在这里，改为报告该问题。
 
-The audit is a script (`scripts/00_audit.py` or similar) that outputs `audit.md` covering:
+审计是一个脚本（`scripts/00_audit.py` 或类似），输出 `audit.md`，覆盖：
 
-- **Shape**: rows, columns.
-- **Schema**: column, dtype, non-null count, unique count, min/max or top-3 values.
-- **Missingness**: % nulls per column, and whether nulls are systematic (e.g. correlated with another column).
-- **Duplicates**: any full-row dupes; any dupes on a natural key.
-- **Outliers**: for each numeric column, values at the 1st/99th percentile and clearly out-of-band values.
-- **Sanity checks against the question**: does the required column even exist and have enough non-null variance to answer the question?
+- **形状**：行数、列数。
+- **Schema**：列、dtype、非空计数、唯一值计数、最小值/最大值或前三取值。
+- **缺失**：每列空值百分比，以及空值是否系统性（例如与另一列相关）。
+- **重复**：是否有整行重复；是否有自然键重复。
+- **离群值**：对每个数值列，给出第 1/99 百分位值和明显越界的值。
+- **针对问题的合理性检查**：所需列是否存在，且非空方差是否足以回答问题？
 
-If the audit reveals a fatal problem (question can't be answered from this data), stop and report. Don't paper over it.
+如果审计揭示了致命问题（用这份数据无法回答问题），停下并报告。不要粉饰。
 
-## The analysis log
+## 分析日志
 
-`analysis_log.tsv` (tab-separated), one row per analytical step:
+`analysis_log.tsv`（制表符分隔），每个分析步骤一行：
 
 ```
 step	script	status	finding	caveat
@@ -41,45 +41,45 @@ step	script	status	finding	caveat
 06	scripts/05_dependent_variable_check.py	done	Y distribution stable across strata, no measurement artifact	rules out one alternative explanation for step 5
 ```
 
-- **step** — `01`, `02`… monotonic.
-- **script** — filename that produced the finding. If it's not a script, it doesn't happen — no eyeballed numbers.
-- **status** — `done` / `dead-end` / `inconclusive` / `error`. Every attempt logged even if it didn't work.
-- **finding** — one sentence, quantitative where possible.
-- **caveat** — one sentence, what makes this weaker than it looks. Empty caveat is suspicious.
+- **step** —— `01`、`02`……单调递增。
+- **script** —— 产出该发现的文件名。不是脚本产出的就不算发生——不要肉眼估计的数字。
+- **status** —— `done` / `dead-end` / `inconclusive` / `error`。每次尝试都要记录，即使没有成功。
+- **finding** —— 一句话，尽可能量化。
+- **caveat** —— 一句话，说明它为何比表面看起来更弱。caveat 留空很可疑。
 
-## The scripts folder
+## 脚本文件夹
 
-- Numbered by step (`00_audit.py`, `01_distributions.py`, …) so a reader can rerun in order.
-- Each script: reads the raw data, does one thing, writes any figures to `figures/`, prints its findings (which you copy into the log). No shared mutable state between scripts unless you write an intermediate parquet in between and load it back.
-- No hidden globals from a Jupyter kernel — a script that only works in a live notebook is not reproducible.
+- 按步骤编号（`00_audit.py`、`01_distributions.py`、……），以便读者按顺序重跑。
+- 每个脚本：读取原始数据、只做一件事、把图写入 `figures/`、打印其发现（你把这些抄进日志）。脚本之间不共享可变状态，除非你中间写出一个 parquet 再读回来。
+- 不依赖 Jupyter kernel 的隐藏全局状态——只能在活动 notebook 中运行的脚本不可复现。
 
-## The loop
+## 循环
 
-LOOP:
+循环：
 
-1. Look at the current state of the analysis (log, most recent findings, remaining open sub-questions).
-2. Choose the next most informative step. Order of operations for a typical analysis: audit → univariate distributions → bivariate exploration → hypothesis test with the appropriate model → robustness checks (subgroups, alternative specs) → alternative-explanation ruling out.
-3. Write the script. Run it, capture printed findings + figures.
-4. Append to `analysis_log.tsv`. If it was a dead-end (broken assumption, unusable variable, effect vanishes under a check), log it — dead-ends are how you demonstrate the finding is real.
-5. If findings suggest a NEW hypothesis, note it in the log's caveat column and add it to your queue. Do NOT change the primary question mid-analysis unless the data made it unanswerable — in that case, log the change explicitly.
-6. Loop until either the question is answered with quantified confidence intervals AND a robustness check confirms it, or the data proves incapable of answering it.
+1. 查看分析当前状态（日志、最近的发现、剩余未解子问题）。
+2. 选择下一个信息量最大的步骤。典型分析的顺序是：审计 → 单变量分布 → 双变量探索 → 用合适模型做假设检验 → 稳健性检查（子组、替代设定）→ 排除替代解释。
+3. 编写脚本。运行它，捕获打印的发现与图表。
+4. 追加到 `analysis_log.tsv`。如果是死路（假设被打破、变量不可用、效应在某项检查下消失），也要记录——死路正是证明该发现真实的方式。
+5. 如果发现暗示了**新**假设，写在日志的 caveat 列并加入队列。**不要**在分析中途更换主问题，除非数据使其无法回答——那种情况下要显式记录变更。
+6. 循环，直到问题被回答且给出量化置信区间**且**稳健性检查确认，或者数据被证明无法回答该问题。
 
-## Judgment
+## 判断
 
-**Effect sizes over p-values.** A p<0.001 with an effect size of 0.02 correlation is a huge sample telling you nothing interesting. Report effect sizes + CIs; treat p-values as tie-breakers.
+**效应量优先于 p 值。** p<0.001 而效应量只有 0.02 的相关，意味着巨大样本在告诉你一件无趣的事。报告效应量 + 置信区间；把 p 值当作平局裁决。
 
-**Every finding needs at least one attempted alternative explanation.** If X predicts Y, what else predicts X? What confounders did you consider? Which did you rule out with what? If you didn't consider any, you haven't finished.
+**每个发现都至少需要尝试一种替代解释。** 如果 X 预测 Y，还有什么能预测 X？你考虑了哪些混杂因素？用何种方式排除了哪些？如果一个都没考虑，你的分析还没完成。
 
-**Don't p-hack — log every specification you ran.** If you tried 4 regression specs and one is significant, the log must show all 4. Reporting only the significant one is fraud.
+**不要 p-hack——记录你跑过的每个设定。** 如果你试了 4 种回归设定而其中 1 个显著，日志必须展示全部 4 个。只报告显著的那个就是造假。
 
-**When the answer is "we can't tell from this data", say so.** An honest inconclusive finding is a better outcome than a fake-precise one. The log makes this position defensible.
+**当答案是「用这份数据说不清」时，就说出来。** 诚实的「无定论」发现比虚假精确的结果更好。日志让这个立场站得住脚。
 
-## Final report
+## 最终报告
 
-See "Reporting" in SKILL.md. Mode-specific body:
+参见 SKILL.md 的「报告」。模式专属正文：
 
-- **Headline finding** — 1–2 sentences with effect size and confidence.
-- **How I got there** — 3–6 bullets pointing at specific `analysis_log.tsv` step IDs.
-- **Robustness** — what alternative specs were tried, what survived.
-- **Caveats** — the top-3 reasons this finding might be wrong or narrower than it looks.
-- **Where to look**: `analysis_log.tsv`, `scripts/`, `figures/`, and the audit.
+- **头条发现**——1–2 句，含效应量与置信度。
+- **我是如何得出的**——3–6 条要点，指向 `analysis_log.tsv` 中具体的步骤 ID。
+- **稳健性**——尝试了哪些替代设定，哪些经受住了检验。
+- **局限**——该发现可能错误或比表面更窄的前三大原因。
+- **去哪里看**：`analysis_log.tsv`、`scripts/`、`figures/` 以及审计。

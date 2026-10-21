@@ -1,15 +1,15 @@
 ---
 name: modern-python-toolchain
-description: "Modern Python project setup with uv, ruff, and pyright. Use when initializing a new Python project, configuring the Python environment, setting up linting/formatting, or when a project needs uv (the fast Python package manager). Trigger on: 'set up Python', 'new Python project', 'configure uv', 'install uv', 'ruff', 'pyright', 'Python linting', 'Python formatting', or when a task requires Python and no pyproject.toml exists yet."
+description: "使用 uv、ruff 和 pyright 搭建现代 Python 项目。适用于初始化新的 Python 项目、配置 Python 环境、搭建静态检查/格式化，或项目需要 uv（快速的 Python 包管理器）时。 | Trigger keywords: set up Python, new Python project, configure uv, install uv, ruff, pyright, Python linting, Python formatting."
 ---
 
-# Modern Python Toolchain
+# 现代 Python 工具链
 
-A guide for setting up Python projects with modern, fast tooling: **uv** (package/project manager), **ruff** (linter/formatter), and **pyright** (type checker).
+一份使用现代、快速工具搭建 Python 项目的指南：**uv**（包/项目管理器）、**ruff**（静态检查器/格式化器）和 **pyright**（类型检查器）。
 
-## Installing uv
+## 安装 uv
 
-uv is an extremely fast Python package and project manager. It replaces pip, pip-tools, pipx, pyenv, virtualenv, poetry, etc.
+uv 是极快的 Python 包与项目管理器。它取代 pip、pip-tools、pipx、pyenv、virtualenv、poetry 等。
 
 ```bash
 # macOS / Linux
@@ -22,37 +22,37 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 brew install uv
 ```
 
-After installation, restart your shell or run `source $HOME/.local/bin/env` (the installer prints the exact command).
+安装完成后，重启 shell 或运行 `source $HOME/.local/bin/env`（安装器会打印确切的命令）。
 
-For detailed information: https://docs.astral.sh/uv/
+详细信息见：https://docs.astral.sh/uv/
 
 ---
 
-## uv basics
+## uv 基础
 
-### Python version
+### Python 版本
 
-Pin a single Python minor version. The recommended default is 3.12 (broadest ecosystem support — PyTorch, CUDA images, downstream libraries). Python 3.14 is the latest stable; prefer it for new projects unless you depend on packages that haven't added 3.14 support yet.
+固定使用单一的 Python 次版本。推荐的默认值是 3.12（生态支持最广——PyTorch、CUDA 镜像、下游库）。Python 3.14 是最新的稳定版；除非你依赖的包尚未支持 3.14，否则新项目优先使用它。
 
 ```toml
 # pyproject.toml
 requires-python = "==3.12.*"
 ```
 
-Install Python via uv (no system Python needed):
+通过 uv 安装 Python（无需系统 Python）：
 
 ```bash
 uv python install 3.12
 ```
 
-### Creating a new project
+### 创建新项目
 
 ```bash
 uv init                       # Create new project with pyproject.toml
 uv init -p 3.12               # Specify Python version
 ```
 
-### Common commands
+### 常用命令
 
 ```bash
 uv add requests               # Add dependency
@@ -65,16 +65,16 @@ uv run python -c "..."        # Run Python one-liner
 uvx TOOL ARGS                 # Run a tool without installing it
 ```
 
-### Rules
+### 规则
 
-- **Never use `pip`** in uv projects — always `uv add` for packages.
-- **Never run `python script.py` directly** — always `uv run script.py` to ensure the correct environment. For one-liners use `uv run python -c "..."`.
-- **Don't manually manage environments** with `python -m venv` or `source .venv/bin/activate` — uv handles this automatically.
-- `uvx` runs tools from PyPI by package name without installing them permanently.
+- **绝不要在 uv 项目中使用 `pip`**——安装包一律用 `uv add`。
+- **绝不要直接运行 `python script.py`**——一律用 `uv run script.py` 以确保环境正确。单行脚本用 `uv run python -c "..."`。
+- **不要手工管理环境**（如 `python -m venv` 或 `source .venv/bin/activate`）——uv 会自动处理。
+- `uvx` 按包名直接从 PyPI 运行工具，无需永久安装。
 
-### Project types
+### 项目类型
 
-For **library** projects (`uv init --lib`) or packaged apps (`uv init --package`), `uv_build` is used as the default build backend automatically:
+对于 **库** 项目（`uv init --lib`）或打包应用（`uv init --package`），会自动使用 `uv_build` 作为默认构建后端：
 
 ```toml
 [build-system]
@@ -83,30 +83,30 @@ requires = ["uv_build>=0.11.28,<0.12.0"]
 build-backend = "uv_build"
 ```
 
-For **application** projects with an entry point:
+对于带入口点的 **应用** 项目：
 
 ```toml
 [project.scripts]
 myapp = "myapp.__main__:main"
 ```
 
-If the project does not use src layout, just run `uv run main.py`.
+如果项目不使用 src 布局，直接运行 `uv run main.py` 即可。
 
 ---
 
 ## ruff
 
-Ruff is an extremely fast Python linter and code formatter. It replaces Flake8, isort, Black, pyupgrade, autoflake, and more.
+Ruff 是极快的 Python 静态检查器和代码格式化器。它取代 Flake8、isort、Black、pyupgrade、autoflake 等。
 
-For detailed information: https://docs.astral.sh/ruff/
+详细信息见：https://docs.astral.sh/ruff/
 
-### When to use
+### 何时使用
 
-Always use ruff for Python linting and formatting. Prefer `uv run ruff` when ruff is a dev dependency; otherwise fall back to `uvx ruff`.
+Python 的静态检查与格式化一律使用 ruff。当 ruff 是开发依赖时优先使用 `uv run ruff`；否则退回 `uvx ruff`。
 
-### Configuration
+### 配置
 
-Add to `pyproject.toml`:
+在 `pyproject.toml` 中加入：
 
 ```toml
 [tool.ruff.lint]
@@ -116,47 +116,47 @@ extend-select = [
 ]
 ```
 
-Do not enable the full `E` category or other formatter-conflicting rules (E1xx, E501, W191, Q, COM); `ruff format` owns layout.
+不要启用完整的 `E` 类别或其他与格式化器冲突的规则（E1xx、E501、W191、Q、COM）；版式由 `ruff format` 负责。
 
-### Post-edit workflow
+### 编辑后的工作流
 
-After modifying Python code, run both:
+修改 Python 代码后，两条命令都要运行：
 
 ```bash
 uv run ruff check --fix path/to/changed_file.py
 uv run ruff format path/to/changed_file.py
 ```
 
-Use `--diff` to preview changes without applying.
+用 `--diff` 预览改动而不实际应用。
 
 ---
 
 ## pyright
 
-Pyright is a fast type checker for Python. Only use it when the project lists it as a dev dependency or explicitly uses type checking.
+Pyright 是快速的 Python 类型检查器。仅当项目把它列为开发依赖或明确使用类型检查时才使用。
 
-Install with the `nodejs` extra so Node.js is bundled automatically (no system `node` required):
+安装时带上 `nodejs` extra，以便自动捆绑 Node.js（无需系统 `node`）：
 
 ```bash
 uv add --dev "pyright[nodejs]"
 ```
 
-Run type checking:
+运行类型检查：
 
 ```bash
 uv run pyright path/to/changed_file.py    # check specific files
 uv run pyright src/                        # check all code
 ```
 
-Usually only check the files you modified. For broad changes (base classes, shared types), check the full tree.
+通常只检查你修改过的文件。对于大范围改动（基类、共享类型），检查整棵目录树。
 
 ---
 
-## Coding style
+## 编码风格
 
-### Type annotations
+### 类型注解
 
-Use modern Python 3.12+ syntax:
+使用现代 Python 3.12+ 语法：
 
 ```python
 # Good — builtin generics, union syntax
@@ -169,7 +169,7 @@ def fetch(url: str, timeout: float = 30.0) -> List[Dict[str, Optional[str]]]:
     ...
 ```
 
-Always annotate function parameters. Local variables can rely on inference unless the type is ambiguous:
+函数参数一律加注解。局部变量可依赖类型推断，除非类型有歧义：
 
 ```python
 items: list[tuple[str, int]] = []    # annotate — empty literal
@@ -179,13 +179,13 @@ result = some_api()                  # inference is fine
 
 ### pydantic v2
 
-Use the modern class-based API:
-- `model_config = ConfigDict(...)` at class body level, not `class Config`.
-- `RootModel` with `root: SomeType` for single-root schemas.
+使用现代基于类的 API：
+- 在类体层级使用 `model_config = ConfigDict(...)`，而不是 `class Config`。
+- 单根 schema 使用 `RootModel` 配 `root: SomeType`。
 
-### typer (CLI)
+### typer（CLI）
 
-Recommended for CLI entry points over `argparse`:
+CLI 入口点推荐用它，而不是 `argparse`：
 
 ```python
 import typer

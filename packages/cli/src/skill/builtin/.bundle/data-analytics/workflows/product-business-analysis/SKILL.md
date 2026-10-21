@@ -1,138 +1,138 @@
 ---
 name: product-business-analysis
-description: "Analyze product or business data to support a decision or recommendation. Use when a decision depends on metric-backed evidence, such as choosing a direction, prioritizing an opportunity, evaluating a change, segmenting users, sizing tradeoffs, or deciding what to do next."
+description: "分析产品或业务数据以支撑决策或建议。当决策依赖有指标支撑的证据时使用，例如选择方向、确定机会优先级、评估变更、细分用户、权衡取舍或决定下一步。 | Trigger keywords: product analysis, business analysis, decision support, prioritization, segmentation, tradeoff, recommendation."
 ---
 
-## Related Skills
+## 相关技能
 
-Use $metric-diagnostics when the recommendation depends on explaining a metric movement, anomaly, gap, or discrepancy.
+当建议依赖解释指标变化、异常、差距或偏差时，使用 $metric-diagnostics。
 
-# Product And Business Analysis
+# 产品与业务分析
 
-Use this skill to answer product or business questions with data-backed evidence, context, and a recommendation. Give the audience enough trustworthy evidence, interpretation, and uncertainty framing to choose a practical next action.
+使用本技能，以有数据支撑的证据、上下文和建议来回答产品或业务问题。给受众提供足够可信的证据、解读和不确定性框架，以选择切实可行的下一步行动。
 
-## Skill Configuration
+## 技能配置
 
-### Source Discovery And Verification
+### 来源发现与核验
 
-Use the relevant semantic layer as a starting map, not a boundary.
+把相关语义层当作起点地图，而不是边界。
 
-1. **Explore all possible sources.** Search every connected or provided source that could contain task-relevant data or change the interpretation. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. Known sources, tables, dashboards, and semantic mappings are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare ownership, freshness, definition, grain, coverage, and directness. Use the best authoritative source, or combine complementary sources when needed. Note material conflicts, explain why the selected source or sources control the answer, and verify selected data through live reads before concluding.
+1. **探索所有可能的来源。** 搜索每个已连接或已提供、可能包含任务相关数据或改变解读的来源。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。已知的来源、表、仪表盘和语义映射都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较归属、新鲜度、定义、粒度、覆盖范围和直接程度。使用最权威的来源，或在需要时组合互补来源。记录实质性冲突，解释为什么选定来源掌控答案，并在下结论前通过实时读取核验所选数据。
 
-### Source Access Guardrail
+### 数据源访问护栏
 
-Before querying sources, building artifacts, or drawing conclusions, determine whether the answer requires a specific source of truth.
+在查询来源、构建产物或下结论之前，先确定答案是否需要特定的事实来源。
 
-If a required source is unavailable, stop that path. Tell the user what source is needed, ask them to make it available or provide a reviewed fallback, and do not treat weaker substitutes as equivalent.
+如果所需的来源不可用，停止该路径。告诉用户需要什么来源，请其提供或给出经过审阅的替代方案，不要把较弱的替代品当作等价物。
 
-If the missing source is only optional enrichment, continue with the strongest available evidence and label the gap when it materially affects the answer.
+如果缺失的来源只是可选补充，则用现有最强证据继续，并当缺口实质性影响答案时加以标注。
 
-Clarify with the user when a missing input would materially change the analytical frame or recommendation. Otherwise make a reasonable assumption, state it, and proceed.
+当缺失的输入会实质性改变分析框架或建议时，与用户澄清。否则做出合理假设、说明假设并继续。
 
-## Workflow
+## 工作流
 
-### 1. Start From The Decision
+### 1. 从决策出发
 
-Identify the decision, audience, and action the analysis should inform before choosing data sources or metrics.
+在选择数据源或指标之前，先确定分析应支撑的决策、受众和行动。
 
-State plainly:
+平实地说明：
 
-- the question and decision the analysis should inform
-- who will use the answer and what they can act on
-- the scope and comparison that define a useful answer
-- the outcome or behavior that matters for the decision
-- any assumptions needed to proceed
+- 分析应支撑的问题与决策
+- 谁会使用答案，以及他们能据此采取什么行动
+- 界定有用答案的范围与对比
+- 对该决策重要的结果或行为
+- 继续推进所需的任何假设
 
-Do not let unclear scope turn into broad exploratory work by default.
+不要让不清楚的范围默认变成宽泛的探索性工作。
 
-### 2. Gather Decision-Relevant Context
+### 2. 收集与决策相关的上下文
 
-Run $gather-business-context before deeper analysis. That skill owns source selection, retrieval, source authority, conflict handling, and compact context notes. Use this workflow to decide how the gathered context changes the analysis and recommendation.
+在深入分析之前运行 $gather-business-context。该技能负责来源选择、检索、来源权威性、冲突处理和精简的上下文说明。使用本工作流来决定所收集的上下文如何改变分析与建议。
 
-Keep the context pass proportional to the task. For self-contained prompts or cases where the user already provided enough context, the pass can be brief: confirm the decision frame, definitions, source assumptions, and any obvious gaps before moving on. Do not turn mandatory context gathering into a broad background scan.
+让上下文收集与任务成比例。对于自包含的提示，或用户已提供足够上下文的情况，这一遍可以简短：确认决策框架、定义、来源假设和任何明显缺口，然后继续。不要把强制的上下文收集变成宽泛的背景扫描。
 
-Relevant context should clarify:
+相关上下文应澄清：
 
-- intent: what the work was meant to accomplish and why
-- definitions: how the work, metric, or source is defined and measured
-- timing: what changed around the analysis period that could affect interpretation
-- constraints: decisions, caveats, or limitations that affect what action is realistic
+- 意图：这项工作意在达成什么以及为什么
+- 定义：工作、指标或来源如何被定义和度量
+- 时机：分析期间前后发生了什么可能影响解读的变化
+- 约束：影响什么行动现实的决策、注意事项或限制
 
-### 3. Frame The Analysis
+### 3. 框定分析
 
-Turn the question into a focused analytical framework.
+把问题转化为聚焦的分析框架。
 
-Define a framework for answering the question with data:
+定义一个用数据回答问题的框架：
 
-- the specific data questions that would support or change the recommendation
-- the comparisons and dimensions to inspect
-- the unit of analysis that matches the decision
-- the metric definitions and caveats needed to interpret the result
+- 哪些具体的数据问题会支撑或改变建议
+- 要检查的对比和维度
+- 与决策匹配的分析单元
+- 解读结果所需的指标定义与注意事项
 
-Use the framework to surface plausible hypotheses or interpretations, then turn them into focused data questions. Keep the framework specific enough to avoid broad exploration and support a recommendation.
+使用该框架提出可能的假设或解读，再将其转化为聚焦的数据问题。保持框架足够具体，以避免宽泛探索并支撑建议。
 
-Use $design-kpis when the success metric, driver metrics, guardrails, or measurement plan need to be defined before the analysis can proceed.
+当成功指标、驱动指标、护栏或度量计划需要在分析开始前定义时，使用 $design-kpis。
 
-Start by defining what the answer needs to show in plain language. Then choose the data that matches that meaning as closely as possible, including who is counted and what comparison makes the number meaningful. If a field or event captures only part of what the decision cares about, say what it captures and what it leaves out.
+先平实地定义答案需要展示什么。然后选择尽可能贴近该含义的数据，包括谁被计入，以及什么对比能让数字有意义。如果某个字段或事件只捕捉了决策关注的一部分，说明它捕捉了什么、遗漏了什么。
 
-### 4. Run Focused Quantitative Analysis
+### 4. 执行聚焦的定量分析
 
-Run enough quantitative analysis to support or reject the framed hypotheses and inform the decision:
+执行足够的定量分析，以支持或否定所框定的假设并支撑决策：
 
-- **Follow the framework.** Run the analyses that could change the recommendation first. Track additional data questions that emerge, answer the ones that matter for the decision, and leave lower-impact cuts as follow-up instead of expanding into broad exploration.
+- **遵循框架。** 先运行可能改变建议的分析。记录新出现的数据问题，回答对决策重要的那些，把影响较小的切分留作后续，而不是扩展成宽泛探索。
 
-- **Use the right comparison.** Interpret results against the relevant baseline, denominator, or comparison point before turning them into a recommendation. For example, do not conclude that one group is the best opportunity just because it has the most total usage. Check whether usage is high because the group is larger, whether the pattern still holds after normalizing by the active base, whether the group is growing or declining, whether the usage reflects the behavior or outcome that matters, and whether business context changes the interpretation.
+- **使用正确的对比。** 在把结果转化为建议之前，对照相关基线、分母或对比点来解读。例如，不要仅因为某个群体总使用量最大就断定它是最佳机会。要检查使用量高是否因为该群体更大、按活跃基数归一化后模式是否仍成立、该群体是在增长还是下滑、使用量是否反映了真正重要的行为或结果，以及业务上下文是否改变解读。
 
-- **Size the opportunities.** Estimate the magnitude of impact each important opportunity could have. State what is being compared, which metric represents impact, what denominator or population it uses, and whether the data is complete enough to trust. Keep material unknown or unclassified groups visible when they could change the interpretation.
+- **量化机会规模。** 估算每个重要机会可能带来的影响量级。说明在比较什么、用哪个指标代表影响、使用什么分母或人群，以及数据是否完整到足以信任。当未分类或未知的群体可能改变解读时，让其保持可见。
 
-- **Keep quantitative work inspectable.** Use $jupyter-notebooks to record queries and analysis. Use $analyze-data-quality when source freshness, grain, joins, missingness, schema drift, or unexpected distributions could affect trust.
+- **保持定量工作可检查。** 使用 $jupyter-notebooks 记录查询和分析。当来源新鲜度、粒度、join、缺失、schema 漂移或意外分布可能影响可信度时，使用 $analyze-data-quality。
 
-- **Validate before concluding.** Use $validate-data before sharing stakeholder-facing recommendations, high-impact claims, or surprising results. When dashboards and direct queries both exist, reconcile them or explain why they differ.
+- **下结论前先校验。** 在分享面向利益相关方的建议、高影响主张或出人意料的结果之前，使用 $validate-data。当仪表盘和直接查询同时存在时，对它们进行对账，或解释为何不同。
 
-### 5. Translate Evidence Into Decision Implications
+### 5. 把证据转化为决策含义
 
-Frame the findings within the broader business context. Do not present quantitative evidence and business context as two unrelated streams.
+在更广泛的业务上下文中框定发现。不要把定量证据和业务上下文呈现为两条互不相干的线索。
 
-Interpret the evidence through the decision lenses that best fit the question. Choose lenses that would actually change the recommendation, and skip ones that would add noise or false precision. Common lenses include:
+通过与问题最契合的决策视角来解读证据。选择那些确实会改变建议的视角，跳过只会增加噪音或虚假精确度的视角。常见视角包括：
 
-- **Current scale:** Is the opportunity or problem large enough today to matter for the decision?
-- **Momentum:** Is the signal growing, shrinking, accelerating, or newly emerging?
-- **Breadth:** Is the pattern broad-based, or does it only appear in a narrow corner of the business?
-- **Concentration:** Does the conclusion depend on a few large entities, events, or outliers?
-- **Intensity:** Is the behavior deep enough per unit to suggest real need, value, or risk?
-- **Efficiency:** Does the option create better output, margin, conversion, productivity, or quality for the input required?
-- **Addressability:** Can the team realistically act on this option with available product, GTM, operational, policy, or technical levers?
-- **Differentiation:** Does this group or use case require a distinct motion, product experience, support model, or message?
-- **Substitution:** Is there evidence that behavior, spend, time, or workload could shift from another path?
-- **Risk or dependency:** Are there quality, trust, compliance, technical, operational, or data constraints that change the recommendation?
-- **Coverage:** Are unknown, missing, or sparsely tagged records large enough to change the answer?
+- **当前规模：** 机会或问题今天是否大到足以影响决策？
+- **势头：** 信号是在增长、收缩、加速还是刚刚出现？
+- **广度：** 模式是广泛存在的，还是只出现在业务的狭窄角落？
+- **集中度：** 结论是否依赖少数大型实体、事件或离群值？
+- **强度：** 单位行为是否足够深入，暗示真实的需求、价值或风险？
+- **效率：** 该选项是否以所需投入产出更好的输出、毛利、转化、生产力或质量？
+- **可操作性：** 团队能否用现有的产品、GTM、运营、政策或技术抓手现实地推进该选项？
+- **差异性：** 该群体或用例是否需要独特的动作、产品体验、支持模式或信息？
+- **替代性：** 是否有证据表明行为、支出、时间或工作量可能从另一条路径转移过来？
+- **风险或依赖：** 是否存在改变建议的质量、信任、合规、技术、运营或数据约束？
+- **覆盖率：** 未知、缺失或标注稀疏的记录是否大到足以改变答案？
 
-Use these as thinking tools, not a checklist. Explain why the chosen lenses matter for this decision, and mention omitted cuts only when they would plausibly change the interpretation or help explain the result.
+把这些当作思考工具，而不是检查清单。解释所选视角为何对这项决策重要，并仅在省略的切分可能改变解读或有助于解释结果时才提及。
 
-Use the measured opportunities to explain which differences matter for the decision and which ones call for different actions. If the business context shows that the initial sizing misses the actionable part of the opportunity, add the focused sizing cut needed to make the recommendation useful.
+使用量化出的机会来解释哪些差异对决策重要、哪些需要不同的行动。如果业务上下文表明初始测算遗漏了机会中可行动的部分，补充所需的聚焦测算切分，使建议更有用。
 
-If evidence conflicts, say so directly and explain which interpretation is better supported. Do not smooth over disagreement between sources.
+如果证据相互冲突，直接说明，并解释哪种解读得到更好的支撑。不要抹平来源之间的分歧。
 
-### 6. Hand Off The Recommendation
+### 6. 交付建议
 
-End by handing the decision-ready recommendation to $build-report unless the user explicitly requests an inline, chat-only, brief/no-artifact answer, asks not to create a report/file/artifact, or selects another primary artifact. This handoff is mandatory when no explicit human waiver was given; do not infer a waiver because the user asked a direct question or did not use the word "report". This workflow owns the analytical conclusion; $build-report owns the reader-facing structure, visuals, evidence placement, and delivery surface.
+最后把可直接决策的建议交给 $build-report，除非用户明确要求内联的、仅聊天的、简报/无产物回答，明确表示不要创建报告/文件/产物，或选择另一个主要产物。在没有用户的明确豁免时，该交付是强制的；不要因为用户问的是直接问题或没有使用“报告”一词就推断存在豁免。本工作流负责分析结论；$build-report 负责面向读者的结构、视觉、证据摆放和交付界面。
 
-Before handoff, make the recommendation explicit:
+交付之前，让建议明确包含：
 
-- what they should believe or do next
-- why the evidence supports that recommendation
-- which caveats or dependencies matter
-- what follow-up analysis would most improve confidence
+- 他们接下来应相信或做什么
+- 为什么证据支持该建议
+- 哪些注意事项或依赖重要
+- 什么后续分析最能提升置信度
 
-If evidence is incomplete, label the recommendation as provisional and state what would change confidence. Do not overstate the conclusion just to make the answer feel decisive.
+如果证据不完整，将建议标注为暂定，并说明什么会改变置信度。不要为了让答案显得果断而夸大结论。
 
-Use $validate-data when methodology, calculations, caveats, or the evidentiary support for the conclusion need review before sharing.
+当方法论、计算、注意事项或结论的证据支撑在分享前需要审阅时，使用 $validate-data。
 
-Pass narrative ingredients to the report surface, not only result tables:
+把叙述素材传给报告界面，而不只是结果表格：
 
-- direct answer and recommendation
-- key evidence and how to interpret it
-- implication for the decision
-- unresolved uncertainty and caveats
-- recommended follow-up
+- 直接答案与建议
+- 关键证据及其解读方式
+- 对决策的含义
+- 未解决的不确定性与注意事项
+- 建议的后续工作

@@ -1,36 +1,36 @@
 ---
 name: docx-official
-description: "Use this skill whenever a Microsoft Word (.docx) file is being produced, opened, transformed, or read. That includes: drafting reports, letters, contracts, RFPs, technical documents, or any long-form written deliverable; extracting text or structure from an existing Word file; filling a Word template with values; converting Word to PDF or plain text; splitting or merging documents; inspecting styles, headings, sections, tables, images, comments, or tracked changes. Trigger on mentions of 'Word doc', 'DOCX', 'Office document', a filename ending in .docx, or requests like 'turn this into a Word report'."
+description: "当正在生成、打开、转换或读取 Microsoft Word（.docx）文件时使用本技能。包括：撰写报告、信函、合同、RFP、技术文档或任何长篇书面交付物；从既有 Word 文件中提取文本或结构；用具体取值填充 Word 模板；把 Word 转换为 PDF 或纯文本；拆分或合并文档；检查样式、标题、节、表格、图片、批注或修订。 | Trigger keywords: Word doc, DOCX, Office document, a filename ending in .docx, turn this into a Word report."
 license: Apache-2.0 — see LICENSE for terms and third-party attributions
 ---
 
-# DOCX Skill
+# DOCX 技能
 
-An Apache-2.0 toolkit for producing, editing, and reading Microsoft Word (`.docx`) files. Written from scratch against the public [ECMA-376 / ISO/IEC 29500](https://www.ecma-international.org/publications-and-standards/standards/ecma-376/) specification and built on permissively-licensed tooling (`python-docx` MIT, `lxml` BSD-3-Clause, optional external binaries `pandoc` and `soffice`) so it can be reused in commercial projects without restriction.
+一个 Apache-2.0 工具集，用于生成、编辑和读取 Microsoft Word（`.docx`）文件。它完全基于公开的 [ECMA-376 / ISO/IEC 29500](https://www.ecma-international.org/publications-and-standards/standards/ecma-376/) 规范从零编写，并构建在宽松许可的工具之上（`python-docx` MIT、`lxml` BSD-3-Clause，以及可选的外部二进制 `pandoc` 和 `soffice`），因此可以不受限制地在商业项目中复用。
 
-## Decision matrix
+## 决策矩阵
 
-| Situation | Path | Read first |
+| 场景 | 路径 | 先读 |
 |-----------|------|------------|
-| No source file — build a document from a prompt / data | Author from scratch with `python-docx` | [`create.md`](create.md) |
-| You have a `.docx` template to fill in or lightly modify | Placeholder replacement via `python-docx`, keeps styles | [`edit.md`](edit.md) → *Workflow A — `python-docx` in-place edit* |
-| Deep structural edits, new sections, custom XML, unusual layouts | Explode → edit XML → assemble | [`edit.md`](edit.md) → *Workflow B — Explode → edit XML → assemble* |
-| You only need the text / structure / metadata out of a `.docx` | Extraction pipeline | [`read.md`](read.md) |
-| Need a PDF preview for QA | `scripts/render_pdf.py` via LibreOffice | see *QA* below |
+| 没有源文件——依据提示词 / 数据构建文档 | 用 `python-docx` 从零创作 | [`create.md`](create.md) |
+| 有需要填写或小幅修改的 `.docx` 模板 | 通过 `python-docx` 替换占位符，保留样式 | [`edit.md`](edit.md) → *工作流 A —— `python-docx` 原地编辑* |
+| 深度结构编辑、新增章节、自定义 XML、非常规版式 | 解包 → 编辑 XML → 组装 | [`edit.md`](edit.md) → *工作流 B —— 解包 → 编辑 XML → 组装* |
+| 只需要从 `.docx` 中取出文本 / 结构 / 元数据 | 提取流水线 | [`read.md`](read.md) |
+| 需要 PDF 预览来做 QA | 通过 LibreOffice 运行 `scripts/render_pdf.py` | 见下文 *QA* |
 
-If the task mixes several of these, do them in this order: **read → plan → edit/create → validate**.
+如果任务混合了其中几项，请按以下顺序执行：**读取 → 规划 → 编辑/创建 → 校验**。
 
-## One-time environment setup
+## 一次性环境准备
 
-> **Bundled runtime:** when the `MIMO_PYTHON` environment variable is set, skip `uv`/`python3` and pip installs entirely — run every command below with `uv run` replaced by `"$MIMO_PYTHON"` (e.g. `"$MIMO_PYTHON" scripts/extract_text.py input.docx`). This skill's Python dependencies are preinstalled in that interpreter; pip console scripts are unavailable, so always go through `"$MIMO_PYTHON" -m <module>`. A bundled LibreOffice is exposed as `MIMO_SOFFICE` and picked up automatically by the scripts here.
+> **内置运行时：** 当设置了环境变量 `MIMO_PYTHON` 时，完全跳过 `uv`/`python3` 与 pip 安装——把下面每条命令中的 `uv run` 替换为 `"$MIMO_PYTHON"`（例如 `"$MIMO_PYTHON" scripts/extract_text.py input.docx`）。本技能的 Python 依赖已预装在该解释器中；pip 控制台脚本不可用，因此始终通过 `"$MIMO_PYTHON" -m <module>` 调用。内置的 LibreOffice 以 `MIMO_SOFFICE` 暴露，此处的脚本会自动识别它。
 
-All scripts include [PEP 723](https://peps.python.org/pep-0723/) inline metadata, so `uv run` resolves dependencies automatically — no manual install step needed. Just run:
+所有脚本都包含 [PEP 723](https://peps.python.org/pep-0723/) 内联元数据，因此 `uv run` 会自动解析依赖——无需手动安装步骤。直接运行：
 
 ```bash
 uv run scripts/extract_text.py input.docx
 ```
 
-If you don't use `uv`, install dependencies once:
+如果你不使用 `uv`，请一次性安装依赖：
 
 ```bash
 python3 -m pip install --upgrade python-docx lxml
@@ -40,11 +40,11 @@ python3 -m pip install --upgrade python-docx lxml
 #   Poppler   (for pdf → image, QA loop):   brew install poppler
 ```
 
-Alternatively, if this skill lives in a persistent workspace you can `uv init` a project, `uv add python-docx lxml`, and run scripts with `uv run scripts/...` from the project root — this gives you a lockfile and reproducible environment.
+或者，如果本技能位于持久化工作区中，你可以 `uv init` 一个项目、`uv add python-docx lxml`，然后在项目根目录用 `uv run scripts/...` 运行脚本——这样就能获得锁文件与可复现的环境。
 
-All scripts here use the standard library plus `python-docx`. No proprietary dependencies.
+此处所有脚本只使用标准库加上 `python-docx`。没有任何专有依赖。
 
-## Common commands
+## 常用命令
 
 ```bash
 # 1. Extract plain text (best for "what does this file say?" questions)
@@ -69,65 +69,65 @@ uv run scripts/resolve_revisions.py reviewed.docx clean.docx
 uv run scripts/annotate.py exploded/ "Please check" --author "Reviewer" --anchor "text"
 ```
 
-Every script is a small, self-contained Python file. Read the top of the file for full CLI options.
+每个脚本都是一个短小、自包含的 Python 文件。阅读文件开头即可了解完整的 CLI 选项。
 
-## Authoring principles
+## 编写原则
 
-Word is a **flowing** document format, not a slide surface. Users expect it to look like something a human wrote in Word — not a design tool trying to reinvent typography. Keep that in mind:
+Word 是**流式**文档格式，而不是幻灯片画布。用户期望它看起来像人在 Word 里写出来的东西——而不是某个试图重新发明排版的设计工具。请牢记这一点：
 
-1. **Rely on named styles.** Use `Heading 1`, `Heading 2`, `Normal`, `Title`, `Quote`, `List Bullet`, `List Number`, `Caption`. They are what makes Word's ToC, navigation pane, and cross-references work.
-2. **One idea per paragraph.** Long paragraphs are fine; run-on paragraphs are not. Break at logical boundaries.
-3. **Structure first, prose second.** Draft the heading tree, then write inside it. Reviewers scan headings before words.
-4. **Tables for tabular data only.** Do not use tables to fake multi-column layouts — export to PDF and users see the borders through the layout.
-5. **Line length is set by page margins, not by hard breaks.** Never insert manual line breaks to control wrapping.
-6. **Use fields, not literal text, for things that change** — page numbers, dates, ToC, cross-references. `python-docx` supports field codes via low-level XML (see `edit.md`).
-7. **Every image needs alt text** — accessibility, and Word screams at you in review mode when it's missing.
+1. **依赖命名样式。** 使用 `Heading 1`、`Heading 2`、`Normal`、`Title`、`Quote`、`List Bullet`、`List Number`、`Caption`。正是它们让 Word 的目录、导航窗格和交叉引用得以工作。
+2. **每段一个观点。** 长段落没问题；一逗到底的段落不行。在逻辑边界处分段。
+3. **结构优先，行文其次。** 先草拟标题树，再在其中写作。审阅者扫读标题先于正文。
+4. **表格只用于表格型数据。** 不要用表格伪造多栏布局——导出 PDF 后，用户会看到边框穿透布局。
+5. **行宽由页边距决定，而不是硬换行。** 绝不要插入手动换行来控制折行。
+6. **会变化的内容使用域，而不是字面文本**——页码、日期、目录、交叉引用。`python-docx` 可通过底层 XML 支持域代码（见 `edit.md`）。
+7. **每张图片都需要替代文本**——为了无障碍，而且缺失时 Word 会在审阅模式下不断告警。
 
-## Typography defaults (safe starting point)
+## 排版默认值（安全的起点）
 
-| Element        | Font          | Size | Weight | Notes |
+| 元素 | 字体 | 字号 | 字重 | 说明 |
 |----------------|---------------|------|--------|-------|
-| Title          | Calibri Light | 28pt | Bold   | Centered or left, one line |
-| Heading 1      | Calibri Light | 18pt | Bold   | Space before 12pt |
-| Heading 2      | Calibri Light | 14pt | Bold   | Space before 10pt |
-| Heading 3      | Calibri       | 12pt | Bold   | Space before 6pt |
-| Body           | Calibri       | 11pt | Regular| Line spacing 1.15, space after 6pt |
-| Caption        | Calibri       | 9pt  | Italic | Muted gray `#595959` |
-| Code / mono    | Consolas      | 10pt | Regular| Left-aligned, no first-line indent |
+| 标题 | Calibri Light | 28pt | 粗体 | 居中或左对齐，单行 |
+| 标题 1 | Calibri Light | 18pt | 粗体 | 段前 12pt |
+| 标题 2 | Calibri Light | 14pt | 粗体 | 段前 10pt |
+| 标题 3 | Calibri | 12pt | 粗体 | 段前 6pt |
+| 正文 | Calibri | 11pt | 常规 | 行距 1.15，段后 6pt |
+| 题注 | Calibri | 9pt | 斜体 | 柔和灰 `#595959` |
+| 代码 / 等宽 | Consolas | 10pt | 常规 | 左对齐，无首行缩进 |
 
-Change the palette for the topic — muted navy `#1F3A5F` for legal/finance, warm charcoal `#2E2A26` for editorial. Avoid pure `#000000` for body text; `#1F1F1F` reads softer on print.
+按主题调整配色——法律/金融用沉稳的藏青 `#1F3A5F`，编辑出版用暖炭灰 `#2E2A26`。正文避免纯 `#000000`；`#1F1F1F` 在印刷品上读起来更柔和。
 
-## Page setup (A4 vs Letter)
+## 页面设置（A4 与 Letter）
 
-Ask the user which one to use. If you cannot ask, default to the region implied by the language (Chinese/European → A4, US English → Letter). Margins:
+询问用户使用哪一种。如果无法询问，按语言所暗示的地区取默认值（中文/欧洲 → A4，美式英语 → Letter）。页边距：
 
-| Size   | Width × Height    | Standard margins (T/B/L/R) |
+| 尺寸 | 宽 × 高 | 标准页边距（上/下/左/右） |
 |--------|-------------------|-----------------------------|
 | A4     | 21.0 × 29.7 cm    | 2.54 / 2.54 / 3.18 / 3.18 cm |
 | Letter | 8.5 × 11.0 in     | 1.00 / 1.00 / 1.25 / 1.25 in |
 
-## QA checklist — always run before declaring done
+## QA 检查清单——宣布完成前务必执行
 
-**Assume something is wrong.** Word files fail silently: a broken relationship, an unclosed `<w:p>`, a missing style — Word will still open the file but strip content or throw a "content had problems" warning. Verify explicitly.
+**假设一定有问题。** Word 文件会静默失败：损坏的关系、未闭合的 `<w:p>`、缺失的样式——Word 仍会打开文件，但会丢掉内容或抛出“内容有问题”的警告。请显式验证。
 
-1. **Open cleanly** — no repair prompt.
+1. **能干净打开**——没有修复提示。
    ```bash
    uv run python -c "import docx; docx.Document('output.docx')"   # loads without exceptions
    ```
-2. **Text integrity** — no placeholder residue.
+2. **文本完整性**——没有占位符残留。
    ```bash
    uv run scripts/extract_text.py output.docx | grep -Ei "TODO|TBD|\{\{|lorem|xxxx"
    ```
-   Grep must return nothing.
-3. **Visual sanity** — render a PDF, open the first and last pages, scan for:
-   - Widowed headings alone at the bottom of a page.
-   - Tables split awkwardly across pages.
-   - Images pushed to their own page because they exceeded content width.
-   - Missing page numbers, wrong header/footer content.
+   grep 必须没有任何输出。
+3. **视觉检查**——渲染为 PDF，打开首页和末页，检查：
+   - 孤行标题单独留在页面底部。
+   - 表格跨页断裂且不美观。
+   - 图片因超出内容宽度而被挤到单独一页。
+   - 缺少页码、页眉/页脚内容错误。
    ```bash
    uv run scripts/render_pdf.py output.docx
    ```
-4. **Style hygiene** — every heading uses a real style, not just bold+large text:
+4. **样式卫生**——每个标题都使用真正的样式，而不只是加粗放大：
    ```bash
    uv run python -c "
    import docx; d = docx.Document('output.docx')
@@ -136,17 +136,17 @@ Ask the user which one to use. If you cannot ask, default to the region implied 
            print('possible fake heading:', p.text[:80])"
    ```
 
-If any of these fail, fix and re-run — don't paper over.
+任何一项不通过，修复后重新运行——不要掩盖问题。
 
-## What is out of scope
+## 不在范围内
 
-- **`.doc` (legacy Word 97-2003)** — this skill only targets `.docx` (Office Open XML). Convert `.doc` to `.docx` with LibreOffice first: `soffice --headless --convert-to docx old.doc`.
-- **Live collaborative editing** — the Word online API is a separate concern; here we produce and modify files.
-- **Macros / VBA** — do not generate `.docm` files. If the user asks for automation, offer a Python script that regenerates the doc instead.
+- **`.doc`（旧版 Word 97-2003）**——本技能只面向 `.docx`（Office Open XML）。请先用 LibreOffice 把 `.doc` 转换为 `.docx`：`soffice --headless --convert-to docx old.doc`。
+- **实时协同编辑**——Word 在线 API 是另一回事；这里我们只生成和修改文件。
+- **宏 / VBA**——不要生成 `.docm` 文件。如果用户要求自动化，改为提供一个能重新生成文档的 Python 脚本。
 
-## Where each detail lives
+## 各细节的位置
 
-- **Creating from scratch**: [`create.md`](create.md) — headings, paragraphs, styles, tables, images, page setup, headers/footers, tables of contents.
-- **Editing / templating**: [`edit.md`](edit.md) — placeholder replacement, section swap, raw XML surgery, tracked changes, comments.
-- **Reading / extracting**: [`read.md`](read.md) — plain-text export, structural walk, metadata, table extraction.
-- **Scripts**: [`scripts/`](scripts/) — self-contained CLI utilities used by all of the above.
+- **从零创建**：[`create.md`](create.md)——标题、段落、样式、表格、图片、页面设置、页眉/页脚、目录。
+- **编辑 / 模板**：[`edit.md`](edit.md)——占位符替换、章节替换、原始 XML 手术、修订跟踪、批注。
+- **读取 / 提取**：[`read.md`](read.md)——纯文本导出、结构遍历、元数据、表格提取。
+- **脚本**：[`scripts/`](scripts/)——上述所有流程使用的自包含 CLI 工具。

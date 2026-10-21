@@ -58,7 +58,7 @@ Thumbs.db
 /packages/sdk/openapi-ts-error-*.log
 
 # others
-codex/
+/codex/
 # local progress notes for agent worktrees
 /.scratch/
 

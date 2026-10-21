@@ -1,14 +1,14 @@
-# Sub-agent prompt template (locked)
+# 子代理提示词模板（锁定）
 
-Hard constraint: reproduce the template below verbatim, replacing only `{variables}`. Do not rephrase, reorder, or drop sections — consistency across sub-agents is what makes findings mergeable.
+硬性约束：逐字复现下面的模板，只替换 `{variables}`。不要改写、重排或删减任何章节——子代理之间的一致性，才让发现结果可以合并。
 
-Variables:
-- `{N}` — finding file number (F1, F2, ...)
-- `{ANGLE}` — the single research angle, one sentence
-- `{BRIEF_CONTEXT}` — 2-3 lines of context from brief.md (topic, time frame, audience)
-- `{TODAY}` — today's date from Step 0
-- `{WORKSPACE}` — absolute path to the research workspace
-- `{QUERY_BUDGET}` — max searches: 4 (quick), 6 (standard), 8 (deep)
+变量：
+- `{N}` — findings 文件编号（F1、F2、...）
+- `{ANGLE}` — 单一研究视角，一句话
+- `{BRIEF_CONTEXT}` — 来自 brief.md 的 2-3 行背景（主题、时间范围、受众）
+- `{TODAY}` — 来自第 0 步的今天日期
+- `{WORKSPACE}` — 研究工作区的绝对路径
+- `{QUERY_BUDGET}` — 最大搜索次数：4（quick）、6（standard）、8（deep）
 
 ---
 

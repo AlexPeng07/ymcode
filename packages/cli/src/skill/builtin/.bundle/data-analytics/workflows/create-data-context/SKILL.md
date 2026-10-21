@@ -1,71 +1,71 @@
 ---
 name: create-data-context
-description: "Create, update, inspect, or repair Data Analytics semantic layers. Use when the user asks to save data context or create a semantic layer that future Data Analytics work can inspect and cite."
+description: "创建、更新、检查或修复数据分析语义层。当用户要求保存数据上下文，或创建一个可供后续数据分析检查与引用的语义层时使用。 | Trigger keywords: semantic layer, data context, source inventory, metric definitions, save data context."
 ---
 
-# Create Data Context
+# 创建数据上下文
 
-This skill creates and maintains semantic-layer skills for Data Analytics. A semantic-layer skill is an explicit artifact the user can inspect and cite later. It captures how future analyses should interpret the data, for example which metric definition is canonical, which dashboard or table is the best source of truth, and what caveats should be checked before answering.
+本技能为数据分析创建并维护语义层技能。语义层技能是一种显式产物，用户可以检查并在以后引用。它记录后续分析应如何解读数据，例如哪个指标定义是权威的、哪个仪表盘或表是最佳事实来源，以及回答问题前应检查哪些注意事项。
 
-Data-task routing is owned by the Data Analytics `index` skill. If the user wants Data Analytics to do work with data now, route to `index`, whether the work starts from connected sources, uploaded files, pasted tables, sample data, or an existing semantic layer. Examples include answering a metric question, building a report, or checking a dataset.
+数据任务路由由数据分析的 `index` 技能负责。如果用户希望数据分析现在就用数据做事，路由到 `index`，无论工作是从已连接的数据源、上传的文件、粘贴的表格、示例数据还是既有语义层开始。示例包括回答指标问题、构建报告或检查数据集。
 
-Use this skill only when the user asks to save data context or create, update, inspect, or repair a semantic layer.
+仅当用户要求保存数据上下文，或创建、更新、检查、修复语义层时，才使用本技能。
 
-## Runtime Routing
+## 运行时路由（Runtime Routing）
 
-Use the current runtime's classified `surface` and `mode` values, plus the capabilities exposed in the run, to choose intake and persistence. Build and validate the same canonical semantic-layer skill package before writing it to any destination.
+使用当前运行时分类出的 `surface` 与 `mode` 值，以及本次运行暴露的能力，来选择信息采集与持久化方式。在写入任何目标位置之前，都要构建并校验同一份权威的语义层技能包。
 
-For intake:
+关于信息采集：
 
-- Use structured intake when a supported form action is available.
-- Use conversational intake for open-ended details and for runtimes without a supported form action.
+- 当有受支持的表单动作可用时，使用结构化采集。
+- 对于开放式细节，以及没有受支持表单动作的运行时，使用对话式采集。
 
-Choose one persistence destination by default:
+默认选择一个持久化目标：
 
-| Destination branch | Select this branch when | Action |
+| 目标分支 | 在以下情况选择该分支 | 操作 |
 | --- | --- | --- |
-| ChatGPT personal Skills | `surface = chatgpt_web` and the run exposes a product-backed personal Skills install surface, such as a native skill draft/upload/install action or an installable skill package preview. | Install the generated skill into the user's personal Skills library. Capture the installed skill link or Skills-library reference returned by the install surface and include it as a Markdown link in the chat response. Verify through the available Skills-library, list, or fresh-thread discovery surface when the runtime exposes one. |
-| Local Codex | The user asks for local persistence, or `surface = codex_desktop`. | Write a filesystem skill to `$CODEX_HOME/skills/<area>-semantic-layer`; if `$CODEX_HOME` is unavailable and the local runtime clearly uses the default home location, use `~/.codex/skills/<area>-semantic-layer`. Validate the written skill and verify it is discoverable in a new local Codex context when possible. |
-| Portable package | The current run has no supported persistent skill destination. | Return a portable skill package or source plan and clearly state that it has not been installed persistently, including the exact persistence blocker. |
+| ChatGPT 个人 Skills | `surface = chatgpt_web`，且本次运行暴露了产品化的个人 Skills 安装面，例如原生的技能草稿/上传/安装动作，或可安装的技能包预览。 | 将生成的技能安装到用户的个人 Skills 库。捕获安装面返回的已安装技能链接或 Skills 库引用，并在聊天回复中作为 Markdown 链接包含。当运行时暴露了可用的 Skills 库、列表或全新会话发现面时，通过它们进行验证。 |
+| 本地 Codex | 用户要求本地持久化，或 `surface = codex_desktop`。 | 将文件系统技能写入 `$CODEX_HOME/skills/<area>-semantic-layer`；如果 `$CODEX_HOME` 不可用且本地运行时明显使用默认主目录位置，则使用 `~/.codex/skills/<area>-semantic-layer`。校验已写入的技能，并在可能时验证它能在新的本地 Codex 上下文中被发现。 |
+| 可移植技能包 | 当前运行没有受支持的持久化技能目标。 | 返回可移植的技能包或源计划，并明确说明它未被持久安装，包括确切的持久化阻塞项。 |
 
-For dual ChatGPT web and local Codex availability, install the same canonical package into both the ChatGPT Skills library and the local Codex user-skill directory.
+若需要同时支持 ChatGPT 网页端和本地 Codex，请将同一份权威包同时安装到 ChatGPT Skills 库和本地 Codex 用户技能目录。
 
-For ordinary data work, return to the Data Analytics `index` workflow.
+对于普通的数据工作，回到数据分析的 `index` 工作流。
 
-## Skill Configuration
+## 技能配置
 
-### Audience And Language
+### 受众与语言
 
-Write for Data Analytics users, not plugin maintainers. Explain what context would improve the current or future analysis in practical terms. Avoid implementation terms such as raw state paths, connector ids, cache, runtime, metadata, or preflight unless the user asks for debugging details.
+面向数据分析用户写作，而不是插件维护者。用实际的语言解释什么样的上下文能改善当前或未来的分析。避免使用原始状态路径、连接器 id、缓存、运行时、元数据或 preflight 之类的实现术语，除非用户要求调试细节。
 
-### Source Links
+### 来源链接
 
-When referencing sources inline, prefer clickable Markdown links over plain labels whenever a useful URL exists. Use the source title, record name, channel/thread, or meeting/date as the link text. Use plain labels only when no useful link is available.
+在行内引用来源时，只要存在有用的 URL，就优先使用可点击的 Markdown 链接而不是纯文本标签。使用来源标题、记录名称、频道/线程，或会议/日期作为链接文本。只有在没有可用链接时才使用纯文本标签。
 
-## Semantic Layer Setup
+## 语义层设置
 
-Use this flow when the user wants to create or maintain a semantic layer. If they are not ready to create the layer yet, use the same flow to produce a short source plan for what the semantic layer needs.
+当用户想创建或维护语义层时，使用本流程。如果他们还没准备好创建语义层，也用同一流程产出一份简短的源计划，说明语义层需要什么。
 
-The output is a visible skill or plan. Build the semantic-layer skill when enough source-backed detail exists to make it useful. When the available detail is still thin, return a practical plan that explains what source to collect next and why.
+输出是可见的技能或计划。当已有足够的、有来源支撑的细节使其有用时，构建语义层技能。当可用细节仍然单薄时，返回一份实用的计划，说明接下来应收集什么来源以及原因。
 
-## Creating Or Updating The Layer
+## 创建或更新语义层
 
-Create one semantic layer per coherent product, business, metric, source, or reporting area unless the user explicitly asks for a broader shared layer. Infer the area from the provided context when it is clear; ask only when the answer changes the crawl, destination, or resulting skill.
+除非用户明确要求更宽泛的共享层，否则为每个连贯的产品、业务、指标、数据源或汇报领域创建一个语义层。上下文清晰时从提供的上下文中推断该领域；仅当答案会改变采集范围、目标位置或最终技能时才提问。
 
-Choose the destination from `Runtime Routing` using the supported persistence mechanism exposed in the current run. For local Codex creations, default to `$CODEX_HOME/skills/<area>-semantic-layer` unless the user chooses another destination. Ask before placing a generated semantic-layer skill inside a plugin.
+根据当前运行暴露的受支持持久化机制，从 `Runtime Routing` 中选择目标。对于本地 Codex 创建，默认使用 `$CODEX_HOME/skills/<area>-semantic-layer`，除非用户选择其他目标。在把生成的语义层技能放入插件之前，先征求同意。
 
-Before crawling, build a data-source list that explains what was checked, what is missing, and which sources are lower-confidence. For direct creation or draft-file work, write it to `references/source-inventory.md`; for planning-only work, return it in chat.
+开始采集之前，先构建一份数据源清单，说明检查了什么、缺少什么，以及哪些来源置信度较低。对于直接创建或草稿文件工作，将其写入 `references/source-inventory.md`；对于仅规划的工作，在聊天中返回。
 
-Use source-backed evidence. Favor durable sources such as transformation code, tests, maintained metric docs, and verified dashboards over looser signals such as query history or team discussion. If sources disagree, keep the conflict visible instead of choosing silently.
+使用有来源支撑的证据。优先选择持久来源，例如转换代码、测试、受维护的指标文档和已核验的仪表盘，而不是查询历史或团队讨论之类较松散的信号。如果来源之间存在分歧，保留冲突可见，而不是默默选择一方。
 
-Keep generated semantic-layer skills compact. Put detailed metric definitions, tables, query patterns, caveats, and evidence into linked references using `references/semantic-layer/skill-template.md`. Preserve provenance and avoid copying raw sensitive data, credentials, row-level examples, or long private messages into generated files.
+保持生成的语义层技能精简。将详细的指标定义、表、查询模式、注意事项和证据放入链接的参考文件，使用 `references/semantic-layer/skill-template.md`。保留出处，避免将原始敏感数据、凭证、行级示例或长篇私密消息复制到生成的文件中。
 
-After creating or updating a semantic-layer skill, read `references/semantic-layer/weekly-polling-automation.md` and always offer weekly refresh when the layer has a stable target path and usable `references/source-inventory.md`. Weekly refresh is optional: do not create it without explicit user approval unless the user directly asked for recurring refresh. If the offer cannot be made, state the missing prerequisite.
+创建或更新语义层技能后，阅读 `references/semantic-layer/weekly-polling-automation.md`，并且当该层具有稳定的目标路径和可用的 `references/source-inventory.md` 时，始终提供每周刷新。每周刷新是可选的：除非用户直接要求定期刷新，否则未经用户明确批准不要创建它。如果无法提供该选项，说明缺少的前提条件。
 
-Return the created or updated path or installed skill link, source coverage, any user-relevant caveats or blockers, future-use guidance, iteration guidance, and the weekly refresh automation offer or prerequisite blocker so the user can cite the semantic layer directly in later prompts. Tell the user they can ask to refine definitions, add sources, update caveats, or adjust the semantic layer as their understanding changes. For ChatGPT personal Skills creations, include the installed skill link in the response.
+返回创建或更新的路径或已安装的技能链接、来源覆盖情况、任何与用户相关的注意事项或阻塞项、未来使用指引、迭代指引，以及每周刷新自动化选项或前提条件阻塞项，以便用户能在后续提示中直接引用该语义层。告诉用户可以随着理解的变化要求优化定义、添加来源、更新注意事项或调整语义层。对于 ChatGPT 个人 Skills 的创建，在回复中包含已安装的技能链接。
 
-Keep routine validation details in support artifacts unless a check failed, was unavailable, or changes how the user should rely on the semantic layer.
+将常规校验细节保留在支撑产物中，除非某项检查失败、不可用，或会改变用户应如何依赖该语义层。
 
-## Output Contract
+## 输出契约
 
-For semantic-layer work, report what was created, updated, inspected, or repaired; source coverage; any user-relevant caveats or blockers; and the exact path or installed skill link the user can cite later. For create or update results, include the weekly refresh automation offer or the missing prerequisite that prevented the offer, and let the user know they can iterate on the semantic layer. Keep routine validation details in support artifacts. If the request is ordinary data work, say that it should be routed through `index`.
+对于语义层工作，报告创建、更新、检查或修复了什么；来源覆盖情况；任何与用户相关的注意事项或阻塞项；以及用户以后可以引用的确切路径或已安装技能链接。对于创建或更新结果，包含每周刷新自动化选项，或导致无法提供该选项的缺失前提条件，并告知用户可以继续迭代语义层。将常规校验细节保留在支撑产物中。如果请求是普通的数据工作，说明应通过 `index` 路由。

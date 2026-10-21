@@ -1,44 +1,44 @@
 ---
 name: html-to-video-pipeline
-description: Reliable HTML-to-MP4 rendering via headless browser recording (Playwright/Puppeteer) + ffmpeg — the ordering, gotchas, and verification steps you MUST get right or the output silently rots. Trigger whenever the user is building or debugging any pipeline that turns an HTML/CSS/JS page (single-file, multi-composition, GSAP-driven, or `@keyframes`-driven) into a video file, including headless recording, screen capture of a web page, deterministic frame-by-frame capture, multi-scene concatenation, or engine-mixed video output. Also trigger when the symptom sounds like: font swap flashing in the opening frames (FOUT), the first few seconds of the video are frozen/dead, animations play during page load and get truncated, concatenated segments produce a video whose duration is wildly wrong (e.g., 8s becomes 35s), `file://` loaded HTML fails to fetch its sub-scenes, the exported video is soft/blurry compared to the browser, or playback stutters/looks choppy despite passing a high `-r` fps to ffmpeg. Use even for one-off scripts — the failure modes here are subtle enough that starting from scratch usually reintroduces them.
+description: "通过无头浏览器录制（Playwright/Puppeteer）+ ffmpeg 可靠地把 HTML 渲染成 MP4——其中的先后顺序、坑点和校验步骤必须做对，否则产物会悄悄劣化。只要用户正在构建或调试任何把 HTML/CSS/JS 页面（单文件、多 composition、GSAP 驱动或 `@keyframes` 驱动）转成视频文件的流水线，就触发本技能，包括无头录制、网页屏幕捕获、确定性的逐帧捕获、多场景拼接或混合引擎的视频输出。当症状听起来像以下情况时也触发：开头几帧出现字体切换闪烁（FOUT）、视频前几秒卡死/无内容、动画在页面加载期间播放并被截断、拼接后的片段时长离谱（例如 8s 变成 35s）、`file://` 加载的 HTML 取不到子场景、导出的视频比浏览器里更软/更糊，或者明明给 ffmpeg 传了很高的 `-r` 帧率却仍然卡顿/看起来一顿一顿。即使只是一次性脚本也请使用——这里的失败模式足够隐蔽，从零开始通常会把它们重新引入。 | Trigger keywords: HTML to MP4, headless recording, Playwright recordVideo, ffmpeg, FOUT, frame-by-frame capture, multi-scene concatenation."
 ---
 
-# HTML → Video: the pipeline that actually works
+# HTML → 视频：真正可用的流水线
 
-Turning a live HTML page into an MP4 sounds like a one-liner ("Playwright records, ffmpeg encodes") and the first draft always looks fine — until you play back the export and notice text flashing in a fallback font, three dead seconds at the start, or a "10-second" clip that clocks in at 35s. This skill captures the specific ordering, waits, and encoder flags that make the output trustworthy.
+把一个实时 HTML 页面变成 MP4 听起来是一行命令的事（“Playwright 录、ffmpeg 编”），而且初版总是看着没问题——直到你回放导出文件，发现文字先以回退字体闪了一下、开头有三秒死画面，或者一段“10 秒”的片子实际时长 35 秒。本技能记录了让产物可信的具体顺序、等待与编码器参数。
 
-Think of the pipeline as five phases with a single invariant between them:
+把这条流水线看作五个阶段，它们之间有一条不变式：
 
 ```
 launch  →  hold @ frame 0  →  align capture start with animation start  →  record  →  trim & encode
 ```
 
-The invariant: **no pixel of the animation should render before capture is ready, AND capture must not start before every asset that affects layout has loaded.** Every gotcha below is a violation of that invariant.
+这条不变式是：**在录制就绪之前，动画的任何像素都不应被渲染；并且，在每一个影响布局的资源加载完成之前，录制不得开始。** 下面每一个坑都是对这条不变式的违反。
 
-Quick checklist (each item is expanded below):
+速查清单（每项在下文都有展开）：
 
-1. `viewport` must exactly equal `recordVideo.size` — mismatch silently rescales the output soft/blurry.
-2. Freeze CSS animations via `addInitScript` **before** `goto()`.
-3. `goto` with `domcontentloaded`, never `load`.
-4. Pre-inline `data-composition-src` sub-scenes — `file://` blocks client-side `fetch`.
-5. Font wait = stylesheet `<link>` load → `face.load()` per face → `fonts.ready` → 2 rAFs.
-6. Probe duration with infinite-iteration / `repeat: -1` guards.
-7. Unfreeze = t=0; trim `leadInMs − 120ms` with `-ss` *before* `-i`.
-8. Concat: same engine → demuxer `-c copy`; mixed engines → concat *filter* + re-encode.
-9. Verify with ffprobe duration + full decode + sampled frames. Always.
+1. `viewport` 必须与 `recordVideo.size` 完全相等——不一致会让产物被悄悄缩放，变得发软/发糊。
+2. 在 `goto()` **之前**通过 `addInitScript` 冻结 CSS 动画。
+3. `goto` 使用 `domcontentloaded`，绝不要用 `load`。
+4. 预先内联 `data-composition-src` 子场景——`file://` 会阻止客户端 `fetch`。
+5. 字体等待 = 样式表 `<link>` 加载 → 逐个 face 调用 `face.load()` → `fonts.ready` → 2 次 rAF。
+6. 探测时长时对无限循环 / `repeat: -1` 做防护。
+7. 解冻即 t=0；在 `-i` *之前*用 `-ss` 裁掉 `leadInMs − 120ms`。
+8. 拼接：同一引擎 → 解复用器 `-c copy`；混合引擎 → concat *滤镜* + 重新编码。
+9. 用 ffprobe 时长 + 完整解码 + 抽样帧来校验。每次都做。
 
-There are two capture modes, and picking the wrong one wastes a day:
+有两种录制模式，选错会浪费一天：
 
-- **Mode A — real-time `recordVideo`** (the phases below). Simple, wall-clock = clip length. But the screencast is best-effort variable frame rate (~25fps) and competes with the animation for CPU. Good enough for previews and ≤30fps deliverables on an idle machine.
-- **Mode B — deterministic frame stepping** (pause everything, seek to `i / fps`, screenshot, encode the PNG sequence). Exact fps, every frame rendered, no lead-in trim, immune to machine load. Required when the output must be genuinely smooth ≥30fps or renders run on loaded CI. See "Deterministic frame stepping" below.
+- **模式 A——实时 `recordVideo`**（即下面各阶段所述）。简单，墙钟时间 = 片长。但屏幕录制是尽力而为的可变帧率（约 25fps），而且会和动画争抢 CPU。对预览以及空闲机器上 ≤30fps 的交付物够用。
+- **模式 B——确定性逐帧步进**（暂停一切，seek 到 `i / fps`，截图，再编码 PNG 序列）。帧率精确、每一帧都渲染、无需裁掉片头、不受机器负载影响。当产物必须是真正流畅的 ≥30fps，或渲染跑在负载较高的 CI 上时，必须用它。见下文“确定性逐帧步进”。
 
-## Prerequisites — install these first
+## 前置条件——先安装这些
 
-Two hard requirements: a headless browser driver (Playwright or Puppeteer) and `ffmpeg`. Everything below assumes both are installed and on `PATH`.
+两个硬性要求：无头浏览器驱动（Playwright 或 Puppeteer）和 `ffmpeg`。下文假设两者都已安装并位于 `PATH` 中。
 
-### 1. Headless browser driver
+### 1. 无头浏览器驱动
 
-Playwright is the default in this skill (its `recordVideo` API is what the pipeline is written against). Puppeteer works too but you'll wire recording yourself via CDP screencast — pick Playwright unless you have a reason not to.
+本技能默认使用 Playwright（流水线是按其 `recordVideo` API 编写的）。Puppeteer 也能用，但录制需要你自己通过 CDP 屏幕投流来接线——除非有理由不用，否则选 Playwright。
 
 ```bash
 # Playwright (recommended) — npm / pnpm / bun all work
@@ -51,9 +51,9 @@ npx playwright install chromium              # just Chromium — enough for this
 npx playwright install --with-deps chromium  # Linux/CI: also install shared libs
 ```
 
-Verify: `npx playwright --version` prints the driver version, and `node -e "require('playwright').chromium.launch().then(b => b.close())"` exits cleanly.
+校验：`npx playwright --version` 能打印驱动版本，且 `node -e "require('playwright').chromium.launch().then(b => b.close())"` 能干净退出。
 
-Puppeteer alternative (only if you already have it in the project):
+Puppeteer 备选（仅当项目里已经在用它时）：
 
 ```bash
 npm install puppeteer            # bundles a matching Chromium automatically
@@ -63,7 +63,7 @@ npm install puppeteer-core       # no bundled browser — you supply executableP
 
 ### 2. ffmpeg
 
-The encode/trim/concat/verify steps all shell out to `ffmpeg` (and `ffprobe`, which ships in the same package). It is **not** an npm dependency — install it at the OS level.
+编码/裁剪/拼接/校验各步骤都会调用 `ffmpeg`（以及同一发行包里的 `ffprobe`）。它**不是** npm 依赖——请在操作系统层面安装。
 
 ```bash
 # macOS
@@ -79,39 +79,39 @@ sudo dnf install ffmpeg          # requires RPM Fusion enabled
 winget install Gyan.FFmpeg       # or: choco install ffmpeg
 ```
 
-Verify: `ffmpeg -version` and `ffprobe -version` both print. If a script spawns `ffmpeg` and gets `ENOENT`, the binary isn't on `PATH` — see the graceful-failure snippet in `references/ffmpeg-cheatsheet.md`.
+校验：`ffmpeg -version` 和 `ffprobe -version` 都能打印版本。如果脚本启动 `ffmpeg` 时报 `ENOENT`，说明二进制不在 `PATH` 中——参见 `references/ffmpeg-cheatsheet.md` 里的优雅失败片段。
 
-Do **not** rely on the `ffmpeg-static` / `@ffmpeg-installer/ffmpeg` npm packages for production: their bundled builds skip codecs and encoder flags you'll hit sooner or later (e.g. `libx264` presets, `tpad`). A system ffmpeg is the durable choice.
+生产环境**不要**依赖 `ffmpeg-static` / `@ffmpeg-installer/ffmpeg` 这些 npm 包：它们捆绑的构建会缺少你迟早会遇到的编解码器和编码器参数（例如 `libx264` preset、`tpad`）。系统级安装的 ffmpeg 才是耐久之选。
 
-### 3. Optional — ImageMagick (verification only)
+### 3. 可选——ImageMagick（仅用于校验）
 
-Only needed if you want the "did anything render?" pixel-mean check from Phase 6. Skip it otherwise.
+仅当你需要第 6 阶段里那个“到底有没有渲染出东西”的像素均值检查时才需要它。否则可以跳过。
 
 ```bash
 brew install imagemagick         # macOS
 sudo apt-get install imagemagick # Debian/Ubuntu
 ```
 
-Verify: `magick -version` (ImageMagick 7) or `convert -version` (ImageMagick 6).
+校验：`magick -version`（ImageMagick 7）或 `convert -version`（ImageMagick 6）。
 
-## The pipeline
+## 流水线
 
-### Phase 1 — Launch and prepare the recorder
+### 第 1 阶段——启动并准备录制器
 
-Use `playwright.chromium.launch({ headless: true })` and a context configured with `recordVideo: { dir, size: { width, height } }`. Two sizing rules:
+使用 `playwright.chromium.launch({ headless: true })`，以及配置了 `recordVideo: { dir, size: { width, height } }` 的 context。两条尺寸规则：
 
-- **`viewport` must exactly equal `recordVideo.size`.** When they differ, Playwright rescales the screencast to fit the recording size and the whole output goes soft. Derive both from the same constants.
-- `recordVideo` captures at CSS-pixel resolution; `deviceScaleFactor` does **not** raise recording resolution. For a 1080p export use a 1920×1080 viewport, not 960×540 @ 2x.
+- **`viewport` 必须与 `recordVideo.size` 完全相等。** 二者不同时，Playwright 会把屏幕录制缩放到录制尺寸，整个产物都会变软。让两者都来自同一组常量。
+- `recordVideo` 按 CSS 像素分辨率录制；`deviceScaleFactor` **不会**提高录制分辨率。要导出 1080p，请用 1920×1080 的 viewport，而不是 960×540 @ 2x。
 
-Recording begins the instant the context exists — treat that timestamp as the WebM's t=0 and remember it (`tWebmStart = Date.now()`); you will need it in Phase 5 to trim the dead opening.
+context 一创建就开始录制——把那个时间戳当作 WebM 的 t=0 并记住它（`tWebmStart = Date.now()`）；第 5 阶段裁剪片头死画面时会用到它。
 
-Know the recorder's ceiling: the screencast runs at a variable ~25fps and drops frames under CPU load. The `-r <fps>` flag in Phase 5 makes the container constant-frame-rate but only duplicates frames — it cannot add smoothness. If stutter matters, switch to frame stepping (Mode B) instead of fighting this.
+要清楚录制器的天花板：屏幕录制以可变帧率约 25fps 运行，CPU 负载下会丢帧。第 5 阶段的 `-r <fps>` 参数只能把容器变成恒定帧率，它只会复制帧——无法增加流畅度。如果卡顿是问题，改用逐帧步进（模式 B），而不是跟这一点较劲。
 
-### Phase 2 — Freeze animations BEFORE the page parses
+### 第 2 阶段——在页面解析之前冻结动画
 
-This is the single most-missed step. Pure-CSS `@keyframes` animations begin the moment the element is styled — there is no JS trigger to hold. If you `goto()` the HTML and then start waiting for fonts (which takes seconds), the CSS timeline has *already been running the whole time*. The recording captures the fallback font swapping to the real face mid-clip, and the opening beats of the animation are lost to the font wait.
+这是最容易漏掉的一步。纯 CSS 的 `@keyframes` 动画在元素被赋予样式的那一刻就开始——没有任何可拦截的 JS 触发点。如果你先 `goto()` 打开 HTML，再开始等字体（这要花几秒），那么 CSS 时间轴*这整段时间早就在跑了*。录制会把回退字体在片子中途换成真实字体，而动画开头的节拍则被字体等待吃掉了。
 
-Fix: inject a global freeze **via `page.addInitScript()`**, which runs before any of the document's own scripts and before CSS is applied, so the timeline is paused at frame 0 the moment it exists:
+修复方法：**通过 `page.addInitScript()`** 注入全局冻结，它在文档自身的任何脚本之前、CSS 应用之前运行，因此时间轴在存在的那一刻就被暂停在第 0 帧：
 
 ```js
 await page.addInitScript(() => {
@@ -127,44 +127,44 @@ await page.addInitScript(() => {
 });
 ```
 
-This does not stop GSAP tweens driven by JS (see Phase 4 for those) — for GSAP-driven templates, register the master timeline paused and expose a `window.__playAll()` you call in Phase 4.
+这不会阻止由 JS 驱动的 GSAP 补间（见第 4 阶段）——对于 GSAP 驱动的模板，把主时间轴以暂停状态注册，并暴露一个 `window.__playAll()` 供第 4 阶段调用。
 
-### Phase 3 — Load with `domcontentloaded`, not `load`
+### 第 3 阶段——用 `domcontentloaded` 加载，而不是 `load`
 
-`waitUntil: 'load'` blocks on every external asset, including cross-origin videos with no CORS headers. Chromium will retry those for ~4s before giving up, and those 4s get burned into the recording as a frozen first scene. Use `waitUntil: 'domcontentloaded'` — the DOM + synchronous inline scripts (GSAP, your player) are ready, and you handle fonts explicitly next.
+`waitUntil: 'load'` 会阻塞在每个外部资源上，包括没有 CORS 头的跨域视频。Chromium 会重试约 4s 才放弃，而这 4s 会被录进片子，变成冻结的首个场景。改用 `waitUntil: 'domcontentloaded'`——此时 DOM 和同步内联脚本（GSAP、你的播放器）已就绪，字体则放到下一步显式处理。
 
-If the template is multi-composition (scenes loaded via `data-composition-src` and client-side `fetch`), you must **pre-inline** those sub-files into the entry HTML on the Node side and write it to a sibling `.tmp.html`. Chromium blocks `file://` fetch, so client-side scene loaders that work in a browser tab will silently produce an empty shell in a headless recording. See `references/multi-composition.md`.
+如果模板是多 composition 的（场景通过 `data-composition-src` 和客户端 `fetch` 加载），你必须在 Node 侧把这些子文件**预先内联**进入口 HTML，并写到一个同级的 `.tmp.html`。Chromium 会阻止 `file://` 下的 fetch，因此那些在浏览器标签页里好用的客户端场景加载器，在无头录制中会悄无声息地只产出一个空壳。见 `references/multi-composition.md`。
 
-### Phase 4 — Wait for fonts properly, then release
+### 第 4 阶段——正确等待字体，然后放开
 
-`document.fonts.ready` alone is **not enough** and this is the second most-missed step. Under `domcontentloaded`, the Google Fonts (or any external) `<link rel="stylesheet">` has usually not returned yet. Until its CSS arrives, its `@font-face` rules are not in `document.fonts` at all — so `fonts.ready` sees an empty set and resolves *instantly*. Recording proceeds, the CSS lands mid-clip, faces download, and the swap happens on-camera.
+单靠 `document.fonts.ready` **是不够的**，这是第二容易漏掉的一步。在 `domcontentloaded` 时机下，Google Fonts（或任何外部）的 `<link rel="stylesheet">` 通常还没返回。在它的 CSS 到达之前，其 `@font-face` 规则根本不在 `document.fonts` 里——于是 `fonts.ready` 看到空集合，*瞬间*就 resolve 了。录制继续，CSS 在片子中途到达，字体文件下载完成，换字体就发生在镜头前。
 
-The correct sequence, all inside a `page.evaluate()` with an 8s hard cap so a wedged CDN can't stall forever:
+正确的顺序如下，全部放在一个带 8s 硬上限的 `page.evaluate()` 中，以免卡死的 CDN 永久阻塞：
 
-1. Wait for every `<link rel="stylesheet">` to `load` or `error` — that registers `@font-face` rules into `document.fonts`.
-2. For each registered face, call `face.load()` explicitly. `font-display: swap` defers the download until something paints with that face — if your first frame doesn't happen to use the face, it never fetches without this.
-3. `await fonts.ready`.
-4. Two rAFs so layout settles on the real glyph metrics before frame 0.
+1. 等待每个 `<link rel="stylesheet">` 触发 `load` 或 `error`——这会把 `@font-face` 规则注册进 `document.fonts`。
+2. 对每个已注册的 face 显式调用 `face.load()`。`font-display: swap` 会把下载推迟到有内容用该 face 绘制时——如果你的首帧恰好没用到该 face，不加这一步就永远不会去取它。
+3. `await fonts.ready`。
+4. 等两次 rAF，让布局在第 0 帧之前稳定到真实字形度量上。
 
-Then, and only then:
+然后，也只有到这时：
 
-5. Drive playback: for GSAP multi-composition templates, call `window.__playAll()` to start every registered (paused) master timeline from 0. For pure-CSS templates, this is a no-op.
-6. Call `window.__unfreeze()` to remove the freeze style. **This is the true t=0 of the animation.** Record the wall-clock offset from `tWebmStart` (`leadInMs = Date.now() - tWebmStart`) — this is what you trim in Phase 5.
+5. 驱动播放：对 GSAP 多 composition 模板，调用 `window.__playAll()` 让每个已注册的（暂停的）主时间轴从 0 开始。对纯 CSS 模板，这一步是空操作。
+6. 调用 `window.__unfreeze()` 移除冻结样式。**这才是动画真正的 t=0。** 记录相对 `tWebmStart` 的墙钟偏移（`leadInMs = Date.now() - tWebmStart`）——第 5 阶段要裁掉的就是它。
 
-The full JS for Phase 4 is in `references/font-wait.md`.
+第 4 阶段的完整 JS 见 `references/font-wait.md`。
 
-### Phase 5 — Probe duration, record, then trim and encode
+### 第 5 阶段——探测时长、录制，然后裁剪并编码
 
-**Probe duration first** (skip this only if you know the exact intended length). The user's requested `duration` may be shorter than the animation, in which case you'd cut the animation mid-play. Take the maximum of:
+**先探测时长**（仅当你确切知道目标长度时才可跳过）。用户请求的 `duration` 可能比动画短，那样会把动画拦腰截断。取以下两者的最大值：
 
-- The longest **non-infinite** CSS animation (`animation-duration + animation-delay` for entries where `animation-iteration-count !== 'infinite'`).
-- The longest **finite** GSAP tween. Do **not** use `gsap.globalTimeline.totalDuration()` — a `repeat: -1` tween (blinking cursor, looping background) makes it ~1e10s. Walk `globalTimeline.getChildren(true, true, true)` and skip anything with `repeat() === -1`.
+- 最长的**非无限** CSS 动画（对 `animation-iteration-count !== 'infinite'` 的条目取 `animation-duration + animation-delay`）。
+- 最长的**有限** GSAP 补间。**不要**用 `gsap.globalTimeline.totalDuration()`——一个 `repeat: -1` 的补间（闪烁光标、循环背景）会让它变成约 1e10s。遍历 `globalTimeline.getChildren(true, true, true)`，跳过任何 `repeat() === -1` 的项。
 
-Add a ~400ms settle so the last animation frame is captured, cap at 30s so a stray huge value can't run away. If your caller passed an *explicit* per-frame duration (e.g. "each scene is exactly 4s"), do **not** extend — treat it as a hard cap and pad the tail if the animation finished early (see below). If duration was 'auto', extend to the probed length.
+加上约 400ms 的稳定期，以便捕获最后一个动画帧；上限设为 30s，避免某个离谱的巨大值失控。如果调用方传入了*显式*的每帧时长（例如“每个场景恰好 4s”），就**不要**延长——把它当作硬上限，并在动画提前结束时补齐尾部（见下文）。如果 duration 是 'auto'，则延长到探测出的长度。
 
-**Record** for `totalDuration`, then `context.close()`. Playwright drops the WebM in `recordDir`.
+按 `totalDuration` **录制**，然后 `context.close()`。Playwright 会把 WebM 放到 `recordDir`。
 
-**Encode with ffmpeg**, applying two corrections:
+**用 ffmpeg 编码**，应用两项修正：
 
 ```
 ffmpeg -y \
@@ -178,29 +178,29 @@ ffmpeg -y \
   out.mp4
 ```
 
-The `-ss` back-off matters: recorder start jitter and rounding can steal the first real frame if you trim to exactly `leadInMs`. A couple of extra still frames at the head are invisible; a missing opening beat is obvious.
+`-ss` 的回退很重要：如果你精确裁到 `leadInMs`，录制器启动抖动和取整会偷走第一个真实帧。片头多出几帧静帧看不出来；少了开场节拍却很显眼。
 
-## Deterministic frame stepping (Mode B)
+## 确定性逐帧步进（模式 B）
 
-When the deliverable must be genuinely smooth at an exact fps — or the render runs on a loaded CI box where real-time capture visibly stutters — don't record in real time at all. Keep Phases 1–4 (minus `recordVideo`), then: pause every timeline, seek to `i / fps`, `page.screenshot()` each frame, and encode the PNG sequence with `ffmpeg -framerate <fps>`. Duration is exact by construction, there is no lead-in to trim, and every single frame is fully rendered regardless of machine load.
+当交付物必须是精确帧率下真正流畅的，或者渲染跑在负载较高、实时录制明显卡顿的 CI 机器上时，干脆不要实时录制。保留第 1–4 阶段（去掉 `recordVideo`），然后：暂停所有时间轴，seek 到 `i / fps`，对每一帧调用 `page.screenshot()`，再用 `ffmpeg -framerate <fps>` 编码 PNG 序列。时长天生精确、没有片头需要裁剪，而且无论机器负载如何，每一帧都被完整渲染。
 
-It works when the page's motion is declaratively seekable — CSS `@keyframes` (via `document.getAnimations()` + `currentTime`), WAAPI, and GSAP (`gsap.globalTimeline.time(t)`). It does **not** work for `<video>` elements, `setTimeout`-choreographed scenes, or rAF-driven physics; those need real-time recording or a CDP virtual clock. Step time monotonically forward, never backwards.
+当页面动效可以按声明式方式 seek 时它才适用——CSS `@keyframes`（通过 `document.getAnimations()` + `currentTime`）、WAAPI 和 GSAP（`gsap.globalTimeline.time(t)`）。它**不**适用于 `<video>` 元素、用 `setTimeout` 编排的场景或 rAF 驱动的物理模拟；这些需要实时录制或 CDP 虚拟时钟。时间只能单调向前步进，绝不回退。
 
-Full loop, the seek/suppressEvents subtleties, the "animations created later by JS are invisible to the seek" trap, and optional 2x supersampling are in `references/frame-stepping.md`.
+完整循环、seek/suppressEvents 的细节、“JS 后续创建的动画对 seek 不可见”这一陷阱，以及可选的 2x 超采样，都在 `references/frame-stepping.md`。
 
-## Multi-segment concatenation
+## 多段拼接
 
-When you have N per-scene MP4s and need one output, the correct ffmpeg strategy depends on whether the inputs share a codec/timebase.
+当你手上有 N 个按场景拆分的 MP4，需要合成一个输出时，正确的 ffmpeg 策略取决于各输入是否共享编解码器/时基。
 
-**Same encoder, same params (typical: all scenes rendered by the same adapter)** — use `concat` demuxer with stream copy. Fast, lossless:
+**同一编码器、同一参数（典型情况：所有场景由同一个适配器渲染）**——使用 `concat` 解复用器加流复制。快速、无损：
 
 ```
 ffmpeg -y -f concat -safe 0 -i list.txt -c copy out.mp4
 ```
 
-where `list.txt` is `file 'seg1.mp4'\nfile 'seg2.mp4'\n...`.
+其中 `list.txt` 的内容是 `file 'seg1.mp4'\nfile 'seg2.mp4'\n...`。
 
-**Mixed sources (e.g. scene A recorded by headless Chromium, scene B rendered by a React/Remotion pipeline)** — the concat demuxer's `-c copy` path assumes compatible timebases and PTS. When timebases differ, PTS accumulate incorrectly and an 8-second output can become 35 seconds. **Even `-vsync cfr` won't save you** — the bad PTS have already been fed in. You must re-encode via the concat **filter**, which rebuilds the timeline:
+**混合来源（例如场景 A 由无头 Chromium 录制，场景 B 由 React/Remotion 流水线渲染）**——concat 解复用器的 `-c copy` 路径假定时基和 PTS 兼容。时基不同时，PTS 会错误累加，8 秒的输出可能变成 35 秒。**即使 `-vsync cfr` 也救不了你**——错误的 PTS 早已被喂进去了。必须通过 concat **滤镜**重新编码，它会重建时间轴：
 
 ```
 ffmpeg -y -i seg1.mp4 -i seg2.mp4 -i seg3.mp4 \
@@ -209,28 +209,28 @@ ffmpeg -y -i seg1.mp4 -i seg2.mp4 -i seg3.mp4 \
   -movflags +faststart out.mp4
 ```
 
-Decision rule in code: pass a `reencode: boolean` down to your concat helper. Set it to `true` whenever any segment came from a different rendering engine than the others, or when you're not sure.
+代码里的决策规则：把 `reencode: boolean` 传给你的拼接辅助函数。只要有任何片段来自与其他片段不同的渲染引擎，或你拿不准，就设为 `true`。
 
-## Verify — always
+## 校验——每次都要做
 
-You cannot trust "the file was written" as success. The failure modes above (wrong duration, FOUT, dead lead-in) all produce a playable MP4. Before declaring success:
+不能把“文件写出来了”当作成功。上面那些失败模式（时长错误、FOUT、片头死画面）都会产出可播放的 MP4。宣布成功之前：
 
-- `ffprobe -v error -show_entries format=duration -of csv=p=0 out.mp4` — actual duration matches expected within ~50ms?
-- `ffmpeg -v error -i out.mp4 -f null -` — full decode, no errors? A "silently corrupted" output from a bad concat will decode fine but be the wrong length; conversely, a broken concat demuxer output can throw here.
-- Sample a frame near t=0.1s and t=0.5s (`ffmpeg -ss 0.1 -i out.mp4 -frames:v 1 -y f1.png`) — text renders in the intended font? If your test rig has ImageMagick, `magick f1.png -threshold 50% -format '%[fx:100*mean]' info:` gives a rough non-background pixel percentage that catches "recording is completely blank" regressions.
+- `ffprobe -v error -show_entries format=duration -of csv=p=0 out.mp4`——实际时长与预期相差在约 50ms 以内吗？
+- `ffmpeg -v error -i out.mp4 -f null -`——完整解码且无错误吗？坏拼接产生的“静默损坏”输出能正常解码但时长错误；反过来，concat 解复用器产出损坏文件时也可能在这里报错。
+- 在 t=0.1s 和 t=0.5s 附近抽帧（`ffmpeg -ss 0.1 -i out.mp4 -frames:v 1 -y f1.png`）——文字是否以预期字体渲染？如果你的测试环境装有 ImageMagick，`magick f1.png -threshold 50% -format '%[fx:100*mean]' info:` 会给出粗略的非背景像素占比，可捕捉“录制完全是空白”的回归。
 
-For fonts specifically: **studio-style live iframe previews will not reproduce FOUT** because the browser tab caches faces. Only cold-headless rendering (i.e. the actual export path) reproduces it. Verify on the exported MP4, not the preview.
+特别针对字体：**studio 式的实时 iframe 预览复现不出 FOUT**，因为浏览器标签页会缓存字体 face。只有冷启动的无头渲染（即真正的导出路径）才能复现。要在导出的 MP4 上校验，而不是在预览上。
 
-## When to depart from this template
+## 何时可以偏离这套模板
 
-- **Non-animated single-frame PNG export.** Skip Phases 2, 4-5-recording; goto → `fonts.ready` → `page.screenshot()` is enough. FOUT still applies for the screenshot.
-- **You own the animation timeline in JS end-to-end** (e.g. Motion Canvas / Remotion generator style). The freeze/unfreeze dance is unnecessary because *you* drive frame-by-frame rendering — use the framework's own frame API and skip Playwright recording entirely. The concat rules still apply if you're mixing engines.
-- **Interactive-page capture** (recording a real user session). Duration probing is meaningless; use manual start/stop signals and skip lead-in trim.
+- **无动画的单帧 PNG 导出。** 跳过第 2 阶段和第 4–5 阶段中的录制部分；goto → `fonts.ready` → `page.screenshot()` 就够了。截图仍然会遇到 FOUT。
+- **你在 JS 里端到端掌控动画时间轴**（例如 Motion Canvas / Remotion 生成器风格）。冻结/解冻这套操作就没必要了，因为逐帧渲染由*你*驱动——用框架自己的帧 API，完全跳过 Playwright 录制。如果混用引擎，拼接规则依然适用。
+- **交互式页面捕获**（录制真实用户会话）。探测时长没有意义；改用手动开始/停止信号，并跳过片头裁剪。
 
-## Reference files
+## 参考文件
 
-- `references/font-wait.md` — full JS for the Phase 4 font-wait routine, with per-link timeout and rAF-based settle.
-- `references/frame-stepping.md` — the Mode B deterministic capture loop: seek-per-frame, screenshot, PNG-sequence encode, supersampling, and its limits.
-- `references/multi-composition.md` — inlining `data-composition-src` scenes for `file://` recording, including re-executing cloned `<script>` nodes.
-- `references/duration-probe.md` — CSS + GSAP probe with the infinite-iteration guards.
-- `references/ffmpeg-cheatsheet.md` — the encode/concat/verify commands in one place.
+- `references/font-wait.md` —— 第 4 阶段字体等待例程的完整 JS，含逐链接超时和基于 rAF 的稳定等待。
+- `references/frame-stepping.md` —— 模式 B 的确定性捕获循环：逐帧 seek、截图、PNG 序列编码、超采样及其限制。
+- `references/multi-composition.md` —— 为 `file://` 录制内联 `data-composition-src` 场景，包括重新执行克隆的 `<script>` 节点。
+- `references/duration-probe.md` —— 带无限循环防护的 CSS + GSAP 探测。
+- `references/ffmpeg-cheatsheet.md` —— 编码/拼接/校验命令的集中速查。

@@ -1,142 +1,142 @@
 ---
 name: kpi-reporting
-description: "Prepare KPI readouts, scorecards, WBR/MBR/QBR updates, and executive summaries from quantitative business or product metrics; use when the task is to report status, compare against targets, explain validated drivers, and state operating implications."
+description: "基于定量业务或产品指标准备 KPI 读数、记分卡、WBR/MBR/QBR 更新和执行摘要；当任务需要汇报状态、与目标对比、解释已验证的驱动因子并说明运营含义时使用。 | Trigger keywords: KPI readout, scorecard, WBR, MBR, QBR, executive summary, status against target, operating implications."
 ---
-# KPI Reporting
+# KPI 汇报
 
-Use this skill to turn business or product metrics into decision-ready operating readouts for leaders and teams. The job is to define the KPI contract, report status against the right comparison and target, include validated driver context, and state the operating implication clearly.
+使用本技能把业务或产品指标转化为面向领导者和团队、可直接用于决策的运营读数。工作是定义 KPI 契约、对照正确的比较基准和目标汇报状态、纳入已验证的驱动因子上下文，并清楚说明运营含义。
 
-Clarify with the user when a missing input would materially change the analytical frame or recommendation. Otherwise make a reasonable assumption, state it, and proceed.
+当缺失的输入会实质性改变分析框架或建议时，与用户澄清。否则做出合理假设、说明假设并继续。
 
-This skill owns the KPI readout: what should be reported, how metrics should be interpreted, whether driver context is validated, and what operating takeaway follows. It does not own metric-system design, new driver investigation, or final artifact polish.
+本技能负责 KPI 读数：应汇报什么、指标应如何解读、驱动因子上下文是否已验证，以及由此得出什么运营结论。它不负责指标体系设计、新的驱动因子排查或最终产物的打磨。
 
-Use $metric-diagnostics when the readout needs fresh driver investigation, then return here to package the validated finding.
+当读数需要全新的驱动因子排查时，使用 $metric-diagnostics，然后回到这里打包已验证的发现。
 
-## Skill Configuration
+## 技能配置
 
-### Source Discovery And Verification
+### 来源发现与核验
 
-Use the relevant semantic layer as a starting map, not a boundary.
+把相关语义层当作起点地图，而不是边界。
 
-1. **Explore all possible sources.** Search every connected or provided source that could contain task-relevant data or change the interpretation. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. Known sources, tables, dashboards, and semantic mappings are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare ownership, freshness, definition, grain, coverage, and directness. Use the best authoritative source, or combine complementary sources when needed. Note material conflicts, explain why the selected source or sources control the answer, and verify selected data through live reads before concluding.
+1. **探索所有可能的来源。** 搜索每个已连接或已提供、可能包含任务相关数据或改变解读的来源。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。已知的来源、表、仪表盘和语义映射都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较归属、新鲜度、定义、粒度、覆盖范围和直接程度。使用最权威的来源，或在需要时组合互补来源。记录实质性冲突，解释为什么选定来源掌控答案，并在下结论前通过实时读取核验所选数据。
 
-### Source Access Guardrail
+### 数据源访问护栏
 
-Before querying sources, building artifacts, or drawing conclusions, determine whether the answer requires a specific source of truth.
+在查询来源、构建产物或下结论之前，先确定答案是否需要特定的事实来源。
 
-If a required source is unavailable, stop that path. Tell the user what source is needed, ask them to make it available or provide a reviewed fallback, and do not treat weaker substitutes as equivalent.
+如果所需的来源不可用，停止该路径。告诉用户需要什么来源，请其提供或给出经过审阅的替代方案，不要把较弱的替代品当作等价物。
 
-If the missing source is only optional enrichment, continue with the strongest available evidence and label the gap when it materially affects the answer.
+如果缺失的来源只是可选补充，则用现有最强证据继续，并当缺口实质性影响答案时加以标注。
 
-## Workflow
+## 工作流
 
-### 1. Clarify The Readout Purpose
+### 1. 澄清读数的目的
 
-Understand who the readout is for, what conversation it supports, and what is being reported before drafting. Anchor the update in the period being evaluated, the comparison or target that makes performance interpretable, and the freshness cutoff.
+在起草之前，理解读数是给谁的、支撑什么对话，以及要汇报什么。把更新锚定在受评估的期间、使表现可解读的对比或目标，以及数据新鲜度截止时间上。
 
-Ask the user for missing context when it would help make the readout more accurate or useful.
+当缺失的上下文有助于让读数更准确或更有用时，向用户询问。
 
-### 2. Define The Metric Framework
+### 2. 定义指标框架
 
-Decide which metrics belong in the readout and what role each one plays before pulling numbers. If the framework already exists, confirm it and use it. If it is missing or weak, use $design-kpis before reporting.
+在拉取数字之前，决定哪些指标属于该读数以及每个指标扮演什么角色。如果框架已经存在，确认并使用它。如果缺失或薄弱，在汇报前使用 $design-kpis。
 
-Start with the primary KPI, then add the smallest set of supporting metrics needed to explain status. Supporting metrics can explain movement, guard against harmful tradeoffs, or show whether performance is pacing as expected.
+从主要 KPI 开始，然后加入解释状态所需的最小支撑指标集合。支撑指标可以解释变化、防止有害的权衡，或展示表现是否按预期节奏推进。
 
-Lead with the metric that matters most to the audience. Do not add every available cut or comparison; include the metrics and slices decision-makers actually use, plus any that materially explain this update.
+以对受众最重要的指标开头。不要加入所有可用的切分或对比；包含决策者实际使用的指标和切片，以及能实质性解释本次更新的那些。
 
-When the primary KPI is top-line, composite, or otherwise not directly actionable, define its driver decomposition before interpreting it. Use an existing metric tree when available. Otherwise identify the smallest useful set of component drivers, such as numerator and denominator, volume and rate, mix, funnel stages, segments, cohorts, or operational inputs. Do not invent a causal hierarchy when source definitions do not support one.
+当主要 KPI 是顶层的、复合的或在其他方面无法直接行动时，在解读之前先定义其驱动因子分解。有现成的指标树时使用它。否则识别最小的有用组件驱动因子集合，例如分子和分母、量与率、构成、漏斗阶段、分段、同期群或运营输入。当来源定义不支持因果层级时，不要凭空发明。
 
-### 3. Lock Metric Definitions And Sources
+### 3. 锁定指标定义与来源
 
-Confirm the KPI definition, source, time window, reporting cutoff, comparison period, and any target or pacing expectation before interpreting performance. If a target or pacing basis is missing, ask before treating one as authoritative. Use $analyze-data-quality when source quality issues could change the reported metrics.
+在解读表现之前，确认 KPI 定义、来源、时间窗口、汇报截止时间、对比期，以及任何目标或进度预期。如果缺少目标或进度基准，先询问，再将其视为权威。当数据源质量问题可能改变所汇报的指标时，使用 $analyze-data-quality。
 
-For all KPI updates, make a focused source pass across `~~structured_data`, `~~company_docs`, `~~team_communication`, and `~~dashboards_or_bi` before drafting. Do not infer from a sparse prompt that source-backed actuals are unavailable. Use structured data for actuals, metric definitions, and comparison periods; use the other lanes for additional business context and source-of-truth guidance.
+对于所有 KPI 更新，在起草之前对 `~~structured_data`、`~~company_docs`、`~~team_communication` 和 `~~dashboards_or_bi` 做一次聚焦的来源扫描。不要因为提示信息稀疏就推断没有来源支撑的实际数据。使用结构化数据获取实际值、指标定义和对比期；使用其他通道获取补充业务上下文和事实来源指引。
 
-If any core definition is unclear, ask the user to clarify before making precise claims. When a metric definition changed, show comparable restated history when available; otherwise call out the break clearly.
+如果任何核心定义不清楚，在做出精确主张之前请用户澄清。当指标定义发生变化时，尽可能展示可比的重述历史；否则清楚指出断点。
 
-### 4. Pull The Topline Actuals
+### 4. 拉取顶层实际值
 
-Do not draft or render a WBR, MBR, scorecard, or KPI update from placeholders. Query or inspect connected structured-data sources for core actuals first. If actuals are blocked or insufficient, stop and say what source or access is needed unless the user explicitly asked for a template or mockup.
+不要用占位符起草或渲染 WBR、MBR、记分卡或 KPI 更新。先查询或检查已连接的结构化数据源以获取核心实际值。如果实际值受阻或不足，停止并说明需要什么来源或访问权限，除非用户明确要求模板或示例稿。
 
-Reproduce the topline actual before explaining movement or driver context.
+在解释变化或驱动因子上下文之前，先复现顶层实际值。
 
-For each headline KPI, include the current value, the absolute and relative change versus the comparison period, and a short interpretation.
+对每个头条 KPI，包含当前值、相对于对比期的绝对与相对变化，以及简短解读。
 
-Call out anything that makes the current value hard to compare with the prior period before interpreting the movement, such as a tracking change, data backfill, partial outage, or missing day.
+在解读变化之前，指出任何使当前值难以与上期比较的因素，例如口径变更、数据回填、部分中断或缺失某一天。
 
-### 5. Put The Numbers In Context
+### 5. 把数字放在上下文中
 
-Compare actuals against the context that makes performance interpretable. When a target, plan, pacing model, benchmark, historical range, or relevant peer group is defined, identify it and compare performance against it before judging status.
+将实际值与使表现可解读的上下文进行对比。当定义了目标、计划、进度模型、基准、历史区间或相关同业组时，明确它并先对照比较表现，再判断状态。
 
-If the goal has a deadline, do not just report whether the metric is above or below target. Show whether it is on pace to hit the target by the end of the period. Use the provided pacing definition when available. If none is defined or found, ask the user; when proceeding with a calculated fallback, state that it was calculated and explain the method.
+如果目标有截止期限，不要只汇报指标高于还是低于目标。要展示它是否按进度能在期末达成目标。可用时使用提供的进度定义。如果未定义或未找到，询问用户；当使用计算出的回退方案继续时，说明这是计算得出的并解释方法。
 
-When useful, include absolute and percent variance to target and a red/yellow/green status. Make clear what comparison or pacing basis the status label uses.
+在有用时，包含相对目标的绝对差异和百分比差异，以及红/黄/绿状态。明确状态标签使用的是什么对比或进度基准。
 
-### 6. Explain Validated Drivers
+### 6. 解释已验证的驱动因子
 
-KPI updates need driver context, but driver claims must be validated before they are presented as explanations. A plausible story is not enough.
+KPI 更新需要驱动因子上下文，但驱动因子的主张在作为解释呈现之前必须经过验证。一个看似合理的故事还不够。
 
-When the readout needs to explain drivers, use $metric-diagnostics to identify and validate them. If trusted reporting or prior analysis already validates the drivers, use that evidence instead of re-running the diagnostic.
+当读数需要解释驱动因子时，使用 $metric-diagnostics 识别并验证它们。如果可信的汇报或既有分析已经验证了驱动因子，使用该证据而不是重新运行诊断。
 
-### 7. Add Business Context And Operating Implications
+### 7. 补充业务上下文与运营含义
 
-After identifying the likely drivers, use $gather-business-context to look for business context that helps explain what happened and what it means for the readout. Let the driver analysis guide what context to look for, and connect context to the metric only when evidence supports the link.
+识别可能的驱动因子之后，使用 $gather-business-context 寻找有助于解释发生了什么及其对读数意味着什么的业务上下文。让驱动因子分析引导要寻找什么上下文，并仅在证据支持该关联时才将上下文与指标连接起来。
 
-Translate the evidence, driver analysis, and business context into the operating implication for the business. State whether the movement is concerning, what next step or action is warranted, and whether the main KPI is on track, at risk, or ahead of plan. Recommend action only when the evidence supports it; otherwise name the next validation step.
+将证据、驱动因子分析和业务上下文转化为对业务的运营含义。说明变化是否令人担忧、需要采取什么下一步或行动，以及主要 KPI 是在轨、存在风险还是领先于计划。仅当证据支持时才建议行动；否则说明下一步验证步骤。
 
-### 8. Validate The Readout
+### 8. 校验读数
 
-After the analysis is assembled and before shaping the final readout, use $validate-data to review whether the numbers, methodology, caveats, and evidence support the claimed status, drivers, and implications. Resolve material issues before sharing; carry remaining limitations into the readout.
+在分析已汇编完成、最终读数成型之前，使用 $validate-data 审阅数字、方法论、注意事项和证据是否支持所声称的状态、驱动因子和含义。分享前解决实质性问题；将剩余局限带入读数。
 
-### 9. Hand Off The Readout
+### 9. 交付读数
 
-End by handing the validated KPI readout to $build-report unless the user explicitly requests an inline, chat-only, brief/no-artifact answer, asks not to create a report/file/artifact, or selects another primary artifact. A quick status update, brief readout, or findings-in-chat request is an inline output choice unless the user also asks for a report, document, deck, or durable artifact. When no explicit human waiver was given, the report handoff is mandatory; do not infer a waiver only because the user did not use the word "report".
+最后把已验证的 KPI 读数交给 $build-report，除非用户明确要求内联的、仅聊天的、简报/无产物回答，明确表示不要创建报告/文件/产物，或选择另一个主要产物。快速状态更新、简短读数或“在聊天里给结论”的请求都属于内联输出选择，除非用户同时要求报告、文档、演示文稿或持久产物。在没有用户的明确豁免时，报告交付是强制的；不要仅因为用户没有使用“报告”一词就推断存在豁免。
 
-Before handoff, make the readout explicit:
+交付之前，让读数明确包含：
 
-- headline status and operating implication
-- actuals, targets, pacing basis, and comparison periods
-- validated drivers and unresolved uncertainty
-- audience, cadence, and requested delivery surface when known
-- charts or figures that would clarify the readout
+- 头条状态与运营含义
+- 实际值、目标、进度基准和对比期
+- 已验证的驱动因子与未解决的不确定性
+- 已知时的受众、节奏和所要求的交付界面
+- 能澄清读数的图表或图形
 
-Load `references/report-templates.md` before handing off and use the matching pattern as source notes for $build-report. Tell $build-report this is a KPI readout and pass the status, pacing, driver, uncertainty, audience, cadence, surface, and visual guidance above. Do not render charts directly from this skill; pass visual intent and supporting evidence to $build-report so $visualize-data owns chart selection and QA.
+交付前加载 `references/report-templates.md`，并使用匹配的模式作为 $build-report 的来源说明。告知 $build-report 这是一份 KPI 读数，并传递上述状态、进度、驱动因子、不确定性、受众、节奏、界面和视觉指引。不要直接从本技能渲染图表；将视觉意图和支撑证据传给 $build-report，由 $visualize-data 负责图表选择与 QA。
 
-For slide or deck requests, use $build-report to create a portable source report first, then use an available presentation workflow or document tool to create and verify the deck. Preserve the same source evidence and findings across formats.
+对于幻灯片或演示文稿请求，先用 $build-report 创建可移植的源报告，再使用可用的演示工作流或文档工具创建并验证演示文稿。在各格式之间保留相同的源证据和发现。
 
-## Standards
+## 标准
 
-### Metric Standards
+### 指标标准
 
-- Never present a KPI as precise when its definition, source, time window, or comparison basis is unclear.
-- Make calculation logic, inclusion or exclusion rules, grain, and time treatment explicit when they affect interpretation.
-- Reconcile totals and compare against prior reporting when possible.
-- Do not compare periods, cuts, or targets that are not definitionally compatible. Call out definition changes, backfills, denominator shifts, or calendar effects when they affect the movement.
+- 当 KPI 的定义、来源、时间窗口或对比基准不清楚时，绝不要将其呈现为精确。
+- 当计算逻辑、纳入或排除规则、粒度以及时间处理会影响解读时，明确写出。
+- 尽可能对账合计值并与既往汇报比较。
+- 不要比较定义上不兼容的期间、切分或目标。当定义变更、回填、分母变化或日历效应影响变化时，要明确指出。
 
-### Status And Pacing Standards
+### 状态与进度标准
 
-- Include the headline takeaway, current actual, relevant comparison, target or pacing context, driver summary, and implication unless the user asks for a narrower readout.
-- Put actuals next to the target, plan, benchmark, or baseline when available so the reader can judge performance immediately.
-- If a target is time-bound, show whether current performance is on pace using the provided pacing definition or a clearly stated calculated fallback.
-- Keep recurring metric sections consistent across runs. If a requested section is missing because data, definitions, or validation are unavailable, explain the omission briefly.
-- Use traffic-signal status only when it helps prioritize action. Pair color with text and state the basis for the status.
-- Round numbers consistently, label units, and surface caveats when they change interpretation.
+- 除非用户要求更窄的读数，否则包含头条结论、当前实际值、相关对比、目标或进度上下文、驱动因子摘要和含义。
+- 可用时把实际值放在目标、计划、基准或基线旁边，使读者能立即判断表现。
+- 如果目标有时间限制，使用提供的进度定义或明确说明的计算回退方案，展示当前表现是否按进度推进。
+- 让周期性指标章节在各次运行之间保持一致。如果某请求的章节因数据、定义或校验不可用而缺失，简要解释该省略。
+- 仅在有助于确定行动优先级时使用红/黄/绿状态。将颜色与文字配对，并说明状态的依据。
+- 一致地舍入数字、标注单位，并在注意事项会影响解读时予以呈现。
 
-### Driver Standards
+### 驱动因子标准
 
-- Quantify drivers whenever the evidence supports it; do not use descriptive prose as a substitute for sizing the effect.
-- Report the few drivers, contributors, or known non-drivers that matter for interpreting the KPI movement.
-- For top-line KPI movement, structure validated drivers as a compact decomposition: top-line actual, component drivers, largest contributors or non-drivers, and residual or unresolved movement. Use an additive bridge only when the components reconcile cleanly; otherwise explain the relationship and uncertainty.
-- Separate validated drivers from business context or hypotheses.
-- Do not elevate business events into causes unless the timing, affected population, and measured change support the link.
-- State whether the movement is broad-based or concentrated when that changes the operating implication.
-- If driver evidence remains unresolved, name the uncertainty or diagnostic follow-up instead of inventing an explanation.
+- 证据支持时对驱动因子进行量化；不要用描述性文字替代对影响的量化。
+- 只报告对解读 KPI 变化重要的少数驱动因子、贡献者或已知的非驱动因子。
+- 对于顶层 KPI 变化，将已验证的驱动因子组织为紧凑的分解：顶层实际值、组件驱动因子、最大贡献者或非驱动因子，以及残差或未解决的变化。仅当各组成部分能干净地对账时才使用加法桥；否则解释其关系与不确定性。
+- 将已验证的驱动因子与业务上下文或假设区分开。
+- 除非时间、受影响人群和度量到的变化都支持该关联，否则不要把业务事件上升为原因。
+- 当变化是广泛性的还是集中性的会影响运营含义时，明确说明。
+- 如果驱动因子证据仍未解决，指出不确定性或后续诊断，而不是编造解释。
 
-### Presentation Standards
+### 呈现标准
 
-- Write for executives and operators who skim: lead with the answer, then the evidence.
-- Use business-readable numbers and compact formats such as `123k (+8% w/w, +19% m/m)`.
-- Replace generic adjectives like `strong`, `healthy`, or `soft` with the metric evidence that justifies them.
-- Keep caveats close to the claim they affect, and omit caveats that do not change interpretation.
-- Use charts, tables, scorecards, or KPI cards only when they make the takeaway easier to understand and remain readable in the final delivery context.
+- 面向快速浏览的高管和运营者写作：先给答案，再给证据。
+- 使用业务可读的数字和紧凑格式，例如 `123k (+8% w/w, +19% m/m)`。
+- 用支撑其判断的指标证据替代 `strong`、`healthy` 或 `soft` 这类笼统形容词。
+- 让注意事项靠近它所影响的主张，并省略不影响解读的注意事项。
+- 仅当图表、表格、记分卡或 KPI 卡能让要点更易理解，且在最终交付语境中保持可读时才使用它们。

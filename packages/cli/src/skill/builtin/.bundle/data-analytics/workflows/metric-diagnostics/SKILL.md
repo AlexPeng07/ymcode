@@ -1,133 +1,130 @@
 ---
 name: metric-diagnostics
-description: "Diagnose why a metric changed or differs from expectation. Use when the task is to identify likely drivers of a metric movement, anomaly, gap, or discrepancy."
+description: "诊断指标为何变化或与预期不符。当任务需要识别指标变化、异常、差距或偏差的可能驱动因子时使用。 | Trigger keywords: metric change, anomaly, root cause, drivers, discrepancy, gap analysis, decomposition."
 ---
 
-## Related Skills
+## 相关技能
 
-Use $gather-business-context when business context is needed to understand the metric, analysis period, ownership, or plausible explanations.
+当需要业务上下文来理解指标、分析期间、归属或可能的解释时，使用 $gather-business-context。
 
-Use $product-business-analysis when the task asks for a recommendation or tradeoff decision after diagnosing the movement.
+当任务在诊断变化之后还要求建议或权衡决策时，使用 $product-business-analysis。
 
-Use $analyze-data-quality when dashboard trust, grain, freshness, or source disagreement could affect the metric.
+当仪表盘可信度、粒度、新鲜度或来源分歧可能影响指标时，使用 $analyze-data-quality。
 
-# Metric Diagnostics
+# 指标诊断
 
-Use this skill to diagnose why a metric changed or differs from expectation. Reproduce the metric, define the comparison, quantify the movement, validate likely drivers, and state what is verified, likely, unresolved, and useful to do next.
+使用本技能诊断指标为何变化或与预期不符。复现指标、定义对比、量化变化、验证可能的驱动因子，并说明哪些已验证、哪些很可能、哪些尚未解决，以及下一步值得做什么。
 
-Clarify with the user when a missing input would materially change the analytical frame or recommendation. Otherwise make a reasonable assumption, state it, and proceed.
+当缺失的输入会实质性改变分析框架或建议时，与用户澄清。否则做出合理假设、说明假设并继续。
 
-## Skill Configuration
+## 技能配置
 
-### Source Discovery And Verification
+### 来源发现与核验
 
-Use the relevant semantic layer as a starting map, not a boundary.
+把相关语义层当作起点地图，而不是边界。
 
-1. **Explore all possible sources.** Search every connected or provided source that could contain task-relevant data or change the interpretation. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. Known sources, tables, dashboards, and semantic mappings are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare ownership, freshness, definition, grain, coverage, and directness. Use the best authoritative source, or combine complementary sources when needed. Note material conflicts, explain why the selected source or sources control the answer, and verify selected data through live reads before concluding.
+1. **探索所有可能的来源。** 搜索每个已连接或已提供、可能包含任务相关数据或改变解读的来源。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。已知的来源、表、仪表盘和语义映射都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较归属、新鲜度、定义、粒度、覆盖范围和直接程度。使用最权威的来源，或在需要时组合互补来源。记录实质性冲突，解释为什么选定来源掌控答案，并在下结论前通过实时读取核验所选数据。
 
-### Source Access Guardrail
+### 数据源访问护栏
 
-Before querying sources, building artifacts, or drawing conclusions, determine whether the answer requires a specific source of truth.
+在查询来源、构建产物或下结论之前，先确定答案是否需要特定的事实来源。
 
-If a required source is unavailable, stop that path. Tell the user what source is needed, ask them to make it available or provide a reviewed fallback, and do not treat weaker substitutes as equivalent.
+如果所需的来源不可用，停止该路径。告诉用户需要什么来源，请其提供或给出经过审阅的替代方案，不要把较弱的替代品当作等价物。
 
-If the missing source is only optional enrichment, continue with the strongest available evidence and label the gap when it materially affects the answer.
+如果缺失的来源只是可选补充，则用现有最强证据继续，并当缺口实质性影响答案时加以标注。
 
-## Workflow
+## 工作流
 
-### 1. Define The Diagnostic Question
+### 1. 定义诊断问题
 
-Frame the diagnostic so it is clear what changed and what comparison would prove it.
+框定诊断，使其清楚说明什么发生了变化，以及什么对比能证明它。
 
-Define:
+定义：
 
-- what the metric means in business terms
-- the time window and comparison that make the change measurable
-- the population and grain that determine what counts
-- the source that owns the metric definition
-- the diagnostic question being answered, for example movement, concentration, or reconciliation
+- 该指标在业务上意味着什么
+- 使变化可度量的时间窗口与对比
+- 决定什么被计入的人群与粒度
+- 拥有该指标定义的来源
+- 正在回答的诊断问题，例如变化、集中度或对账
 
-Use $gather-business-context when business context is needed to understand what the metric means, what changed around the analysis period, or which explanations are plausible.
+当需要业务上下文来理解指标的含义、分析期间前后发生了什么变化，或哪些解释合理时，使用 $gather-business-context。
 
-### 2. Validate The Metric Definition And Source
+### 2. 校验指标定义与来源
 
-Before explaining the movement, confirm that the metric is defined correctly and that the source data can measure it reliably.
+在解释变化之前，确认指标定义正确，且源数据能够可靠地度量它。
 
-Confirm the metric definition, grain, aggregation logic, filters, joins, exclusions, freshness, lineage, and any disagreement between trusted surfaces. Keep this source check focused on issues that could change the answer.
+确认指标定义、粒度、聚合逻辑、过滤器、join、排除项、新鲜度、血缘，以及可信界面之间的任何分歧。让这项来源检查聚焦于可能改变答案的问题。
 
-Treat current context, named semantic layers, and familiar table names as source candidates, not source selection. For broad metric questions, run live source discovery against available tables, dashboards, metric docs, semantic layers, or other source-of-truth surfaces before choosing the controlling source. When both are available, inspect at least one business-facing or top-line surface and one lower-level source surface, then state why the selected source owns the answer.
+把当前上下文、已命名的语义层和熟悉的表名视为来源候选，而不是来源选择。对于宽泛的指标问题，在选择控制来源之前，对可用的表、仪表盘、指标文档、语义层或其他事实来源界面运行实时来源发现。当两者都可用时，至少检查一个面向业务或顶层的界面和一个较低层级的来源界面，然后说明为什么选定的来源拥有答案。
 
-Use $analyze-data-quality when freshness, grain, joins, missingness, schema drift, outliers, unexpected categories, or distribution shifts could affect trust.
+当新鲜度、粒度、join、缺失、schema 漂移、离群值、意外类别或分布漂移可能影响可信度时，使用 $analyze-data-quality。
 
-Use $jupyter-notebooks when fresh SQL, Python, statistical modeling, reusable calculations, or multi-step decomposition need an inspectable analytical record.
+当新的 SQL、Python、统计建模、可复用计算或多步分解需要可检查的分析记录时，使用 $jupyter-notebooks。
 
-### 3. Establish The Metric Pattern
+### 3. 确立指标模式
 
-Before looking for drivers, establish the metric pattern the diagnostic needs to explain. Quantify the metric over the relevant period and scope. If the question includes a comparison, reproduce that comparison.
+在寻找驱动因子之前，先确立诊断需要解释的指标模式。在相关期间和范围内量化指标。如果问题包含对比，复现该对比。
 
-Do not search for causes until the size, timing, and scope of the pattern are verified or explicitly marked uncertain.
+在模式的大小、时间与范围得到验证或被明确标注为不确定之前，不要寻找原因。
 
-### 4. Choose The Diagnostic Plan
+### 4. 选择诊断方案
 
-Choose the smallest set of cuts and checks likely to explain the pattern or strengthen confidence.
+选择最有可能解释该模式或增强置信度的最小切分与检查集合。
 
-Choose driver dimensions from the metric's operating logic, business context, and source shape. Prioritize drivers the business usually monitors or can act on, not every field available in the source. If the relevant drivers are unclear, use current context, a named semantic layer, or $gather-business-context to understand how the business explains the metric and what changed around the analysis period.
+从指标的运营逻辑、业务上下文和来源形态中选择驱动维度。优先选择业务通常会监控或能够行动的驱动因子，而不是来源中每个可用字段。如果相关驱动因子不明确，使用当前上下文、已命名的语义层或 $gather-business-context 来了解业务如何解释该指标，以及分析期间前后发生了什么变化。
 
-When using a lower-level table, do not limit the driver analysis to fields surfaced by the first query. Recreate or join the business grouping needed to answer the question, such as model family, model superfamily, segment, region, cohort, product taxonomy, or customer hierarchy. If the grouping cannot be reconstructed, say so before simplifying the analysis.
+使用较低层级的表时，不要把驱动因子分析限制在首次查询暴露的字段上。重建或 join 回答问题所需的业务分组，例如模型族、模型超族、分段、地区、同期群、产品分类或客户层级。如果无法重建该分组，在简化分析之前说明这一点。
 
-Use the explanation mode that fits the question. Common examples:
+使用契合问题的解释模式。常见示例：
 
-- **Metric change**: compare the focal window with a baseline, rank segment contributions, check peer or historical context, and test mix shift versus within-segment movement.
-- **Spike, regression, or incident**: pin down onset, peak, recovery,
-  distribution shape rather than only averages, affected slices, broad versus localized degradation, and whether traffic or failure behavior changed.
-- **Largest contributors or concentration**: define "largest", rank entities,
-  compare total share and change, and look for major movers, entrants, and exits.
-- **Reconciliation or difference analysis**: align definitions, filters, grain,
-  numerator, denominator, and exclusions; quantify the components explaining the gap and state any residual.
+- **指标变化**：将焦点窗口与基线对比，对分段贡献排序，检查同业或历史上下文，并检验构成变化与分段内变化。
+- **突增、回退或故障**：确定起始、峰值、恢复、分布形态（而不只是均值）、受影响的切片、是广泛退化还是局部退化，以及流量或失败行为是否发生变化。
+- **最大贡献者或集中度**：定义“最大”，对实体排序，比较总量占比与变化，并寻找主要变动者、进入者和退出者。
+- **对账或差异分析**：对齐定义、过滤器、粒度、分子、分母和排除项；量化解释差距的各组成部分，并说明任何残差。
 
-### 5. Decompose And Validate Drivers
+### 5. 分解并验证驱动因子
 
-Quantify the main drivers and validate whether they explain the pattern.
+量化主要驱动因子，并验证它们是否能解释该模式。
 
-Size each major driver with the strongest readily available evidence. Show whether it explains the pattern, how large it is relative to the relevant base, trend, or gap, whether it is broad or concentrated, and whether it holds under the right comparison or scope.
+用最易获得的最强证据量化每个主要驱动因子。说明它是否能解释该模式、相对于相关基数、趋势或差距有多大、是广泛还是集中，以及在正确的对比或范围下是否仍然成立。
 
-Iterate on driver hypotheses until the explanation answers why in a way that is relevant to the business. Follow promising cross-cuts and drill-downs when they could reveal the key explanation, and stop when additional cuts are unlikely to change the conclusion or materially improve confidence.
+持续迭代驱动因子假设，直到解释能以与业务相关的方式回答“为什么”。当有希望的交叉切分和下钻可能揭示关键解释时，跟进它们；当额外切分不太可能改变结论或实质性提升置信度时停止。
 
-Interpret driver results in context:
+在上下文中解读驱动因子结果：
 
-- Use the relevant base, comparison, or share of total to make the driver meaningful.
-- For rates, check whether the numerator, denominator, or both explain the change.
-- For additive metrics, calculate contribution share when it sharpens the story.
-- Separate composition effects from within-segment performance effects when that distinction changes the explanation.
-- Prefer mutually exclusive driver buckets when additive contributions need to be interpreted; reconcile the decomposition exactly or size and explain the residual.
+- 使用相关基数、对比或总量占比，使驱动因子有意义。
+- 对于比率，检查是分子、分母还是两者共同解释了变化。
+- 对于可加指标，在能锐化叙事时计算贡献占比。
+- 当这种区分会改变解释时，将构成效应与分段内表现效应分开。
+- 当需要解读可加贡献时，优先使用互斥的驱动因子桶；精确对账分解，或量化并解释残差。
 
-Treat measurement issues as possible explanations, not just cleanup details. For example, the pattern may come from logging changes, incomplete recent data, duplicated rows, or a shifted denominator rather than an underlying business change.
+把度量问题视为可能的解释，而不仅是清理细节。例如，该模式可能来自日志变更、近端数据不完整、重复行或分母偏移，而不是底层的业务变化。
 
-Calibrate the explanation to the evidence, and make important uncertainty visible. Use context when it changes interpretation, such as whether the pattern is ordinary, unusual, expected, or tied to a known change.
+让解释与证据相称，并让重要的不确定性可见。当上下文会改变解读时使用它，例如该模式是寻常的、异常的、预期的，还是与已知变更相关。
 
-Use $visualize-data when a chart would make the diagnostic claim easier to understand or verify.
+当图表能让诊断主张更易理解或验证时，使用 $visualize-data。
 
-### 6. State Implications And Follow-Up
+### 6. 陈述含义与后续行动
 
-Lead with the answer to the diagnostic question, then state the practical implications when the evidence supports them.
+先给出诊断问题的答案，然后在证据支持时说明实际含义。
 
-The answer should make clear:
+答案应清楚表明：
 
-- the pattern being explained
-- the strongest driver explanation and supporting evidence
-- why it matters for the business
-- how much confidence to place in the explanation
-- the implication, next action, or follow-up that matters most
+- 正在解释的模式
+- 最强的驱动因子解释及其支撑证据
+- 为何对业务重要
+- 应对该解释给予多少置信度
+- 最重要的含义、下一步行动或后续跟进
 
-Use $product-business-analysis when the user needs a recommendation or tradeoff decision, not just the diagnostic implication.
+当用户需要建议或权衡决策，而不仅是诊断含义时，使用 $product-business-analysis。
 
-Keep implications distinguishable from verified factual reporting so a reader can tell where evidence ends and interpretation begins. Do not claim causality from timing alone; state when an explanation is only a plausible hypothesis.
+让含义与已核实的事实陈述保持可区分，使读者能分辨证据在哪里结束、解读从哪里开始。不要仅凭时间先后就宣称因果；当某个解释只是合理假设时，要说明。
 
-Use $gather-business-context when the metric result is clear but business context is needed to interpret the `so what` or identify realistic next actions.
+当指标结果清楚但需要业务上下文来解读 `so what` 或确定现实的下一步行动时，使用 $gather-business-context。
 
-Use $validate-data when methodology, calculations, caveats, or the evidentiary support for the diagnostic conclusion need review before sharing.
+当方法论、计算、注意事项或诊断结论的证据支撑在分享前需要审阅时，使用 $validate-data。
 
-Do not treat artifact or report validation as analytical validation. Before handing off, confirm the analysis has the headline metric movement, driver contribution shares or effect sizes, source/window reconciliation, exact executed SQL or query references when queries were used, and caveats that would change interpretation.
+不要把产物或报告校验当作分析校验。交付之前，确认分析包含头条指标变化、驱动因子贡献占比或效应量、来源/窗口对账、使用查询时的确切已执行 SQL 或查询引用，以及会改变解读的注意事项。
 
-Pass the diagnostic substance and supporting evidence to $build-report unless the user explicitly requests an inline, chat-only, brief/no-artifact answer, asks not to create a report/file/artifact, or selects another primary artifact. This handoff is mandatory when no explicit human waiver was given; do not infer a waiver because the user asked a direct diagnostic question or did not use the word "report". Let $build-report own the report surface, presentation polish, reproducibility treatment, and sharing handoff.
+把诊断实质内容与支撑证据传给 $build-report，除非用户明确要求内联的、仅聊天的、简报/无产物回答，明确表示不要创建报告/文件/产物，或选择另一个主要产物。在没有用户的明确豁免时，该交付是强制的；不要因为用户问的是直接的诊断问题或没有使用“报告”一词就推断存在豁免。让 $build-report 负责报告界面、呈现打磨、可复现处理和分享交接。

@@ -1,15 +1,15 @@
-Search RAW conversation trajectory: prior user/assistant messages, tool inputs, tool errors.
+搜索原始对话轨迹：先前的用户/助手消息、工具输入、工具错误。
 
-Use memory first when you need a quick curated answer. Use history when you need the raw source: verbatim wording, exact tool args/output, or details a memory summary may have glossed over or distorted. Typical cases:
-  - memory answered, but you must verify or fill in precise details
-  - memory had no entry, but this came up in a prior session
-  - debugging "did I already try X" across the project
+需要快速得到经过整理的答案时，优先使用 memory。需要原始来源时使用 history：逐字措辞、精确的工具参数/输出，或记忆摘要可能一笔带过或扭曲的细节。典型场景：
+  - memory 已作答，但你必须核实或补齐精确细节
+  - memory 中没有记录，但此前的会话中出现过
+  - 调试"我是不是已经试过 X"这类跨项目问题
 
-Three operations:
-  - search: FTS BM25 over text, reasoning, tool input/results and file names/MIME types (bounded snippets, message_id and part_id)
-  - around: given message_id, show bounded summaries of surrounding messages
-  - get: required part_id reads source detail even during index rebuild. offset is a non-negative UTF-16 cursor (default 0), length is 1–8000 (default 4000). Continue using next_offset while has_more; never guess a cursor inside an emoji. A length=1 page may include a complete two-unit surrogate pair to ensure progress. Data URL payloads are replaced by stable attachment locators.
+三个操作：
+  - search：对文本、推理、工具输入/结果以及文件名/MIME 类型做 FTS BM25 检索（有界片段、message_id 和 part_id）
+  - around：给定 message_id，显示周边消息的有界摘要
+  - get：必需的 part_id 即使在索引重建期间也能读取源细节。offset 是从 0 开始、非负的 UTF-16 游标（默认 0），length 为 1–8000（默认 4000）。在 has_more 为真期间持续使用 next_offset；绝不要猜测 emoji 内部的游标。length=1 的分页可能包含一个完整的两单元代理对，以确保向前推进。Data URL 负载会被替换为稳定的附件定位符。
 
-Search and around return summaries only — one get call per part_id for full text. Media is never automatic: get without attachment lists locators; then call get again with exactly one attachment="inline:0" / "file:0" / "tool:0" as listed. Model/provider limits are reported explicitly. Historical file:// URLs need normal read permissions; no external URL is downloaded. Attachment lists are budget-limited; tool:N and inline:N are zero-based. During background index rebuild search may be temporarily incomplete; known part_id get remains available.
+search 和 around 只返回摘要——要对每个 part_id 调用一次 get 获取全文。媒体永远不会自动附带：不带 attachment 的 get 会列出定位符；然后按列表再次调用 get，并恰好指定一个 attachment="inline:0" / "file:0" / "tool:0"。模型/provider 限制会被明确报告。历史中的 file:// URL 需要普通的读取权限；不会下载任何外部 URL。附件列表受预算限制；tool:N 和 inline:N 从 0 开始计数。后台索引重建期间搜索可能暂时不完整；已知 part_id 的 get 仍然可用。
 
-Default scope is current project; pass scope="global" to search every project on this machine.
+默认范围是当前项目；传 scope="global" 可搜索本机上的所有项目。

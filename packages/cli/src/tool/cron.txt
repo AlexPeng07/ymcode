@@ -1,55 +1,55 @@
-Schedule prompts to fire at future times. Recurring or one-shot, session-only
-or durable. Jobs fire only while the REPL is idle; fires enter the message
-queue at 'later' priority so user input is never preempted.
+安排提示词在未来时间触发。支持循环或一次性、仅会话内
+或持久化。任务只在 REPL 空闲时触发；触发会以 'later' 优先级
+进入消息队列，因此绝不会抢占用户输入。
 
-## Timezone
+## 时区
 
-Cron expressions are 5-field (`minute hour dom month dow`) and evaluated in
-**UTC**. There is no local-timezone or timezone-config support. Convert the
-user's local wall-clock times to UTC before writing the expression (e.g. a
-user in UTC+8 asking for "every day at 9:00" is `0 1 * * *`, not `0 9 * * *`).
+Cron 表达式为 5 字段（`minute hour dom month dow`），并按
+**UTC** 求值。不支持本地时区或时区配置。写入表达式前，
+先把用户的本地墙上时间换算成 UTC（例如 UTC+8 的用户说
+"每天 9:00"，应写 `0 1 * * *`，而不是 `0 9 * * *`）。
 
-JSON calls always wrap the action in an `operation` object — see examples below.
+JSON 调用总是把动作包装在 `operation` 对象中——参见下方示例。
 
-## Operations
+## 操作
 
-- schedule: cadence-driven. `cron` + `prompt` required. recurring by default;
-            pass --one-shot for "remind me at X" with pinned minute/hour/dom/month.
-- loop:     self-paced one-shot with keepalive. `delay_seconds` (clamped to
-            [60, 3600]) + `prompt` required. Always session-only, always kind=loop.
-            Call again each turn to keep the loop alive; omit to end the loop.
-- list:     enumerate active jobs. optional: `kind`, `durable_only`.
-- get:      fetch one job by id.
-- delete:   cancel a job by id.
-- rename:   change the prompt body of an existing job.
+- schedule: 按节奏驱动。`cron` + `prompt` 必需。默认循环；
+            对"在 X 提醒我"这类需求传 --one-shot，并固定 minute/hour/dom/month。
+- loop:     带保活的自定节奏一次性任务。`delay_seconds`（限制在
+            [60, 3600] 内）+ `prompt` 必需。始终仅限当前会话，始终 kind=loop。
+            每轮都再次调用以保持循环存活；省略即结束循环。
+- list:     枚举活动任务。可选：`kind`、`durable_only`。
+- get:      按 id 获取单个任务。
+- delete:   按 id 取消任务。
+- rename:   更改已有任务的提示词正文。
 
-## Picking minutes for `schedule`
+## 为 `schedule` 选择分钟数
 
-Avoid :00 and :30 unless the user named that exact time. Convert the user's
-local time to UTC first, then nudge the minute so the fleet does not fire in
-lockstep (e.g. if the UTC target is 09:00, write "57 8 * * *" or "3 9 * * *",
-not "0 9 * * *"):
-  "every morning around 9" (user local) — convert to UTC first, then nudge
-  "hourly" → "7 * * * *"
+除非用户明确指定了该时刻，避免 :00 和 :30。先把用户的
+本地时间换算成 UTC，再微调分钟数，避免整个机群同步
+触发（例如若 UTC 目标是 09:00，就写 "57 8 * * *" 或 "3 9 * * *"，
+而不是 "0 9 * * *"）：
+  "每天早上 9 点左右"（用户本地时间）——先换算成 UTC，再微调
+  "每小时" → "7 * * * *"
 
-## Picking delay_seconds for `loop`
+## 为 `loop` 选择 delay_seconds
 
-Clamp range is [60, 3600]. Pick based on what you observed this turn:
-- 60–300s: something changed; follow up soon.
-- 300–1800s: routine polling, quiet branch.
-- 1200–1800s: heartbeat behind a primary wake signal.
+限制范围为 [60, 3600]。根据本轮观察到的内容选择：
+- 60–300s：有东西发生了变化；尽快跟进。
+- 300–1800s：常规轮询，安静分支。
+- 1200–1800s：主唤醒信号背后的心跳。
 
-## Schedule vs loop
+## schedule 与 loop
 
-Use `schedule` when cadence is fixed up front ("every 5 minutes", "weekdays 9am").
-Use `loop` when cadence depends on what you observed and may change next turn.
+当节奏事先固定时（"每 5 分钟"、"工作日早 9 点"）使用 `schedule`。
+当节奏取决于你观察到的内容且下一轮可能变化时使用 `loop`。
 
-## Durability
+## 持久性
 
-Default durable:false — job dies with the session. Pass durable:true ONLY when
-the user explicitly asks the job to persist across sessions.
+默认 durable:false——任务随会话结束而消失。仅当用户
+明确要求任务跨会话保留时，才传 durable:true。
 
-## JSON examples
+## JSON 示例
 
 {"operation":{"action":"schedule","cron":"*/5 * * * *","prompt":"/babysit-prs"}}
 {"operation":{"action":"schedule","cron":"30 14 27 2 *","prompt":"file taxes","one_shot":true}}
@@ -61,9 +61,9 @@ the user explicitly asks the job to persist across sessions.
 {"operation":{"action":"delete","id":"a1b2c3d4"}}
 {"operation":{"action":"rename","id":"a1b2c3d4","prompt":"new body"}}
 
-## Discipline
+## 纪律
 
-- Validate cron expressions. Uneven dividers (`*/7`) skew at the wrap-around;
-  pick the nearest clean cadence and tell the user what you rounded to.
-- Returns a job id — surface it so the user can delete later.
-- Don't list scheduled jobs in your reply — the UI renders them.
+- 校验 cron 表达式。不均匀的除数（`*/7`）会在回绕处
+  产生偏移；选择最接近的整齐节奏，并告诉用户你取整到了什么。
+- 返回任务 id——把它呈现出来，方便用户之后删除。
+- 不要在回复中列出已安排的任务——UI 会渲染它们。

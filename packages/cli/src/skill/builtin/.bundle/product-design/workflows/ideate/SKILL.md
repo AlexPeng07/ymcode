@@ -1,114 +1,114 @@
 ---
 name: ideate
-description: "Generate image-based alternatives, remixes, or new design directions from a Product Design brief. Use when the user asks for design variants, visual exploration, remixes, or image-generated approaches from provided context."
+description: "根据产品设计简报生成基于图像的备选方案、混搭或新设计方向。当用户要求设计变体、视觉探索、混搭或基于所提供上下文的图像生成方案时使用。 | Trigger keywords: ideate, design variants, visual exploration, remix, image generation."
 ---
 
-# Ideate
+# 构思
 
-You're tasked with generating design concepts for a user's idea.
+你的任务是为用户的想法生成设计概念。
 
-Follow the shared Product Design routing guidance in [$index](../index/SKILL.md).
+遵循 [$index](../index/SKILL.md) 中共享的产品设计路由指导。
 
-## Critical Overrides
+## 关键覆盖规则
 
-- Refer to the Plugin router [$index](../index/SKILL.md) before proceeding.
-- Follow [$critical-overrides](../../references/critical-overrides.md).
+- 继续之前，先参考插件路由 [$index](../index/SKILL.md)。
+- 遵循 [$critical-overrides](../../references/critical-overrides.md)。
 
-## User Context
+## 用户上下文
 
-Before starting, load [$user-context](../user-context/SKILL.md) and run its preflight script when local shell access is available.
+开始之前，加载 [$user-context](../user-context/SKILL.md)，并在本地 shell 可用时运行其预检脚本。
 
-Attach provided product URLs, Figma files, screenshots, reference images, codebase paths, Storybook, tokens, design systems, brand assets, component refs, browser preferences, and share targets to the Image Gen generations to align them to the design brief.
+将提供的产品 URL、Figma 文件、截图、参考图片、代码库路径、Storybook、tokens、设计系统、品牌资源、组件引用、浏览器偏好与分享目标附加到 Image Gen 生成中，使其与设计简报对齐。
 
-Do not inspect every saved reference. Inspect only what the current task needs.
+不要检查每个已保存的参考。只检查当前任务所需的内容。
 
-## Workflow
+## 工作流
 
-Do not generate images until `$get-context` has satisfied the minimum required design brief.
+在 `$get-context` 满足最低限度的设计简报要求之前，不要生成图像。
 
-Before generating images:
+生成图像之前：
 
-1. Understand the brief.
+1. 理解简报。
 
-- Identify the target: component, screen, feature/workflow, or broad product idea.
-- Identify the intended user, product surface, and goal.
-- Preserve hard constraints from the user.
-- Run `get-context` if the minimum required design brief isn't satisfied.
+- 确定目标：组件、界面、功能/工作流或宽泛的产品想法。
+- 确定目标用户、产品界面与目标。
+- 保留用户的硬性约束。
+- 如果最低限度的设计简报未满足，运行 `get-context`。
 
-2. Resolve context.
+2. 确定上下文。
 
-- Use provided files, screenshots, links, and visible references.
-- In a local workspace, look for nearby design documentation and other local visual context.
-- Check likely design context folders such as `user-context`, `storybook/`, `.storybook/`, `design-system/`, `design-systems/`, `tokens/`, `components/`, `app/`, and generated prototype roots.
-- In an existing project, look for existing product screenshots, similar flows, Storybook captures, design tokens, and component references before generating. Ask if the user can provide example screens similar to the one they are building if the existing app isn't accessible. Ensure you add design language and tokens to the Image Gen prompt.
+- 使用提供的文件、截图、链接与可见参考。
+- 在本地工作区中，查找附近的设计文档与其他本地视觉上下文。
+- 检查可能的设计上下文文件夹，例如 `user-context`、`storybook/`、`.storybook/`、`design-system/`、`design-systems/`、`tokens/`、`components/`、`app/` 以及已生成原型的根目录。
+- 在现有项目中，生成前先查找现有产品截图、相似流程、Storybook 捕获、设计 tokens 与组件引用。如果现有应用无法访问，询问用户能否提供与他们正在构建的界面相似的示例界面。确保将设计语言与 tokens 加入 Image Gen 提示词。
 
-3. Inspect references directly.
+3. 直接检查参考。
 
-- Look at screenshots, images, Figma frames, app surfaces, or other visual references before generating.
-- Do not infer from filenames alone.
-- If a named local path or reference is not visible, stop and ask the user to confirm the path, upload the file, start the local app, or point to the correct workspace.
+- 生成前查看截图、图片、Figma 画板、应用界面或其他视觉参考。
+- 不要仅凭文件名推断。
+- 如果指定的本地路径或参考不可见，停止并请用户确认路径、上传文件、启动本地应用或指向正确的工作区。
 
-4. Decide the variation mode.
+4. 确定变化模式。
 
-- If useful local design context exists and the user has not asked for a new style, stay within that existing direction.
-- If no useful design context exists, or the user asks for broad exploration, vary both concept and visual system.
-- For a specific component or existing surface, vary structure, interaction, hierarchy, and emphasis before varying brand style.
-- For a broad product idea, explore three meaningfully different product directions.
+- 如果存在有用的本地设计上下文且用户未要求新风格，保持在现有方向内。
+- 如果不存在有用的设计上下文，或用户要求宽泛探索，则同时变化概念与视觉系统。
+- 对于特定组件或现有界面，先变化结构、交互、层级与强调，再变化品牌风格。
+- 对于宽泛的产品想法，探索三个有实质差异的产品方向。
 
-5. Choose target dimensions before Image Gen.
+5. 在 Image Gen 之前选择目标尺寸。
 
-- Pick the dimensions that best match the user's request and any provided visual reference.
-- Mobile app: `390 x 844`.
-- Tablet app: `834 x 1194`.
-- Desktop app, dashboard, admin, or SaaS: `1440 x 1024`.
-- Landing or marketing page: `1440` wide and scrollable.
-- Modal, panel, widget, or component: natural container size.
-- Provided screenshot, Figma frame, mockup, or reference image: match its dimensions and aspect ratio when the user wants to continue from that visual.
-- Avoid crowding. Make the design fit the chosen dimensions cleanly, with realistic spacing, readable type, and no clipped content.
-- Include the chosen dimensions in every Image Gen prompt.
+- 选择最符合用户请求与任何所提供视觉参考的尺寸。
+- 移动应用：`390 x 844`。
+- 平板应用：`834 x 1194`。
+- 桌面应用、仪表盘、后台或 SaaS：`1440 x 1024`。
+- 落地页或营销页：宽度 `1440`，可滚动。
+- 模态框、面板、小组件或组件：容器的自然尺寸。
+- 提供的截图、Figma 画板、mockup 或参考图片：当用户希望从该视觉继续时，匹配其尺寸与宽高比。
+- 避免拥挤。让设计干净地适配所选尺寸，使用真实的间距、可读的字号，且不裁剪内容。
+- 在每个 Image Gen 提示词中包含所选尺寸。
 
-6. Check for access gaps.
+6. 检查访问缺口。
 
-- If a connector, reference, or file cannot be accessed because of auth, permissions, expired login, missing scope, suspiciously empty results, or unavailable local state, stop.
-- Name the gap clearly and ask whether to troubleshoot access or continue without that source.
-- Do not generate images while silently ignoring a named reference.
+- 如果连接器、参考或文件因认证、权限、登录过期、缺少 scope、结果可疑地为空或本地状态不可用而无法访问，停止。
+- 清晰说明缺口，并询问是排查访问问题还是在不使用该来源的情况下继续。
+- 不要在默默忽略指定参考的情况下生成图像。
 
-7. Attach images and mocks provided by the user to the Image Gen call along with your design brief.
+7. 将用户提供的图片与 mock 连同你的设计简报一起附加到 Image Gen 调用中。
 
-8. Generate 3 independent options that have distinct information hierarchy, layout strategy, interaction model, or product framing.
+8. 生成 3 个独立选项，它们在信息层级、布局策略、交互模型或产品定位上各有不同。
 
-Rules you must follow:
+必须遵循的规则：
 
-- Use the Image Gen prompt below.
-- Use the built-in Image Gen tool.
-- Generate exactly three independent images unless the user overrides the count.
-- Launch each Image Gen call independently. Do not batch Image Gen calls with `Promise.all`, collect them into an ordered array, or replay them in request order.
-- Each option must be its own Image Gen result. Do not put multiple ideas in one image.
-- Give each direction a distinct, descriptive name before generation, but do not call it `option 1`, `option 2`, or `option 3` and do not put planned numeric labels in Image Gen prompts. Parallel results can arrive in a different order from the requests.
-- Number options only after the Image Gen results are present in the thread. The only authoritative option order is the order those generated-image results are displayed in the current thread. Ignore the planned concept order, original request chain, prompt submission order, `Promise.all` result order, batch order, array indexes, retry order, and assumed completion order.
-- After all results return, bind each visible option number to the result in that displayed order. Do not name or describe the options in the final selection message.
-- Attach provided screenshots, files, app captures, Figma references, and visual source material as moodboard inspiration when available.
-- Attach existing product screenshots, similar flows, Storybook captures, design tokens, and component references as grounding material when available.
-- When mock data includes dates or time-sensitive information, resolve the exact current date and include it in every Image Gen prompt. Derive visible dates from that anchor; preserve dates required by the user or source design.
-- If a screenshot, image, or visual file is available, attach the actual image to the Image Gen call. Do not rely on text descriptions of it.
-- Only claim a visual reference was attached if the Image Gen call actually received that image or a readable local image path.
-- If you cannot attach the image, say that clearly and ask whether to continue with text-only direction.
-- Preserve hard constraints from the brief in every image.
-- After generating options, stop for the user's selection before any build work begins.
-- When the user later selects option `N`, resolve it against the Nth displayed generated-image result from the most recent ideation set, not the original planned concept order. If the exact displayed result cannot be resolved, do not build from a guess; ask the user to name the concept or reattach/select the image.
-- The selected option is the visual target for `$image-to-code`.
+- 使用下面的 Image Gen 提示词。
+- 使用内置的 Image Gen 工具。
+- 除非用户另行指定数量，恰好生成三张独立图片。
+- 独立发起每次 Image Gen 调用。不要用 `Promise.all` 批量发起 Image Gen 调用，不要将它们收集为有序数组，也不要按请求顺序回放。
+- 每个选项必须是独立的 Image Gen 结果。不要将多个想法放进一张图片。
+- 生成前为每个方向取一个独特、描述性的名称，但不要称其为 `option 1`、`option 2` 或 `option 3`，也不要在 Image Gen 提示词中放入计划的数字标签。并行结果到达的顺序可能与请求顺序不同。
+- 仅在 Image Gen 结果出现在会话中之后才给选项编号。唯一权威的选项顺序是这些生成图片结果在当前会话中的显示顺序。忽略计划的概念顺序、原始请求链、提示词提交顺序、`Promise.all` 结果顺序、批次顺序、数组索引、重试顺序与假定完成顺序。
+- 所有结果返回后，按显示顺序将每个可见选项编号绑定到对应结果。不要在最终选择消息中命名或描述这些选项。
+- 在可用时，将提供的截图、文件、应用捕获、Figma 参考与视觉源材料作为情绪板灵感附加。
+- 在可用时，将现有产品截图、相似流程、Storybook 捕获、设计 tokens 与组件引用作为依据材料附加。
+- 当 mock 数据包含日期或时效性信息时，确定确切的当前日期，并将其包含在每个 Image Gen 提示词中。可见日期以该锚点为基准推导；保留用户或来源设计要求的日期。
+- 如果有截图、图片或视觉文件可用，将实际图片附加到 Image Gen 调用。不要依赖对其的文字描述。
+- 仅当 Image Gen 调用实际收到该图片或可读的本地图片路径时，才声称已附加视觉参考。
+- 如果无法附加图片，明确说明，并询问是否以纯文字方向继续。
+- 在每张图片中保留简报的硬性约束。
+- 生成选项后，在任何构建工作开始前停下来等待用户选择。
+- 当用户之后选择选项 `N` 时，以最近一次构思集中第 N 个显示的生成图片结果为准，而不是原始计划的概念顺序。如果无法确定确切的显示结果，不要凭猜测构建；请用户指明概念或重新附加/选择图片。
+- 选定的选项是 `$image-to-code` 的视觉目标。
 
-## Feedback Loop
+## 反馈循环
 
-If the user gives feedback after seeing options, generate revised options with that feedback.
+如果用户在看过选项后给出反馈，依据该反馈生成修订后的选项。
 
-If the user selects an option and gives feedback, generate a revised option with that feedback before build.
+如果用户选定某个选项并给出反馈，在构建前依据该反馈生成修订后的选项。
 
-If the user likes parts of more than one option, combine those choices into a new Image Gen design and show it before build.
+如果用户喜欢多个选项的部分内容，将这些选择组合成新的 Image Gen 设计，并在构建前展示。
 
-## Image Gen Prompt
+## Image Gen 提示词
 
-Adapt this prompt to the current design brief, attach any available image references, and send it to Image Gen:
+根据当前设计简报调整此提示词，附加任何可用的图片参考，然后发送给 Image Gen：
 
 ```text
 Create realistic, production-quality UI designs with clear hierarchy, strong typography, intentional imagery, and purposeful spacing.
@@ -164,28 +164,28 @@ Don'ts:
 When the design includes dates or time-sensitive mock data, use the supplied current date as the anchor. Weekly views must show the real containing week with correct weekday/date pairs. Feeds, charts, notifications, and recent activity must use plausible chronological dates relative to today. Mark today when useful. Preserve dates required by the brief or source design.
 ```
 
-## Output
+## 输出
 
-Wait until all Image Gen calls have returned before sending the final message that asks the user to choose.
+等待所有 Image Gen 调用返回后，再发送请用户选择的最终消息。
 
-Do not send the final selection message until every requested generated image is visible exactly once in the main chat.
+在每个所请求的生成图片在主聊天中恰好可见一次之前，不要发送最终选择消息。
 
-If fewer Image Gen outputs are visible than requested, retry the missing generation. Do not send the selection message.
+如果可见的 Image Gen 输出少于请求数量，重试缺失的生成。不要发送选择消息。
 
-Number the returned Image Gen outputs in the order they appear in the conversation context:
+按返回的 Image Gen 输出在对话上下文中出现的顺序编号：
 
-- First Image Gen output = Option 1
-- Second Image Gen output = Option 2
-- Third Image Gen output = Option 3
+- 第一个 Image Gen 输出 = 选项 1
+- 第二个 Image Gen 输出 = 选项 2
+- 第三个 Image Gen 输出 = 选项 3
 
-Ignore the planned concept order, original request chain, request order, `Promise.all` result order, batch order, array indexes, retry order, and tool submission order.
+忽略计划的概念顺序、原始请求链、请求顺序、`Promise.all` 结果顺序、批次顺序、数组索引、重试顺序与工具提交顺序。
 
-Do not name or describe the options. For the default three images, send only:
+不要命名或描述这些选项。对于默认的三张图片，只发送：
 
 `Which option should I build: 1, 2, or 3? Or tell me what you'd like to refine or personalize first.`
 
-Adjust the numbers only if the user requested a different count.
+仅当用户请求不同数量时才调整数字。
 
-If the user chooses a number, acknowledge the chosen option before routing to `$image-to-code`, for example: `Building option 2!` Do not ask for confirmation when the mapping is clear.
+如果用户选择某个数字，在路由到 `$image-to-code` 之前确认所选选项，例如：`Building option 2!` 映射明确时不要请求确认。
 
-Done means the requested number of independent images have been generated and the user has been asked to select one.
+完成意味着已生成所请求数量的独立图片，并已请用户选择其一。

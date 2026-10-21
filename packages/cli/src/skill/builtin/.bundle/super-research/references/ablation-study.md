@@ -1,33 +1,33 @@
-# Mode: Ablation study / 消融实验
+# 模式：消融实验
 
-Use when the user wants to **attribute an outcome to specific components** — "which parts of X actually matter", "does component Y contribute anything", "ablate the pipeline", "消融实验", "attribution study", "is this feature pulling its weight". The goal is understanding, not improvement: you are decomposing a working system to learn which pieces carry the load.
+当用户想**把结果归因到具体组件**时使用——「which parts of X actually matter」「does component Y contribute anything」「ablate the pipeline」「消融实验」「attribution study」「is this feature pulling its weight」。目标是理解而非改进：你在拆解一个可运行的系统，弄清哪些部件真正承重。
 
-The failure mode this mode is designed against: (1) declaring a component "important" from a single noisy run that beat the noise floor by coincidence, and (2) stopping at the biggest effect and quietly not testing the rest, which produces an attribution that looks decisive but rests on an incomplete matrix.
+本模式要防范的失败模式：(1) 仅凭一次恰好越过噪声本底的带噪运行就宣布某组件「重要」；(2) 停在最大效应处，悄悄不测其余部分，从而产出一份看起来果断、实则基于不完整矩阵的归因。
 
-Ablation differs from experiment-loop: there, you keep changes that improve the metric and revert the rest. Here, you keep and log **every** removal, whether the metric improved, stayed flat, or dropped — that is the whole point.
+消融与实验循环不同：那边保留改进指标的改动、回退其余；这里**每一个**移除都要保留并记录，无论指标变好、持平还是下降——这正是全部意义。
 
-## Contract fields
+## 契约字段
 
-1. **Reference configuration**: The exact "full" system whose components you're attributing to. Frozen and repeatable — one commit, one config, one seed set. Every ablation is measured relative to this.
-2. **Components**: An explicit enumerated list of ablatable units — features, layers, loss terms, pipeline stages, prompt sections, tool calls, regularizers. If a component has natural sub-parts (e.g. "attention" = QKV + softmax + output projection), decide at contract time whether to ablate it whole or in parts. Sub-part decisions after seeing results are attribution p-hacking.
-3. **Ablation operation**: How each component is "removed" — set to zero, replaced with identity, replaced with a trivial baseline (random / mean / no-op), or hard-deleted. **The choice matters and must be identical across components** — a mix of "zero" and "replace-with-random" produces incomparable deltas. Pick one and stick to it, or run all methods for every component (rarely worth it).
-4. **Primary metric**: Same shape as experiment-loop — one number, one direction — since deltas need to be comparable. Secondaries (memory, latency, cost) are logged.
-5. **Fairness budget**: Same wall-clock / iteration / data budget for every ablation run. Same eval set. Same seeds — or, if seed-sensitivity matters, the same *set* of seeds for every ablation.
-6. **Repetitions**: At least 3 runs of the reference configuration to establish the noise floor before ablating. Then at least 2 seeds per ablation (more if the noise floor is comparable to the effects you expect).
-7. **Working directory**: A dedicated `ablation/<tag>/` folder — harness, ablation log, per-run outputs.
+1. **参照配置**：你归因所指向的确切「完整」系统。冻结且可重复——一个提交、一份配置、一组随机种子。每次消融都相对它测量。
+2. **组件**：一份显式枚举的可消融单元清单——特征、层、损失项、流水线阶段、提示词段落、工具调用、正则项。如果某组件有自然的子部件（例如「attention」= QKV + softmax + 输出投影），在约定契约时就决定整体消融还是分部件消融。看到结果后再决定子部件，属于归因层面的 p-hacking。
+3. **消融操作**：每个组件如何被「移除」——置零、替换为恒等、替换为平凡基线（随机 / 均值 / 空操作）或直接删除。**这个选择很重要，且必须在所有组件间一致**——混用「置零」和「替换为随机」会产生不可比的差值。选定一种并坚持到底，或对每个组件跑所有方法（很少值得）。
+4. **主指标**：与实验循环同形——一个数字、一个方向——因为差值需要可比。次要指标（内存、延迟、成本）也要记录。
+5. **公平性预算**：每次消融运行使用相同的实际耗时/迭代/数据预算。同一评测集。同一随机种子——或者，如果种子敏感性重要，对每次消融使用同一**组**种子。
+6. **重复次数**：在消融之前，参照配置至少跑 3 次以建立噪声本底。然后每次消融至少 2 个种子（若噪声本底与你预期的效应量相当，则更多）。
+7. **工作目录**：专用的 `ablation/<tag>/` 文件夹——测试支架、消融日志、每次运行的输出。
 
-## Baseline — measure the noise floor
+## 基线——测量噪声本底
 
-Before any ablation, run the reference configuration ≥3 times with different seeds. This gives you:
+在任何消融之前，用不同种子把参照配置跑 ≥3 次。这给你：
 
-- **Reference mean and std** — what the "no change" metric is, and how much it wanders.
-- **The noise floor** — the smallest metric delta that could plausibly be a real effect rather than run-to-run variance. Any ablation whose delta is within this band is "no measurable contribution", not "no contribution" (there is a difference — you cannot resolve it with your current setup).
+- **参照均值与标准差**——「不做改动」时的指标，以及它漂移的幅度。
+- **噪声本底**——一个差值小到什么程度就可能只是运行间波动、而非真实效应。任何差值落在该带内的消融属于「无可测贡献」，而非「没有贡献」（两者有区别——以你当前的设置无法分辨）。
 
-Log these as the first rows of the ablation log. Everything you claim later is measured against them.
+把这些记为消融日志的前几行。你之后声称的一切都相对它们测量。
 
-## The ablation log
+## 消融日志
 
-`ablation.tsv` (tab-separated), one row per (config × seed):
+`ablation.tsv`（制表符分隔），每个（配置 × 种子）一行：
 
 ```
 config	component_removed	seed	metric	resource	status	delta_vs_ref	notes
@@ -41,43 +41,43 @@ ablate_layernorm	layernorm	0	0	0	crash	NaN	training diverges without layernorm �
 ablate_reg_term	reg_term	0	0.816	1.2	done	+0.004	possibly helpful to remove — repeat with more seeds
 ```
 
-- **delta_vs_ref** — the metric minus the reference mean, in the metric's direction (positive = better if higher-better, negative = worse). Filled in during the aggregation step, not at run time.
-- **crashes are attributions too.** A component whose removal causes the system to fail catastrophically is *load-bearing*, and that is one of the strongest attribution results. Do not silently retry with a "fix" — log the crash and move on.
+- **delta_vs_ref** —— 指标减去参照均值，按指标方向解释（若越高越好，则为正；若越低越好，则为负）。在聚合步骤填入，而不是运行时填。
+- **崩溃也是归因。** 移除某组件导致系统灾难性失败的，该组件就是*承重的*，这是最强的归因结果之一。不要悄悄用「修复」重试——记录崩溃并继续。
 
-Keep `ablation.tsv` untracked by git.
+让 `ablation.tsv` 保持不被 git 跟踪。
 
-## The loop
+## 循环
 
-1. Establish the noise floor (baseline above). Log the reference runs.
-2. For each component in the frozen list, run the ablation at ≥2 seeds under identical conditions. Redirect run output to files; extract the metric mechanically.
-3. Log every run — including crashes and diverged trainings.
-4. **Interleave seeds across ablations** (ablate_A seed 0, ablate_B seed 0, ablate_C seed 0, ablate_A seed 1, …). Running each ablation as a consecutive block lets time-varying noise correlate with the ordering.
-5. When the matrix is complete, compute mean delta ± std per ablation.
-6. **Classify each component** relative to the noise floor:
-   - `|Δ|` inside the noise band → *no measurable contribution* (with the given budget/seeds).
-   - `Δ` worse than reference by > noise → *carries load* (magnitude in metric units).
-   - `Δ` better than reference by > noise → *hurts* — the component is a candidate for removal; investigate before recommending removal (surprising positives sometimes indicate a bug in the ablation).
-   - Crash / divergence → *critical* — the component is required for the system to function at all, not merely to reach the metric.
-7. **Do not stop early.** Even after finding a large effect, run the rest of the matrix. Selective ablation is how systems accrete cargo-cult components: everyone "knows" X and Y matter (because those were the ablations that were run) and nobody notices that Z has done nothing for six months.
+1. 建立噪声本底（上面的基线）。记录参照运行。
+2. 对冻结清单中的每个组件，在相同条件下用 ≥2 个种子运行消融。把运行输出重定向到文件；机械地提取指标。
+3. 每次运行都记录——包括崩溃与训练发散。
+4. **在各消融之间交错种子**（ablate_A 种子 0、ablate_B 种子 0、ablate_C 种子 0、ablate_A 种子 1、……）。把每个消融连成一块运行，会让随时间变化的噪声与顺序相关。
+5. 矩阵完成后，计算每次消融的均值差值 ± 标准差。
+6. **相对噪声本底对每个组件分类**：
+   - `|Δ|` 落在噪声带内 → *无可测贡献*（在给定预算/种子下）。
+   - `Δ` 比参照差超过噪声 → *承重*（用指标单位给出量级）。
+   - `Δ` 比参照好超过噪声 → *有害*——该组件是移除候选；在建议移除前先调查（意外的正向有时说明消融本身有 bug）。
+   - 崩溃 / 发散 → *关键*——该组件是系统运行所必需的，而不只是为了达到该指标。
+7. **不要提前停止。** 即使发现大效应，也要跑完矩阵其余部分。选择性消融正是系统积累迷信组件的方式：所有人都「知道」X 和 Y 重要（因为做过那些消融），却没人注意到 Z 半年没起任何作用。
 
-## Judgment
+## 判断
 
-**Deltas are only meaningful relative to the noise floor.** Report every delta with a comparison to the reference std. A 0.02 improvement claim is very different when the noise floor is 0.005 vs 0.03. If they're comparable, the answer is "we can't tell", not "the effect is small".
+**差值只有相对噪声本底才有意义。** 报告每个差值时都要与参照标准差比较。噪声本底为 0.005 与 0.03 时，0.02 的改进声明含义截然不同。若两者相当，答案就是「我们说不清」，而不是「效应很小」。
 
-**Beware of interactions.** Leave-one-out ablation attributes a component's marginal effect *in the presence of everyone else*. It does not tell you about components that only matter together. If the user needs to understand interactions (does A help only when B is present?), that's a second-phase 2×2 or 2^k grid, not something to sneak into the LOO matrix.
+**警惕交互作用。** 留一消融归因的是组件在*其他组件都存在时*的边际效应。它不会告诉你只有组合起来才重要的组件。如果用户需要理解交互（A 只在 B 存在时有帮助吗？），那是第二阶段的 2×2 或 2^k 网格，而不是偷偷塞进 LOO 矩阵的东西。
 
-**Report the "no measurable contribution" components too.** They're often the actionable finding — candidates for deletion, simplification, or reduced compute. A study that only shows the wins reads like a defense of the reference; a study that shows the null results reads like an audit.
+**也要报告「无可测贡献」的组件。** 它们往往是可执行的发现——删除、简化或减少算力的候选。只展示胜利的研究读起来像在辩护参照；展示零结果的研究读起来像审计。
 
-**Crashes deserve their own line in the report.** "Component X, when removed, causes divergence" is a critical piece of documentation and a stronger form of attribution than "removing X hurts the metric by 5 points". Treat it as such.
+**崩溃值得在报告中单独一行。** 「组件 X 被移除时导致发散」是关键的文档信息，也是比「移除 X 使指标下降 5 个点」更强的归因形式。请按此对待。
 
-**When an ablation improves the metric, don't celebrate — investigate.** A better metric under ablation often means either (a) the component was actively hurting, worth confirming with a targeted study, or (b) the ablation accidentally changed something else too. Rule out (b) before recommending (a).
+**当消融改善了指标，不要庆祝——去调查。** 消融下指标更好，通常意味着：(a) 该组件一直在起反作用，值得用定向研究确认；或 (b) 消融意外改动了别的东西。在建议 (a) 之前先排除 (b)。
 
-## Final report
+## 最终报告
 
-See "Reporting" in SKILL.md. Mode-specific body:
+参见 SKILL.md 的「报告」。模式专属正文：
 
-- **Attribution table** — one row per component with mean delta ± std, classification (load-bearing / no measurable contribution / hurts / critical), and one-line interpretation.
-- **Reference and noise floor** — the numbers everything is measured against, prominently. Without them the table cannot be interpreted.
-- **Surprising findings** — components that turned out to matter less than expected, or ablations that improved the metric, with follow-up notes.
-- **Interaction caveats** — LOO limitations, any interactions the user should be aware of before acting on the results.
-- **Where to look**: `ablation.tsv`, the harness script, per-run logs in `ablation/<tag>/`.
+- **归因表**——每个组件一行，含均值差值 ± 标准差、分类（承重 / 无可测贡献 / 有害 / 关键），以及一行解释。
+- **参照与噪声本底**——一切测量所相对的基准数字，要显眼。没有它们，表格无法解读。
+- **意外发现**——结果比预期更不重要的组件，或改善指标的消融，附后续说明。
+- **交互注意事项**——LOO 的局限，以及用户依据结果行动前应了解的交互。
+- **去哪里看**：`ablation.tsv`、测试支架脚本、`ablation/<tag>/` 中的每次运行日志。

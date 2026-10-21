@@ -1,160 +1,139 @@
 ---
 name: validate-data
-description: "Validate whether an analysis is accurate, well-supported, and ready to share or use for a decision. Use when reviewing methodology, calculations, comparisons, visuals, caveats, or conclusions."
+description: "校验分析是否准确、支撑充分，并已准备好分享或用于决策。当需要审阅方法论、计算、对比、可视化、注意事项或结论时使用。 | Trigger keywords: validate analysis, QA, methodology review, recalculation, caveats, confidence, ready to share."
 ---
-## Related Skills
+## 相关技能
 
-Use $analyze-data-quality when validation depends on whether the underlying data is trustworthy, comparable, fresh, or at the right grain.
+当校验依赖底层数据是否可信、可比、新鲜或处于正确粒度时，使用 $analyze-data-quality。
 
-Use $product-business-analysis when the task asks for a recommendation or decision after the validation pass.
+当任务在校验之后还要求建议或决策时，使用 $product-business-analysis。
 
-# Validate Data Analysis
+# 校验数据分析
 
-Validate an analysis before it is shared with stakeholders. Focus on whether the question, data, methodology, calculations, visuals, claims, caveats, and recommendations are trustworthy enough for the stated audience and decision.
-This skill is for analysis QA, not raw dataset profiling alone. When validation depends on dataset reliability checks such as freshness, grain, missingness,
-duplicates, join coverage, or source mismatches, use $analyze-data-quality as a companion.
+在与利益相关方分享之前校验分析。重点关注问题、数据、方法论、计算、可视化、主张、注意事项和建议，对于所述受众和决策而言是否足够可信。
+本技能用于分析 QA，而不只是原始数据集画像。当校验依赖新鲜度、粒度、缺失、重复、join 覆盖或来源不匹配等数据集可靠性检查时，将 $analyze-data-quality 作为配套技能使用。
 
-## Workflow
+## 工作流
 
-1. Inventory the artifact and claims.
+1. 清点产物与主张。
 
-   Identify the report, notebook, spreadsheet, SQL, dashboard, chart, pasted analysis, or recommendation being validated. Inspect source artifacts when a path, link, query, notebook, spreadsheet, or dashboard is referenced. Extract the main question, audience, decision, key claims, headline numbers, data sources, time windows, populations, filters, comparison baselines, and stated caveats. Verify that every metric or KPI requested by the user appears in the analysis or is explicitly marked unavailable, not applicable, or out of scope.
+   识别正在校验的报告、笔记本、电子表格、SQL、仪表盘、图表、粘贴的分析或建议。当引用了路径、链接、查询、笔记本、电子表格或仪表盘时，检查来源产物。提取主要问题、受众、决策、关键主张、头条数字、数据源、时间窗口、人群、过滤器、对比基线和已说明的注意事项。核实用户要求的每个指标或 KPI 都出现在分析中，或被明确标注为不可用、不适用或超出范围。
 
-2. Validate the question, methodology, and assumptions.
+2. 校验问题、方法论与假设。
 
-   Confirm that the analysis answers the stated business or product question,
-   not a nearby easier question. Check whether the population, eligibility rules, exclusions, sampling, metric definitions, formulas, units,
-   denominators, timezones, cohorts, comparison periods, and baselines match the stakeholder decision. Flag hidden exclusions, inconsistent definitions,
-   partial-period comparisons, and causal wording that lacks experimental or otherwise credible causal evidence.
+   确认分析回答的是所述业务或产品问题，而不是邻近的更容易的问题。检查人群、资格规则、排除项、抽样、指标定义、公式、单位、分母、时区、同期群、对比期和基线是否与利益相关方的决策匹配。标记隐藏的排除项、不一致的定义、部分周期对比，以及缺乏实验或其他可信因果证据的因果措辞。
 
-3. Validate data selection and quality risks.
+3. 校验数据选择与质量风险。
 
-   Confirm that the chosen tables, files, dashboards, or extracts are appropriate and current enough for the decision. Check freshness or "as of"
-   date, expected partitions, segment coverage, row/category completeness, null handling, deduplication, filter logic, join coverage, and source mismatches when those risks could change the conclusion. Use `~~structured_data` for source metadata, schema checks, sample rows, query history, or SQL spot checks through the relevant source connector when available. Use `~~operations_logs` for table freshness, lineage, or pipeline context.
+   确认所选的表、文件、仪表盘或抽取对于该决策是合适且足够新的。当这些风险可能改变结论时，检查新鲜度或“截至”日期、预期分区、分段覆盖、行/类别完整性、空值处理、去重、过滤逻辑、join 覆盖和来源不匹配。可用时通过相关数据源连接器，使用 `~~structured_data` 获取来源元数据、schema 检查、样例行、查询历史或 SQL 抽查。使用 `~~operations_logs` 了解表的新鲜度、血缘或管道上下文。
 
-4. Verify calculations and aggregations.
+4. 核验计算与聚合。
 
-   Recompute the highest-impact numbers independently when possible. Check grain, subtotals, denominators, non-zero denominators, rate bases,
-   period-over-period bases, weighted averages, units, currency, timezone handling, and whether mutually exclusive categories add to totals. For SQL,
-   inspect join types, group-by grain, filters, distinct counts, and row counts before and after joins. Use $jupyter-notebooks or `~~spreadsheet_workspace`
-   when the artifact itself is a notebook or spreadsheet, or when reproducible spot checks need code or formulas.
+   尽可能独立重算影响最大的数字。检查粒度、小计、分母、非零分母、比率基数、环比/同比基数、加权平均、单位、币种、时区处理，以及互斥类别是否加总为合计。对于 SQL，检查 join 类型、group-by 粒度、过滤器、去重计数，以及 join 前后的行数。当产物本身是笔记本或电子表格，或可复现抽查需要代码或公式时，使用 $jupyter-notebooks 或 `~~spreadsheet_workspace`。
 
-5. Test reasonableness and common analytical traps.
+5. 检验合理性与常见分析陷阱。
 
-   Compare magnitudes against known dashboards, historical reports, prior analyses, finance sources, or expected product scale when possible. Investigate trend jumps, drops, flatlines, exact round numbers, 0% or 100% rates, segment shares that should sum to about 100%, and results that perfectly confirm the hypothesis without friction. Check edge cases such as empty segments, new entities, and boundary dates.
+   尽可能将量级与已知仪表盘、历史报告、既有分析、财务来源或预期产品规模进行比较。排查趋势的突增、下跌、走平、恰好整数、0% 或 100% 的比率、本应合计约 100% 的分段占比，以及毫无摩擦就完美印证假设的结果。检查空分段、新实体和边界日期等边缘情况。
 
-6. Review visuals and presentation integrity.
+6. 审阅可视化与呈现完整性。
 
-   Confirm that charts use appropriate chart types, scales, axes, intervals,
-   titles, labels, units, ordering, annotations, color, and precision. Use
-   $visualize-data for non-trivial chart review. For rendered reports,
-   dashboards, slides, docs, PDFs, HTML, or other final artifacts, inspect the rendered output for broken charts, missing tables, clipped text, bad formatting, stale placeholders, and obvious layout issues. Check whether a quick reader could walk away with a misleading interpretation, especially from truncated axes, dual axes, 3D effects, inconsistent intervals, missing date ranges, or chart titles that overstate the data.
+   确认图表使用了合适的图表类型、刻度、坐标轴、间隔、标题、标签、单位、排序、注释、颜色和精度。对于非平凡的图表审阅，使用 $visualize-data。对于已渲染的报告、仪表盘、幻灯片、文档、PDF、HTML 或其他最终产物，检查渲染输出中是否存在损坏的图表、缺失的表格、被裁剪的文字、错误格式、过期占位符和明显的布局问题。检查快速浏览的读者是否会得到误导性解读，尤其是来自截断坐标轴、双坐标轴、3D 效果、不一致间隔、缺失日期范围或夸大数据的图表标题。
 
-7. Evaluate narrative, conclusions, and recommendations.
+7. 评估叙述、结论与建议。
 
-   Confirm each conclusion is supported by visible evidence or saved artifacts.
-   Separate verified findings from interpretation, caveats, and open questions.
-   Identify alternative explanations, uncertainty, missing context,
-   recommendations that go beyond the evidence, and any causal language that is not supported by the design.
+   确认每个结论都有可见证据或已保存产物的支撑。将已核实的发现与解读、注意事项和未决问题分开。识别替代解释、不确定性、缺失的上下文、超出证据范围的建议，以及设计不支持的任何因果措辞。
 
-8. Produce a confidence assessment and required fixes.
+8. 给出置信度评估与必需修复。
 
-   Prioritize issues that materially affect the stakeholder decision. Separate blockers from caveats: do not block sharing for minor polish issues, but do block when a number, denominator, join, time window, population, comparison,
-   or conclusion is materially unreliable. Record incomplete handoff blockers separately from caveats, including missing access, unavailable source artifacts, unrun checks, broken render steps, unresolved data-quality risks,
-   or absent owner confirmation. If SQL, Python, a notebook, or a spreadsheet was used for validation, include the artifact path, query permalink, notebook path, spreadsheet tab, or dashboard link so the check is reproducible.
+   优先处理实质性影响利益相关方决策的问题。将阻塞项与注意事项分开：不要因为轻微打磨问题阻止分享，但当数字、分母、join、时间窗口、人群、对比或结论实质性不可靠时必须阻止。将不完整的交接阻塞项与注意事项分开记录，包括缺失访问权限、不可用的来源产物、未运行的检查、损坏的渲染步骤、未解决的数据质量风险或缺失的负责人确认。如果校验使用了 SQL、Python、笔记本或电子表格，附上产物路径、查询永久链接、笔记本路径、电子表格页签或仪表盘链接，使检查可复现。
 
-## Standards
+## 标准
 
-### Validation Stance
+### 校验立场
 
-- Validate the claims the analysis actually makes, not just whether the artifact looks polished.
-- Prefer concrete evidence: recompute important numbers, inspect source data,
-  check code paths, trace records, or reconcile against trusted sources when tools and access allow it.
-- Label anything that cannot be verified, and state what would be needed to verify it.
-- Treat surprising results, stakeholder-facing recommendations, causal claims,
-  high-impact decisions, and externally shared analyses as higher-risk validation targets.
-- Select checks that match the artifact and decision. Do not run every possible check mechanically.
+- 校验分析实际做出的主张，而不仅是产物看起来是否精致。
+- 优先使用具体证据：在工具和访问权限允许时，重算重要数字、检查源数据、检查代码路径、追踪记录，或与可信来源对账。
+- 标注任何无法核验的内容，并说明核验它需要什么。
+- 将出人意料的结果、面向利益相关方的建议、因果主张、高影响决策和对外分享的分析视为更高风险的校验目标。
+- 选择与产物和决策匹配的检查。不要机械地运行所有可能的检查。
 
-### Methodology Checks
+### 方法论检查
 
-- Question framing: the analysis answers the stated business or product question.
-- Data selection: sources are appropriate and current enough for the decision.
-- Population: inclusions, exclusions, eligibility rules, and sampling are explicit.
-- Metric definitions: formulas, units, denominators, and timezones are clear and aligned with stakeholder definitions.
-- Baselines: comparison periods, cohorts, and contexts are comparable.
-- Causality: causal wording is backed by experimental or otherwise credible causal evidence.
+- 问题框定：分析回答了所述业务或产品问题。
+- 数据选择：来源对该决策合适且足够新。
+- 人群：纳入项、排除项、资格规则和抽样都已明确。
+- 指标定义：公式、单位、分母和时区清晰，且与利益相关方的定义一致。
+- 基线：对比期、同期群和上下文可比。
+- 因果性：因果措辞有实验或其他可信因果证据支撑。
 
-### Data Quality Checks
+### 数据质量检查
 
-- Freshness: the analysis states or can recover the data "as of" date.
-- Completeness: no unexpected missing partitions, segments, rows, or categories.
-- Null handling: key columns have expected null rates or explicit treatment.
-- Deduplication: primary entities are not double counted.
-- Filter verification: filters and WHERE clauses do not silently exclude the population of interest.
-- Join coverage: dimensions, experiments, and reference tables do not drop or multiply important rows.
+- 新鲜度：分析说明了或能够恢复数据的“截至”日期。
+- 完整性：没有意外的缺失分区、分段、行或类别。
+- 空值处理：关键列具有预期的空值率或明确的处理方式。
+- 去重：主要实体没有被重复计数。
+- 过滤核验：过滤器和 WHERE 子句没有悄悄排除目标人群。
+- Join 覆盖：维度、实验和参考表没有丢弃或放大重要行。
 
-### Calculation Checks
+### 计算检查
 
-- Grain: the aggregation level matches the intended analysis grain.
-- Denominators: rates and percentages use the correct population and non-zero denominators.
-- Period alignment: comparisons use equal or explicitly caveated windows.
-- Weighted metrics: averages are weighted correctly when group sizes differ.
-- Subtotals: parts add to totals where categories are mutually exclusive.
-- Units: currency, token, user, request, account, day/week/month, and timezone units are consistent.
+- 粒度：聚合层级与预期的分析粒度匹配。
+- 分母：比率和百分比使用正确的人群和非零分母。
+- 期间对齐：对比使用等长窗口，或明确说明注意事项。
+- 加权指标：组大小不同时，平均值加权正确。
+- 小计：类别互斥时，各部分加总为合计。
+- 单位：币种、token、用户、请求、账户、日/周/月以及时区单位保持一致。
 
-### Reasonableness Checks
+### 合理性检查
 
-- Magnitudes are plausible relative to known dashboards, historical reports, or expected product scale.
-- Percentages fall in expected ranges and segment shares sum to about 100% where expected.
-- Trend jumps, drops, flatlines, exact round numbers, and 0% or 100% rates have an explanation.
-- Results do not perfectly confirm the hypothesis without friction or exceptions.
-- Edge cases such as empty segments, new entities, and boundary dates behave sensibly.
+- 量级相对于已知仪表盘、历史报告或预期产品规模是合理的。
+- 百分比落在预期区间内，分段占比在预期处合计约为 100%。
+- 趋势的突增、下跌、走平、恰好整数以及 0% 或 100% 的比率都有解释。
+- 结果没有毫无摩擦或例外地完美印证假设。
+- 空分段、新实体和边界日期等边缘情况表现合理。
 
-### Common Pitfalls
+### 常见陷阱
 
-- Join explosion: many-to-many joins silently multiply rows and inflate counts or sums. Compare row counts and distinct primary entities before and after the join, and check whether the right-hand table has multiple rows per join key.
-  Aggregate the right-hand table to the intended grain before joining when needed, use `COUNT(DISTINCT primary_id)` when counting entities through joins,
-  and comment intentional one-to-many joins.
-- Survivorship bias: the analysis only includes entities that exist today and misses deleted, churned, failed, or otherwise absent entities. Ask who is not in the dataset and whether the missing population changes the conclusion.
-- Incomplete period comparison: a partial period is compared with a complete period. Use complete periods, compare the same number of elapsed days, or label the partial-period caveat prominently.
-- Denominator shifting: the eligible population changes between periods or segments. Validate that conversion, churn, activation, attach, and retention rates use stable definitions across compared groups.
-- Average of averages: pre-computed averages are averaged without weighting for group size. Aggregate from raw numerators and denominators or use a weighted average.
-- Timezone mismatch: sources use different timestamp conventions or daily cutoffs. Confirm the analysis standardizes timestamps or explicitly states the timezone and cutoff.
-- Selection bias in segmentation: segments are defined by the outcome being measured. Define comparison groups by pre-treatment characteristics when making lift, causality, or behavior-difference claims.
-- Other statistical traps: Simpson's paradox where aggregate and segment-level trends conflict, correlation presented as causation, small samples,
-  outlier-dominated averages that need medians or distribution views, multiple testing, cherry-picked time ranges, and look-ahead bias.
+- Join 膨胀：多对多 join 会悄悄放大行数并虚增计数或求和。比较 join 前后的行数和不重复主要实体，并检查右表是否每个 join 键有多行。需要时先将右表聚合到预期粒度再 join，通过 join 统计实体时使用 `COUNT(DISTINCT primary_id)`，并对有意的一对多 join 加注释。
+- 幸存者偏差：分析只包含今天仍存在的实体，遗漏了被删除、流失、失败或其他缺失的实体。问清楚谁不在数据集中，以及缺失的人群是否会改变结论。
+- 不完整的期间对比：用部分周期与完整周期比较。使用完整周期、比较相同已过天数，或醒目地标注部分周期的注意事项。
+- 分母漂移：合格人群在期间或分段之间发生变化。核实转化率、流失率、激活率、附加率和留存率在比较组之间使用稳定的定义。
+- 平均值的平均值：对预先计算的平均值求平均时未按组大小加权。从原始分子和分母聚合，或使用加权平均。
+- 时区不匹配：来源使用不同的时间戳约定或每日截止时间。确认分析统一了时间戳，或明确说明时区和截止时间。
+- 分段中的选择偏差：分段由正在度量的结果来定义。在提出提升、因果或行为差异主张时，用处理前特征定义对比组。
+- 其他统计陷阱：汇总与分段层面趋势冲突的辛普森悖论、把相关当作因果、小样本、需要中位数或分布视图的离群值主导平均值、多重检验、挑选时间范围，以及前视偏差。
 
-### Spot-Check Recipes
+### 抽查方法
 
-- Recompute a key metric from raw numerators and denominators.
-- Trace a few individual records through joins, filters, and final output.
-- Reconcile a key total against a trusted dashboard, prior report, or finance source.
-- Reverse engineer a headline number from component metrics, such as users times per-user revenue.
-- Run a one-day, one-segment, or one-entity boundary check to make sure filters and joins behave sensibly.
-- Compare the same metric through an alternate query path when a claim is surprising or high stakes.
+- 从原始分子和分母重算关键指标。
+- 通过 join、过滤器和最终输出追踪几条单独记录。
+- 将关键合计与可信仪表盘、既往报告或财务来源对账。
+- 从组成指标反推头条数字，例如用户数乘以每用户收入。
+- 运行一天、一个分段或一个实体的边界检查，确保过滤器和 join 行为合理。
+- 当主张出人意料或高风险时，通过另一条查询路径比较同一指标。
 
-### Visualization Checks
+### 可视化检查
 
-- Bar charts should generally start at zero; waterfall, bridge, variance, and other delta-focused charts may use a non-zero or narrowed value axis when zero would materially compress the intended movement, provided exact values, units, and the focused scale are clear.
-- Comparison charts should use consistent scales unless the scale difference is explicit and justified.
-- Axes, units, legends, and date ranges should be labeled.
-- Category ordering should match the comparison the reader should make.
-- Truncated axes, dual axes, 3D effects, and inconsistent intervals require explicit justification or redesign.
-- Chart titles and annotations should match exactly what the data supports.
-- Titles should state the finding and include date range or scope when needed.
-- Caveats should be visible near the claims they qualify.
-- Number formatting should use appropriate precision and units.
-- Rendered artifacts should be checked in their final form when available, not only in source form.
+- 柱状图通常应从零开始；瀑布图、桥图、方差图和其他聚焦增量的图表，在零会实质性压缩所展示变化时，可以使用非零或收窄的值轴，前提是精确值、单位和聚焦刻度都清晰。
+- 对比图表应使用一致的刻度，除非刻度差异是明确且有理由的。
+- 坐标轴、单位、图例和日期范围都应标注。
+- 类别排序应与读者应做的对比一致。
+- 截断坐标轴、双坐标轴、3D 效果和不一致的间隔需要明确的理由或重新设计。
+- 图表标题和注释应与数据实际支持的内容完全一致。
+- 标题应陈述发现，并在需要时包含日期范围或范围。
+- 注意事项应在其限定的主张附近可见。
+- 数字格式应使用合适的精度和单位。
+- 可用时，应在最终形态下检查已渲染产物，而不仅是源形态。
 
-### Confidence Ratings
+### 置信度评级
 
-- `Ready to share`: The analysis is methodologically sound, key calculations are verified or low risk, caveats are clear, and any remaining issues are minor.
-- `Share with caveats`: The analysis is directionally usable, but specific assumptions, limitations, or unverified checks must be communicated to stakeholders.
-- `Needs revision`: There are material errors, unsupported claims, missing checks, or methodological issues that should be fixed before sharing.
+- `Ready to share`：分析在方法论上站得住脚，关键计算已核验或风险低，注意事项清晰，其余问题都是轻微的。
+- `Share with caveats`：分析在方向上可用，但特定的假设、局限或未核验的检查必须传达给利益相关方。
+- `Needs revision`：存在实质性错误、无支撑的主张、缺失的检查或方法论问题，应在分享前修复。
 
-### Output Standards
+### 输出标准
 
-Use this structure unless the user asks for a lighter review:
+除非用户要求更轻量的评审，使用以下结构：
 
 ```markdown
 ## Validation Report
@@ -181,9 +160,9 @@ Use this structure unless the user asks for a lighter review:
 - [Caveat that must be communicated]
 ```
 
-- Include the question being answered, data sources and "as of" date, metric and segment definitions, time period and timezone, methodology steps, assumptions and limitations, SQL queries, notebook paths, spreadsheet tabs, dashboard links, or caveats required before acting when those details are relevant.
-- Preserve source references from the original artifact, including links, query IDs, notebook paths, spreadsheet tabs, dashboard URLs, cited documents, and other evidence needed to trace the analysis.
-- Verify that every section requested by the user or implied by the deliverable format is present; explain omitted sections.
-- Keep issues prioritized by decision impact, not by artifact section order.
-- Make unverified claims and remaining caveats explicit.
-- List incomplete handoff blockers separately from caveats and suggested improvements.
+- 在相关时，包含正在回答的问题、数据源与“截至”日期、指标和分段定义、时间段与时区、方法论步骤、假设与局限、SQL 查询、笔记本路径、电子表格页签、仪表盘链接，或行动前必需的注意事项。
+- 保留原始产物中的来源引用，包括链接、查询 ID、笔记本路径、电子表格页签、仪表盘 URL、被引文档，以及追溯分析所需的其他证据。
+- 核实用户要求的、或交付物格式隐含的每个章节都存在；对省略的章节作出解释。
+- 按决策影响而非产物章节顺序排列问题优先级。
+- 明确写出未核验的主张和剩余注意事项。
+- 将不完整的交接阻塞项与注意事项和建议改进分开列出。

@@ -1,39 +1,38 @@
 ---
 name: image-to-code
-description: "Implement a selected image, screenshot, mockup, generated concept, or design frame as a faithful, responsive, interactive frontend in the target codebase."
+description: "将选定的图片、截图、mockup、生成概念或设计画板实现为目标代码库中忠实、响应式、可交互的前端。 | Trigger keywords: image to code, implement design, responsive frontend, screenshot to UI."
 ---
 
-# Image to Code
+# 图像转代码
 
-Translate a selected visual target into a high-quality frontend. Read `../index/SKILL.md`, `../../references/critical-overrides.md`, and the relevant saved context from `../user-context/SKILL.md` before building.
+将选定的视觉目标转化为高质量前端。构建前阅读 `../index/SKILL.md`、`../../references/critical-overrides.md`，以及 `../user-context/SKILL.md` 中相关的已保存上下文。
 
-## Preconditions
+## 前置条件
 
-- Require an unambiguous selected image, screenshot, mockup, generated result, or design frame. A written brief alone is not a visual target; route to ideation first when appropriate.
-- Resolve which image is selected before editing. Ask when an ordinal or attachment is ambiguous.
-- Use only the current task's relevant product context, tokens, components, assets, and references.
+- 需要明确无歧义的选定图片、截图、mockup、生成结果或设计画板。仅书面简报不构成视觉目标；在适当时先路由到构思。
+- 编辑前确定所选图片。当序数或附件含糊时询问。
+- 仅使用当前任务相关的产品上下文、tokens、组件、资源与参考。
 
-## Workflow
+## 工作流
 
-1. Inspect the source visual at useful detail and record its viewport, layout regions, hierarchy, spacing, typography, colors, borders, radii, shadows, imagery, icons, responsive behavior, and visible states.
-2. Inventory every required asset. Reuse supplied or repository assets when they match. Use an available image-generation tool for custom raster imagery and an appropriate existing icon set for UI icons. Do not substitute emoji, generic placeholders, or improvised CSS drawings for meaningful visual assets.
-3. Inspect the target repository and use its existing framework, package manager, component system, design tokens, and conventions. React is not required. Do not replace an established stack merely to match this workflow.
-4. If no target app exists, create the smallest runnable frontend supported by the harness and suited to the request; plain HTML/CSS/JavaScript is acceptable.
-5. Implement the full visible structure and the primary user journey. Unless requested otherwise, make navigation, tabs, menus, forms, toggles, selections, and main calls to action behave realistically without inventing backend systems.
-6. Match desktop or mobile based on the source. When the source is a phone UI and no device is named, verify around 390 × 844 as well as any relevant responsive behavior.
-7. Run the real app using its normal development or preview command.
-8. Capture the implementation using the browser tool selected by `../index/SKILL.md` and run `../design-qa/SKILL.md` against the source visual.
-9. Fix all blocking and high-impact mismatches. Save `design-qa.md` in the project root and hand off only when it records `final result: passed`, or clearly report a genuine capture/verification blocker.
+1. 以有用的细节检查来源视觉，记录其视口、布局区域、层级、间距、排版、颜色、边框、圆角、阴影、图像、图标、响应式行为与可见状态。
+2. 清点每个必需的资源。匹配时复用提供的或仓库中的资源。自定义栅格图像使用可用的图像生成工具，UI 图标使用合适的现有图标集。不要用 emoji、通用占位符或即兴 CSS 绘制替代有意义的视觉资源。
+3. 检查目标仓库，使用其现有框架、包管理器、组件系统、设计 tokens 与约定。不要求使用 React。不要仅为符合本工作流而替换既有技术栈。
+4. 如果不存在目标应用，创建运行框架支持且适合该请求的最小可运行前端；纯 HTML/CSS/JavaScript 亦可。
+5. 实现完整的可见结构与主要用户旅程。除非另有要求，让导航、标签页、菜单、表单、开关、选择与主要行动号召真实地工作，但不要凭空发明后端系统。
+6. 根据来源匹配桌面端或移动端。当来源是手机 UI 且未指定设备时，在约 390 × 844 以及任何相关响应式行为下进行验证。
+7. 使用其常规开发或预览命令运行真实应用。
+8. 使用 `../index/SKILL.md` 选定的浏览器工具捕获实现，并针对来源视觉运行 `../design-qa/SKILL.md`。
+9. 修复所有阻塞性与高影响的不匹配。将 `design-qa.md` 保存在项目根目录，仅当其记录 `final result: passed` 时才交接，或明确报告真实的捕获/验证阻塞项。
 
-## Fidelity rules
+## 保真规则
 
-- Treat the selected visual as the design target; do not introduce unrelated redesign ideas.
-- Match the same viewport and interaction state during visual comparison.
-- Place real assets before final QA and avoid hotlinking third-party source assets in the finished app.
-- Keep the implementation maintainable within the target repository's patterns.
-- Do not claim verification from build success or an HTTP status alone; inspect the rendered result and primary interactions.
+- 将选定视觉视为设计目标；不要引入无关的改版想法。
+- 视觉对比时匹配相同的视口与交互状态。
+- 在最终 QA 前放置真实资源，避免在成品应用中热链第三方源资源。
+- 使实现符合目标仓库的模式并保持可维护。
+- 不要仅凭构建成功或 HTTP 状态声称已验证；检查渲染结果与主要交互。
 
-## Handoff
+## 交接
 
-Provide the runnable project or changed files, the local preview information when useful, and a concise summary of what was implemented, verified, and left as a limitation. Publish only when the user asks and the host exposes an authorized deployment tool.
-
+提供可运行的项目或更改的文件、有用的本地预览信息，以及关于实现了什么、验证了什么、留下了哪些限制的简洁总结。仅当用户要求且宿主提供已授权的部署工具时才发布。

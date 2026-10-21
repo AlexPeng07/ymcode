@@ -1,2 +1,1 @@
-Session checkpoints (`sessions/<sid>/checkpoint.md`) written by the
-checkpoint-writer subagent are also indexed.
+由 checkpoint-writer 子代理写入的会话检查点（`sessions/<sid>/checkpoint.md`）也会被索引。

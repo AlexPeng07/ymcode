@@ -1,162 +1,126 @@
 ---
 name: analyze-data-quality
-description: "Assess whether structured data, query results, dashboards, or analytical evidence are trustworthy enough to use. Use when the task is to check data quality, reconcile conflicting sources or metric definitions, or decide whether evidence is safe to cite."
+description: "评估结构化数据、查询结果、仪表盘或分析证据是否足够可信、可以放心使用。当任务需要检查数据质量、核对相互冲突的数据源或指标定义，或判断证据是否可安全引用时使用。 | Trigger keywords: data quality, reconcile sources, conflicting metric definitions, trustworthy data, evidence safe to cite."
 ---
 
-## Related Skills
+## 相关技能
 
-Use $design-kpis when the work is to define or redesign a KPI framework, metric definition, guardrail, or target rather than checking whether existing data is trustworthy.
+当工作是定义或重新设计 KPI 框架、指标定义、护栏或目标，而不是检查既有数据是否可信时，使用 $design-kpis。
 
-Use $validate-data when the work is to QA an analysis, chart, report, or recommendation rather than investigate the underlying data.
+当工作是对分析、图表、报告或建议做 QA，而不是排查底层数据时，使用 $validate-data。
 
-# Analyze Data Quality
+# 分析数据质量
 
-Assess whether a dataset is trustworthy enough for analysis, modeling,
-dashboards, experiments, or downstream pipelines. Start with the intended use and grain, run the highest-value checks for the data shape, and report concrete evidence, analytical risk, likely causes, and the smallest useful remediation or automated test.
+评估数据集是否足够可信，可用于分析、建模、仪表盘、实验或下游管道。从预期用途和粒度入手，针对数据形态执行价值最高的检查，并报告具体证据、分析风险、可能原因，以及最小可用的修复措施或自动化测试。
 
-## Workflow
+## 工作流
 
-1. Clarify the quality question and operating context.
+1. 澄清质量问题和运行背景。
 
-   Establish what the dataset represents, the intended unit of analysis, the downstream use, whether the user cares about raw ingestion quality,
-   transformed-model quality, or both, and the comparison baseline such as prior weeks, prior schema, or a trusted reference table. Identify expected grain,
-   primary keys or candidate keys, important date columns, timezone assumptions,
-   domain rules, allowed values, and business thresholds. If context is missing,
-   infer cautiously and label assumptions.
+   明确数据集代表什么、预期的分析单元、下游用途、用户关心的是原始摄入质量还是转换后的模型质量（或两者兼有），以及对照基准，例如前几周、此前的 schema 或可信的参考表。确定预期的粒度、主键或候选键、重要的日期列、时区假设、领域规则、允许值以及业务阈值。如果缺少上下文，谨慎推断并标注假设。
 
-2. Choose an inspectable analysis path.
+2. 选择可检查的分析路径。
 
-   When checks require SQL or Python, default to a companion notebook so the user can inspect the exact code behind the findings. Use $jupyter-notebooks when a dedicated notebook scaffold or refactor workflow would help. For queryable tables, use `~~structured_data` to confirm schema, grain, sample rows, and query rules through the relevant source connector before heavier checks. Use `~~operations_logs` for freshness and lineage when those checks matter.
+   当检查需要 SQL 或 Python 时，默认提供配套笔记本，使用户能够查看发现背后的确切代码。当专门的笔记本脚手架或重构工作流有帮助时，使用 $jupyter-notebooks。对于可查询的表，在执行更重的检查之前，先通过相关数据源连接器使用 `~~structured_data` 确认 schema、粒度、样例行与查询规则。当新鲜度和血缘相关时，使用 `~~operations_logs`。
 
-3. Build a compact profile.
+3. 构建精简的数据画像。
 
-   Start with row count, column count, column names and types, candidate keys,
-   duplicate rates on likely identifiers, min/max timestamps for relevant date columns, null rates, distinct counts for likely categorical columns, and basic numeric summaries for measure columns. Confirm grain before interpreting anomalies; many apparent quality problems are mixed-grain data,
-   partial backfills, late-arriving data, or duplicated joins.
+   从行数、列数、列名与类型、候选键、疑似标识符上的重复率、相关日期列的最小/最大时间戳、空值率、疑似分类列的基数，以及度量列的基本数值摘要开始。在解释异常之前先确认粒度；许多看似质量问题的情况其实是混合粒度数据、部分回填、迟到数据或重复 join。
 
-4. Run core quality checks.
+4. 执行核心质量检查。
 
-   Select checks that match the dataset and task. Default to the most relevant checks across completeness, uniqueness, validity, consistency, integrity,
-   timeliness, volume, and shape. Compare rates, not just counts, and segment by time, source, country, platform, model version, or other key dimensions when that helps distinguish real issues from expected variation.
+   选择与数据集和任务匹配的检查。默认从完整性、唯一性、有效性、一致性、完整性约束、及时性、数据量与形态中挑选最相关的检查。比较比率而不仅是计数，并在有助于区分真实问题与预期波动时，按时间、来源、国家、平台、模型版本或其他关键维度分段。
 
-5. Run shape-specific checks.
+5. 执行针对数据形态的检查。
 
-   Adapt the checks to the data shape:
+   根据数据形态调整检查内容：
 
-   - Event data: duplicate event IDs, future event timestamps, session or user
-     coverage gaps, and abrupt event-mix changes after releases.
-   - Dimension tables: non-unique business keys, orphan surrogate keys, status
-     changes without corresponding timestamps, and unexpected churn in reference
-     values.
-   - Fact tables: mixed grain, impossible measures such as negative revenue or
-     quantity, join blowups to dimensions, and late-arriving or partially loaded
-     partitions.
-   - ML feature or scoring tables: leakage from post-outcome fields, feature
-     sparsity spikes, range shifts after model or feature-store changes, and
-     class-label drift.
-   - Experiment data: duplicate assignments, variant imbalance beyond
-     expectation, exposure without assignment, and events before assignment
-     timestamp.
+   - 事件数据：重复的事件 ID、未来事件时间戳、会话或用户覆盖缺口，以及发布后事件构成突然变化。
+   - 维度表：业务键不唯一、孤立的代理键、缺少对应时间戳的状态变更，以及参考值中出现意外的流失。
+   - 事实表：混合粒度、不可能的度量（例如负收入或负数量）、与维度 join 导致的膨胀，以及迟到或部分加载的分区。
+   - 机器学习特征表或评分表：结果字段造成的信息泄漏、特征稀疏度突增、模型或特征存储变更后的取值范围漂移，以及类别标签漂移。
+   - 实验数据：重复分组、超出预期比例的变体不平衡、有曝光但无分组，以及早于分组时间戳的事件。
 
-6. Run temporal and distribution checks when history exists.
+6. 当存在历史数据时执行时间与分布检查。
 
-   Prioritize temporal diagnostics when the user mentions "after X date",
-   "suddenly", "recently", or "only started appearing". Check first-seen dates,
-   last-seen dates, daily or weekly null-rate trends, duplicate-rate trends, row count trends, category-share shifts, distribution drift, and change points around launches, migrations, incidents, model changes, or backfills.
+   当用户提到“某日期之后”“突然”“最近”或“才开始出现”时，优先做时间维度诊断。检查首次出现日期、最后出现日期、按日或按周的空值率趋势、重复率趋势、行数趋势、类别占比变化、分布漂移，以及发布、迁移、故障、模型变更或回填前后的变点。
 
-7. Investigate analytical risks and likely causes.
+7. 排查分析风险与可能原因。
 
-   Tie each issue to the downstream risk: broken trusted analysis, biased decisions, broken joins, stale dashboards, incorrect experiments, leakage,
-   unreliable model features, or misleading segments. When possible, identify whether the issue is isolated to a source, segment, partition, time window,
-   release, migration, backfill, or upstream pipeline change.
+   将每个问题关联到下游风险：可信分析被破坏、决策产生偏差、join 失效、仪表盘过期、实验结论错误、信息泄漏、模型特征不可靠或细分结论误导。尽可能判断问题是否局限于某个数据源、分段、分区、时间窗口、版本发布、迁移、回填或上游管道变更。
 
-8. Recommend fixes or automated tests.
+8. 建议修复措施或自动化测试。
 
-   Recommend the smallest set of follow-up fixes, monitoring, or automated tests that would materially reduce risk. Suggest automation only when the rule is stable and worth maintaining. Include or save the notebook/query path when code produced the findings.
+   建议能够实质性降低风险的最小一组后续修复、监控或自动化测试。仅当规则稳定且值得维护时才建议自动化。如果发现是由代码产生的，附上或保存相关笔记本/查询路径。
 
-## Standards
+## 标准
 
-### Core Checks
+### 核心检查
 
-- Completeness: null rate by column; null rate by partition, segment, and time bucket; unexpected empty strings or sentinel values; required-column population rate.
-- Uniqueness: exact duplicate rows, duplicate primary keys, duplicate composite keys, and proportion unique for semi-unique fields such as emails or device IDs.
-- Validity: type conformance after casting; format checks for IDs, emails, URLs,
-  enums, country codes, and timestamps; range checks for measures, percentages,
-  counts, and dates; allowed-values checks for controlled vocabularies.
-- Consistency: cross-field rule checks, units or currency consistency, status and timestamp alignment, and agreement between duplicated fields from different sources.
-- Integrity: parent-child key coverage, orphan records, unexpected many-to-many joins, and broken slowly changing dimension joins.
-- Timeliness: freshness lag from source event time to load time, freshness lag from load time to report time, missing recent partitions, and unexplained historical rewrites or backfills.
-- Volume and shape: row-count drift, distinct-count drift, distribution drift,
-  share-of-total drift for major categories, and new or disappeared categories.
+- 完整性：按列统计空值率；按分区、分段和时间桶统计空值率；意外的空字符串或哨兵值；必填列的填充率。
+- 唯一性：完全重复行、重复主键、重复复合键，以及半唯一字段（如邮箱或设备 ID）的唯一占比。
+- 有效性：类型转换后的类型一致性；ID、邮箱、URL、枚举、国家代码和时间戳的格式检查；度量、百分比、计数和日期的范围检查；受控词表的允许值检查。
+- 一致性：跨字段规则检查、单位或币种一致性、状态与时间戳的对齐，以及来自不同数据源的重复字段之间的一致性。
+- 完整性约束：父子键覆盖、孤立记录、意外的多对多 join，以及缓慢变化维度 join 断裂。
+- 及时性：从源事件时间到加载时间的新鲜度滞后、从加载时间到报表时间的新鲜度滞后、近端分区缺失，以及无解释的历史重写或回填。
+- 数据量与形态：行数漂移、基数漂移、分布漂移、主要类别的占比漂移，以及新增或消失的类别。
 
-### Specific Check Guidance
+### 具体检查指引
 
-- Duplicates and keys: check exact duplicates, primary key duplicates, composite key duplicates at the intended grain, and near-duplicates caused by whitespace,
-  casing, formatting, or late updates. Report count, share of affected rows,
-  duplicated keys, and whether duplication is isolated to a time range, source,
-  or segment.
-- Missingness: distinguish acceptable sparsity from broken completeness. Check null rates over time, newly null columns after schema or pipeline changes, and sentinel values such as `''`, `'unknown'`, `'n/a'`, `0`, or `-1`.
-- Domain validity: check malformed identifiers, country codes, timestamps,
-  impossible values, values outside allowed sets, and cross-field contradictions such as `is_cancelled = false` with a non-null `cancelled_at`.
-- Join coverage: when multiple datasets are involved, check foreign keys that do not match a parent table, unexpected one-to-many expansion, coverage loss when joining to dimensions or experiments, and row counts before and after joins.
-- Freshness and schema drift: check row-count changes against recent history,
-  lag on important date columns, added/removed/retyped columns, and shifts in sparsity or cardinality that suggest upstream changes.
-- Outliers and distribution shifts: use robust methods such as quantiles, MAD,
-  or IQR before defaulting to z-scores. Check sudden changes in mean, median,
-  variance, zero rate, category share, and long-tail behavior.
-- Leakage, backfill, and time travel: check features populated before they should exist, future-dated records, late-arriving data causing unstable recent partitions, and backfills that change historical counts without annotation.
+- 重复与键：在预期粒度上检查完全重复、主键重复、复合键重复，以及由空白、大小写、格式或迟到更新造成的近似重复。报告数量、受影响行的占比、重复的键，以及重复是否局限于某个时间范围、数据源或分段。
+- 缺失：区分可接受的稀疏与完整性破损。检查随时间变化的空值率、schema 或管道变更后新出现的空值列，以及 `''`、`'unknown'`、`'n/a'`、`0` 或 `-1` 之类的哨兵值。
+- 领域有效性：检查格式错误的标识符、国家代码、时间戳、不可能的值、超出允许集合的值，以及跨字段矛盾，例如 `is_cancelled = false` 但 `cancelled_at` 非空。
+- Join 覆盖：当涉及多个数据集时，检查无法匹配父表的外键、意外的一对多膨胀、与维度或实验表 join 时的覆盖损失，以及 join 前后的行数。
+- 新鲜度与 schema 漂移：对照近期历史检查行数变化、重要日期列的滞后、新增/删除/改类型的列，以及暗示上游变化的稀疏度或基数变化。
+- 离群值与分布漂移：在默认使用 z-score 之前，先使用分位数、MAD 或 IQR 等稳健方法。检查均值、中位数、方差、零值率、类别占比和长尾行为的突变。
+- 泄漏、回填与时间穿越：检查本不应存在时已被填充的特征、未来日期的记录、导致近端分区不稳定的迟到数据，以及未经标注就改变历史计数的回填。
 
-### Severity
+### 严重程度
 
-- Critical: breaks trusted analysis, core joins, production dashboards, or key decisions, such as duplicated grain, missing primary keys, or stale production data.
-- High: materially biases downstream decisions, such as large null spikes,
-  category drift in a core dimension, invalid business-rule values, leakage, or severe join coverage loss.
-- Medium: localized or explainable issues that still need documentation,
-  monitoring, or owner follow-up.
-- Low: cosmetic inconsistencies, expected sparsity, or known edge cases that do not materially affect current use.
+- 严重：破坏可信分析、核心 join、生产仪表盘或关键决策，例如粒度重复、主键缺失或生产数据过期。
+- 高：实质性影响下游决策的偏差，例如大规模空值激增、核心维度中的类别漂移、违反业务规则的值、信息泄漏，或严重的 join 覆盖损失。
+- 中：局部性或可解释的问题，但仍需记录、监控或由负责人跟进。
+- 低：不影响当前使用的观感不一致、预期内的稀疏，或已知的边缘情况。
 
-Do not dump raw profiling output without interpretation. Tie each finding to an analytical risk and likely impact.
+不要不加解读地倾倒原始画像输出。将每项发现关联到分析风险与可能影响。
 
-### Automated Test Guidance
+### 自动化测试指引
 
-- Good candidates for automation: primary key uniqueness, not-null checks on required columns, accepted values for stable enums, referential integrity,
-  freshness thresholds, and seasonality-aware row-count or volume bounds.
-- Use caution with hard-coded distribution thresholds on volatile product metrics, strict uniqueness in messy entity-resolution use cases, and recent partitions when late-arriving data is normal.
-- Suggest automated tests only when the expected rule is stable, important, and maintainable.
+- 适合自动化的候选：主键唯一性、必填列的非空检查、稳定枚举的允许值、引用完整性、新鲜度阈值，以及考虑季节性的行数或数据量边界。
+- 谨慎处理：易波动的产品指标上硬编码的分布阈值、脏乱的实体解析场景中的严格唯一性，以及迟到数据属常态时的近端分区。
+- 仅当预期规则稳定、重要且可维护时才建议自动化测试。
 
-### Output Standards
+### 输出标准
 
-For stakeholder-facing data-quality work, pass the completed findings to $build-report by default so the runtime produces a portable report in the selected format. Do not stop at profiling output or a notebook unless the user explicitly requested a quick inline answer or another primary artifact. The structure below defines the report content.
+对于面向利益相关方的数据质量工作，默认将完成的发现交给 $build-report，以便运行时以选定格式产出可移植的报告。除非用户明确要求快速的内联回答或其他主要产物，否则不要停留在画像输出或笔记本。以下结构定义了报告内容。
 
-Structure the response with:
+按以下结构组织回答：
 
-1. dataset and grain summary
-2. checks performed
-3. findings
-4. temporal or trend anomalies
-5. likely causes and impacted use cases
-6. recommended fixes or automated tests
-7. assumptions and open questions
+1. 数据集与粒度摘要
+2. 已执行的检查
+3. 发现
+4. 时间或趋势异常
+5. 可能原因与受影响的用例
+6. 建议的修复或自动化测试
+7. 假设与未决问题
 
-For each finding, include:
+对每项发现，包含：
 
-- what failed
-- evidence: counts, rates, segments, and dates
-- why it matters
-- severity and confidence level
-- likely cause when known
-- suggested remediation or automated test
+- 什么失败了
+- 证据：计数、比率、分段与日期
+- 为何重要
+- 严重程度与置信水平
+- 已知的可能原因
+- 建议的修复或自动化测试
 
-When code was used, include or save a notebook containing the key SQL and Python checks and make the notebook path easy to find.
+当使用了代码时，附上或保存包含关键 SQL 与 Python 检查的笔记本，并让笔记本路径易于找到。
 
-### Defaults
+### 默认做法
 
-- Prefer small, high-signal tables over exhaustive dumps.
-- Compare rates, not just counts.
-- Break checks out by time and key segments whenever possible.
-- Normalize strings before judging duplicates or distinct-count spikes.
-- Treat recent partitions carefully when data arrives late.
-- Call out when an anomaly could be caused by a legitimate product launch,
-  experiment, migration, incident, model change, or backfill.
-- Preserve inspectable evidence: SQL, query links, notebook paths, source paths,
-  sample rows, chart outputs, and calculation notes.
+- 优先使用小而高信号的表，而不是详尽的转储。
+- 比较比率，而不只是计数。
+- 尽可能按时间和关键分段拆分检查。
+- 在判断重复或基数激增之前先规范化字符串。
+- 数据迟到时要谨慎对待近端分区。
+- 当异常可能来自正当的产品发布、实验、迁移、故障、模型变更或回填时，要明确指出。
+- 保留可检查的证据：SQL、查询链接、笔记本路径、数据源路径、样例行、图表输出和计算说明。

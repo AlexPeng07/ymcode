@@ -1,24 +1,24 @@
-# ymcode Usage Guide
+# ymcode 使用指南
 
-How-to for the features users most often ask about. For config keys see @config.md; for permissions see @permissions.md; for commands see @commands.md.
+针对用户最常询问功能的操作说明。配置键见 @config.md；权限见 @permissions.md；命令见 @commands.md。
 
-## Getting started & auth
+## 快速开始与认证
 
-1. **Sign in** — `mimo account login <url>` runs a device flow: it prints a URL + code and opens your browser. `/connect` does the same from inside the TUI (e.g. to add OpenRouter). OAuth logins are available for Xiaomi MiMo, Codex (ChatGPT Pro/Plus), and xAI (Grok); Claude Code auth can be imported from `~/.claude/settings*.json`. Other account subcommands: `logout`, `switch`, `orgs`, `open`, `console`.
-2. **Pick a model** — set `"model": "provider/model"` in config, or switch live in the TUI model dialog. Provider API keys are auto-detected from environment variables (unless `YMCODE_MIMO_ONLY=1`).
-3. **List what's available** — `ymcode models`, `mimo providers`.
+1. **登录** —— `mimo account login <url>` 执行设备流：打印 URL + 验证码并打开浏览器。`/connect` 可在 TUI 内完成同样操作（例如添加 OpenRouter）。小米 MiMo、Codex（ChatGPT Pro/Plus）与 xAI（Grok）支持 OAuth 登录；Claude Code 认证可从 `~/.claude/settings*.json` 导入。其他账户子命令：`logout`、`switch`、`orgs`、`open`、`console`。
+2. **选择模型** —— 在配置中设置 `"model": "provider/model"`，或在 TUI 模型对话框中实时切换。提供方 API key 会从环境变量自动探测（除非 `YMCODE_MIMO_ONLY=1`）。
+3. **列出可用内容** —— `ymcode models`、`mimo providers`。
 
-For a custom base URL, API key, or OpenAI-/Anthropic-compatible model, read @providers.md before editing config; it covers protocol selection, adapter names, provider reuse, secret handling, and local verification.
+对于自定义 base URL、API key 或 OpenAI/Anthropic 兼容模型，编辑配置前请阅读 @providers.md；它涵盖协议选择、适配器名称、提供方复用、密钥处理与本地验证。
 
-## TUI rendering, lag & remote use
+## TUI 渲染、卡顿与远程使用
 
-**macOS default terminal** — ymcode does not support the built-in Terminal.app. For misaligned output, flicker, or other rendering problems, use the VS Code integrated terminal or install iTerm2:
+**macOS 默认终端** —— ymcode 不支持内置的 Terminal.app。若出现输出错位、闪烁或其他渲染问题，请使用 VS Code 集成终端或安装 iTerm2：
 
 ```bash
 brew install --cask iterm2
 ```
 
-**SSH rendering** — if running the TUI directly over SSH is slow, render it locally and run only the server from the remote project directory:
+**SSH 渲染** —— 如果直接通过 SSH 运行 TUI 很慢，可在本地渲染，只在远程项目目录运行服务器：
 
 ```bash
 # Remote host
@@ -31,23 +31,23 @@ ssh -N -L 4096:127.0.0.1:4096 user@remote-host
 ymcode attach http://127.0.0.1:4096
 ```
 
-**Decorative animation** — run `/vivid`, or configure the visual-mode option in `ctrl+p`, to switch between Vivid and Minimal visuals as needed. The separate animation override can stop high-frequency motion without changing the selected visual mode.
+**装饰动画** —— 运行 `/vivid`，或配置 `ctrl+p` 中的视觉模式选项，按需在 Vivid 与 Minimal 视觉之间切换。独立的动画覆盖开关可以在不改变所选视觉模式的情况下停止高频运动。
 
-## Memory: making ymcode remember
+## 记忆：让 ymcode 记住
 
-Memory persists across sessions and is auto-injected on resume, so the agent doesn't relearn project context.
+记忆跨会话持久，并在恢复时自动注入，因此智能体不必重新学习项目背景。
 
-- **Project rules / architecture** — edit `MEMORY.md` (project memory). Durable rules go under `## Rules`, design decisions under `## Architecture decisions`. The agent may also write here at checkpoint time.
-- **`/dream`** — scans recent session traces, promotes durable knowledge into `MEMORY.md`, and prunes stale entries. Runs automatically per `dream.interval_days` (default 7).
-- **Checkpoints** (`checkpoint.md`) are maintained *only* by the checkpoint-writer subagent — don't hand-edit them.
-- **Scratch notes** (`notes.md`) are the agent's free-form scratchpad.
-- To make a rule stick immediately without waiting for a checkpoint, just tell the agent — it can edit `MEMORY.md` directly.
+- **项目规则 / 架构** —— 编辑 `MEMORY.md`（项目记忆）。持久规则放在 `## Rules` 下，设计决策放在 `## Architecture decisions` 下。智能体也可能在检查点写入这里。
+- **`/dream`** —— 扫描近期会话轨迹，把持久知识晋升到 `MEMORY.md`，并清理陈旧条目。按 `dream.interval_days` 自动运行（默认 7 天）。
+- **检查点**（`checkpoint.md`）*只*由检查点写入子代理维护——不要手工编辑。
+- **草稿笔记**（`notes.md`）是智能体的自由草稿区。
+- 若想让某条规则立即生效而不等检查点，直接告诉智能体——它可以直接编辑 `MEMORY.md`。
 
-Tune memory behavior with `checkpoint.*`, `compaction.*`, and `memory.cc_index` (see @config.md).
+用 `checkpoint.*`、`compaction.*` 与 `memory.cc_index` 调整记忆行为（见 @config.md）。
 
-## Custom slash commands
+## 自定义斜杠命令
 
-Drop a markdown file at `.ymcode/command/<name>.md` (or `.ymcode/commands/`, `.claude/command(s)/` are also read). The frontmatter configures it; the body is the prompt template.
+把 markdown 文件放到 `.ymcode/command/<name>.md`（`.ymcode/commands/`、`.claude/command(s)/` 也会读取）。frontmatter 配置该命令；正文是提示词模板。
 
 ```markdown
 ---
@@ -59,15 +59,15 @@ subtask: false
 Review the staged diff. Focus on: $ARGUMENTS
 ```
 
-- Invoke with `/name your args here`.
-- Placeholders: `$ARGUMENTS` (all args), `$1`, `$2`, … (positional). If none are present, args are appended.
-- `agent` picks which agent runs it; `model` accepts a `provider/model` or a group name; `subtask: true` runs it as a subagent.
+- 用 `/name your args here` 调用。
+- 占位符：`$ARGUMENTS`（全部参数）、`$1`、`$2`、……（位置参数）。若都不存在，参数会被追加到末尾。
+- `agent` 选择由哪个智能体运行；`model` 接受 `provider/model` 或组名；`subtask: true` 以子代理方式运行。
 
-Commands hot-reload on the next turn.
+命令会在下一轮热重载。
 
-## Custom agents & modes (file-based system prompts)
+## 自定义智能体与模式（基于文件的系统提示词）
 
-A "mode" is just a **primary agent** with its own system prompt. To give ymcode a custom mode (e.g. a `general` chat mode alongside the coding-focused `build`), drop a markdown file — no code, no server changes. The frontmatter is config; the **markdown body becomes the agent's system prompt**.
+「模式」就是一个带自己系统提示词的**主智能体**。要给 ymcode 增加自定义模式（例如在面向编码的 `build` 之外增加一个 `general` 聊天模式），放一个 markdown 文件即可——无需代码，无需改服务器。frontmatter 是配置；**markdown 正文成为智能体的系统提示词**。
 
 ```markdown
 ---
@@ -79,40 +79,40 @@ You are "General" — a warm, concise, general-purpose assistant.
 Keep replies short unless asked to elaborate; you are not focused on coding.
 ```
 
-Where to put the file (all hot-reloaded on the next turn; `.claude/agent(s)` are also read):
+文件放置位置（均在下一轮热重载；`.claude/agent(s)` 也会读取）：
 
-| Path | Scope |
+| 路径 | 作用域 |
 |------|-------|
-| `.ymcode/agent/<name>.md` (or `agents/`) | project agent — most common |
-| `.ymcode/mode/<name>.md` (or `modes/`) | project mode — same as an agent forced to `mode: primary` |
-| `~/.config/ymcode/agent/<name>.md` | global agent, available in every project |
+| `.ymcode/agent/<name>.md`（或 `agents/`） | 项目智能体——最常见 |
+| `.ymcode/mode/<name>.md`（或 `modes/`） | 项目模式——等同于强制 `mode: primary` 的智能体 |
+| `~/.config/ymcode/agent/<name>.md` | 全局智能体，在所有项目中可用 |
 
-Frontmatter fields (all optional except that the body should be non-empty):
+frontmatter 字段（除正文应非空外均可选）：
 
-- `mode` — `primary` (selectable with `Tab`, replaces the base prompt for the session), `subagent` (spawnable by a primary via the `actor`/`task` tools), or `all`. Files under `mode/` are always primary.
-- `model` — a `provider/model` or a group name (`ultra`/`standard`/`lite`); `variant`, `temperature`, `top_p` tune generation.
-- `description` — when to use it (shown in the `@` autocomplete for subagents).
-- `permission`, `tool_allowlist`, `tools`, `steps`, `color`, `hidden` — see @config.md.
+- `mode` —— `primary`（可用 `Tab` 选择，替换该会话的基础提示词）、`subagent`（可由主智能体通过 `actor`/`task` 工具派生）或 `all`。`mode/` 下的文件始终为 primary。
+- `model` —— `provider/model` 或组名（`ultra`/`standard`/`lite`）；`variant`、`temperature`、`top_p` 调节生成。
+- `description` —— 何时使用（在子代理的 `@` 自动补全中显示）。
+- `permission`、`tool_allowlist`、`tools`、`steps`、`color`、`hidden` —— 见 @config.md。
 
-**How it reaches the model:** for a primary agent the body is used as the base system prompt in place of the model's default prompt; the usual environment/skills/instructions blocks are still appended. Selecting the mode is session-scoped — the TUI `Tab` picker or, over the SDK, the `agent` field on `session.prompt`. So a desktop/SDK client switches modes by sending `agent: "general"` vs `agent: "build"` per session; the prompt itself lives in the file, server-side.
+**它如何到达模型：** 对主智能体而言，正文被用作基础系统提示词，替代模型默认提示词；常规的环境/技能/指令块仍会追加。选择模式是会话级的——通过 TUI 的 `Tab` 选择器，或在 SDK 中通过 `session.prompt` 上的 `agent` 字段。因此桌面/SDK 客户端按会话发送 `agent: "general"` 或 `agent: "build"` 来切换模式；提示词本身在服务端文件中。
 
-Verify a file loaded with `ymcode agent list` — your agent shows up with its `(primary)` / `(subagent)` mode.
+用 `ymcode agent list` 验证文件是否加载——你的智能体会带着 `(primary)` / `(subagent)` 模式出现。
 
-Config-file alternative: instead of a `.md` file you can inline an agent under the `agent` config key (`agent.<name>.prompt`, plus `model`, `mode`, …); the markdown form is preferred for anything beyond a couple of lines.
+配置文件的替代方式：除了 `.md` 文件，也可以把智能体内联在 `agent` 配置键下（`agent.<name>.prompt`，外加 `model`、`mode`、……）；超过几行的内容仍首选 markdown 形式。
 
-## Keybinds
+## 快捷键
 
-All TUI keybinds are remappable under the `keybinds` config. The leader key defaults to `ctrl+x`, so `<leader>` in a binding means "press ctrl+x then …".
+所有 TUI 快捷键都可以在 `keybinds` 配置下重映射。leader 键默认是 `ctrl+x`，因此绑定中的 `<leader>` 表示「先按 ctrl+x，再按……」 。
 
-Common defaults: `Tab` cycle agents · `<leader>n` new session · `<leader>l` list sessions · `<leader>e` open external editor · `<leader>t` themes · `<leader>b` toggle sidebar · `ctrl+r` rename session. Set a binding to `"none"` to disable it.
+常用默认值：`Tab` 循环切换智能体 · `<leader>n` 新会话 · `<leader>l` 列出会话 · `<leader>e` 打开外部编辑器 · `<leader>t` 主题 · `<leader>b` 切换侧栏 · `ctrl+r` 重命名会话。把绑定设为 `"none"` 可禁用它。
 
 ```jsonc
 { "keybinds": { "session_new": "<leader>c", "sidebar_toggle": "none" } }
 ```
 
-## MCP servers
+## MCP 服务器
 
-Add servers under the `mcp` key. Two kinds:
+在 `mcp` 键下添加服务器。两种类型：
 
 ```jsonc
 {
@@ -127,45 +127,45 @@ Add servers under the `mcp` key. Two kinds:
 }
 ```
 
-Inspect/manage with `mimo mcp`. Request timeout defaults to 5000ms (`timeout` per server, or `experimental.mcp_timeout` globally).
+用 `mimo mcp` 查看/管理。请求超时默认 5000ms（逐服务器 `timeout`，或全局 `experimental.mcp_timeout`）。
 
-## Compose mode
+## Compose 模式
 
-Use the `compose-next` skill for end-to-end feature delivery:
+端到端功能交付使用 `compose-next` 技能：
 
-- **`compose-next`** — one self-contained skill covering grill → workspace → spec → implement → verify → review → finalize → finish, with feature documents at `docs/compose/spec/<feature>.md` under the workspace root. Do not combine it with plan mode.
+- **`compose-next`** —— 一个自包含技能，覆盖 质询 → 工作区 → 规格 → 实现 → 验证 → 审查 → 定稿 → 收尾，功能文档位于工作区根目录的 `docs/compose/spec/<feature>.md`。不要与 plan 模式组合使用。
 
-Artifacts land under `docs/compose/spec/` by default.
+产物默认落在 `docs/compose/spec/` 下。
 
-For well-defined tasks that split into independent subtasks, prefer a deterministic **workflow** (fire-and-forget, auto-parallelized) — see @workflows.md.
+对于可拆分为独立子任务、定义明确的任务，优先使用确定性的**工作流**（发射后不管、自动并行化）——见 @workflows.md。
 
-## Jupyter notebooks
+## Jupyter notebook
 
-The `notebook-edit` tool edits `.ipynb` cells directly (replace / insert / delete a single cell) while preserving the surrounding JSON, outputs, and metadata — prefer it over raw text edits on notebooks.
+`notebook-edit` 工具直接编辑 `.ipynb` 单元（替换 / 插入 / 删除单个单元），同时保留周边 JSON、输出与元数据——对 notebook 优先用它而不是原始文本编辑。
 
-## Scheduled prompts (cron) & loops
+## 定时提示词（cron）与循环
 
-**Cron** schedules a prompt to be injected into a session on a recurring or one-shot basis. It is driven by the `cron` tool (no `/cron` slash command); `YMCODE_EXPERIMENTAL_CRON` is **on by default** (kill switch: `YMCODE_DISABLE_CRON`).
+**Cron** 按周期或一次性方式把提示词注入会话。它由 `cron` 工具驱动（没有 `/cron` 斜杠命令）；`YMCODE_EXPERIMENTAL_CRON` **默认开启**（关闭开关：`YMCODE_DISABLE_CRON`）。
 
-The `cron` tool has six verbs:
+`cron` 工具有六个动词：
 
-| Verb | Purpose |
+| 动词 | 用途 |
 |------|---------|
-| `schedule` | Add a job: `cron` (5-field expression), `prompt`, optional `one_shot`, `durable`, `session_id` |
-| `loop` | Arm a repeating loop by `delay_seconds` (clamped 60–3600) + `prompt` |
-| `list` | List jobs (filter by `kind`, `durable_only`) |
-| `get` | Show one job by `id` |
-| `rename` | Replace a job's prompt body |
-| `delete` (alias `cancel`) | Remove a job by `id` |
+| `schedule` | 添加任务：`cron`（5 字段表达式）、`prompt`，可选 `one_shot`、`durable`、`session_id` |
+| `loop` | 用 `delay_seconds`（夹紧在 60–3600）+ `prompt` 武装一个重复循环 |
+| `list` | 列出任务（按 `kind`、`durable_only` 过滤） |
+| `get` | 按 `id` 查看单个任务 |
+| `rename` | 替换任务的提示词正文 |
+| `delete`（别名 `cancel`） | 按 `id` 移除任务 |
 
-- **Expressions are 5-field** (`minute hour dom month dow`) and evaluated in **UTC** — there is no timezone config.
-- **Durable** jobs persist to `<project>/.ymcode/scheduled_tasks.json` and survive restart; non-durable jobs live only for the session.
-- When a job fires, the prompt is injected with an `[cron fire @ <ISO>]` prefix; the TUI shows a `🕒 cron fire` clock-row before the reply.
+- **表达式为 5 字段**（`minute hour dom month dow`），按 **UTC** 求值——没有时区配置。
+- **Durable** 任务持久化到 `<project>/.ymcode/scheduled_tasks.json` 并能在重启后存活；非 durable 任务仅在会话内存在。
+- 任务触发时，提示词会带 `[cron fire @ <ISO>]` 前缀注入；TUI 会在回复前显示一行 `🕒 cron fire` 时钟行。
 
-**Loop** — `/loop [interval] <prompt>` (a built-in skill) is a friendly front end: it parses an interval (e.g. `30m`, `2h`), maps it to a recurring cron job, and also runs the prompt once immediately. Manage loops with `/loops` (lists jobs; `/loops cancel <id>` stops one). Loops auto-stop after a keepalive budget of missed turns or a 7-day max age.
+**循环** —— `/loop [interval] <prompt>`（一个内置技能）是友好的前端：它解析间隔（例如 `30m`、`2h`），映射为周期性 cron 任务，并立即执行一次提示词。用 `/loops` 管理循环（列出任务；`/loops cancel <id>` 停止一个）。循环在错过轮次的保活预算耗尽或达到 7 天上限后会自动停止。
 
-`/loop` (cadence) and `/goal` (stop condition) are complementary and independent: `/goal` decides *whether* an autonomous agent may stop; `/loop` decides *how often* it runs.
+`/loop`（节奏）与 `/goal`（停止条件）互补且相互独立：`/goal` 决定自主智能体*是否*可以停止；`/loop` 决定它多久运行一次。
 
-## Extending ymcode
+## 扩展 ymcode
 
-To add reusable task instructions, use the `skill-creator` skill and save them under `.ymcode/skills/<name>/SKILL.md`. For additional tools, configure an MCP server or use the plugin API.
+要添加可复用的任务指令，使用 `skill-creator` 技能，并保存到 `.ymcode/skills/<name>/SKILL.md`。要增加工具，配置 MCP 服务器或使用插件 API。

@@ -1,21 +1,21 @@
-# Free source endpoints (no API key)
+# 免费来源端点（无需 API key）
 
-Default tools are WebSearch + WebFetch. For specific angle types, these free endpoints give better structured results. All are keyless; on 429/5xx back off once, then continue without that source.
+默认工具是 WebSearch + WebFetch。针对特定类型的视角，这些免费端点能给出更好的结构化结果。它们都无需密钥；遇到 429/5xx 时退避一次，然后跳过该来源继续。
 
-## General web search (fallback when WebSearch tool is unavailable)
+## 通用网络搜索（WebSearch 工具不可用时的兜底）
 
-If the WebSearch tool is missing or errors, use DuckDuckGo HTML via WebFetch — verified to return full SERP results:
+如果 WebSearch 工具缺失或报错，可通过 WebFetch 使用 DuckDuckGo HTML——已验证能返回完整的 SERP 结果：
 
 ```
 WebFetch https://html.duckduckgo.com/html/?q=<url-encoded query>
 ```
 
-- Result links are wrapped as `//duckduckgo.com/l/?uddg=<url-encoded real URL>` — decode `uddg` to get the actual URL before fetching it.
-- Supports operators: `site:github.com`, `"exact phrase"`, and `df=y` (past year) / `df=m` (past month) as query params.
-- For Chinese-language topics, also try Bing: `WebFetch https://www.bing.com/search?q=<query>&setlang=zh` (works without key, quality varies).
+- 结果链接会被包装成 `//duckduckgo.com/l/?uddg=<url-encoded real URL>`——抓取前先解码 `uddg` 得到真实 URL。
+- 支持操作符：`site:github.com`、`"exact phrase"`，以及作为查询参数的 `df=y`（过去一年）/ `df=m`（过去一月）。
+- 中文话题还可以试试 Bing：`WebFetch https://www.bing.com/search?q=<query>&setlang=zh`（免密钥可用，质量参差）。
 
 
-## Academic / papers
+## 学术 / 论文
 
 ```bash
 # arXiv (Atom XML)
@@ -28,9 +28,9 @@ curl -s "https://api.semanticscholar.org/graph/v1/paper/search?query=deep+resear
 curl -s "https://api.openalex.org/works?search=deep%20research%20agent&per-page=10&mailto=research@example.com"
 ```
 
-Full text of an arXiv paper: WebFetch `https://arxiv.org/abs/<id>` for abstract, or `https://ar5iv.org/abs/<id>` for HTML full text.
+arXiv 论文全文：用 WebFetch 抓 `https://arxiv.org/abs/<id>` 取摘要，或抓 `https://ar5iv.org/abs/<id>` 取 HTML 全文。
 
-## Code / GitHub
+## 代码 / GitHub
 
 ```bash
 # Repo search (60 req/h unauthenticated)
@@ -40,23 +40,23 @@ curl -s "https://api.github.com/search/repositories?q=deep+research+agent&sort=s
 curl -s "https://raw.githubusercontent.com/<owner>/<repo>/HEAD/README.md"
 ```
 
-## Community / discussion
+## 社区 / 讨论
 
-- Hacker News: `https://hn.algolia.com/api/v1/search?query=<q>&tags=story` (JSON, keyless)
-- Reddit: WebFetch `https://www.reddit.com/search/?q=<q>` or append `.json` to any thread URL
-- Stack Overflow: `https://api.stackexchange.com/2.3/search/advanced?q=<q>&site=stackoverflow` (JSON)
+- Hacker News：`https://hn.algolia.com/api/v1/search?query=<q>&tags=story`（JSON，免密钥）
+- Reddit：WebFetch `https://www.reddit.com/search/?q=<q>`，或在任意帖子 URL 后追加 `.json`
+- Stack Overflow：`https://api.stackexchange.com/2.3/search/advanced?q=<q>&site=stackoverflow`（JSON）
 
-## Data / facts
+## 数据 / 事实
 
-- Wikipedia REST: `https://en.wikipedia.org/api/rest_v1/page/summary/<title>` (JSON)
-- Wikidata: `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=<q>&language=en&format=json`
+- Wikipedia REST：`https://en.wikipedia.org/api/rest_v1/page/summary/<title>`（JSON）
+- Wikidata：`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=<q>&language=en&format=json`
 
-## Optional upgrades (only if already configured — never require)
+## 可选升级（仅当已配置时——绝不强制要求）
 
-If the environment has these MCP servers/tools available, prefer them for their niche; otherwise ignore silently:
+如果环境中已有这些 MCP 服务器/工具，在其擅长的场景优先使用；否则静默忽略：
 
-- Firecrawl MCP → JS-heavy pages that WebFetch renders poorly
-- arxiv / paper-search MCP → paper download + PDF text extraction
-- Any search MCP (Tavily/Exa/...) → higher-quality SERP than WebSearch
+- Firecrawl MCP → WebFetch 渲染不佳的重 JS 页面
+- arxiv / paper-search MCP → 论文下载 + PDF 文本抽取
+- 任意搜索类 MCP（Tavily/Exa/...）→ 比 WebSearch 质量更高的 SERP
 
-Never ask the user to install or configure anything mid-research.
+绝不要在调研过程中要求用户安装或配置任何东西。

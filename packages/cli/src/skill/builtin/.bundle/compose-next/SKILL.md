@@ -1,70 +1,70 @@
 ---
 name: compose-next
-description: Use for multi-step feature work, bug fixes, or refactors where requirements need to settle, a feature document should carry design + tasks + delivery evidence, and the change deserves independent review before merge. Use it only when the user explicitly requests this workflow, whether with `/compose-next`, by name, or in any other clear natural language; do not infer the request from task complexity alone. Not for one-shot edits, single-file tweaks, or answering questions — those need no orchestration overhead.
+description: 用于多步骤功能开发、缺陷修复或重构：需求需要先敲定，功能文档应承载设计、任务与交付证据，改动在合并前值得独立审查。仅在用户明确请求此工作流时使用——无论是通过 `/compose-next`、直接说出名称，还是其他清晰的自然语言表达；不要仅凭任务复杂度推断此请求。不适用于一次性编辑、单文件微调或回答问题，这些无需编排开销。 | Use for multi-step feature work, bug fixes, refactors; explicit user request only.
 ---
 
 # Compose Next
 
-Compact end-to-end contract for grill → workspace → spec → implement → verify → review → finalize → finish. One skill load, no internal skill hand-offs.
+质询 → 工作区 → 规格 → 实现 → 验证 → 审查 → 定稿 → 收尾的紧凑端到端契约。一次技能加载，内部不做技能交接。
 
-When writing a checkpoint or compacting context, preserve this recovery instruction in the checkpoint or compacted summary: on resumption, if the Compose Next instructions are absent, reload the `compose-next` skill before continuing.
+编写检查点或压缩上下文时，请在检查点或压缩摘要中保留这条恢复指令：恢复会话时，如果缺少 Compose Next 的指令，先重新加载 `compose-next` 技能再继续。
 
-Enter this workflow only on an explicit user request. Any clear natural-language instruction to use this workflow counts just like `/compose-next`; the user does not need to know or name the skill. If the user has not clearly requested the workflow, do the work directly and run none of the phases below; do not infer consent merely because the task is large or resembles a Compose task.
+仅在用户明确请求时进入本工作流。任何要求使用本工作流的清晰自然语言指令都等同于 `/compose-next`；用户不需要知道或说出技能名称。如果用户没有明确请求该工作流，就直接做这项工作，不运行下面任何阶段；不要因为任务庞大或看起来像 Compose 任务就推断用户已同意。
 
-## Step 0 — Orient
+## 第 0 步 — 摸清现状
 
-Inspect the repository, its instructions (`AGENTS.md`, `README`, existing spec files), and recent changes before asking anything. Do not ask the user for facts the environment already answers.
+在提出任何问题之前，先查看仓库、其说明文件（`AGENTS.md`、`README`、已有的规格文件）以及最近的改动。环境已经能回答的事实，不要再问用户。
 
-Decide the shape of the work:
+判断工作的形态：
 
-- **Fully constrained mechanical change with no durable design surface** → skip Grill and Spec, go to Workspace then Implement.
-- **Requirements or design ambiguous** → Grill first.
-- **Requirements clear, feature deserves a durable document** → Workspace then Spec.
+- **完全受约束的机械改动，没有持久的设计面** → 跳过质询与规格，直接进入工作区，然后实现。
+- **需求或设计存在歧义** → 先质询。
+- **需求清晰，且这项功能值得一份持久文档** → 先工作区，再规格。
 
-User gates and project overrides:
+用户关卡与项目覆盖配置：
 
-- If the user explicitly requests `without worktree` or specifies a worktree or workspace path, use that workspace choice and skip the default worktree gate. Do not ask again for worktree consent.
-- If the user explicitly says `without spec`, "no spec needed", "this is a small fix", or gives an equivalent instruction, skip the durable feature document and its spec gate. Keep verification and review when the task still warrants them.
-- An explicit project instruction, `AGENTS.md`, or user-provided agent/worktree configuration may define a project-specific worktree path, branch convention, spec path, or spec format. Use that configuration instead of the defaults in this skill. Record the override in the feature document or final report when it changes the normal artifact location.
+- 如果用户明确要求 `without worktree`，或指定了工作树/工作区路径，就采用该工作区选择并跳过默认的工作树关卡，不要再询问工作树授权。
+- 如果用户明确说 `without spec`、「不需要规格」「这只是个小修复」或等价指令，就跳过持久功能文档及其规格关卡。任务仍然需要验证与审查时，保留这两步。
+- 项目内的明确指令、`AGENTS.md`，或用户提供的 agent/worktree 配置，可以定义项目专属的工作树路径、分支约定、规格路径或规格格式。应使用该配置替代本技能中的默认值。当覆盖配置改变了常规产物位置时，在功能文档或最终报告中记录。
 
-Every path passes through Workspace before Spec or Implement; no branch skips it.
+任何路径都必须先经过工作区，再进入规格或实现；没有分支可以跳过它。
 
-## Grill — resolve decisions
+## 质询 — 敲定决策
 
-Resolve one decision axis at a time. A single decision may bundle multiple dependent fields in one structured question; unrelated decisions require separate turns.
+每次只解决一个决策轴。单个决策可以把多个相互依赖的字段打包成一个结构化问题；不相关的决策必须分轮询问。
 
-Use the Question tool for every user decision:
+每次用户决策都使用 Question 工具：
 
-- Put known choices in `options`. Each option gets a concise `label` and a `description` explaining the consequence. List the recommendation first and mark its label `(Recommended)`.
-- For consequential choices, include 2–3 viable alternatives.
-- When choices cannot be enumerated, still call Question with `options: []` for free-text.
-- Do not ask for permission to continue when no decision remains.
+- 把已知选项放进 `options`。每个选项给出简短 `label` 和说明其后果的 `description`。把推荐项排在第一位，并在其 label 后标注 `(Recommended)`。
+- 对影响较大的选择，提供 2–3 个可行备选方案。
+- 当选项无法枚举时，仍然调用 Question 并传 `options: []` 以获取自由文本。
+- 没有剩余决策时，不要请求继续的许可。
 
-Split requests spanning independent subsystems before refining each part. Do not begin implementation until requirements and scope are settled.
+跨越相互独立子系统的请求，先拆分，再逐个细化。需求与范围敲定之前，不要开始实现。
 
-### When user input is unavailable
+### 无法获得用户输入时
 
-If user input cannot be obtained — the Question tool is absent, a question gets no reply, or the run cannot stop and wait (for example a goal that keeps running) — and the decision is not a dangerous action that requires explicit user consent, resolve **this one decision** yourself and continue:
+如果无法获得用户输入——Question 工具不存在、提问无人回复，或本次运行无法停下来等待（例如持续运行的目标）——并且该决策不属于需要用户明确同意的危险操作，就自行解决**这一个决策**并继续：
 
-1. Choose the option marked `(Recommended)` when repository evidence still supports it and it can run unattended.
-2. Otherwise choose the closest minimal-scope option supported by the evidence; prefer text-only, non-interactive work.
-3. If the decision includes destructive or irreversible work, choose a non-destructive path that preserves progress; never auto-approve the destructive option.
-4. State the option selected and the reason in the response.
+1. 当仓库证据仍然支持且可以无人值守运行时，选择标注 `(Recommended)` 的选项。
+2. 否则选择证据支持、范围最小的最接近选项；优先纯文本、非交互的工作。
+3. 如果该决策涉及破坏性或不可逆的工作，选择能保留进度的非破坏路径；绝不自动批准破坏性选项。
+4. 在回复中说明所选选项及理由。
 
-## Workspace — worktree ownership
+## 工作区 — 工作树归属
 
-Never begin implementation on `main` or `master` without explicit user consent. If the active workspace is already chosen, skip creation below and continue with toolchain setup.
+未经用户明确同意，绝不在 `main` 或 `master` 上开始实现。如果当前工作区已经选定，跳过下面的创建步骤，直接进行工具链设置。
 
-- Compare `git rev-parse --git-dir` with `git rev-parse --git-common-dir`. If they differ, use the current linked worktree; do not nest another. A non-empty `git rev-parse --show-superproject-working-tree` indicates a submodule, not a linked worktree.
-- Create a linked worktree at `.worktrees/<slug>` by default. Base the new branch on the latest mainline (e.g. `origin/main`). If the current checkout makes the base unclear (detached HEAD, an unrelated feature branch, unknown default branch), ask the user explicitly which base to use before creating the worktree. Run `git check-ignore -q "$path"`; if it is not ignored, write `*` to `.worktrees/.gitignore`. Then run `git worktree add "$path" -b "$branch" <base>`.
-- When targeting the worktree with a command, pass its absolute path as `workdir`; omitted `workdir` uses the current session directory.
-- Install dependencies per repository instructions. Prefer lockfile-frozen, hardlink-friendly modes (`bun ci`, `uv sync --frozen`) over commands that mutate the lockfile. Confirm the toolchain is usable before continuing.
+- 比较 `git rev-parse --git-dir` 与 `git rev-parse --git-common-dir`。如果两者不同，使用当前的链接工作树，不要再嵌套一层。非空的 `git rev-parse --show-superproject-working-tree` 表明这是子模块，而不是链接工作树。
+- 默认在 `.worktrees/<slug>` 创建链接工作树。新分支基于最新主线（例如 `origin/main`）。如果当前检出使基线不明确（分离 HEAD、无关的功能分支、未知的默认分支），在创建工作树之前明确询问用户使用哪个基线。运行 `git check-ignore -q "$path"`；如果未被忽略，把 `*` 写入 `.worktrees/.gitignore`。然后运行 `git worktree add "$path" -b "$branch" <base>`。
+- 用命令指向该工作树时，把它的绝对路径作为 `workdir` 传入；省略 `workdir` 会使用当前会话目录。
+- 按仓库说明安装依赖。优先使用锁定文件冻结、对硬链接友好的模式（`bun ci`、`uv sync --frozen`），而不是会改动锁定文件的命令。继续之前确认工具链可用。
 
-## Spec — one document per feature
+## 规格 — 每个功能一份文档
 
-Maintain one document per feature at `docs/compose/spec/<feature-name>.md` from the workspace root. Do not add a date to the filename. A user-specified location overrides this path. Edit an existing document in place; never create a separate plan or report. Do not write the feature document before Workspace owns the active workspace.
+从工作区根目录维护每个功能的一份文档，位于 `docs/compose/spec/<feature-name>.md`。文件名中不要加日期。用户指定的位置会覆盖此路径。就地编辑已有文档；绝不另建计划或报告。工作区尚未接管活动工作区之前，不要编写功能文档。
 
-### Template
+### 模板
 
 ```markdown
 ---
@@ -92,80 +92,80 @@ State explicit boundaries.
 - [ ] T2: <work item> — acceptance: <observable result> (covers: S2; depends: T1)
 ```
 
-### Design-time rules
+### 设计阶段规则
 
-- Leave `Report` empty and set `status: designed`.
-- Set `source` to the form that best names where the spec's source lives — `Local <path>`, `Branch <name>`, `PR #id`, or `MR !id` — and update it whenever that changes.
-- Keep `[Sn]` anchors stable when headings change; never renumber existing anchors.
-- Record settled decisions and precise contracts, not exploration history or file-level code dumps. Include architecture, interfaces, data flow, error behavior, and testing boundaries when they affect the change.
-- Make each task the smallest independently verifiable work item; give it an observable acceptance criterion. Add `depends:` only for real prerequisites; dependencies must be acyclic.
-- Add `covers:` for every task implementing a design section. Every design requirement must be covered by at least one task; every reference must resolve.
-- Remove placeholders such as `TBD`, "handle edge cases", and references to unspecified similar work.
-- Scale detail to the change; do not pad small designs.
+- 让 `Report` 保持为空，并设置 `status: designed`。
+- 把 `source` 设为最能说明规格来源所在位置的形式——`Local <path>`、`Branch <name>`、`PR #id` 或 `MR !id`——并在其变化时更新。
+- 标题变化时保持 `[Sn]` 锚点稳定；绝不对已有锚点重新编号。
+- 记录已敲定的决策与精确契约，而不是探索历史或文件级代码堆砌。当架构、接口、数据流、错误行为和测试边界会影响改动时，务必写入。
+- 让每个任务都是可独立验证的最小工作项，并给出可观察的验收标准。只为真正的先决条件添加 `depends:`；依赖必须无环。
+- 为每个实现某个设计章节的任务添加 `covers:`。每条设计要求至少被一个任务覆盖；每个引用都必须可解析。
+- 移除 `TBD`、「处理边界情况」这类占位内容，以及对未指明的类似工作的引用。
+- 详略要与改动规模匹配；不要给小的设计注水。
 
-Before implementation, fix ambiguous requirements, contradictions, unresolved references, and unverifiable acceptance criteria. If the user is available, request document approval with the Question tool; otherwise continue.
+实现之前，先修正有歧义的需求、矛盾、未解析的引用和不可验证的验收标准。如果用户可用，用 Question 工具请求文档批准；否则继续。
 
-### Amendments
+### 修订
 
-Update only affected sections, bump `updated:`, preserve anchors, and keep only the tasks required by the amendment and their dependents. Do not regenerate the document or create duplicate tasks.
+只更新受影响的章节，递增 `updated:`，保留锚点，并只保留本次修订所需的任务及其依赖者。不要重新生成文档，也不要创建重复任务。
 
-## Implement
+## 实现
 
-Use the feature document as the source of requirements, or the conversation for an undocumented mechanical change. When a feature document exists, set its `status: in-progress` on the first implementation commit. Execute tasks in dependency order. Track multi-step work with the Task tool.
+以功能文档作为需求来源；对没有文档的机械改动，则以对话为来源。存在功能文档时，在第一次实现提交时将其设为 `status: in-progress`。按依赖顺序执行任务。用 Task 工具跟踪多步骤工作。
 
-For behavior changes with a cheap reproduction, write a failing test, confirm it fails for the intended reason, implement the smallest fix, and confirm it passes. A bug fix requires a regression test when one can be written. Skip test-first for generated code, configuration-only changes, throwaway prototypes, or explicit user direction.
+对于有廉价复现方式的行为变更，先写一个失败测试，确认它因预期原因失败，实现最小修复，再确认测试通过。能写回归测试的缺陷修复必须写回归测试。对生成代码、纯配置改动、一次性原型或用户明确指示的情况，跳过测试先行。
 
-Test public behavior. Do not duplicate production logic in expected values, add test-only production APIs, or assert only that mocks were called. Prefer real implementations over mocks.
+测试公开行为。不要在期望值中复制生产逻辑，不要为测试添加仅测试用的生产 API，也不要只断言 mock 被调用过。优先使用真实实现而非 mock。
 
-For failures, reproduce before editing and identify the root cause from errors, diffs, recent commits, or boundary instrumentation. After two failed fixes, stop patching and re-derive the cause.
+遇到失败时，先复现再编辑，并从错误、差异、最近提交或边界插桩中找出根因。修复两次仍失败，就停止打补丁，重新推导原因。
 
-### Parallel work
+### 并行工作
 
-Dispatch independent tasks in parallel when isolation prevents collisions; keep tightly coupled work together. Prefer giving parallel subagents disjoint file sets and keeping commits with the orchestrator. Give each subagent the workspace path, task, acceptance criteria, relevant spec sections, and required verification. Do not pass session history. Treat its report as a claim and inspect the resulting diff.
+当隔离能避免冲突时，并行派发独立任务；紧密耦合的工作保持在一起。优先给并行子代理分配互不重叠的文件集，并让提交留在编排者手里。向每个子代理提供工作区路径、任务、验收标准、相关规格章节和必需的验证方式。不要传递会话历史。把它的报告视为一种主张，并检查实际差异。
 
-Continue through tasks without routine approval pauses. Stop only for an unresolved product decision, a blocker that cannot be worked around, a destructive action requiring consent, or completion.
+持续执行任务，不要例行停下来等待批准。仅在出现未解决的产品决策、无法绕过的阻塞、需要同意的破坏性操作，或任务完成时停下。
 
-## Verify
+## 验证
 
-Before any completion claim, run the repository's relevant tests, typecheck, build, or reproduction from the correct directory and read the output. Record each command and result. Mark known baseline failures as `PRE-EXISTING` with a short identifier. Do not substitute prior output or a subagent report for fresh evidence.
+在做出任何完成声明之前，从正确的目录运行仓库相关的测试、类型检查、构建或复现步骤，并阅读输出。记录每条命令与结果。把已知的基线失败标记为 `PRE-EXISTING` 并附简短标识。不要用先前的输出或子代理报告替代新鲜证据。
 
-Verification and review are strictly sequential. Wait for all verification commands to exit before dispatching the reviewer. Never overlap review with a resource-heavy test or application process in the same environment.
+验证与审查严格串行。等所有验证命令退出后再派发审查者。绝不在同一环境中让审查与资源密集的测试或应用进程重叠。
 
-## Review
+## 审查
 
-After implementation is verified and before finalizing the feature document, dispatch one fresh subagent to review the complete change.
+实现验证完成之后、定稿功能文档之前，派发一个全新的子代理审查完整改动。
 
-Provide the reviewer:
+向审查者提供：
 
-- the applicable spec sections and acceptance criteria;
-- the workspace path, base branch, base SHA, head SHA, and exact diff command or precomputed diff;
-- a compact verification summary: one line per command with `PASS`, `FAIL`, or `PRE-EXISTING`, plus test counts when available. Do not paste full command output unless a specific failure requires it.
+- 适用的规格章节与验收标准；
+- 工作区路径、基线分支、基线 SHA、头部 SHA，以及确切的差异命令或预先计算好的差异；
+- 紧凑的验证摘要：每条命令一行，标注 `PASS`、`FAIL` 或 `PRE-EXISTING`，有测试数量时一并给出。除非某个具体失败必须引用，否则不要粘贴完整命令输出。
 
-If there is no feature document, take acceptance criteria from the conversation. If none are explicit, ask the user for them before dispatching the reviewer.
+如果没有功能文档，从对话中提取验收标准。如果对话中没有明确标准，先向用户索取再派发审查者。
 
-Do not provide an implementer-authored narrative. The reviewer may inspect the diff and run additional commands needed to validate its conclusions. It must not repeat a command already reported as passing, especially a heavy E2E suite, unless the result is stale, the code changed afterward, or concrete evidence makes the result suspect. Before any justified rerun, confirm no equivalent command is still running. Missing evidence should be reported or gathered with the cheapest non-duplicative command.
+不要提供实现者撰写的过程叙述。审查者可以检查差异，并运行验证其结论所需的额外命令。它不得重复已报告为通过的命令，尤其是重量级 E2E 套件，除非结果已过期、代码之后发生了变动，或有具体证据使结果可疑。在重新运行任何有正当理由的命令之前，确认没有等价命令仍在运行。缺失的证据应当报告，或用最廉价、不重复的命令采集。
 
-Use a reviewer model at least as capable as the strongest implementer it reviews.
+审查所用模型的能级至少不低于它所审查的最强实现者。
 
-Require separate conclusions for:
+要求分别给出以下结论：
 
-- **Spec compliance** — every acceptance criterion is met and points to evidence in the diff or reviewer-observed command output.
-- **Correctness** — logic, boundaries, error handling, regressions, and tests are sound, including issues outside the written spec.
-- **Codebase consistency** — naming, structure, and local conventions match surrounding code.
+- **规格符合性** — 每条验收标准都已满足，并指向差异中的证据或审查者观察到的命令输出。
+- **正确性** — 逻辑、边界、错误处理、回归与测试都站得住，包括书面规格之外的问题。
+- **代码库一致性** — 命名、结构与本地约定和周边代码一致。
 
-Classify unmet or unverifiable acceptance criteria and correctness bugs as critical. Fix critical findings, re-verify, and re-review affected areas. Reject incorrect findings with technical evidence. If the fix-and-re-review loop stops converging — repeated findings on the same area, or fixes that introduce new criticals — stop looping and report the impasse with the remaining findings instead of forcing a pass.
+把未满足或不可验证的验收标准以及正确性缺陷归类为严重问题。修复严重问题，重新验证，并重新审查受影响的区域。用技术证据驳回不正确的结论。如果修复—重审循环不再收敛——同一区域反复出现问题，或修复引入了新的严重问题——就停止循环，报告僵局与剩余问题，而不是强行判为通过。
 
-For human review feedback, verify each item against the codebase, clarify ambiguous items before editing, and implement validated items one at a time with verification. Check actual usage before expanding an unused path, and surface conflicts with prior user decisions instead of silently complying.
+对于人工审查反馈，逐条对照代码库核实；编辑前澄清含糊项；验证后逐项实现，并在实现后验证。扩展一条未被使用的路径之前先检查实际用法；与用户此前决策冲突时，明确呈现冲突，而不是默默照做。
 
-For parallel task work, review integrated task diffs at useful boundaries only when delaying review would compound risk.
+对于并行任务的工作，只在推迟审查会叠加风险的有用边界上审查整合后的任务差异。
 
-## Finalize — commit the feature document
+## 定稿 — 提交功能文档
 
-If a feature document exists, after review passes and before finishing the branch:
+如果存在功能文档，在审查通过之后、结束分支之前：
 
-1. Set `status: delivered` and bump `updated:`.
-2. Check off completed tasks; leave incomplete tasks unchecked and do not claim delivery if they block acceptance.
-3. Replace `Report` with:
+1. 设置 `status: delivered`，并递增 `updated:`。
+2. 勾选已完成的任务；未完成的任务保持未勾选，如果它们阻塞验收，就不要声称交付。
+3. 用以下内容替换 `Report`：
 
 ```markdown
 ## Report
@@ -177,21 +177,21 @@ If a feature document exists, after review passes and before finishing the branc
 **Journey log** — at most 5 entries that help future work: dead ends, pivots, or transferable lessons. Preserve useful prior entries and append new ones.
 ```
 
-Update a design section only when it contradicts the delivered behavior. Commit the finalized document on the feature branch before finishing. This documentation-only commit does not restart verification or review; CI re-running on it is expected.
+只有当设计章节与已交付行为矛盾时才更新它。结束分支之前，在功能分支上提交定稿文档。这次仅文档的提交不会重启验证或审查；CI 对其重新运行是预期行为。
 
-## Finish
+## 收尾
 
-Do not auto-finish: confirm with the user before any irreversible action, including opening a PR or MR, merging locally, or pushing. If the user already specified the closing action and a PR or MR already exists, confirm before the merge instead.
+不要自动收尾：任何不可逆操作之前都要与用户确认，包括打开 PR 或 MR、本地合并或推送。如果用户已指定收尾动作，且 PR 或 MR 已存在，则在合并前确认。
 
-Report branch, base, head SHA, workspace, feature-doc path when available, and ask the user which way to finish — for example:
+报告分支、基线、头部 SHA、工作区、功能文档路径（如有），并询问用户以哪种方式收尾——例如：
 
-- local merge / open PR / push only / keep the branch;
-- which base branch to merge or target;
-- keep or remove the worktree.
+- 本地合并 / 打开 PR / 仅推送 / 保留分支；
+- 合并或目标使用哪个基线分支；
+- 保留还是移除工作树。
 
-When the closing action changes where the spec lives, update `source` and commit it as documentation only: `PR #id` or `MR !id` after opening one, `Branch <target>` before a local merge.
+当收尾动作改变了规格所在位置时，更新 `source` 并作为纯文档提交：打开后写 `PR #id` 或 `MR !id`，本地合并前写 `Branch <target>`。
 
-Worktree pitfalls:
+工作树陷阱：
 
-- Local merge and `gh pr merge` run from the main repository checkout — the base branch cannot be checked out while another worktree holds it.
-- `git worktree remove` only on `.worktrees/` or the path scoped by the prompt / `AGENTS.md`.
+- 本地合并与 `gh pr merge` 必须在主仓库检出中运行——另一个工作树占用基线分支时，该分支无法被检出。
+- `git worktree remove` 只能作用于 `.worktrees/` 或提示词 / `AGENTS.md` 限定的路径。

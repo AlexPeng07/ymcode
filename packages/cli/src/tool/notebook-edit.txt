@@ -1,10 +1,10 @@
-Replaces, inserts, or deletes a single cell in a Jupyter notebook (.ipynb file).
+替换、插入或删除 Jupyter notebook（.ipynb 文件）中的单个单元格。
 
-Usage:
-- Prefer using your Read tool on the notebook first so cell ids and sources match current disk contents. The tool still loads and validates the notebook at apply time.
-- `notebook_path` identifies the `.ipynb` file to edit.
-- `cell_id` is the `id` attribute shown in the Read tool's `<cell id="...">` output. It is required for `replace` and `delete`. For older notebooks (nbformat_minor < 5) where cells have no real `id`, you can pass a positional reference like `#0`, `#1`, etc. (0-based index). On first edit, missing ids are auto-generated and the notebook is upgraded to nbformat_minor 5.
-- `edit_mode` defaults to `replace`. Use `insert` to add a new cell after the cell with the given `cell_id` (or at the beginning of the notebook if `cell_id` is omitted) — `cell_type` is required when inserting. Use `delete` to remove the cell.
-- For `replace`, the cell type is preserved unless `cell_type` is explicitly provided.
-- `new_source` is the cell's full new content (required for `replace` and `insert`, ignored for `delete`).
-- This tool understands the Jupyter notebook cell structure and modifies cells in place — prefer it over Write / Edit for `.ipynb` files so the surrounding JSON, outputs, and metadata stay intact.
+用法：
+- 建议先使用 Read 工具读取 notebook，使单元格 id 和内容与磁盘当前内容匹配。工具在应用时仍会加载并校验 notebook。
+- `notebook_path` 指定要编辑的 `.ipynb` 文件。
+- `cell_id` 是 Read 工具 `<cell id="...">` 输出中显示的 `id` 属性。`replace` 和 `delete` 需要它。对于单元格没有真实 `id` 的旧版 notebook（nbformat_minor < 5），可以传入 `#0`、`#1` 等位置引用（从 0 开始的索引）。首次编辑时，缺失的 id 会自动生成，notebook 会升级到 nbformat_minor 5。
+- `edit_mode` 默认为 `replace`。使用 `insert` 在指定 `cell_id` 的单元格之后添加新单元格（如果省略 `cell_id`，则添加到 notebook 开头）——插入时必须提供 `cell_type`。使用 `delete` 删除单元格。
+- 对于 `replace`，除非显式提供 `cell_type`，否则保留单元格类型。
+- `new_source` 是单元格的完整新内容（`replace` 和 `insert` 必需，`delete` 时忽略）。
+- 此工具理解 Jupyter notebook 的单元格结构，并就地修改单元格——处理 `.ipynb` 文件时优先用它而非 Write / Edit，以保持周边 JSON、输出和元数据完整。

@@ -1,47 +1,46 @@
 ---
 name: visualize-data
-description: "Design, create, revise, or QA quantitative charts and figures for reports, dashboards, notebooks, slides, files, or inline analytical answers."
+description: "为报告、仪表盘、笔记本、幻灯片、文件或内联分析回答设计、创建、修订或质检定量图表与图形。 | Trigger keywords: chart, data visualization, figure, plot, dashboard chart, QA, Matplotlib, SVG."
 ---
 
-# Visualize Data
+# 数据可视化
 
-Create quantitative visuals that are analytically sound, immediately readable, and appropriate for their destination. Treat a chart as evidence for a takeaway, not decoration.
+创建分析上站得住脚、一眼可读，并适合目标场景的定量视觉。把图表当作支持要点的证据，而不是装饰。
 
-## Workflow
+## 工作流
 
-1. State the analytical question and intended takeaway.
-2. Verify the data grain, measures, dimensions, units, missing values, filters, time window, sample size, and source.
-3. Choose the chart family from the analytical relationship:
-   - Change over ordered time: line or area chart.
-   - Category comparison: bar chart.
-   - Distribution: histogram, box plot, or density plot.
-   - Relationship between numeric measures: scatter plot.
-   - Composition: stacked bar/area; use pie only for a small set of meaningful parts.
-   - Funnel progression: funnel or ordered bars with stage conversion.
-   - Contribution to change: waterfall.
-   - Exact lookup values: table, optionally with small bars or sparklines.
-4. Define explicit encodings, sorting, aggregation, grouping, scales, labels, units, colors, annotations, and uncertainty treatment.
-5. Render with the destination's native system when one is selected. Otherwise prefer reproducible Python/Matplotlib or SVG for files and inline artifacts. Notebook-native plotting is appropriate for notebooks.
-6. Inspect the final output in context when the host provides image, browser, document, or notebook inspection.
+1. 说明分析问题与预期要点。
+2. 核验数据粒度、度量、维度、单位、缺失值、过滤器、时间窗口、样本量和来源。
+3. 根据分析关系选择图表族：
+   - 有序时间上的变化：折线图或面积图。
+   - 类别对比：柱状图。
+   - 分布：直方图、箱线图或密度图。
+   - 数值度量之间的关系：散点图。
+   - 构成：堆叠柱状图/面积图；仅当组成部分少而有意义时才使用饼图。
+   - 漏斗推进：漏斗图或带阶段转化的有序柱状图。
+   - 对变化的贡献：瀑布图。
+   - 精确查找值：表格，可选带小条形或迷你走势图。
+4. 明确编码、排序、聚合、分组、刻度、标签、单位、颜色、注释以及不确定性的处理方式。
+5. 选定了目标系统时，用其原生系统渲染。否则对文件和内联产物优先使用可复现的 Python/Matplotlib 或 SVG。笔记本原生绘图适合笔记本。
+6. 当宿主提供图片、浏览器、文档或笔记本检查能力时，在上下文中检查最终输出。
 
-Do not install or require React, Recharts, Vite, MCP widgets, or proprietary UI renderers. For self-contained HTML, use inline SVG/canvas or a static image plus semantic fallback data. Avoid remote scripts unless the user explicitly accepts the dependency.
+不要安装或依赖 React、Recharts、Vite、MCP 组件或专有 UI 渲染器。对于自包含 HTML，使用内联 SVG/canvas 或静态图片加语义化回退数据。除非用户明确接受该依赖，否则避免远程脚本。
 
-## Visual quality
+## 视觉质量
 
-- Use an answer-oriented title and a subtitle only when it adds a distinct takeaway.
-- Label axes and units; show legends or direct labels for every visible group.
-- Use consistent scales for comparisons and avoid misleading truncated axes unless clearly justified.
-- Prefer direct labeling and restrained color. Reserve semantic colors for meaning such as positive, warning, or negative states.
-- Keep annotations selective and evidence-backed.
-- Make dense charts readable through aggregation, faceting, filtering, or a table rather than shrinking text.
-- Provide accessible contrast, text alternatives, and a data table when the destination supports them.
-- Put provenance in a source note rather than cluttering the title.
+- 使用面向答案的标题，仅当副标题能增加独立要点时才添加。
+- 标注坐标轴和单位；为每个可见分组显示图例或直接标签。
+- 对比时使用一致的刻度，避免误导性的截断坐标轴，除非有清楚的正当理由。
+- 优先使用直接标注和克制的配色。语义颜色只保留给正面、警告或负面状态等含义。
+- 让注释保持精选且有证据支撑。
+- 通过聚合、分面、过滤或改为表格来让密集图表可读，而不是缩小文字。
+- 提供无障碍的对比度、文本替代方案和数据表，前提是目标场景支持。
+- 将来源出处放在来源说明中，而不是塞满标题。
 
 ## QA
 
-- Recompute plotted values from the reviewed rows.
-- Confirm the visual answers the stated question and does not imply unsupported causality.
-- Check ordering, scales, labels, clipping, overlap, empty states, and small-screen behavior where relevant.
-- Confirm the exported file opens and contains the expected marks and text.
-- Preserve the code or notebook needed to reproduce the chart when the user needs an auditable artifact.
-
+- 从已审阅的行重算绘制值。
+- 确认视觉回答了所述问题，且没有暗示无支撑的因果。
+- 在相关时检查排序、刻度、标签、裁剪、重叠、空状态和小屏表现。
+- 确认导出的文件能打开，并包含预期的标记和文字。
+- 当用户需要可审计的产物时，保留复现图表所需的代码或笔记本。

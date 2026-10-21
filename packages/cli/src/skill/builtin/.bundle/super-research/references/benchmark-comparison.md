@@ -1,25 +1,25 @@
-# Mode: Benchmark comparison / 对比评测
+# 模式：对比评测
 
-Use when the user wants to **pick among N candidates** — libraries, models, algorithms, prompts, configs — "compare X vs Y", "which of these is best for us", "benchmark these", "选型", "对比评测". The goal is selection, not improvement: you do not hill-climb any candidate, you measure all of them under identical conditions.
+当用户想在 N 个候选中**做选择**——库、模型、算法、提示词、配置——「compare X vs Y」「which of these is best for us」「benchmark these」「选型」「对比评测」时使用。目标是选择而非改进：不对任何候选做爬山调优，而是在完全相同的条件下测量所有候选。
 
-The failure mode this mode is designed against: an unfair comparison — candidates run under different conditions, tuned unevenly, or judged on cherry-picked cases — and a "winner" declared without the trade-offs that would change the decision.
+本模式要防范的失败模式是：不公平的比较——候选在不同条件下运行、调优力度不均，或用挑樱桃的用例评判——以及在没有说明会改变决策的取舍的情况下宣布「赢家」。
 
-## Contract fields
+## 契约字段
 
-1. **Candidates**: An explicit, frozen list. Adding a candidate mid-run is allowed only if you rerun the *entire* matrix for it under identical conditions — partial coverage silently biases the ranking. If the user has an incumbent ("what we use today"), include it as a candidate; it's the most meaningful reference point.
-2. **Task matrix**: The fixed set of test cases / workloads / inputs every candidate will run on. Defined BEFORE the first measured run. Choosing cases after seeing results is the benchmark version of p-hacking.
-3. **Metrics**: One primary metric (one number, one direction) that decides the ranking, plus secondaries (latency, memory, cost, setup complexity) that go in the log and inform trade-offs. All measured by the SAME harness code for every candidate — never by each candidate's own self-reported number.
-4. **Fairness budget**: Equal effort per candidate — e.g. "default config only" or "≤15 min of tuning each", and a fixed number of repetitions per cell for variance. If one candidate needs special-casing to run at all (an adapter, a format conversion), that's allowed but logged; it is itself a finding about integration cost.
-5. **Environment**: Pinned versions, hardware, seeds. Note anything that could drift between runs (thermal throttling, network, API rate limits).
-6. **Working directory**: A dedicated `benchmark/<tag>/` folder — harness, matrix log, per-run outputs all go there.
+1. **候选**：一份明确、冻结的清单。中途新增候选，只有在其**整个**矩阵于相同条件下重跑时才允许——部分覆盖会悄悄让排名产生偏差。如果用户已有 incumbent（「我们现在用的那个」），把它作为候选纳入；它是最有意义的参照点。
+2. **任务矩阵**：每个候选都要运行的固定测试用例/工作负载/输入集合。必须在第一次计量运行**之前**定义。看到结果后再选用例，是 p-hacking 的基准测试版本。
+3. **指标**：一个决定排名的主指标（一个数字、一个方向），加上次要指标（延迟、内存、成本、接入复杂度），后者进入日志并用于说明取舍。所有候选都由**同一套**测试支架代码测量——绝不用各候选自己上报的数字。
+4. **公平性预算**：每个候选投入同等努力——例如「只用默认配置」或「每个至多调优 15 分钟」，以及每个单元格固定的重复次数以估计方差。如果某个候选必须特殊处理才能跑起来（适配层、格式转换），允许但要记录；这本身就是关于接入成本的发现。
+5. **环境**：固定版本、硬件、随机种子。记下任何可能在运行间漂移的因素（热降频、网络、API 速率限制）。
+6. **工作目录**：专用的 `benchmark/<tag>/` 文件夹——测试支架、矩阵日志、每次运行的输出都放在那里。
 
-## Baseline — validate the harness
+## 基线——验证测试支架
 
-Before any measured runs, smoke-test the harness on ONE candidate and ONE case, and eyeball the output. A broken harness measured 60 times produces 60 confident wrong numbers. If a trivial reference exists (no-op, random guess, the incumbent), run it first — it calibrates what "good" means on your matrix.
+在任何计量运行之前，先用**一个**候选和**一个**用例对测试支架做冒烟测试，并肉眼检查输出。坏掉的支架测 60 次会产出 60 个自信的错误数字。如果存在平凡的参照（空操作、随机猜测、incumbent），先跑它——它在你的矩阵上校准了「好」意味着什么。
 
-## The matrix log
+## 矩阵日志
 
-`matrix.tsv` (tab-separated), one row per (candidate × case × repetition):
+`matrix.tsv`（制表符分隔），每个（候选 × 用例 × 重复）一行：
 
 ```
 candidate	case	rep	metric	resource	status	notes
@@ -30,34 +30,34 @@ lib_b	case07	1	0	0	error	throws on unicode input — see run logs
 lib_c	case07	1	0	0	timeout	killed at 2× budget
 ```
 
-- **status** — `done` / `error` / `timeout` / `unsupported`. Every planned cell gets a row; an empty cell means the comparison is incomplete and the ranking untrustworthy.
-- **Failures are findings, not exclusions.** A candidate that errors on 20% of cases is critical decision data. Never drop a candidate's bad cells to "clean up" its average — score failures as worst-case or report coverage separately, and say which you did.
+- **status** —— `done` / `error` / `timeout` / `unsupported`。每个计划单元格都要有一行；空单元格意味着比较不完整、排名不可信。
+- **失败是发现，不是排除项。** 一个在 20% 用例上报错的候选是关键决策数据。绝不要丢掉候选的坏单元格来「美化」其均值——把失败按最坏情况计分，或单独报告覆盖率，并说明你用了哪种方式。
 
-## The loop
+## 循环
 
-1. Smoke-test the harness (baseline above).
-2. Run the matrix. **Interleave repetitions across candidates** (A,B,C,A,B,C…) rather than running each candidate in a block — time-varying noise (thermal, network, caches) then spreads evenly instead of biasing whichever ran first.
-3. Log every cell as it completes, including failures. Redirect run output to files; extract the metric by grep/script, not by eye.
-4. When the matrix is complete, aggregate: per-candidate mean ± std on the primary metric, per case and overall rank.
-5. **Stability check**: recompute the ranking dropping one case at a time. If the winner flips depending on a single case, the result is fragile — report that, don't hide it.
-6. Optional phase 2 (only if the contract allows it): equal-budget tuning per candidate, then rerun the matrix. Keep phase 1 and 2 results clearly separated in the log — mixing tuned and untuned numbers is the fastest way to make the report unreadable.
+1. 冒烟测试支架（上面的基线）。
+2. 运行矩阵。**把重复在各候选之间交错进行**（A,B,C,A,B,C…），而不是一次跑完一个候选的所有轮次——随时间变化的噪声（温度、网络、缓存）就会均匀分布，而不是偏袒先跑的那个。
+3. 每个单元格完成即记录，包括失败。把运行输出重定向到文件；用 grep/脚本提取指标，而不是用眼睛看。
+4. 矩阵完成后聚合：主指标上各候选的均值 ± 标准差，按用例与总体排名。
+5. **稳定性检查**：每次去掉一个用例重算排名。如果赢家因单个用例而翻转，该结果很脆弱——要报告出来，不要隐藏。
+6. 可选的第二阶段（仅在契约允许时）：对每个候选做等预算调优，然后重跑矩阵。在日志中把第一、第二阶段结果清楚分开——混用调优与未调优的数字是让报告最难读的最快方式。
 
-## Judgment
+## 判断
 
-**Don't tune the favorite.** The most common way benchmarks lie is unequal effort: hours polishing the candidate you expect to win, defaults for the rest. Equal budget, mechanically enforced.
+**不要给心仪的候选加练。** 基准测试说谎最常见的方式就是努力不均：花数小时打磨你预期会赢的候选，其余只用默认值。预算相等，并靠机制强制执行。
 
-**A trade-off frontier is a valid answer.** "A is 3× faster, B is 4 points more accurate, C is the only one that handles your unicode cases" is often more useful than a forced single winner. Declare a single winner only when one candidate dominates or the user's priority makes the choice clear.
+**给出取舍前沿是有效答案。** 「A 快 3 倍，B 准确率高 4 个点，C 是唯一能处理你那些 unicode 用例的」往往比强行选一个赢家更有用。只有当某个候选全面占优，或用户的优先级让选择明确时，才宣布唯一赢家。
 
-**Watch for matrix-candidate mismatch.** If a candidate loses only on cases that are marginal to the user's real workload, say so. The matrix approximates reality; note where the approximation is thin.
+**注意矩阵与候选的错配。** 如果某个候选只在你真实工作负载的边缘用例上输，要说明。矩阵是对现实的近似；指出近似稀薄之处。
 
-**Variance before verdicts.** If per-cell repetitions show std comparable to the between-candidate gaps, more reps — not conclusions — are what's needed next.
+**先看方差，再下结论。** 如果每格重复的标准差与候选间差距相当，下一步需要的是更多重复，而不是结论。
 
-## Final report
+## 最终报告
 
-See "Reporting" in SKILL.md. Mode-specific body:
+参见 SKILL.md 的「报告」。模式专属正文：
 
-- **Recommendation** — the winner, or the trade-off frontier with a decision rule ("pick A unless you need X").
-- **Ranking table** — per-candidate primary metric mean ± std, key secondaries, failure/coverage rate.
-- **Stability** — does the ranking survive drop-one-case? Where is it fragile?
-- **Integration notes** — special-casing any candidate needed, from the log.
-- **Where to look**: `matrix.tsv`, the harness script, per-run logs in `benchmark/<tag>/`.
+- **建议**——赢家，或取舍前沿加一条决策规则（「除非你需要 X，否则选 A」）。
+- **排名表**——各候选主指标的均值 ± 标准差、关键次要指标、失败/覆盖率。
+- **稳定性**——去掉单个用例后排名是否仍然成立？哪里脆弱？
+- **接入备注**——日志中记录的、对任何候选所做的特殊处理。
+- **去哪里看**：`matrix.tsv`、测试支架脚本、`benchmark/<tag>/` 中的每次运行日志。

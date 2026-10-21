@@ -1,114 +1,114 @@
 ---
 name: market-sizing
-description: "Estimate market, segment, or opportunity size with transparent assumptions and uncertainty. Use for TAM/SAM/SOM, sizing scenarios, or comparing the scale of possible opportunities."
+description: "以透明的假设和不确定性估算市场、细分市场或机会规模。适用于 TAM/SAM/SOM、规模测算情景，或比较可能机会的量级。 | Trigger keywords: market sizing, TAM SAM SOM, opportunity sizing, scenario analysis, sensitivity, segment sizing."
 ---
 
-## Related Skills
+## 相关技能
 
-Use $visualize-data when the sizing result needs a chart or figure.
+当规模测算结果需要图表或图形时，使用 $visualize-data。
 
-Use $build-report to package the final estimate, assumptions, sensitivity, caveats, and source context whenever this skill is selected, unless the user explicitly requests an inline, chat-only, brief/no-artifact answer, asks not to create a report/file/artifact, or selects another primary artifact.
+每当本技能被选中，使用 $build-report 打包最终估算、假设、敏感性、注意事项和来源上下文，除非用户明确要求内联的、仅聊天的、简报/无产物回答，明确表示不要创建报告/文件/产物，或选择另一个主要产物。
 
-# Market Sizing
+# 市场规模测算
 
-Use this skill to produce a defensible estimate of a market or opportunity from connected context, public sources, transparent assumptions, and auditable calculations. The job is to define the market, choose a sound sizing method, distinguish evidence from assumptions, test sensitivity, and state what would most improve confidence.
+使用本技能，基于已连接的上下文、公开来源、透明的假设和可审计的计算，产出经得起推敲的市场或机会规模估算。工作是定义市场、选择合理的测算方法、区分证据与假设、检验敏感性，并说明什么最能提升置信度。
 
-## Skill Configuration
+## 技能配置
 
-### Source Discovery And Verification
+### 来源发现与核验
 
-Use the relevant semantic layer as a starting map, not a boundary.
+把相关语义层当作起点地图，而不是边界。
 
-1. **Explore all possible sources.** Search every connected or provided source that could contain task-relevant data or change the interpretation. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. Known sources, tables, dashboards, and semantic mappings are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare ownership, freshness, definition, grain, coverage, and directness. Use the best authoritative source, or combine complementary sources when needed. Note material conflicts, explain why the selected source or sources control the answer, and verify selected data through live reads before concluding.
+1. **探索所有可能的来源。** 搜索每个已连接或已提供、可能包含任务相关数据或改变解读的来源。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。已知的来源、表、仪表盘和语义映射都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较归属、新鲜度、定义、粒度、覆盖范围和直接程度。使用最权威的来源，或在需要时组合互补来源。记录实质性冲突，解释为什么选定来源掌控答案，并在下结论前通过实时读取核验所选数据。
 
-### Source Access Guardrail
+### 数据源访问护栏
 
-Before querying sources, building artifacts, or drawing conclusions, determine whether the answer requires a specific source of truth.
+在查询来源、构建产物或下结论之前，先确定答案是否需要特定的事实来源。
 
-If a required source is unavailable, stop that path. Tell the user what source is needed, ask them to make it available or provide a reviewed fallback, and do not treat weaker substitutes as equivalent.
+如果所需的来源不可用，停止该路径。告诉用户需要什么来源，请其提供或给出经过审阅的替代方案，不要把较弱的替代品当作等价物。
 
-If the missing source is only optional enrichment, continue with the strongest available evidence and label the gap when it materially affects the answer.
+如果缺失的来源只是可选补充，则用现有最强证据继续，并当缺口实质性影响答案时加以标注。
 
-Clarify with the user when a missing input would materially change the estimate or recommendation. Otherwise make a reasonable assumption, state it, and proceed.
+当缺失的输入会实质性改变估算或建议时，与用户澄清。否则做出合理假设、说明假设并继续。
 
-## Workflow
+## 工作流
 
-### 1. Frame The Market Or Opportunity
+### 1. 界定市场或机会
 
-Define the market or opportunity boundary before estimating:
+在估算之前先定义市场或机会的边界：
 
-- What is being sized, for example a product category, workflow, problem, use case, or category of activity.
-- Where and when it applies, for example geography, segment scope, time horizon, or market maturity.
-- Who or what counts as part of the market, for example the relevant population, unit of demand, transaction type, or included activity.
-- How the opportunity is measured, for example spend, revenue, volume, value created, or another unit that fits the question.
-- What kind of sizing answer the user needs, for example TAM/SAM/SOM, market entry, expansion upside, spend pool, revenue pool, population count, or unit volume.
+- 在测算什么，例如产品类别、工作流、问题、用例或活动类别。
+- 适用范围与时间，例如地域、细分范围、时间跨度或市场成熟度。
+- 谁或什么算作市场的一部分，例如相关人群、需求单位、交易类型或纳入的活动。
+- 如何度量该机会，例如支出、收入、数量、创造的价值，或其他契合问题的单位。
+- 用户需要哪种规模的答案，例如 TAM/SAM/SOM、市场进入、扩张上行空间、支出池、收入池、人群数量或单位数量。
 
-### 2. Choose A Starting Sizing Approach And Inputs
+### 2. 选择初始测算方法与输入
 
-Pick the simplest sound sizing approach for the question, then sketch the calculation chain and the major inputs the estimate will depend on.
+为问题选择最简单的合理测算方法，然后勾勒计算链条以及估算所依赖的主要输入。
 
-A top-down model works when reliable aggregate market data exists; a bottom-up model works when the market can be built from observable units and assumptions; a value-based model works when the estimate should start from the value created rather than a published market total. Use a mixed approach only when cross-checking would materially improve confidence. If more than one approach fits, briefly explain which one you trust most and why.
+当存在可靠的总体市场数据时，自上而下模型可行；当市场可以由可观测的单位和假设搭建时，自下而上模型可行；当估算应从创造的价值而非已发布的市场总量出发时，价值导向模型可行。仅当交叉验证能实质性提升置信度时才使用混合方法。如果多种方法都适用，简要说明你最信任哪一种以及原因。
 
-Expect the first approach to change if source checks show that another model would be more defensible.
+如果来源检查表明另一种模型更有说服力，就要预期初始方法会改变。
 
-### 3. Gather Sources For The Inputs
+### 3. 为输入收集来源
 
-Choose sources based on the inputs the estimate depends on most.
+根据估算最依赖的输入来选择来源。
 
-Start with user-named sources when provided. Then use the strongest available evidence for each major input from the starting approach. Use `~~structured_data` when an input should come from the user's data warehouse or another structured data source. Use context lanes such as `~~company_docs`, `~~team_communication`, or `~~dashboards_or_bi` when an input needs business meaning, source-of-truth guidance, or assumptions that are not captured in structured data alone. When an input depends on the outside market, use public sources for benchmarks, population estimates, comparable markets, or proxy assumptions.
+如果用户指定了来源，从这些来源开始。然后为初始方法中的每个主要输入使用可用的最强证据。当某项输入应来自用户的数据仓库或其他结构化数据源时，使用 `~~structured_data`。当某项输入需要业务含义、事实来源指引或仅靠结构化数据无法捕捉的假设时，使用 `~~company_docs`、`~~team_communication` 或 `~~dashboards_or_bi` 之类的上下文通道。当某项输入依赖外部市场时，使用公开来源获取基准、人群估算、可比市场或代理假设。
 
-Use $gather-business-context to resolve context lanes when the right source of truth, business meaning, or assumption set is unclear.
+当正确的事实来源、业务含义或假设集合不清楚时，使用 $gather-business-context 解决上下文通道的问题。
 
-If the strongest source is unavailable or thin, continue with a transparent proxy assumption only when the estimate is still useful. Label the gap and explain how it affects confidence.
+如果最强的来源不可用或单薄，仅当估算仍然有用时才使用透明的代理假设继续。标注缺口并解释它如何影响置信度。
 
-### 4. Separate Facts From Assumptions
+### 4. 区分事实与假设
 
-Keep sourced facts, inferred estimates, and judgment calls distinct in the model. When exact data is unavailable, use a defensible proxy, explain why it is reasonable, and note the confidence level. Ground assumptions in evidence about how the market actually behaves, what can realistically change, and what determines the size of the opportunity.
+在模型中保持有来源的事实、推断的估算和判断性取舍彼此区分。当没有精确数据时，使用有说服力的代理值，解释其合理之处，并注明置信水平。将假设建立在关于市场实际如何运作、什么能现实地改变，以及什么决定机会规模的证据之上。
 
-### 5. Build The Model
+### 5. 构建模型
 
-Make the model easy to inspect and adjust.
+让模型易于检查和调整。
 
-The model should make these elements easy to audit or revise:
+模型应让以下要素易于审计或修订：
 
-- market definition and measurement unit
-- assumptions and source context
-- calculation chain and derived values
-- base case, material ranges, and sensitivity logic
-- validation priorities
+- 市场定义与度量单位
+- 假设与来源上下文
+- 计算链条与派生值
+- 基准情形、实质性区间与敏感性逻辑
+- 校验优先级
 
-For each major input, make the source path visible: structured data, context lane, public source, user-provided input, or proxy assumption.
+对每个主要输入，让来源路径可见：结构化数据、上下文通道、公开来源、用户提供的输入或代理假设。
 
-Keep derived values traceable to formulas or code rather than hardcoded outputs.
+让派生值可追溯到公式或代码，而不是硬编码的输出。
 
-Use $jupyter-notebooks when code is needed for source harmonization, calculations, sensitivity analysis, or reusable modeling logic. Keep formulas, inputs, intermediate calculations, and sensitivity logic inspectable.
+当需要代码来完成来源统一、计算、敏感性分析或可复用建模逻辑时，使用 $jupyter-notebooks。保持公式、输入、中间计算和敏感性逻辑可检查。
 
-Use the `$Spreadsheets` skill when the user requests a spreadsheet, workbook, or Google Sheets deliverable, or when a market-sizing model would materially benefit from editable assumptions, sensitivity tables, charts, or polished workbook formatting.
+当用户要求电子表格、工作簿或 Google Sheets 交付物，或当市场规模模型能实质性受益于可编辑假设、敏感性表、图表或精炼的工作簿格式时，使用 `$Spreadsheets` 技能。
 
-### 6. Test Sensitivity
+### 6. 检验敏感性
 
-Identify the assumptions that move the estimate most.
+识别对估算影响最大的假设。
 
-Show how the estimate changes when those assumptions move up or down. Prefer simple, decision-useful sensitivity analysis over exhaustive scenario sprawl.
+展示当这些假设上下变动时估算如何变化。优先使用简单、对决策有用的敏感性分析，而不是铺开详尽的情景。
 
-Use ranges when uncertainty is material. Do not hide uncertainty behind a single point estimate when the inputs are thin.
+当不确定性具有实质性时使用区间。当输入单薄时，不要用单一的点估计掩盖不确定性。
 
-### 7. State The Estimate And Validation Priorities
+### 7. 陈述估算与校验优先级
 
-End by handing the estimate, method, key assumptions, uncertainty, and next validation priorities to $build-report unless the user explicitly waives report creation or selects another primary artifact. This handoff is mandatory when no explicit human waiver was given; do not infer a waiver because the user asked for an estimate or did not use the word "report". This workflow owns the sizing model and conclusion; $build-report owns the reader-facing structure, visuals, evidence placement, and delivery surface.
+最后把估算、方法、关键假设、不确定性和后续校验优先级交给 $build-report，除非用户明确放弃创建报告或选择另一个主要产物。在没有用户的明确豁免时，该交付是强制的；不要因为用户要求的是估算或没有使用“报告”一词就推断存在豁免。本工作流负责规模模型与结论；$build-report 负责面向读者的结构、视觉、证据摆放和交付界面。
 
-Before handoff, make the market-sizing conclusion explicit:
+交付之前，让市场规模测算的结论明确包含：
 
-- market definition and measurement unit
-- estimate or range
-- method and calculation chain
-- key assumptions and source support
-- main uncertainty drivers and sensitivity takeaways
-- validation priorities and practical interpretation for the user's decision
+- 市场定义与度量单位
+- 估算值或区间
+- 方法与计算链条
+- 关键假设与来源支撑
+- 主要不确定性来源与敏感性要点
+- 校验优先级以及对用户决策的实际解读
 
-If source coverage is thin, say which major inputs rely on proxy assumptions and what source would most improve them.
+如果来源覆盖单薄，说明哪些主要输入依赖代理假设，以及什么来源最能改善它们。
 
-Use $validate-data when methodology, calculations, assumptions, caveats, or source support need review before sharing.
+当方法论、计算、假设、注意事项或来源支撑在分享前需要审阅时，使用 $validate-data。
 
-Do not render charts directly from this skill. If a sensitivity, scenario, funnel, or market-breakdown visual would clarify the estimate, pass that visual intent and supporting evidence to $build-report so $visualize-data owns chart selection and QA.
+不要直接从本技能渲染图表。如果敏感性、情景、漏斗或市场拆分的可视化能澄清估算，将视觉意图和支撑证据传给 $build-report，由 $visualize-data 负责图表选择与 QA。

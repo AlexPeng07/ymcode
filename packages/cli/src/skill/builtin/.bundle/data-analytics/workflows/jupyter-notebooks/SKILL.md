@@ -1,32 +1,29 @@
 ---
 name: jupyter-notebooks
-description: "Create, edit, or validate reproducible SQL or Python notebooks. Use for notebooks, SQL/Python scratchpads, reproducible exploration, audit trails, or runnable companions where the analysis should be reviewable or rerunnable."
+description: "创建、编辑或校验可复现的 SQL 或 Python 笔记本。适用于笔记本、SQL/Python 草稿本、可复现探索、审计轨迹，或分析需可审阅、可重跑的可运行配套产物。 | Trigger keywords: notebook, reproducible analysis, SQL, Python, audit trail, rerunnable, nbconvert."
 ---
 
-## Related Skills
+## 相关技能
 
-Use $validate-data when notebook results support a recommendation, shared claim, or decision.
+当笔记本结果支撑某项建议、共享主张或决策时，使用 $validate-data。
 
-# Jupyter Notebooks
+# Jupyter 笔记本
 
-Create clean, reproducible Jupyter notebooks that are easy to skim, rerun, and handoff. Treat the notebook as a reader-facing analysis artifact, not a scratchpad dump. Notebook work is not complete until the notebook executes successfully top-to-bottom, or the execution gap is called out with the exact validation steps needed to reproduce it.
+创建整洁、可复现的 Jupyter 笔记本，便于快速浏览、重跑和交接。把笔记本视为面向读者的分析产物，而不是草稿本转储。只有当笔记本能够自上而下成功执行，或执行缺口已连同复现所需的确切校验步骤一并说明时，笔记本工作才算完成。
 
-## Workflow
+## 工作流
 
-1. Lock the notebook mode and scope.
+1. 确定笔记本模式与范围。
 
-   Decide whether the notebook is an analysis report, experiment log, diagnostic notebook, data-quality check, market-sizing calculation, model exploration,
-   tutorial, or companion artifact for a report. Identify the reader, decision,
-   expected handoff, required inputs, and whether the task calls for a new notebook or targeted edits to an existing one.
+   判断笔记本是分析报告、实验日志、诊断笔记本、数据质量检查、市场规模测算、模型探索、教程，还是报告的配套产物。确定读者、决策、预期交接方式、必需输入，以及任务需要新建笔记本还是对现有笔记本做定向编辑。
 
-2. Inspect or scaffold with notebook-safe tooling.
+2. 使用对笔记本安全的工具进行检查或搭建。
 
-   Prefer JupyterLab, `nbformat`, `nbclient`, or an existing scaffold utility over hand-editing raw JSON. When editing an existing notebook, preserve its intent and minimize JSON churn. Avoid reordering cells unless it clearly improves the top-to-bottom story. If raw JSON editing is unavoidable,
-   validate the notebook structure before finishing.
+   优先使用 JupyterLab、`nbformat`、`nbclient` 或现有的脚手架工具，而不是手工编辑原始 JSON。编辑现有笔记本时，保留其意图并尽量减少 JSON 变动。除非能明显改善自上而下的叙事，否则不要重排单元格。如果无法避免直接编辑原始 JSON，则在完成前校验笔记本结构。
 
-3. Structure the notebook for the chosen mode.
+3. 按所选模式组织笔记本结构。
 
-   For analytical notebooks, default to:
+   对于分析型笔记本，默认使用：
 
    1. `## tl;dr`
    2. `## Context & Methods`
@@ -34,9 +31,9 @@ Create clean, reproducible Jupyter notebooks that are easy to skim, rerun, and h
    4. `## Results`
    5. `## Takeaways`
 
-   Write `tl;dr` and takeaways after reviewing executed outputs. Use concrete observed values, visible patterns, rows, or charts, not assumptions. Include a `### Key Assumptions` subsection in `Context & Methods` when assumptions affect correctness.
+   在审阅已执行的输出之后再撰写 `tl;dr` 和要点。使用具体的观测值、可见的模式、行或图表，而不是假设。当假设影响正确性时，在 `Context & Methods` 中包含 `### Key Assumptions` 小节。
 
-   For tutorials or walkthroughs, adapt the same discipline to a teaching flow:
+   对于教程或演练，将同样的纪律适配到教学流程：
 
    1. `## Goal`
    2. `## Setup`
@@ -44,85 +41,79 @@ Create clean, reproducible Jupyter notebooks that are easy to skim, rerun, and h
    4. `## Checks`
    5. `## Next Steps`
 
-4. Build a clear data and computation path.
+4. 构建清晰的数据与计算路径。
 
-   Separate setup, imports, parameters, data loading, data preparation,
-   calculations, visualizations, and interpretation. If the notebook uses both SQL and Python, keep complex SQL in SQL cells or separate query files rather than large embedded Python strings unless there is a clear reason. Use descriptive variable names and keep each code cell focused on one step.
+   分离环境准备、导入、参数、数据加载、数据准备、计算、可视化和解读。如果笔记本同时使用 SQL 和 Python，应将复杂 SQL 放在 SQL 单元格或单独的查询文件中，而不是大段嵌入 Python 字符串，除非有明确理由。使用描述性的变量名，并让每个代码单元格专注于一个步骤。
 
-5. Use data sources deliberately.
+5. 有意识地使用数据源。
 
-   When a notebook needs table data, first use `~~structured_data` to confirm table choice, schema, partition filters, sample rows, and query-submission policy. Use the relevant source connector when available, then fall back to exports or pasted SQL when needed. Use `~~operations_logs` for freshness or lineage checks when they matter. Record query permalinks, request IDs, source paths, dashboard links,
-   extract names, or other source artifacts in the notebook context for any executed result that supports the analysis. Keep heavy queries filtered and bounded instead of turning the notebook into a broad live-source scan.
+   当笔记本需要表数据时，先使用 `~~structured_data` 确认表的选择、schema、分区过滤条件、样例行和查询提交策略。可用时使用相关的数据源连接器，必要时回退到导出文件或粘贴的 SQL。当新鲜度或血缘检查重要时，使用 `~~operations_logs`。对任何支撑分析的已执行结果，在笔记本上下文中记录查询永久链接、请求 ID、源路径、仪表盘链接、抽取名称或其他来源产物。让重查询保持过滤和有界，不要把笔记本变成宽泛的实时数据源扫描。
 
-6. Make cells readable and bounded.
+6. 让单元格可读且有界。
 
-   Add concise markdown headers before most code cells. Keep headers brief and action-oriented, such as `### 1. Load Data`, `### 2. Validate Inputs`, or `### 3. Plot Results`. Favor several short cells over one large mixed-purpose cell. Keep prose short: explain purpose, assumptions, and expected result, not every line of code. Split multiple tables or charts across separate cells instead of dumping all outputs from one cell.
+   在大多数代码单元格之前添加简洁的 markdown 标题。标题应简短且面向行动，例如 `### 1. Load Data`、`### 2. Validate Inputs` 或 `### 3. Plot Results`。优先使用多个短单元格，而不是一个用途混杂的大单元格。保持文字简短：解释目的、假设和预期结果，而不是逐行解释代码。将多个表格或图表拆分到不同单元格，而不是在一个单元格中倾倒所有输出。
 
-7. Validate results before writing conclusions.
+7. 在撰写结论之前校验结果。
 
-   Check that key numbers, charts, and takeaways match executed outputs. Bound raw debug output, oversized tables, and noisy logs. If a result is surprising, add a local reasonableness check, small sample inspection, or reconciliation against a trusted source before promoting it to the summary.
+   检查关键数字、图表和要点是否与已执行的输出一致。限制原始调试输出、超大表格和嘈杂日志。如果结果出人意料，先添加局部合理性检查、小样本抽查或与可信来源的对账，再将其提升到摘要中。
 
-8. Execute and record validation status.
+8. 执行并记录校验状态。
 
-   Run the notebook top-to-bottom when the environment allows:
+   环境允许时自上而下运行笔记本：
 
    ```bash
    python -m jupyter nbconvert --execute --to notebook --inplace path/to/notebook.ipynb
    ```
 
-   Optional local setup when needed:
+   需要时的可选本地安装：
 
    ```bash
    uv pip install jupyterlab nbformat nbclient ipykernel
    ```
 
-   If execution is not possible, say so explicitly and provide the exact command,
-   missing dependency, credential, data access, kernel, or environment step needed to validate locally.
+   如果无法执行，明确说明，并提供在本地校验所需的确切命令、缺失依赖、凭证、数据访问、内核或环境步骤。
 
-## Standards
+## 标准
 
-### Notebook Structure
+### 笔记本结构
 
-- Make the default top-to-bottom read clear before the reader starts executing cells out of order.
-- Put executive summary material at the top, but write it last after inspecting executed results.
-- Keep notebook sections aligned with the notebook mode: analysis, experiment,
-  diagnostic, tutorial, or handoff artifact.
-- Keep section titles, chart titles, labels, and file names descriptive enough for handoff.
-- Preserve the existing notebook's intent when refactoring; improve structure without rewriting everything by default.
+- 在读者开始乱序执行单元格之前，先让默认的自上而下阅读路径清晰。
+- 把执行摘要材料放在顶部，但要在检查已执行结果之后最后撰写。
+- 让笔记本章节与笔记本模式保持一致：分析、实验、诊断、教程或交接产物。
+- 让章节标题、图表标题、标签和文件名足够描述性，便于交接。
+- 重构时保留现有笔记本的意图；默认情况下改进结构，而不是全部重写。
 
-### Reproducibility
+### 可复现性
 
-- Keep parameters, date ranges, filters, cohorts, assumptions, and source references visible near the top of the notebook.
-- Record enough source context for another reader to trace the analysis: query permalinks, request IDs, table names, source paths, spreadsheet tabs,
-  dashboard links, extract versions, or input file locations.
-- Make computation deterministic where possible. Avoid hidden state, manually edited intermediate values, out-of-order dependencies, and unexplained cached outputs.
-- Prefer explicit environment setup cells or notes when the notebook depends on nonstandard packages, kernels, credentials, or local files.
-- Execute the notebook when the task requires a runnable artifact. In the final response, do not add a separate routine validation section for a clean run; surface execution gaps, partial execution, or unrun notebooks with the reason because those affect whether the user can rely on the artifact.
+- 让参数、日期范围、过滤器、同期群、假设和来源引用在笔记本顶部附近可见。
+- 记录足够的来源上下文，使另一位读者能追溯分析：查询永久链接、请求 ID、表名、源路径、电子表格页签、仪表盘链接、抽取版本或输入文件位置。
+- 尽可能让计算具有确定性。避免隐藏状态、手工编辑的中间值、乱序依赖以及未解释的缓存输出。
+- 当笔记本依赖非标准包、内核、凭证或本地文件时，优先提供显式的环境准备单元格或说明。
+- 当任务要求可运行的产物时执行笔记本。在最终回复中，对于干净运行不要额外添加例行校验章节；要暴露执行缺口、部分执行或未运行的笔记本及其原因，因为这些会影响用户能否依赖该产物。
 
-### Code And Data Hygiene
+### 代码与数据卫生
 
-- Separate data preparation from presentation.
-- Keep complex SQL readable and documented with a one-line goal comment.
-- Keep plotting and lightweight shaping in Python after the data preparation step is complete.
-- Use descriptive variable names and avoid abbreviated temporary names in reader-facing notebooks.
-- Keep outputs bounded. Prefer small preview tables, sampled rows, explicit limits, and focused charts over raw dumps.
-- Avoid broad live-source scans. Filter queries by needed partitions, cohorts,
-  or time windows.
+- 将数据准备与呈现分离。
+- 保持复杂 SQL 可读，并用一行目标注释加以说明。
+- 数据准备步骤完成后，绘图和轻量整形留在 Python 中。
+- 使用描述性变量名，在面向读者的笔记本中避免缩写的临时名称。
+- 保持输出有界。优先使用小预览表、抽样行、显式限制和聚焦的图表，而不是原始转储。
+- 避免宽泛的实时数据源扫描。按所需分区、同期群或时间窗口过滤查询。
 
-### Analysis Quality
+### 分析质量
 
-- Make assumptions explicit when they affect interpretation.
-- Tie takeaways to executed outputs with concrete numbers, rows, charts, or visible patterns.
-- Do not promote unexecuted or unverified calculations into the `tl;dr`.
-- Label caveats, incomplete checks, missing source access, and known validation gaps.
-- Add reasonableness checks for surprising results, high-impact claims, or stakeholder-facing conclusions.
+- 当假设影响解读时，明确写出假设。
+- 将要点与已执行输出绑定，用具体数字、行、图表或可见模式支撑。
+- 不要把未执行或未核验的计算提升到 `tl;dr`。
+- 标注注意事项、未完成的检查、缺失的数据源访问和已知的校验缺口。
+- 对出人意料的结果、高影响主张或面向利益相关方的结论添加合理性检查。
 
-### Validation Checklist
+### 校验清单
 
-- Required section order is present for the notebook mode.
-- The notebook executes without runtime errors, or execution failure is called out explicitly.
-- Outputs are present where expected and are not dominated by raw debug dumps.
-- The `tl;dr`, results, and takeaways match executed cells.
-- Source references and query or artifact links are preserved.
-- Tables and charts are labeled, bounded, and interpretable.
-- The final response includes the notebook path and validation status.
+- 笔记本模式所要求的章节顺序齐备。
+- 笔记本执行时没有运行时错误，或已明确说明执行失败。
+- 输出出现在预期位置，且未被原始调试转储主导。
+- `tl;dr`、结果和要点与已执行的单元格一致。
+- 来源引用以及查询或产物链接得到保留。
+- 表格和图表有标签、有界且可解读。
+- 最终回复包含笔记本路径和校验状态。

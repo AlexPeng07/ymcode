@@ -1,32 +1,32 @@
 ---
 name: deep-research
-description: Deep research on any topic using parallel sub-agents and built-in tools only (WebSearch/WebFetch + free APIs, no keys). Use when the user asks for a thorough multi-source investigation with a cited report — "深度调研X"、"deep research"、"帮我全面研究一下"、"多方求证"、"写一份调研报告". NOT for simple lookups (single WebSearch suffices) and NOT for academic literature surveys (use auto-research skill instead).
+description: 使用并行子代理和内置工具（WebSearch/WebFetch + 免费 API，无需密钥）对任意主题做深度研究。当用户要求带引用的多来源彻底调研时使用，例如「深度调研X」「deep research」「帮我全面研究一下」「多方求证」「写一份调研报告」。不适用于简单查证（一次 WebSearch 即可），也不适用于学术文献综述（请改用 auto-research 技能）。 | Deep multi-source investigation with a cited report; not for simple lookups or academic literature surveys.
 ---
 
 # Deep Research
 
-Orchestrate parallel research sub-agents, then write one coherent cited report. Research is parallel; writing is single-point — never let multiple agents write report sections.
+编排并行研究子代理，然后撰写一份连贯、带引用的报告。研究是并行的；写作是单点的——绝不让多个智能体分头撰写报告章节。
 
-## Step 0 — Always first
+## 第 0 步 — 始终先做
 
-1. Run `date +%Y-%m-%d` via Bash. Never assume the current year from training data.
-2. Triage:
-   - Answerable with 1-2 searches? → STOP, just use WebSearch directly. Do not use this skill.
-   - Enumeration task (N items × M fields, e.g. "compare 20 frameworks")? → still this skill, but use table-oriented decomposition (one sub-agent per item batch).
-   - Open-ended investigation? → continue below.
-3. Pick depth (default **standard**; user can override with words like "quick"/"exhaustive"):
+1. 通过 Bash 运行 `date +%Y-%m-%d`。绝不要根据训练数据假定当前年份。
+2. 分类：
+   - 1-2 次搜索就能回答？→ 停下，直接用 WebSearch。不要使用本技能。
+   - 枚举任务（N 个条目 × M 个字段，例如「对比 20 个框架」）？→ 仍用本技能，但采用面向表格的分解（每批条目一个子代理）。
+   - 开放式调研？→ 继续往下。
+3. 选择深度（默认 **standard**；用户可用「quick」「exhaustive」等说法覆盖）：
 
-| Mode | Sub-agents (round 1) | Max follow-up rounds | Sources target |
+| 模式 | 子代理数（第 1 轮） | 最多追问轮次 | 来源目标 |
 |---|---|---|---|
 | quick | 2-3 | 0 | 8+ |
 | standard | 3-5 | 1 | 15+ |
 | deep | 5-8 | 2 | 25+ |
 
-These are hard budgets. Reflection (Phase 4) can spend them but never exceed them.
+这些是硬性预算。反思（阶段 4）可以花掉它们，但绝不能超出。
 
-## Workspace
+## 工作区
 
-All state lives on disk at `./research/<slug>/` — never only in context (survives compaction):
+所有状态都落盘在 `./research/<slug>/`——绝不只留在上下文中（要能扛过上下文压缩）：
 
 ```
 research/<slug>/
@@ -35,46 +35,46 @@ research/<slug>/
 └── REPORT.md        # final deliverable
 ```
 
-On resume: re-read `brief.md` + list `findings/`, skip completed angles, continue.
+恢复会话时：重读 `brief.md` + 列出 `findings/`，跳过已完成的视角，继续推进。
 
-## Phase 1 — Scope
+## 阶段 1 — 界定范围
 
-Ask at most one round of clarifying questions (AskUserQuestion), only if genuinely ambiguous: audience, time frame, region, decision at stake. If the user said "just run it" or intent is clear, skip asking and write assumptions into the brief instead.
+最多提一轮澄清问题（AskUserQuestion），且仅在确实含糊时：受众、时间范围、地区、待决决策。如果用户说「直接开跑」或意图清晰，跳过提问，把假设写进 brief。
 
-Then write `brief.md`: refined question, scope boundaries (in/out), assumptions, depth mode, today's date. This brief — not the raw conversation — is what every later phase measures against.
+然后编写 `brief.md`：精炼后的问题、范围边界（包含/排除）、假设、深度模式、今天的日期。后续每个阶段都以这份 brief（而非原始对话）为衡量基准。
 
-## Phase 2 — Plan
+## 阶段 2 — 规划
 
-Decompose the brief into 3-8 **independent** research angles. Pull from these lenses as applicable: core facts/definitions · recent developments (last 12 months) · quantitative data/benchmarks · counter-arguments & failure cases · practitioner experience (forums, issues) · academic work · key players/alternatives.
+把 brief 分解为 3-8 个**相互独立**的研究视角。按需从这些透镜取材：核心事实/定义 · 最新进展（近 12 个月）· 定量数据/基准 · 反方论证与失败案例 · 实践者经验（论坛、issue）· 学术工作 · 关键玩家/替代方案。
 
-List angles in `brief.md` under `## Angles`. For deep mode or contested topics, show the angle list to the user for a quick confirm before spending budget.
+把这些视角列在 `brief.md` 的 `## Angles` 下。深度模式或有争议的话题，在消耗预算前把视角清单给用户快速确认。
 
-## Phase 3 — Parallel research
+## 阶段 3 — 并行研究
 
-Spawn one sub-agent per angle **in a single message** (parallel). Build each prompt from the locked template in [reference/subagent-prompt.md](reference/subagent-prompt.md) — reproduce it verbatim, replacing only the `{variables}`. Each sub-agent:
+在**一条消息中**为每个视角各派生一个子代理（并行）。每个提示词都基于 [reference/subagent-prompt.md](reference/subagent-prompt.md) 中锁定的模板构造——逐字复现，只替换 `{variables}`。每个子代理：
 
-- researches ONE angle only, using WebSearch/WebFetch and the free endpoints in [reference/sources.md](reference/sources.md)
-- writes structured findings to `findings/F<n>.md` (claim / quote / URL / date / confidence per item)
-- returns only a 3-5 line summary to you — raw page content must never enter your context
+- 只研究一个视角，使用 WebSearch/WebFetch 以及 [reference/sources.md](reference/sources.md) 中的免费端点
+- 把结构化发现写入 `findings/F<n>.md`（每条包含 论断 / 引文 / URL / 日期 / 置信度）
+- 只向你返回 3-5 行摘要——原始页面内容绝不能进入你的上下文
 
-If a sub-agent fails or returns thin results, note it and move on; do not block other angles.
+如果某个子代理失败或返回的结果单薄，记录后继续；不要阻塞其他视角。
 
-## Phase 4 — Reflect (gap check)
+## 阶段 4 — 反思（缺口检查）
 
-Read all `findings/*.md`. Against `brief.md`, ask: which parts of the brief have no evidence? Which major claims rest on a single source? Where do sources conflict?
+阅读所有 `findings/*.md`。对照 `brief.md` 自问：brief 的哪些部分没有证据？哪些重要论断只依赖单一来源？来源在哪些地方互相冲突？
 
-- Gaps found AND follow-up budget remains → spawn targeted sub-agents with delta-queries (same template, narrower angle). Repeat once per remaining round.
-- No budget left or coverage sufficient → proceed. Record unresolved gaps; they go in the report's "Open questions".
+- 发现缺口且追问预算仍有剩余 → 用增量查询派生定向子代理（同一模板，更窄的视角）。每剩余一轮重复一次。
+- 预算耗尽或覆盖已足够 → 继续。记录未解决的缺口；它们会进入报告的「Open questions」。
 
-## Phase 5 — Write (single-point)
+## 阶段 5 — 写作（单点）
 
-You alone write `REPORT.md` in one pass, following [reference/report.md](reference/report.md). Core rules:
+你独自一遍写完 `REPORT.md`，遵循 [reference/report.md](reference/report.md)。核心规则：
 
-- Every non-obvious claim carries an inline citation `[n]` mapping to a Sources section; citation URLs come only from findings files — never from memory.
-- Where sources conflict, present both sides with dates; prefer newer + primary sources.
-- Mark single-source claims with `[single source]`, speculation with `[speculative]`.
-- End with: Open questions · Sources (numbered, with access date).
+- 每条非显而易见的论断都带行内引用 `[n]` 并映射到 Sources 章节；引用 URL 只能来自 findings 文件——绝不能凭记忆。
+- 来源冲突时，呈现双方并附日期；优先更新且为一手的来源。
+- 用 `[single source]` 标记单一来源的论断，用 `[speculative]` 标记推测。
+- 结尾包含：Open questions · Sources（编号，附访问日期）。
 
-For deep mode, before finalizing do one critique pass: reread the report as a skeptical reviewer (unsupported claims? stale data? missing counter-view?) and fix in place.
+深度模式下，定稿前先做一次批判性通读：以怀疑审稿人的身份重读报告（有无无支撑的论断？数据是否陈旧？缺少反方观点？），并就地修正。
 
-Finally, give the user a 5-10 line summary of key conclusions and the report path.
+最后，给用户 5-10 行的关键结论摘要和报告路径。

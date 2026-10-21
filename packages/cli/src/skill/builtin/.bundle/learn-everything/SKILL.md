@@ -1,206 +1,206 @@
 ---
 name: learn-everything
-description: Turn an uploaded PDF, paper, book chapter, document, URL, or user-provided topic into a structured, interactive learning course. Use when the user wants to learn, study, understand, master, review, or practice a subject chapter by chapter; asks for a tutorial or curriculum from source material; wants exercises, quizzes, answer grading, hints, spaced review, or a final assessment; or says "teach me this", "learn this PDF", "分章节教学", "带我学", or similar; or returns to continue a previous course ("continue my course", "接着上次学") or supplies a saved course-state file or state block. Adapt explanations and practice to the learner's level, preserve page or section references for documents, and teach incrementally rather than dumping all content at once.
+description: 把上传的 PDF、论文、书籍章节、文档、URL 或用户自选的主题，变成结构化、可交互的学习课程。适用于用户想逐章学习、研读、理解、掌握、复习或练习某个主题；想要基于素材的教程或课程体系；想要练习、测验、答案批改、提示、间隔复习或结课测评；或说「教我这个」「learn this PDF」「分章节教学」「带我学」等类似表达；或回来继续之前的课程（「continue my course」「接着上次学」），或提供了已保存的课程状态文件/状态块。解释与练习要适配学员水平，为文档保留页码或章节引用，并增量教学，而不是一次倾倒全部内容。 | Turn a PDF/paper/URL/topic into an interactive course; continue a saved course.
 ---
 
 # Learn Everything
 
-Convert source material or a topic into an adaptive course that alternates explanation, retrieval, application, feedback, and review.
+把素材或主题转换成自适应课程，在讲解、回忆、应用、反馈与复习之间交替。
 
-## Core behavior
+## 核心行为
 
-- Teach in the user's language unless they request another language.
-- Optimize for durable understanding, not merely summarization.
-- Work incrementally. Present a course map, then teach one chapter or lesson at a time.
-- Do not reveal exercise solutions before the learner attempts them, unless the learner explicitly asks.
-- Persist learning state. When file tools are available, maintain `learn/<slug>/course-state.md` (course map with completion, concept mastery table, review queue, error log) and update it at chapter boundaries — not every turn. Without file tools, keep state in conversation and emit a compact copyable state block at each chapter checkpoint so the learner can save it and paste it back to resume later. See `references/session-formats.md` for both formats.
-- Prefer concrete examples, analogies, diagrams described in text, counterexamples, and worked derivations over abstract exposition alone.
-- Separate source claims from added background knowledge. Never attribute added material to the source.
-- Match depth and notation to the learner. Define unfamiliar terms before relying on them.
+- 使用用户的语言教学，除非用户要求其他语言。
+- 以持久理解作为优化目标，而不只是做摘要。
+- 增量推进。先给出课程地图，再一章/一课地教学。
+- 学员尝试练习之前不要揭示答案，除非学员明确要求。
+- 持久化学习状态。有文件工具时，维护 `learn/<slug>/course-state.md`（含完成情况的课程地图、概念掌握表、复习队列、错误日志），并在章节边界更新——不是每一轮都更新。没有文件工具时，把状态保留在对话中，并在每个章节检查点输出一份紧凑的可复制状态块，供学员保存、日后粘贴回来继续。两种格式见 `references/session-formats.md`。
+- 优先使用具体例子、类比、用文字描述的图示、反例和完整推导，而不是只有抽象阐述。
+- 区分来源中的论断与补充的背景知识。绝不把补充材料归到来源名下。
+- 深度与记号要匹配学员。在依赖陌生术语之前先定义它。
 
-## Determine the input mode
+## 判断输入模式
 
-### Document mode
+### 文档模式
 
-Use document mode for PDFs, papers, books, slides, notes, or other supplied material.
+PDF、论文、书籍、幻灯片、笔记或其他提供的材料，使用文档模式。
 
-1. Read the document's structure first: table of contents, headings, section lengths, and spot checks of dense sections. Fully read short sources (a paper, a chapter, roughly ≤30 pages) before finalizing the course map; for longer sources, finalize the map from structure and read full text lazily — only the chapter currently being taught, immediately before teaching it.
-2. Identify the table of contents, headings, prerequisites, central claims, definitions, examples, equations, figures, tables, and appendices.
-3. Use semantic units rather than equal page ranges. Merge short dependent sections and split dense sections.
-4. Cite page numbers and section names when teaching source-specific content.
-5. Examine relevant figures, tables, and diagrams rather than relying only on extracted text.
-6. Mark unreadable, missing, contradictory, or ambiguous source content explicitly. Do not invent a reconstruction.
-7. Treat the supplied source as the primary curriculum. Add outside material only to supply prerequisites, clarify, correct an apparent error, or provide practice; label it as supplemental.
+1. 先读文档结构：目录、标题、各节长度，并抽查密集章节。短来源（一篇论文、一章，约 ≤30 页）在定稿课程地图前完整读完；更长的来源则依据结构定稿地图，并按需惰性读全文——只在即将讲授当前章节之前读该章。
+2. 识别目录、标题、先决知识、核心论断、定义、示例、公式、图表、表格与附录。
+3. 使用语义单元，而不是等长的页码区间。合并短小且相互依赖的章节，拆分密集章节。
+4. 讲授来源特定内容时，引用页码与章节名。
+5. 查看相关图表与示意图，而不是只依赖抽取出的文本。
+6. 明确标出不可读、缺失、自相矛盾或含糊的来源内容。不要臆造还原。
+7. 把提供的来源视为主要课程内容。仅为补充先决知识、澄清、纠正明显错误或提供练习而加入外部材料；并标明其为补充。
 
-### Topic mode
+### 主题模式
 
-Use topic mode when the learner supplies a subject rather than a source.
+当学员给出的是学科主题而非来源时，使用主题模式。
 
-1. Define a sensible scope and end capability.
-2. Identify prerequisites and arrange concepts from foundational to advanced.
-3. For current, niche, contested, or externally verifiable topics, research authoritative sources with available web tools before constructing the curriculum.
-4. Prefer primary sources and official documentation for technical or scientific claims.
-5. Distinguish stable fundamentals from current developments.
-6. State material scope and assumptions in the course map.
+1. 定义合理的范围与最终能力。
+2. 识别先决知识，并按从基础到进阶排列概念。
+3. 对于时效性强、小众、有争议或可外部验证的主题，先用可用的网页工具调研权威来源，再构建课程。
+4. 对技术或科学论断，优先使用一手来源与官方文档。
+5. 区分稳定的基础知识与当前进展。
+6. 在课程地图中说明材料范围与假设。
 
-Do not delay progress for minor ambiguity. Choose a useful default scope and make it visible.
+不要因为轻微含糊而拖延进度。选择一个有用的默认范围，并让它可见。
 
-### Resume mode
+### 恢复模式
 
-Use resume mode when the learner supplies a saved course-state file or state block, or asks to continue a previous course.
+当学员提供已保存的课程状态文件或状态块，或要求继续之前的课程时，使用恢复模式。
 
-1. Read the state: completed chapters, concept table, review queue, error log.
-2. Run 2–4 warm-up retrieval questions before new content, weighted toward review-needed concepts and past error classes. Ask fresh questions, never the originals verbatim.
-3. Give a one-line position recap, update the state with warm-up results, then proceed with the current chapter.
-4. If the source document is needed but not re-supplied, ask for it; teach from the state's concept summaries only as a stopgap and say so.
+1. 读取状态：已完成章节、概念表、复习队列、错误日志。
+2. 在新内容前先做 2–4 道热身回忆题，偏向需要复习的概念和过往错误类别。出新的问题，绝不要原样重复旧题。
+3. 给出一行位置回顾，用热身结果更新状态，然后继续当前章节。
+4. 如果需要来源文档但未重新提供，向学员索取；只能临时依据状态中的概念摘要教学，并说明这一点。
 
-## Start the course
+## 开课
 
-Gather only information that materially changes the lesson. If the learner's level or goal is unknown, either:
+只收集会实质改变教学的信息。如果学员的水平或目标未知，可以：
 
-- ask one compact diagnostic question, or
-- offer a 3-question diagnostic quiz and let the learner skip it.
+- 提一个紧凑的诊断性问题，或
+- 提供 3 题诊断小测，并允许学员跳过。
 
-Do not ask a long questionnaire. Infer preferences from the conversation whenever possible.
+不要发长篇问卷。尽可能从对话中推断偏好。
 
-Then provide:
+然后提供：
 
-1. **Target capability** — what the learner should be able to explain or do.
-2. **Course map** — 3–12 chapters, each with purpose and prerequisites.
-3. **Estimated level** — beginner, intermediate, advanced, or mixed, with a brief reason.
-4. **Learning contract** — explain that lessons proceed one at a time and answers remain hidden until attempted.
-5. **Next action** — begin the first lesson or diagnostic immediately.
+1. **目标能力** — 学员应能解释或做到什么。
+2. **课程地图** — 3–12 章，每章含目的与先决条件。
+3. **估计水平** — 入门、中级、高级或混合，并给出简短理由。
+4. **学习契约** — 说明课程逐课推进，答案在尝试前保持隐藏。
+5. **下一步动作** — 立即开始第一课或诊断。
 
-Use the detailed formats in `references/session-formats.md` when consistency is useful.
+需要一致性时，使用 `references/session-formats.md` 中的详细格式。
 
-## Build the course map
+## 构建课程地图
 
-Create chapters around conceptual dependencies, not source length alone. Each chapter should have:
+围绕概念依赖来划分章节，而不只按来源长度。每章应包含：
 
-- a concise title;
-- one observable learning objective;
-- key concepts;
-- prerequisite links;
-- source pages or sections in document mode;
-- one planned practice outcome.
+- 一个简洁的标题；
+- 一个可观察的学习目标；
+- 关键概念；
+- 先决链接；
+- 文档模式下的来源页码或章节；
+- 一个计划中的练习产出。
 
-Use these sizing rules:
+使用这些规模规则：
 
-- Split a chapter when it contains more than one major reasoning jump.
-- Merge sections that cannot be understood independently.
-- Create a prerequisite bridge chapter when the source assumes missing knowledge.
-- Keep advanced appendices optional unless needed for the learner's goal.
-- For sources with more than ~12 natural chapters, group chapters into parts, agree on scope with the learner, and run the course part by part rather than flattening everything into one map.
-- Reorder only when pedagogically necessary; explain the reordering in document mode.
+- 一章包含多于一次重大推理跳跃时，拆分它。
+- 无法独立理解的章节合并。
+- 当来源假定了学员缺失的知识时，创建一个先决知识桥梁章节。
+- 进阶附录保持可选，除非学员的目标需要。
+- 来源自然章节超过约 12 章时，把章节分组成篇，与学员就范围达成一致，按篇推进课程，而不是把所有内容压进一张地图。
+- 仅在教学上必要时重排；文档模式下要解释重排的原因。
 
-## Teach each lesson
+## 讲授每一课
 
-Follow this lesson loop:
+遵循这一课循环：
 
-1. **Orientation** — state why the lesson matters and connect it to prior learning.
-2. **Objectives** — give 2–4 observable goals.
-3. **Core explanation** — explain in small sections, introducing one conceptual jump at a time.
-4. **Worked example** — demonstrate the reasoning, not only the final result.
-5. **Misconception check** — identify 1–3 likely confusions or boundary cases.
-6. **Active recall** — ask a brief check before proceeding to longer practice.
-7. **Practice** — assign exercises calibrated to current mastery.
-8. **Feedback loop** — grade the learner's response and decide whether to advance, remediate, or increase difficulty.
+1. **定向** — 说明本课为何重要，并与先前学习建立联系。
+2. **目标** — 给出 2–4 个可观察的目标。
+3. **核心讲解** — 分小段讲解，一次只引入一次概念跳跃。
+4. **示例推演** — 展示推理过程，而不只是最终结果。
+5. **误区检查** — 指出 1–3 个可能的混淆点或边界情形。
+6. **主动回忆** — 在进入较长练习前先做一次简短检查。
+7. **练习** — 布置与当前掌握度相匹配的练习。
+8. **反馈回路** — 批改学员的回答，决定推进、补救还是提高难度。
 
-For dense material, pause after each major concept and ask a single check question. For straightforward material, teach the full lesson before practice.
+对密集材料，每讲完一个核心概念就暂停并提出一个检查问题。对直白的材料，可讲完整课再练习。
 
-## Design practice
+## 设计练习
 
-Select exercises from multiple cognitive levels:
+从多个认知层次中选择练习：
 
-- **Recall:** define, list, label, reproduce.
-- **Explain:** restate in the learner's own words; compare concepts; explain why.
-- **Apply:** solve a representative problem or use the method in context.
-- **Debug:** find an error in reasoning, code, derivation, or interpretation.
-- **Transfer:** apply the idea in a novel setting.
-- **Synthesize:** connect several chapters or produce an artifact.
+- **回忆：** 定义、列举、标注、复述。
+- **解释：** 用自己的话复述；比较概念；解释原因。
+- **应用：** 解决代表性题目，或在情境中使用该方法。
+- **纠错：** 在推理、代码、推导或解释中找出错误。
+- **迁移：** 在新情境中应用该思想。
+- **综合：** 连接多个章节，或产出一个成果物。
 
-Default to 3–5 exercises per lesson, mixing at least two levels. Prefer one exercise at a time when grading interactively. Use larger sets only when the learner requests a worksheet or exam.
+默认每课 3–5 道练习，至少混合两个层次。交互批改时一次只给一道题。仅当学员要求练习册或考试时才使用更大的题量。
 
-Consult `references/practice-and-mastery.md` for exercise-writing rules, difficulty bands, adaptation, and grading rubrics. The cognitive levels above describe *what the learner does*; the difficulty bands in the reference describe *how much scaffolding* — they combine freely.
+练习编写规则、难度分级、适配与评分量表见 `references/practice-and-mastery.md`。上面的认知层次描述的是*学员做什么*；参考文档中的难度分级描述的是*给多少脚手架*——两者可自由组合。
 
-## Grade and respond to learner answers
+## 批改与回应学员答案
 
-Evaluate substance before wording. Use this sequence:
+先评估实质，再看措辞。使用这个顺序：
 
-1. State the verdict: correct, mostly correct, partially correct, or needs revision.
-2. Identify what was done well.
-3. Point to the first important gap or error.
-4. Explain the correction with the smallest useful amount of teaching.
-5. Ask for a revision, provide a targeted follow-up, or advance.
+1. 给出判定：正确、基本正确、部分正确，或需要修改。
+2. 指出做得好的地方。
+3. 指出第一个重要缺口或错误。
+4. 用最小必要的讲解说明更正。
+5. 要求修改、提供定向追问，或继续推进。
 
-Do not merely say “correct.” Reinforce the decisive reasoning.
+不要只说「正确」。要强化决定性的推理。
 
-When the answer is wrong:
+当答案错误时：
 
-- First provide a hint that targets the misconception.
-- Give a stronger hint after another failed attempt.
-- Reveal a worked solution after repeated attempts, an explicit request, or when further guessing has low learning value.
-- Immediately follow a revealed solution with a near-transfer question.
+- 先给出针对该误区的提示。
+- 再次失败后给出更强的提示。
+- 在多次尝试后、学员明确要求时，或继续猜测的学习价值很低时，揭示完整解法。
+- 揭示解法后立即给一道近迁移题。
 
-When the answer is correct:
+当答案正确时：
 
-- Increase difficulty gradually.
-- Ask for explanation if the learner may have guessed.
-- Use a transfer question when mastery appears strong.
+- 逐步提高难度。
+- 如果学员可能是猜的，要求解释。
+- 掌握度看起来很强时，使用迁移题。
 
-## Track mastery and review
+## 跟踪掌握与复习
 
-Maintain a concept table — one row per concept — in the course state (file or state block):
+在课程状态（文件或状态块）中维护概念表——每个概念一行：
 
-- status: unseen, introduced, practicing, mastered, or review-needed;
-- evidence: strongest recent answer or error;
-- confidence: low, medium, or high;
-- next review point.
+- 状态：未见、已引入、练习中、已掌握或需复习；
+- 证据：最近最强的回答或错误；
+- 置信度：低、中或高；
+- 下次复习点。
 
-Update it at chapter boundaries and after significant errors. Do not print the full table every turn; show a compact progress snapshot at chapter boundaries or when requested.
+在章节边界和出现重大错误后更新它。不要每轮都打印整张表；在章节边界或学员要求时展示紧凑的进度快照。
 
-Schedule cumulative review:
+安排累积复习：
 
-- after each chapter: 2–4 retrieval questions from current and earlier material;
-- after roughly one-third and two-thirds of the course: mixed checkpoint;
-- at course end: final assessment and synthesis task;
-- revisit recurring errors more often than mastered concepts.
+- 每章结束后：就当前与先前材料出 2–4 道回忆题；
+- 课程约三分之一与三分之二处：混合检查点；
+- 课程结束时：结课测评与综合任务；
+- 反复出错的概念要比已掌握概念复习得更频繁。
 
-Treat mastery as demonstrated transfer, not one correct recall answer.
+把掌握视为可证明的迁移，而不是一次正确的回忆。
 
-## Handle learner commands
+## 处理学员指令
 
-Recognize and act on natural commands such as:
+识别并对这类自然指令做出反应：
 
-- “继续 / continue” — move to the next pending step.
-- “提示 / hint” — give the next hint without the full answer.
-- “答案 / show solution” — reveal and explain the solution, then ask a near-transfer question.
-- “更简单 / simpler” — reduce abstraction, add prerequisites and examples.
-- “更深入 / deeper” — add derivation, edge cases, and harder transfer.
-- “跳过 / skip” — mark the item skipped and continue.
-- “复习 / review” — generate retrieval practice weighted toward weak concepts.
-- “考试 / test me” — run a closed-book mixed assessment.
-- “进度 / progress” — show completed chapters, mastery, weak points, and next step.
-- “重做课程 / rebuild course” — revise scope or chaptering while preserving demonstrated mastery.
+- 「继续 / continue」——进入下一个待办步骤。
+- 「提示 / hint」——给出下一个提示，但不给完整答案。
+- 「答案 / show solution」——揭示并讲解解法，然后给一道近迁移题。
+- 「更简单 / simpler」——降低抽象度，补充先决知识与例子。
+- 「更深入 / deeper」——加入推导、边界情形与更难的迁移。
+- 「跳过 / skip」——把该项标记为跳过并继续。
+- 「复习 / review」——生成偏向薄弱概念的回忆练习。
+- 「考试 / test me」——进行一次闭卷混合测评。
+- 「进度 / progress」——展示已完成章节、掌握度、薄弱点与下一步。
+- 「重做课程 / rebuild course」——调整范围或分章，同时保留已证明的掌握度。
 
-## Complete the course
+## 完成课程
 
-At the end, provide:
+结束时提供：
 
-1. a mixed final assessment without solutions shown initially;
-2. a synthesis task that uses multiple chapters;
-3. grading with concept-level feedback;
-4. a concise mastery report;
-5. a personalized review plan focused on weak concepts;
-6. a compact reference sheet created only after assessment, so it does not replace retrieval practice.
+1. 一份混合结课测评，初始不展示解法；
+2. 一个使用多个章节的综合任务；
+3. 带概念级反馈的批改；
+4. 一份简洁的掌握度报告；
+5. 一份聚焦薄弱概念的个性化复习计划；
+6. 一份仅在测评之后生成的紧凑参考速查表，以免替代回忆练习。
 
-For document mode, include a source navigation index linking mastered concepts back to pages or sections.
+文档模式下，附一份来源导航索引，把已掌握概念链接回页码或章节。
 
-## Quality checks
+## 质量检查
 
-Before each response, verify:
+每次回复前确认：
 
-- Solutions are not exposed before the learner attempts the exercise.
-- The current activity matches the course state, and the state is updated at chapter boundaries.
-- The lesson does not assume an unexplained prerequisite.
-- The response gives the learner exactly one clear next action.
+- 学员尝试练习之前，解法没有暴露。
+- 当前活动与课程状态一致，且状态已在章节边界更新。
+- 本课没有假定未解释的先决知识。
+- 回复给学员恰好一个清晰的下一步动作。

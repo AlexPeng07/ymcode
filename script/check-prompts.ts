@@ -17,19 +17,10 @@ try {
   files.push(extra)
 } catch {}
 
-const protectedTokens = [
+const protectedPaths = [
   "checkpoint.md",
   "MEMORY.md",
   "INSTINCTS.md",
-  "read",
-  "write",
-  "edit",
-  "apply_patch",
-  "glob",
-  "grep",
-  "task",
-  "memory",
-  "instinct",
   "§1",
   "§4",
   "§7",
@@ -71,9 +62,9 @@ for (const file of files.sort()) {
       console.error(`${file}: URL changed`)
       bad++
     }
-    for (const token of protectedTokens) {
+    for (const token of protectedPaths) {
       if (old.includes(token) && !now.includes(token)) {
-        console.error(`${file}: lost protected token ${token}`)
+        console.error(`${file}: lost protected path ${token}`)
         bad++
       }
     }

@@ -1,112 +1,112 @@
 ---
 name: analyze-account-signals
-description: Use when the user wants to know what changed with one account, monitor an owner portfolio or watchlist, or rank accounts needing attention from recent evidence. Produce an evidence-backed account brief or bounded watchlist summary with recommended actions.
+description: 当用户想了解某个账户发生了什么变化、监控某个负责人组合或观察名单，或根据近期证据给需要关注的账户排序时使用。产出以证据为支撑的账户简报或有界观察名单摘要，并附建议动作。 | account signals, what changed, watchlist, portfolio monitor, account brief
 ---
 
-# Analyze Account Signals
+# 分析账户信号
 
 
-## Context-Gathering Intake
+## 上下文收集与提问
 
-Whenever this skill asks for context, strongly prefer using the `answers-ask-user-input` skill and the `ask_user_input` tool over other tools such as `request_user_input`; otherwise ask directly in the conversation.
+凡本技能要求提供上下文时，强烈优先使用 `answers-ask-user-input` 技能和 `ask_user_input` 工具，而不是 `request_user_input` 等其他工具；否则直接在对话中提问。
 
-Turn fresh account evidence into a concise view of what changed, why it matters, and what to do next. This skill owns a read-only account brief or bounded watchlist summary; it does not create tasks, post digests, store monitoring state, or write CRM updates.
+把最新的账户证据转化为简洁视图：发生了什么变化、为何重要、下一步该做什么。本技能负责只读的账户简报或有界观察名单摘要；它不创建任务、不发布摘要、不存储监控状态，也不写入 CRM 更新。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`.
+强制要求：若尚未在上下文中，请阅读并严格遵循 `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-These categories are particularly important for this workflow; use other sources only when they materially improve the signal story.
+这些类别对本工作流尤为重要；仅当其他来源能实质改善信号叙述时才使用它们。
 
-- [Blocking] ~~CRM for authoritative account identity, owner, opportunity, stage, amount, activity, customer-health, and account-status truth. It blocks the default account-signal readout unless sufficiently complete account truth is already grounded in context.
-- ~~Meeting Transcripts for recent customer language, decisions, commitments, objections, follow-ups, and stakeholder movement
-- ~~Email for customer-facing progression, unanswered asks, tone shifts, attachments, and promised next steps
-- ~~Internal Messaging for internal coordination, blockers, stakeholder alignment, and escalation signals
-- ~~Knowledge & Files for account plans, notes, briefs, implementation docs, and prior account context
-- ~~Calendar for recent or upcoming customer sessions, commitments, and scope reduction for large portfolios
+- [Blocking] ~~CRM 用于权威的账户身份、负责人、商机、阶段、金额、活动、客户健康和账户状态真相。除非足够完整的账户真相已在上下文中落地，否则它会阻塞默认的账户信号速览。
+- ~~Meeting Transcripts 用于近期客户用语、决策、承诺、异议、后续事项和利益相关方动向
+- ~~Email 用于面向客户的推进、未答复的请求、语气变化、附件和承诺的后续步骤
+- ~~Internal Messaging 用于内部协调、阻塞项、利益相关方对齐和升级信号
+- ~~Knowledge & Files 用于账户计划、笔记、简报、实施文档和既往账户上下文
+- ~~Calendar 用于近期或即将到来的客户会议、承诺，以及大型组合的范围裁剪
 
-Use ~~CRM as the default account anchor. Use sufficient user-provided/exported account truth only as a fallback when CRM cannot be used. Communications, files, and calendar evidence explain recency and movement; they do not override CRM-owned account or opportunity fields.
+将 ~~CRM 作为默认的账户锚点。只有在无法使用 CRM 时，才把足够的用户提供/导出账户真相作为回退。沟通、文件和日历证据用于解释近期性和动向；它们不会覆盖 CRM 拥有的账户或商机字段。
 
-## Reference Loading
+## 参考资料加载
 
-`SKILL.md` owns the normal mode split, bounded retrieval, and output shape. Load references only when their extra detail changes the decision:
+`SKILL.md` 负责常规的模式划分、有界检索和输出形态。只有当参考资料的额外细节会改变决策时才加载：
 
-- Use [references/request-schema.yaml](references/request-schema.yaml) when structured input, legacy aliases, selector precedence, or machine-readable output shape matters.
-- Use [references/signal-taxonomy.md](references/signal-taxonomy.md) when signal classification, confidence, recency, ranking, delta status, or display labels are ambiguous.
+- 当结构化输入、旧版别名、选择器优先级或机器可读输出形态很重要时，使用 [references/request-schema.yaml](references/request-schema.yaml)。
+- 当信号分类、置信度、时效性、排序、变化状态或展示标签不明确时，使用 [references/signal-taxonomy.md](references/signal-taxonomy.md)。
 
-## Workflow Guidance
+## 工作流指引
 
-### 1. Choose the mode and scope
+### 1. 选择模式与范围
 
-- If the mode isn't clear, ask the user via `ask_user_input()`. For a bare invocation such as “Analyze account signals for me,” do not assume an Adhoc Account Brief or Monitor Summary; offer:
+- 如果模式不清晰，通过 `ask_user_input()` 询问用户。对于“帮我分析账户信号”这类空泛调用，不要假设是 Adhoc Account Brief 或 Monitor Summary；提供：
   - `Adhoc Account Brief for one account`
   - `Monitor Summary for accounts I own in CRM`
   - `Monitor Summary for a watchlist, owner, or territory`
-- Use `Adhoc Account Brief` for one named account or “what changed with [account]?” requests. If the user selected Adhoc but did not supply an account, domain, or CRM id, search, rank, and offer up to five concrete account candidates via `ask_user_input()`. Do not retrieve deeper evidence or draft the brief until the user selects one.
-- Use `Monitor Summary` for owner, territory, portfolio, watchlist, daily-monitor, or “which accounts need attention?” requests. If the user selected Monitor but did not supply a watchlist, owner, territory, or portfolio, offer:
+- 对于一个点名的账户，或“[某账户]发生了什么变化？”这类请求，使用 `Adhoc Account Brief`。如果用户选择了 Adhoc 但未提供账户、域名或 CRM id，就搜索、排序，并通过 `ask_user_input()` 提供最多五个具体账户候选。在用户选定之前，不要检索更深的证据或起草简报。
+- 对于负责人、区域、组合、观察名单、每日监控，或“哪些账户需要关注？”这类请求，使用 `Monitor Summary`。如果用户选择了 Monitor 但未提供观察名单、负责人、区域或组合，提供：
   - `Accounts I own in CRM`
   - `A named owner or territory`
   - `A watchlist or account list I provide`
-  Do not broaden to a representative seller or retrieve deeper evidence until the user selects a scope.
-- Require exactly one account for Adhoc. Require a watchlist, owner, territory, portfolio, or sufficiently detailed account list for Monitor.
-- Default to the last 14 days unless the user provides another window. Preserve supplied focus areas such as expansion, churn, rollout blockers, or stakeholder movement.
-- Accept `sfdc_account_id` as a legacy alias for `crm_account_id`. When structured input conflicts with prompt wording, use the structured input as the source of truth and state the resolved scope.
-- After the mode and scope are known, if the anchor is ambiguous, make a bounded candidate pass before asking: start with ~~CRM when available, make at most three source reads, and offer up to five concrete candidates.
-- If the user says `okay` in response to concrete candidates presented in the current conversation, pick a suitable recent, important-looking, or high-signal account from those candidates instead of skipping. Ask one concise clarification when no suitable account, owner portfolio, or watchlist is visible.
+  在用户选定范围之前，不要扩大到某个代表性销售人员，也不要检索更深的证据。
+- Adhoc 要求恰好一个账户。Monitor 要求观察名单、负责人、区域、组合或足够详细的账户名单。
+- 除非用户提供其他窗口，默认取最近 14 天。保留用户提供的关注领域，例如扩展、流失、上线阻碍或利益相关方动向。
+- 接受 `sfdc_account_id` 作为 `crm_account_id` 的旧版别名。当结构化输入与提示措辞冲突时，以结构化输入为真相来源，并说明解析出的范围。
+- 模式与范围确定后，如果锚点不明确，在提问前做一次有边界的候选梳理：在可用时从 ~~CRM 开始，最多三次来源读取，并提供最多五个具体候选。
+- 如果用户对当前对话中给出的具体候选回复 `okay`，就从这些候选中挑一个合适的近期、看起来重要或高信号的账户，而不是跳过。当看不到合适的账户、负责人组合或观察名单时，问一个简洁的澄清问题。
 
-### 2. Bound and resolve the account universe
+### 2. 界定并解析账户范围
 
-- For Adhoc, resolve one account by stable CRM id, exact name/domain, or sufficiently detailed user-provided account context.
-- For Monitor, use an explicit watchlist as the full scope. Otherwise use the requested owner/territory/portfolio in ~~CRM with a bounded first pass.
-- For owner-scoped Monitor, prefer primary-owner scope; paginate only while the provider indicates more results and until 50 accounts are collected.
-- If the primary-owner lookup returns zero accounts and the user explicitly requested account-team, territory, role, collaborator, or go-to-market-linked coverage, retry once with the selected ~~CRM app's supported filters and the same cap.
-- If the broader retry times out or fails, continue with primary-owner results when present; otherwise ask for a watchlist or narrower owner scope.
-- Keep Monitor to at most 50 accounts. If the resolved universe is larger, use upcoming external customer meetings in ~~Calendar over the next 14 days to reduce to at most 50; if that cannot reduce it, ask for a narrower scope instead of picking an arbitrary slice.
-- Prefer exact name/domain matches and do not trust the top resolver result blindly when several plausible accounts remain.
+- 对于 Adhoc，通过稳定的 CRM id、精确名称/域名，或足够详细的用户提供账户上下文解析出一个账户。
+- 对于 Monitor，如果有明确的观察名单，就把它作为完整范围。否则在 ~~CRM 中使用所要求的负责人/区域/组合做一次有界的第一遍。
+- 对于按负责人限定的 Monitor，优先使用主要负责人范围；仅在提供方指示还有更多结果时继续分页，直到收集到 50 个账户。
+- 如果主要负责人查询返回零个账户，且用户明确要求账户团队、区域、角色、协作人或与 GTM 关联的覆盖范围，就用所选 ~~CRM 应用支持的筛选和同样的上限重试一次。
+- 如果更宽的重试超时或失败，在有主要负责人结果时继续使用这些结果；否则索取观察名单或更窄的负责人范围。
+- Monitor 最多保留 50 个账户。如果解析出的范围更大，就用 ~~Calendar 中未来 14 天内即将到来的外部客户会议缩减到最多 50 个；如果这样仍无法缩减，请用户提供更窄的范围，而不是任意截取。
+- 优先使用精确的名称/域名匹配；当仍有多个可能账户时，不要盲目相信排序第一的解析结果。
 
-### 3. Collect bounded recent evidence
+### 3. 收集有界近期证据
 
-- For each selected account, collect primary ~~CRM truth and user-provided context first. Use ~~Knowledge & Files for account plans or notes that explain the active workstream.
-- For Adhoc, or when primary evidence is thin, deepen selectively in this order when relevant: ~~Email, ~~Knowledge & Files, ~~Meeting Transcripts, ~~Internal Messaging, then ~~Calendar.
-- For Monitor, finish the bounded primary pass across the account set before deepening individual accounts. Deepen only accounts with a possible material delta, ambiguity, or high-value risk/opportunity.
-- Parallelize only independent account lookups, with a practical cap of 10 at a time. Treat a batch timeout or schema error as a call-shape failure, not proof that the source is unavailable; retry failed accounts once by stable account id when available, then mark them unavailable and continue with surviving accounts.
-- Stop when the recent story is supported. If a recency source was checked and found no match, say `checked/no match` when that absence materially affects confidence.
+- 对每个选中的账户，先收集主要的 ~~CRM 真相和用户提供的上下文。使用 ~~Knowledge & Files 获取能解释当前工作流的账户计划或笔记。
+- 对于 Adhoc，或当主要证据稀薄时，按以下顺序按需选择性深入：~~Email、~~Knowledge & Files、~~Meeting Transcripts、~~Internal Messaging，最后是 ~~Calendar。
+- 对于 Monitor，先完成跨账户集合的有界主流程，再深入单个账户。仅对可能存在重要变化、歧义或高价值风险/机会的账户深入。
+- 仅并行执行相互独立的账户查询，同时进行的上限为 10 个。把批量超时或 schema 错误视为调用形态失败，而不是来源不可用的证据；在可用时按稳定账户 id 重试失败的账户一次，然后将其标记为不可用，并用存活下来的账户继续。
+- 当近期的叙述得到支撑时就停止。如果检查了某个近期性来源但没有匹配，且该缺失会实质影响置信度，就写明 `checked/no match`。
 
-### 4. Normalize, score, and interpret signals
+### 4. 归一化、打分并解读信号
 
-- Normalize evidence into the fixed taxonomy in `references/signal-taxonomy.md`; do not invent new signal labels unless the user explicitly extends the workflow.
-- For every signal preserve type, summary, source, recency, confidence, evidence, citation, and suggested action.
-- Deduplicate several sources describing the same event. Corroboration raises confidence; weak, stale, contradictory, or unsupported evidence lowers confidence and often becomes an Evidence gap.
-- Distinguish actionable account risk from hygiene-only context such as ownership gaps, missing routing fields, or ambiguous associations; surface hygiene only when it affects monitoring confidence or the suggested action.
-- For Adhoc, order signals by importance to the account story: risk/opportunity first, then dependencies, then supporting context.
-- For Monitor, rank fresh, high-confidence, action-relevant change. Prioritize Churn or retention risk and Expansion opportunity; down-rank stale or speculative signals and compress accounts with no material delta.
-- Give each ranked account an attention score of High, Medium, or Low and a directional posture of Expansion ready, Expansion blocked, Retention risk, or Execution risk.
+- 把证据归一化为 `references/signal-taxonomy.md` 中的固定分类；除非用户明确扩展该工作流，不要发明新的信号标签。
+- 对每个信号保留类型、摘要、来源、时效性、置信度、证据、引用和建议动作。
+- 对描述同一事件的多个来源去重。相互印证会提高置信度；薄弱、过时、矛盾或无支撑的证据会降低置信度，并常常成为一条证据缺口。
+- 区分可执行的账户风险与仅属卫生问题的上下文，例如归属缺口、缺失的路由字段或含糊的关联；仅当卫生问题会影响监控置信度或建议动作时才呈现它。
+- 对于 Adhoc，按对账户叙述的重要性排序信号：先风险/机会，再依赖，最后支撑性上下文。
+- 对于 Monitor，对新鲜、高置信度、与行动相关的变化排序。优先考虑流失或留存风险以及扩展机会；降低过时或推测性信号的权重，并压缩没有重要变化的账户。
+- 为每个排序账户给出 High、Medium 或 Low 的关注度分数，以及方向性态势：Expansion ready、Expansion blocked、Retention risk 或 Execution risk。
 
-### 5. Separate evidence from interpretation
+### 5. 将证据与解读分开
 
-- Put clickable source links close to the claims they support. For CRM, use connector-provided record URLs; construct a URL from an id only when trusted connector metadata exposes the instance base URL. Use plain source labels when no stable link exists and do not expose naked record ids as the primary action path.
-- Keep raw evidence and strategic interpretation visibly separate. Every recommended action must trace to a signal or evidence item.
-- If CRM and manual account truth are both unavailable, state that the recency anchor is unavailable and do not imply the result is current.
+- 把可点击的来源链接放在其所支撑的主张附近。对于 CRM，使用连接器提供的记录 URL；仅当可信的连接器元数据暴露了实例基础 URL 时，才用 id 构造 URL。当不存在稳定链接时使用纯文本来源标注，并且不要把裸露的记录 id 当作主要行动路径暴露。
+- 让原始证据与策略性解读保持可见的分离。每个建议动作都必须能追溯到某个信号或证据项。
+- 如果 CRM 和手工账户真相都不可用，说明近期性锚点不可用，并且不要暗示结果是最新的。
 
-### Next Step Options
+### 下一步选项
 
-After the first output, offer the most relevant follow-up from the options below. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Deepen one account or close the smallest material evidence gap.
-- Draft a concise internal account-team update grounded in the signals.
-- Hand the selected account to deal strategy or meeting prep when the evidence points to an active motion or upcoming conversation.
-- Check whether a matching daily or weekly automation already reruns this `analyze-account-signals` skill for the same monitor scope; if none exists, offer to create one that reruns the skill and flags which accounts need attention, why it matters, and the next best sales action.
-- Draft CRM-ready updates for review when missing or stale fields are affecting confidence.
+在首个输出之后，从以下选项中提供最相关的后续动作。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 深入某个账户，或补齐最小的关键证据缺口。
+- 基于这些信号起草一份简洁的内部账户团队更新。
+- 当证据指向活跃动作或即将到来的对话时，把所选账户交给交易策略或会议准备。
+- 检查是否已存在相匹配的每日或每周自动化，针对同一监控范围重跑本 `analyze-account-signals` 技能；若不存在，提出创建一个，重跑该技能并标出哪些账户需要关注、为何重要，以及最佳的下一个销售动作。
+- 当缺失或过时字段正在影响置信度时，起草可供 CRM 使用的更新供评审。
 
-Next steps to avoid:
-- Creating tasks, posting updates, or writing CRM changes automatically.
+应避免的后续步骤：
+- 自动创建任务、发布更新或写入 CRM 变更。
 
-### Automation Offer Guard
+### 自动化建议防护
 
-For `Monitor Summary` outputs, a recurring seller account watch is the preferred next step when the user has provided a reusable scope such as a watchlist, owner, territory, or portfolio and the summary would benefit from daily or weekly refresh. Frame the value in sales language: catching pipeline movement, expansion signals, retention risk, stalled next steps, stakeholder changes, upcoming customer meetings, and account-team blockers before they get missed.
+对于 `Monitor Summary` 输出，当用户提供了可复用的范围（例如观察名单、负责人、区域或组合），且摘要能从每日或每周刷新中获益时，周期性的销售人员账户观察就是首选的下一步。用销售语言表述其价值：在被遗漏之前捕捉管道变动、扩展信号、留存风险、停滞的下一步、利益相关方变化、即将到来的客户会议和账户团队阻塞项。
 
-The automation must be a scheduled rerun of this skill, not a separate custom digest. When creating or describing the automation, make the prompt call this skill directly and preserve the same normalized request shape the skill accepts where possible:
+自动化必须是对本技能的定时重跑，而不是另一套自定义摘要。创建或描述该自动化时，让提示词直接调用本技能，并尽可能保持本技能接受的相同归一化请求形态：
 
 ```text
 Use the Sales `analyze-account-signals` skill in `Monitor Summary` mode.
@@ -122,24 +122,24 @@ focus_areas: [same focus areas such as expansion, churn, rollout blockers, stake
 output_style: "inbox_summary"
 ```
 
-For territory or portfolio scopes that are not expressible as `owner_id`, `owner_email`, or `watchlist_accounts`, keep the stable scope in the plain-language prompt text and let this skill resolve the account universe using its normal Monitor Summary guidance.
+对于无法用 `owner_id`、`owner_email` 或 `watchlist_accounts` 表达的区域或组合范围，将稳定范围保留在自然语言提示文本中，让本技能按其常规的 Monitor Summary 指引解析账户范围。
 
-The recurring output should follow this skill's `Monitor Summary` format: ranked accounts requiring attention, material deltas, run metadata, and no-major-delta handling. Keep it read-only; it may recommend next sales actions, but must not create tasks, post digests, store monitoring state outside the automation, or write CRM updates unless the user separately asks and approves.
+周期性输出应遵循本技能的 `Monitor Summary` 格式：需要关注的排序账户、重要变化、运行元数据，以及无重大变化的处理。保持只读；它可以建议下一步销售动作，但不得创建任务、发布摘要、在自动化之外存储监控状态或写入 CRM 更新，除非用户另行要求并批准。
 
-Before offering a recurring monitor, check whether the user already has a matching local automation installed. Inspect local automation records under `$CODEX_HOME/automations/*/automation.toml`, or `~/.codex/automations/*/automation.toml` when `CODEX_HOME` is unset, and match by name, prompt, skill name, mode, account set, owner, territory, portfolio, or other stable scope details. Treat active and paused matches as already installed.
+在提供周期性监控之前，检查用户是否已安装了相匹配的本地自动化。查看 `$CODEX_HOME/automations/*/automation.toml` 下的本地自动化记录，或在 `CODEX_HOME` 未设置时查看 `~/.codex/automations/*/automation.toml`，并按名称、提示词、技能名、模式、账户集合、负责人、区域、组合或其他稳定范围细节进行匹配。将启用中和已暂停的匹配都视为已安装。
 
-- If a matching automation exists, do not suggest creating another one. Continue with the next most relevant non-automation follow-up.
-- If no matching automation exists, end with one clear offer to check/create a daily or weekly rerun of `analyze-account-signals` for the same scope. Describe the recurring output as a short seller-ready digest of accounts needing attention, why each matters commercially, and the recommended next action. Do not create or update the automation until the user explicitly agrees.
-- If the automation surface is unavailable, do not mention tool details; offer to help set up a recurring check when automations are available.
+- 如果存在匹配的自动化，不要再建议创建另一个。继续提供下一个最相关的非自动化后续动作。
+- 如果不存在匹配的自动化，以一个明确的建议结束：检查/创建针对同一范围的 `analyze-account-signals` 每日或每周重跑。将周期性输出描述为一份简短、可直接供销售人员使用的摘要，说明需要关注的账户、各自在商业上的重要性，以及建议的下一步动作。在用户明确同意之前，不要创建或更新该自动化。
+- 如果自动化能力不可用，不要提及工具细节；在自动化可用时，提出帮助搭建周期性检查。
 
-## Modes
+## 模式
 
-- `Adhoc Account Brief` — one account, default brief output.
-- `Monitor Summary` — bounded watchlist/owner/portfolio view, default inbox-style output.
+- `Adhoc Account Brief` —— 单个账户，默认的简报输出。
+- `Monitor Summary` —— 有界的观察名单/负责人/组合视图，默认的收件箱式输出。
 
-## Output Format
+## 输出格式
 
-### Adhoc Account Brief
+### Adhoc Account Brief（单账户简报）
 
 ```md
 # Account Snapshot
@@ -171,7 +171,7 @@ Before offering a recurring monitor, check whether the user already has a matchi
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-### Monitor Summary
+### Monitor Summary（监控摘要）
 
 ```md
 # Ranked Accounts Requiring Attention
@@ -204,15 +204,15 @@ Before offering a recurring monitor, check whether the user already has a matchi
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-## Rules
+## 规则
 
-- Do not fabricate accounts, owners, opportunities, metrics, signals, dates, links, or recommended actions.
-- Do not use public web/news research, external enrichment, or task trackers unless the user explicitly extends the workflow and supplies a relevant source.
-- Do not create tasks, posts, digests, CRM updates, or other writebacks in this workflow.
-- Use plain-English display labels rather than raw taxonomy tokens in user-facing output.
-- Rewrite unsupported claims as questions, risks, or evidence gaps rather than assertions.
-- If a monitor run has no material delta, say so concisely instead of padding the ranking.
+- 不要编造账户、负责人、商机、指标、信号、日期、链接或建议动作。
+- 不要使用公开网络/新闻研究、外部数据丰富或任务跟踪器，除非用户明确扩展该工作流并提供了相关来源。
+- 不要在本工作流中创建任务、帖子、摘要、CRM 更新或其他回写。
+- 在面向用户的输出中使用通俗语言的展示标签，而不是原始的分类标记。
+- 把无支撑的主张改写为问题、风险或证据缺口，而不是断言。
+- 如果某次监控运行没有重要变化，就简洁说明，而不是用填充内容撑起排序。
 
-## Failure Handling
+## 失败处理
 
-If account resolution fails, state what identifier is missing or ambiguous and ask for the smallest clarification. If optional sources fail, continue with the strongest grounded evidence and name material gaps. If Monitor scope cannot be safely reduced to 50 or fewer accounts, ask for a watchlist or narrower scope.
+如果账户解析失败，说明缺少或含糊的是哪个标识符，并请求最小的澄清。如果可选来源失败，就用最强的有据证据继续，并点名重要缺口。如果 Monitor 范围无法安全缩减到 50 个或更少的账户，请用户提供观察清单或更窄的范围。

@@ -1,17 +1,17 @@
-Execute JavaScript to orchestrate the available tools.
+执行 JavaScript 来编排可用的工具。
 
-On Responses APIs, `exec` is exposed as a custom tool whose input is this raw source body. On JSON function-tool transports, the compatibility envelope is `{"code":"<source>"}`. Do not add that envelope inside the source itself.
+在 Responses API 上，`exec` 作为自定义工具暴露，其输入就是这段原始源码体。在 JSON function-tool 传输中，兼容信封为 `{"code":"<source>"}`。不要在源码本身内部添加该信封。
 
-Write the body of an async function. The global `tools` object exposes every tool available to this execution, and each method returns a promise:
+编写一个异步函数的函数体。全局（global）`tools` 对象暴露本次执行可用的每个工具，每个方法都返回 promise：
 
 ```ts
 const results = await Promise.all(urls.map((url) => tools.webfetch({ url, format: "markdown" })))
 return results.map((result) => result.output)
 ```
 
-Use `exec` for every tool declared below, including one small call. JavaScript can also batch multiple independent calls, programmatically transform their results, or keep large intermediate outputs out of the conversation. Run independent calls with `Promise.all` or `Promise.allSettled`, but keep dependent operations sequential.
+对下面声明的每个工具都使用 `exec`，包括一次很小的调用。JavaScript 还可以批量执行多个独立调用、以编程方式转换其结果，或让大型中间输出不进入对话。用 `Promise.all` 或 `Promise.allSettled` 运行独立调用，但依赖操作要保持串行。
 
-MCP tools inside `exec` are called through the same global `tools` object as built-in tools. MCP catalog names are opaque: they may use underscores, hyphens, or a server-specific prefix, and are not guaranteed to start with `mcp__`. Use the exact `name` from `ALL_TOOLS` and bracket notation:
+`exec` 内的 MCP 工具与内置工具一样，通过同一个全局 `tools` 对象调用。MCP 目录名称是不透明的：它们可能使用下划线、连字符或服务器特定的前缀，并且不保证以 `mcp__` 开头。使用 `ALL_TOOLS` 中的精确 `name`，并采用方括号写法：
 
 ```ts
 const name = "github-get_issue"
@@ -23,7 +23,7 @@ const result = await tools[name]({
 return result.structured ?? result.output
 ```
 
-If the exact MCP name is unknown, inspect the read-only `ALL_TOOLS` catalog and dynamically call the matching name:
+如果不知道精确的 MCP 名称，请查看只读的 `ALL_TOOLS` 目录，并动态调用匹配的名称：
 
 ```ts
 const tool = ALL_TOOLS.find(
@@ -34,22 +34,22 @@ const result = await tools[tool.name]({ query: "latest stock market data" })
 return result.structured ?? result.output
 ```
 
-The script environment provides JavaScript built-ins plus `tools`, `files`, and `console`. It does not provide Node.js modules, `import`, `require`, `process`, `fetch`, or timers. Use the available tools for external operations.
+脚本环境提供 JavaScript 内置对象以及 `tools`、`files` 和 `console`。它不提供 Node.js 模块、`import`、`require`、`process`、`fetch` 或定时器。外部操作请使用可用的工具。
 
-- Call built-in tools, and other tool IDs that are valid JavaScript identifiers, with `await tools.name(input)`.
-- Search `ALL_TOOLS` names and descriptions for the capability you need, then call the exact catalog name with `await tools[name](input)`; the same permission checks as direct calls apply. Do not infer availability or MCP status from a name prefix.
-- Use `await tools.exec_command({ cmd, yield_time_ms?, max_output_tokens?, workdir, description })` for shell commands. `workdir` defaults to the current session directory; prefer an absolute path if provided. `yield_time_ms` and `max_output_tokens` default to 10000. Output exceeding the token budget is truncated inline and saved to tool storage, with its full-output path appended to the result. The runtime maps the call to the `bash` tool, preserving its permissions and execution behavior; commands still running when the wait budget expires are terminated.
-- MCP results carry parsed `structuredContent` in the `structured` field when the server provides it.
-- Use `Promise.all` or `Promise.allSettled` only for independent calls; at most 8 run concurrently.
-- Return a small JSON-serializable aggregate. Circular values, BigInt, and throwing getters fail execution.
-- Use `console.log` only for debugging; logs are included in the result.
-- Tool permissions are enforced for every nested call.
-- State does not persist between executions. For temporary cross-execution data, use `files.writeText` and `files.readText` under the OS temp directory.
-- `tools.bash(...)` remains accepted for backward compatibility, but `exec_command` is the code-mode interface exposed in the declarations and `ALL_TOOLS` catalog.
-- Declared conversation-control tools such as `question`, `task`, `actor`, `skill`, `plan_exit`, and `cron` are available through the same `tools` object. Recursive `session` and `workflow` orchestration are excluded.
+- 使用 `await tools.name(input)` 调用内置工具，以及其他属于合法 JavaScript 标识符的工具 ID。
+- 在 `ALL_TOOLS` 的名称和描述中搜索你所需的能力，然后用 `await tools[name](input)` 调用精确的目录名称；与直接调用相同的权限检查同样适用。不要根据名称前缀推断可用性或 MCP 状态。
+- 使用 `await tools.exec_command({ cmd, yield_time_ms?, max_output_tokens?, workdir, description })` 执行 shell 命令。`workdir` 默认是当前会话目录；若提供，建议使用绝对路径。`yield_time_ms` 和 `max_output_tokens` 默认 10000。超出 token 预算的输出会在行内截断并存到工具存储，其完整输出路径会附加到结果中。运行时会将该调用映射到 `bash` 工具，保留其权限和执行行为；等待预算到期时仍在运行的命令会被终止。
+- 当服务器提供时，MCP 结果会在 `structured` 字段中携带解析后的 `structuredContent`。
+- 仅对独立调用使用 `Promise.all` 或 `Promise.allSettled`；最多 8 个并发运行。
+- 返回一个小的、可 JSON 序列化的聚合值。循环引用、BigInt 和抛出异常的 getter 会导致执行失败。
+- `console.log` 仅用于调试；日志会包含在结果中。
+- 每次嵌套调用都会强制执行工具权限。
+- 状态不会在多次执行之间保留。若需要跨执行的临时数据，请在操作系统临时目录下使用 `files.writeText` 和 `files.readText`。
+- 为向后兼容，`tools.bash(...)` 仍被接受，但 `exec_command` 才是声明和 `ALL_TOOLS` 目录中暴露的代码模式接口。
+- 已声明的对话控制工具（如 `question`、`task`、`actor`、`skill`、`plan_exit` 和 `cron`）可通过同一个 `tools` 对象使用。递归的 `session` 和 `workflow` 编排被排除在外。
 
-By default an execution may make 50 tool calls and use 60000 milliseconds of active compute. The `max_tool_calls` and `timeout` inputs can raise those limits to 500 calls and 600000 milliseconds. `timeout` is always measured in milliseconds. Time waiting for nested tools does not count toward active compute.
+默认情况下，一次执行最多可进行 50 次工具调用，并使用 60000 毫秒的活动计算时间。`max_tool_calls` 和 `timeout` 输入可将这些限制提高到 500 次调用和 600000 毫秒。`timeout` 始终以毫秒为单位。等待嵌套工具的时间不计入活动计算时间。
 
-The result is wrapped in `<exec status="...">` and may contain `<return_value>`, `<warnings>`, `<logs>`, `<trace>`, and `<error_message>` blocks.
+结果会包装在 `<exec status="...">` 中，并可能包含 `<return_value>`、`<warnings>`、`<logs>`、`<trace>` 和 `<error_message>` 块。
 
-The available tools and their exact input types are declared below.
+下面声明可用的工具及其精确的输入类型。

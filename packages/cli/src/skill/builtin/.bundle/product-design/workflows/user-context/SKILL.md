@@ -1,107 +1,107 @@
 ---
 name: user-context
-description: Load or manage Product Design's saved user context. Use when the user asks to set up Product Design, get started, onboard, save product or design sources, see what Product Design remembers, update saved context, or remember Product Design preferences. Examples include product URLs, Figma files, screenshots, reference images, codebase paths, Storybook, tokens, design systems, brand assets, and general product/design notes.
+description: "加载或管理产品设计已保存的用户上下文。当用户要求设置产品设计、开始使用、入门引导、保存产品或设计来源、查看产品设计记住了什么、更新已保存的上下文或记住产品设计偏好时使用。示例包括产品 URL、Figma 文件、截图、参考图片、代码库路径、Storybook、tokens、设计系统、品牌资源以及通用的产品/设计笔记。 | Trigger keywords: user context, setup Product Design, save design sources, remember preferences, Figma, Storybook, design tokens."
 ---
 
-# User Context
+# 用户上下文
 
-User Context stores the product and design references a designer uses often, so future Product Design work starts from the right sources.
+用户上下文保存设计师常用的产品与设计参考，使后续产品设计工作从正确的来源开始。
 
-Use this skill when the user asks to:
+当用户要求以下事项时使用本技能：
 
-- set up Product Design
-- get started with Product Design
-- onboard with Product Design
-- save product or design sources
-- see what Product Design remembers
-- update saved product or design context
-- remember a Product Design preference
-- setup my plugin
+- 设置产品设计
+- 开始使用产品设计
+- 完成产品设计入门引导
+- 保存产品或设计来源
+- 查看产品设计记住了什么
+- 更新已保存的产品或设计上下文
+- 记住某项产品设计偏好
+- 设置我的插件
 
-## Critical Overrides
+## 关键覆盖规则
 
-- Refer to the Plugin router [$index](../index/SKILL.md) before proceeding.
-- Follow [$critical-overrides](../../references/critical-overrides.md).
-- Before offering onboarding or saving context for future conversations, confirm that local shell access is available, `$CODEX_HOME` can be resolved, and `$CODEX_HOME/state/plugins/product-design/` exists and is writable or can be created in a writable parent directory. If `user-context.md` already exists, confirm that it is writable too.
-- If any check cannot be completed or fails, persistent context is unavailable. Do not offer saved-context onboarding or claim that new context was saved for future conversations. If the user asks to save something, explain that it can be used in the current conversation but not saved for future conversations.
+- 继续之前，先参考插件路由 [$index](../index/SKILL.md)。
+- 遵循 [$critical-overrides](../../references/critical-overrides.md)。
+- 在提供入门引导或为后续会话保存上下文之前，确认本地 shell 可用、`$CODEX_HOME` 可解析，且 `$CODEX_HOME/state/plugins/product-design/` 存在且可写，或可在可写的父目录中创建。如果 `user-context.md` 已存在，也要确认其可写。
+- 如果任何检查无法完成或失败，则持久化上下文不可用。不要提供已保存上下文的入门引导，也不要声称新上下文已保存供后续会话使用。如果用户要求保存某些内容，请说明它可用于当前会话，但无法保存供后续会话使用。
 
-## Saved User Context
+## 已保存的用户上下文
 
-If `user-context.md` exists, use it by default.
+如果 `user-context.md` 存在，默认使用它。
 
-Use saved product URLs, Figma files, screenshots, reference images, codebase paths, Storybook, tokens, design systems, brand assets, component refs, browser preferences, and share targets to ground Product Design work.
+使用已保存的产品 URL、Figma 文件、截图、参考图片、代码库路径、Storybook、tokens、设计系统、品牌资源、组件引用、浏览器偏好与分享目标，为产品设计工作提供依据。
 
-Ideation, prototypes, audits, clones, and critiques should match the saved product context unless the user asks for something different.
+除非用户另有要求，构思、原型、审计、克隆与评审都应与已保存的产品上下文保持一致。
 
-When a workflow needs visual grounding, attach or include relevant saved screenshots, reference images, tokens, design language, and component references in ImageGen, ideation, prototype, audit, and critique work.
+当工作流需要视觉依据时，在 ImageGen、构思、原型、审计与评审工作中附上或包含相关的已保存截图、参考图片、tokens、设计语言与组件引用。
 
-## State File
+## 状态文件
 
-Saved context lives here:
+已保存的上下文位于：
 
 ```text
 $CODEX_HOME/state/plugins/product-design/user-context.md
 ```
 
-Saved screenshots and reference images live next to it:
+已保存的截图与参考图片位于其旁边：
 
 ```text
 $CODEX_HOME/state/plugins/product-design/assets/
 ```
 
-If the file does not exist, continue normally unless the user asks to set up Product Design, save context, or the current task is blocked by missing product/design context.
+如果该文件不存在，照常继续；除非用户要求设置产品设计、保存上下文，或当前任务因缺少产品/设计上下文而受阻。
 
-## Preflight
+## 预检
 
-When any Product Design workflow needs saved context, run:
+当任一产品设计工作流需要已保存的上下文时，运行：
 
 ```bash
 python3 scripts/user_context_preflight.py
 ```
 
-Use the returned saved entries as the starting context for the task.
+将返回的已保存条目作为任务的起始上下文。
 
-If the script reports that no saved context exists, continue from the current user prompt unless setup context is required.
+如果脚本报告不存在已保存的上下文，除非需要设置上下文，否则从当前用户提示词继续。
 
-Do not browse, open, or inspect every saved reference during preflight. Inspect only the saved references needed for the current task.
+预检期间不要浏览、打开或检查每个已保存的参考。只检查当前任务所需的已保存参考。
 
-## Setup
+## 设置
 
-Use [references/onboarding.md](references/onboarding.md) when the user asks to set up Product Design, asks what Product Design can remember, asks what Product Design knows about their product, or provides product/design references to save.
+当用户要求设置产品设计、询问产品设计能记住什么、询问产品设计对其产品了解什么，或提供要保存的产品/设计参考时，使用 [references/onboarding.md](references/onboarding.md)。
 
-For setup-only requests, explain what Product Design can remember and ask for useful sources.
+对于仅设置的请求，说明产品设计能记住什么，并索取有用的来源。
 
-Adjust the context-gathering request to match the user's request. First-time setup differs from updating existing context.
+根据用户的请求调整上下文收集方式。首次设置与更新现有上下文不同。
 
-Do not inspect the workspace, install dependencies, scaffold a prototype, generate images, run audits, or start implementation during setup.
+设置期间不要检查工作区、安装依赖、搭建原型、生成图像、运行审计或开始实现。
 
-After the user provides references to save, run:
+在用户提供要保存的参考后，运行：
 
 ```bash
 python3 scripts/init_user_context.py
 ```
 
-Then add the references to the created `user-context.md`.
+然后将这些参考添加到创建的 `user-context.md` 中。
 
-## Save
+## 保存
 
-Save useful, durable Product Design context:
+保存有用且持久的产品设计上下文：
 
-- Product URLs
-- Figma files
-- Screenshots and reference images
-- Codebase paths
-- Storybook and component docs
-- Design tokens and theme sources
-- Brand, logo, icon, illustration, image, and asset sources
-- Preferred browser, capture tools, and share targets
-- Team conventions that make future Product Design work more accurate
+- 产品 URL
+- Figma 文件
+- 截图与参考图片
+- 代码库路径
+- Storybook 与组件文档
+- 设计 tokens 与主题来源
+- 品牌、logo、图标、插画、图像与资源来源
+- 偏好的浏览器、捕获工具与分享目标
+- 能让后续产品设计工作更准确的团队约定
 
-When the user provides screenshots or reference images to save, copy them into `assets/` next to `user-context.md` and link them from the saved entry.
+当用户提供要保存的截图或参考图片时，将它们复制到 `user-context.md` 旁边的 `assets/`，并在已保存条目中链接它们。
 
-Give each saved image a clear, descriptive filename that says what the image shows. Use names future Product Design runs can understand without opening the file.
+为每张保存的图片取一个清晰、描述性的文件名，说明图片内容。使用后续产品设计运行无需打开文件即可理解的名称。
 
-Good image names:
+良好的图片命名示例：
 
 ```text
 assets/chatgpt-settings-modal-dark-mode.png
@@ -114,9 +114,9 @@ assets/checkout-confirmation-screen.png
 assets/account-menu-open-state.png
 ```
 
-Do not save secrets, credentials, API keys, private tokens, copied customer data, or anything that should not persist.
+不要保存密钥、凭证、API key、私有 token、复制的客户数据或任何不应持久化的内容。
 
-Use this structure:
+使用以下结构：
 
 ```md
 # {Category}
@@ -132,18 +132,18 @@ Use this structure:
 - Future Use: {how future Product Design work should use it}
 ```
 
-Include `File:` only when the saved entry has a local image file.
+仅当已保存条目具有本地图片文件时才包含 `File:`。
 
-When a category has no saved references yet, use exactly:
+当某个类别尚无已保存参考时，严格使用：
 
 ```md
 status: not provided
 ```
 
-Keep saved context curated. Prefer a few high-value references over a dump of every possible URL or file.
+保持已保存上下文的精简。优先保存少量高价值参考，而不是把所有可能的 URL 或文件一股脑堆进去。
 
-## Read
+## 读取
 
-- Do not treat `status: not provided` as a fact.
-- Read through `scripts/user_context_preflight.py` when local shell access is available.
-- Use saved context as default grounding, then inspect only what the current task needs.
+- 不要将 `status: not provided` 视为事实。
+- 在本地 shell 可用时，通过 `scripts/user_context_preflight.py` 读取。
+- 将已保存的上下文作为默认依据，然后只检查当前任务所需的内容。

@@ -1,57 +1,56 @@
 ---
 name: index
-description: "Route broad Data Analytics requests to the appropriate quantitative analysis, visualization, dashboard, report, notebook, KPI, market-sizing, validation, or semantic-layer workflow."
+description: "将宽泛的数据分析请求路由到合适的定量分析、可视化、仪表盘、报告、笔记本、KPI、市场规模测算、校验或语义层工作流。 | Trigger keywords: data analytics, quantitative analysis, visualization, dashboard, report, notebook, KPI, market sizing, validation, semantic layer."
 ---
 
-# Data Analytics Router
+# 数据分析路由
 
-Use this workflow when Data Analytics is explicitly invoked or the request requires structured records, quantitative evidence, metrics, or an evidence-backed product or business decision. Do not use it for ordinary prose drafting, file-format conversion, or qualitative description that does not require data interpretation.
+当显式调用 Data Analytics，或请求需要结构化记录、定量证据、指标，或有证据支撑的产品/业务决策时，使用本工作流。不要用于普通行文起草、文件格式转换，或不需要数据解读的定性描述。
 
-## Choose the focused workflow
+## 选择聚焦工作流
 
-- Metric changed, missed a target, or differs from expectation: read `../metric-diagnostics/SKILL.md`.
-- Product or business decision, prioritization, segmentation, launch, or experiment recommendation: read `../product-business-analysis/SKILL.md`.
-- Dataset, dashboard, source, join, freshness, grain, or metric trust question: read `../analyze-data-quality/SKILL.md`.
-- KPI framework, canonical definition, target, driver, or guardrail design: read `../design-kpis/SKILL.md`.
-- KPI status update, WBR, MBR, QBR, or operating readout: read `../kpi-reporting/SKILL.md`.
-- Dashboard or monitoring view: read `../build-dashboard/SKILL.md`.
-- Durable analytical report: read `../build-report/SKILL.md`.
-- Chart or quantitative figure: read `../visualize-data/SKILL.md`.
-- Reproducible SQL/Python notebook: read `../jupyter-notebooks/SKILL.md`.
-- TAM, SAM, SOM, segment, or opportunity sizing: read `../market-sizing/SKILL.md`.
-- Review an analysis before sharing: read `../validate-data/SKILL.md`.
-- Create, repair, or save reusable data context or a semantic layer: read `../create-data-context/SKILL.md`.
-- Missing business definitions, ownership, change context, or decision framing: read `../gather-business-context/SKILL.md` before the primary workflow.
+- 指标发生变化、未达标或与预期不符：阅读 `../metric-diagnostics/SKILL.md`。
+- 产品/业务决策、优先级排序、分群、发布或实验建议：阅读 `../product-business-analysis/SKILL.md`。
+- 数据集、仪表盘、来源、join、新鲜度、粒度或指标可信度问题：阅读 `../analyze-data-quality/SKILL.md`。
+- KPI 框架、权威定义、目标、驱动因子或护栏设计：阅读 `../design-kpis/SKILL.md`。
+- KPI 状态更新、WBR、MBR、QBR 或运营读数：阅读 `../kpi-reporting/SKILL.md`。
+- 仪表盘或监控视图：阅读 `../build-dashboard/SKILL.md`。
+- 持久的分析报告：阅读 `../build-report/SKILL.md`。
+- 图表或定量图形：阅读 `../visualize-data/SKILL.md`。
+- 可复现的 SQL/Python 笔记本：阅读 `../jupyter-notebooks/SKILL.md`。
+- TAM、SAM、SOM、细分市场或机会规模测算：阅读 `../market-sizing/SKILL.md`。
+- 分享前审阅分析：阅读 `../validate-data/SKILL.md`。
+- 创建、修复或保存可复用的数据上下文或语义层：阅读 `../create-data-context/SKILL.md`。
+- 缺少业务定义、归属人、变更背景或决策框架：在主工作流之前阅读 `../gather-business-context/SKILL.md`。
 
-Load every selected workflow completely. Follow its related-skill rules when applicable. A task can combine workflows; use this usual order:
+完整加载每个所选工作流。适用时遵循其相关技能规则。一个任务可以组合多个工作流；请使用以下通常顺序：
 
-1. Gather missing business context.
-2. Validate source quality and metric definitions.
-3. Perform the focused analysis.
-4. Validate conclusions.
-5. Visualize or create the requested durable artifact.
+1. 收集缺失的业务上下文。
+2. 校验数据源质量与指标定义。
+3. 执行聚焦分析。
+4. 校验结论。
+5. 可视化或创建所要求的持久产物。
 
-## Source access
+## 数据源访问
 
-Use the best source already available through the code-agent harness: local files, uploaded data, pasted results, databases, warehouses, BI systems, product analytics tools, notebooks, documents, or callable connectors. Tool availability is determined by the host, not by this skill.
+使用代码智能体运行环境已经可用的最佳数据源：本地文件、上传的数据、粘贴的结果、数据库、数据仓库、BI 系统、产品分析工具、笔记本、文档或可调用的连接器。工具可用性由宿主决定，而不是由本技能决定。
 
-When no usable source is available:
+当没有可用数据源时：
 
-- Ask for the smallest useful artifact: a CSV/XLSX file, query result, schema, metric definition, dashboard export, screenshot, or pasted table.
-- Offer `assets/demo-product-growth.csv` only as a clearly labeled synthetic demonstration. Never use sample data to answer a real-data question.
-- Do not invent records, measurements, source access, or query results.
+- 索取最小可用的产物：CSV/XLSX 文件、查询结果、schema、指标定义、仪表盘导出、截图或粘贴的表格。
+- 仅可将 `assets/demo-product-growth.csv` 作为明确标注的合成演示提供。绝不要用示例数据回答真实数据问题。
+- 不要编造记录、度量值、数据源访问权限或查询结果。
 
-If available sources conflict in a way that changes the answer, surface the conflict and use the data-quality workflow. Otherwise choose the most authoritative and fresh source and proceed.
+如果可用数据源之间的冲突会改变答案，请指出该冲突并使用数据质量工作流。否则选择最权威、最新的数据源并继续。
 
-## Portable output policy
+## 可移植输出策略
 
-This bundle targets a generic code agent and does not depend on React, MCP Apps, widgets, or a proprietary rendering surface.
+本技能包面向通用代码智能体，不依赖 React、MCP Apps、组件或专有渲染界面。
 
-- Inline answers: concise Markdown with findings, evidence, caveats, and next actions.
-- Reports: Markdown by default; use self-contained plain HTML, PDF, DOCX, or another requested format only when the host can create and verify it.
-- Charts: use reproducible Python/Matplotlib, notebook-native plotting, SVG, or destination-native chart tools.
-- Dashboards: prefer a self-contained plain HTML/JavaScript artifact, Streamlit when Python execution is appropriate, or an existing BI platform selected by the user.
-- Notebooks: keep SQL/Python reproducible and make assumptions visible.
+- 内联回答：简洁的 Markdown，包含发现、证据、注意事项和后续行动。
+- 报告：默认使用 Markdown；仅当宿主能够创建并验证时，才使用自包含的纯 HTML、PDF、DOCX 或其他所要求的格式。
+- 图表：使用可复现的 Python/Matplotlib、笔记本原生绘图、SVG 或目标系统原生的图表工具。
+- 仪表盘：优先使用自包含的纯 HTML/JavaScript 产物；适合执行 Python 时可用 Streamlit；或使用用户选定的现有 BI 平台。
+- 笔记本：保持 SQL/Python 可复现，并让假设可见。
 
-Preserve source names, metric definitions, grain, time windows, filters, units, and uncertainty. Never expose credentials, secrets, hidden reasoning, or unnecessary personal data.
-
+保留数据源名称、指标定义、粒度、时间窗口、过滤器、单位与不确定性。绝不暴露凭证、密钥、隐藏推理或不必要的个人数据。

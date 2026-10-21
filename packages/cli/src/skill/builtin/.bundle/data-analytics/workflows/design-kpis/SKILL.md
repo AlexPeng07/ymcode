@@ -1,102 +1,101 @@
 ---
 name: design-kpis
-description: "Design KPI frameworks, metric definitions, targets, guardrails, and measurement plans for product or business decisions. Use when success metrics, drivers, guardrails, targets, or the measurement approach need to be defined or improved."
+description: "为产品或业务决策设计 KPI 框架、指标定义、目标、护栏和度量计划。当需要定义或改进成功指标、驱动因子、护栏、目标或度量方法时使用。 | Trigger keywords: KPI framework, metric definition, targets, guardrails, measurement plan, driver metrics."
 ---
 
-# Design KPIs
+# 设计 KPI
 
-Design KPI frameworks, set targets, and develop measurement plans that help teams make product or business decisions.
+设计 KPI 框架、设定目标，并制定帮助团队做出产品或业务决策的度量计划。
 
-## When To Use Data Quality First
+## 何时先做数据质量
 
-Use $analyze-data-quality first when the task is to reconcile existing metrics, dashboards, tables, owners, or sources of truth.
+当任务是核对现有指标、仪表盘、表、负责人或事实来源时，先使用 $analyze-data-quality。
 
-Return to this skill only when the user asks to define the metric going forward, redesign the KPI framework, choose guardrails, or set targets.
+仅当用户要求定义面向未来的指标、重新设计 KPI 框架、选择护栏或设定目标时，才回到本技能。
 
-## Skill Configuration
+## 技能配置
 
-### Source Discovery And Verification
+### 来源发现与核验
 
-Use the relevant semantic layer as a starting map, not a boundary.
+把相关语义层当作起点地图，而不是边界。
 
-1. **Explore all possible sources.** Search every connected or provided source that could contain task-relevant data or change the interpretation. Within each structured-data source, run fresh catalog or metadata discovery for relevant schemas, datasets, tables, views, models, and metrics. Known sources, tables, dashboards, and semantic mappings are starting points, not stopping points.
-2. **Compare duplicates and conflicts.** When sources overlap or disagree, compare ownership, freshness, definition, grain, coverage, and directness. Use the best authoritative source, or combine complementary sources when needed. Note material conflicts, explain why the selected source or sources control the answer, and verify selected data through live reads before concluding.
+1. **探索所有可能的来源。** 搜索每个已连接或已提供、可能包含任务相关数据或改变解读的来源。在每个结构化数据源内，对相关的 schema、数据集、表、视图、模型和指标运行全新的目录或元数据发现。已知的来源、表、仪表盘和语义映射都是起点，而不是终点。
+2. **比较重复与冲突。** 当来源重叠或相互矛盾时，比较归属、新鲜度、定义、粒度、覆盖范围和直接程度。使用最权威的来源，或在需要时组合互补来源。记录实质性冲突，解释为什么选定来源掌控答案，并在下结论前通过实时读取核验所选数据。
 
-### Source Access Guardrail
+### 数据源访问护栏
 
-Before querying sources, building artifacts, or drawing conclusions, determine whether the answer requires a specific source of truth.
+在查询来源、构建产物或下结论之前，先确定答案是否需要特定的事实来源。
 
-If a required source is unavailable, stop that path. Tell the user what source is needed, ask them to make it available or provide a reviewed fallback, and do not treat weaker substitutes as equivalent.
+如果所需的来源不可用，停止该路径。告诉用户需要什么来源，请其提供或给出经过审阅的替代方案，不要把较弱的替代品当作等价物。
 
-If the missing source is only optional enrichment, continue with the strongest available evidence and label the gap when it materially affects the answer.
+如果缺失的来源只是可选补充，则用现有最强证据继续，并当缺口实质性影响答案时加以标注。
 
-Clarify with the user when a missing input would materially change the analytical frame or recommendation. Otherwise make a reasonable assumption, state it, and proceed.
+当缺失的输入会实质性改变分析框架或建议时，与用户澄清。否则做出合理假设、说明假设并继续。
 
-## Workflow
+## 工作流
 
-### 1. Clarify The Decision And Operating Context
+### 1. 澄清决策与运行背景
 
-Understand the decision the metrics need to support, the context in which they will be reviewed, and who will act on the result. Ask the user to clarify the goal, operating cadence, or measurement constraints when missing or ambiguous input would change the recommendation.
+理解这些指标需要支撑的决策、它们将被审阅的场景，以及谁会依据结果行动。当缺失或含糊的输入会改变建议时，请用户澄清目标、运营节奏或度量约束。
 
-### 2. Gather Evidence Before Recommending Metrics
+### 2. 在推荐指标前收集证据
 
-When the prompt does not already provide enough context to know what success means, gather that context before recommending metrics or targets. Use $gather-business-context to understand the goal, current state, audience, constraints, risks, existing definitions, prior decisions, and any baseline or target context that should shape the metric system.
+当提示中未提供足够上下文来判断“成功”意味着什么时，在推荐指标或目标之前先收集这些上下文。使用 $gather-business-context 了解目标、现状、受众、约束、风险、既有定义、过往决策，以及任何应影响指标体系的基线或目标背景。
 
-For KPI design, use that context to clarify what success is meant to mean, how related metrics have been defined before, and which constraints or risks should affect the recommended KPIs, drivers, guardrails, or measurement plan.
+对于 KPI 设计，利用这些上下文澄清“成功”应当意味着什么、相关指标过去如何定义，以及哪些约束或风险应影响推荐的 KPI、驱动因子、护栏或度量计划。
 
-### 3. Generate A Wider Candidate Set
+### 3. 生成更宽的候选集合
 
-Create candidate outcome, driver, and guardrail metrics before narrowing.
-Each candidate should have a clear definition and a plausible link to the decision. Use the example metric shapes below as inspiration when helpful, not as a required template.
+在收窄范围之前，先创建候选的结果指标、驱动指标和护栏指标。每个候选都应有清晰的定义，以及与决策之间合理的联系。下文示例中的指标形态可在有帮助时作为灵感，而不是必须遵循的模板。
 
-### 4. Compare And Select Metrics
+### 4. 比较并选择指标
 
-Compare candidate metrics by whether they:
+按以下标准比较候选指标：
 
-- reflect the goal: the metric should represent the intended outcome. When using a proxy, explain why it should reflect real progress and where it could mislead.
-- inform a real decision: movement should change what the team does, prioritizes, or investigates.
-- show useful signal at the decision cadence: a metric can be conceptually good but too slow-moving or noisy for the decision it supports. For example, annual retention may be the right outcome, but it may not help a weekly launch review unless paired with earlier indicators.
-- can be influenced by the team: the team should have plausible levers, or the metric should be paired with drivers it can affect.
-- can be measured operationally: the team should be able to instrument, calculate, and track the metric consistently without one-off manual work.
-- are hard to improve in a misleading way: improving the metric should not obviously hide harm to quality, trust, retention, cost, or another important outcome.
+- 反映目标：指标应代表预期结果。使用代理指标时，解释为什么它能反映真实进展，以及可能在哪里产生误导。
+- 支撑真实决策：指标变化应改变团队的行动、优先级或排查方向。
+- 在决策节奏上提供有用信号：一个指标在概念上可能很好，但对它所支撑的决策而言变化太慢或噪音太大。例如，年度留存可能是正确的结果指标，但除非配合更早期的指标，否则对每周的发布评审帮助不大。
+- 可被团队影响：团队应有合理的抓手，或该指标应配合其能够影响的驱动因子。
+- 可运维地度量：团队应能一致地对指标进行埋点、计算和跟踪，而无需一次性的手工工作。
+- 难以用误导的方式改善：改善该指标不应明显掩盖对质量、信任、留存、成本或其他重要结果的损害。
 
-Use lightweight scoring only when it helps explain tradeoffs. Recommend `1-3` primary KPIs, `1-2` driver metrics for each KPI when they improve diagnosis, and `1-2` guardrails when tradeoffs are likely. Do not recommend extra metrics unless they materially improve decision-making.
+仅当有助于解释权衡时才使用轻量打分。推荐 `1-3` 个主要 KPI，在有助于诊断时为每个 KPI 推荐 `1-2` 个驱动指标，并当可能出现权衡时推荐 `1-2` 个护栏指标。除非能实质性改善决策，否则不要推荐额外指标。
 
-For each recommended metric, include enough detail for the team to use it: what it measures, why it matters, how it is calculated, where it comes from, its main pros and cons against the selection criteria above, and what caveats or guardrails matter.
+对每个推荐的指标，包含足以让团队使用的细节：它度量什么、为何重要、如何计算、来自哪里、相对于上述选择标准的主要优缺点，以及哪些注意事项或护栏重要。
 
-### 5. Set Targets When Needed
+### 5. 在需要时设定目标
 
-Treat target setting as a separate judgment from metric selection. First decide what should be measured; then set targets when the user asks or when the recommendation needs a threshold to be useful.
+把目标设定视为独立于指标选择的判断。先决定应度量什么；然后当用户要求，或建议需要阈值才有用时再设定目标。
 
-Use the target-setting approach that best fits the evidence:
+使用最契合证据的目标设定方法：
 
-- Top-down: start from benchmarks, historical performance, comparable products, competitor or market context, or a reasoned view of what good would need to look like for the decision.
-- Bottom-up: start from what the team can realistically do, such as what is shipping, how adoption is expected to build, or which operating levers should move the metric.
+- 自上而下：从基准、历史表现、可比产品、竞品或市场背景出发，或基于对“对这项决策而言好应该是什么样”的合理推演。
+- 自下而上：从团队实际能做到的事情出发，例如正在交付的内容、采用率预计如何积累，或哪些运营抓手应推动该指标。
 
-Use data to set or evaluate targets. Once the target-setting approach is clear, identify what data it requires, such as provided inputs, internal performance data, external benchmarks or market data, and results from similar past work.
+用数据来设定或评估目标。目标设定方法明确后，确定它需要哪些数据，例如提供的输入、内部绩效数据、外部基准或市场数据，以及类似过往工作的结果。
 
-Compare aspirational targets with what the team can realistically influence through planned work, available audience, expected adoption, and historical movement. A good target should be meaningful for the decision and plausible enough to guide action. Explain the target anchor, key assumptions, and confidence. If the strongest target-setting method requires missing inputs, share the methodology and ask whether the user can provide or identify the relevant data. If there is still enough evidence for a directional target, present it as a provisional range; otherwise recommend the measurement needed before setting a firm target.
+将理想目标与团队通过计划中的工作、可用受众、预期采用率和历史变化幅度实际能影响到的范围进行比较。好的目标应对决策有意义，并且足够可信以指导行动。解释目标的锚点、关键假设和置信度。如果最强的目标设定方法需要缺失的输入，分享该方法并询问用户能否提供或指明相关数据。如果仍有足够证据给出方向性目标，将其作为暂定区间呈现；否则建议在设定确定目标之前先做必要的度量。
 
-### 6. Deliver The Recommendation
+### 6. 交付建议
 
-Keep the final recommendation concise and decision-oriented, and deliver it inline by default. Do not load `$build-report` merely because the KPI framework uses evidence, compares candidates, or contains several metrics. Use `$visualize-data` and `$build-report` when a data visual would materially improve the answer, such as by showing how a proposed target compares with historical performance or benchmarks, or by clarifying tradeoffs or candidate scoring. Honor an explicitly requested report, dashboard, notebook, spreadsheet, native document, or slide deck as the primary artifact. The recommendation should include:
+保持最终建议简洁且面向决策，默认以内联方式交付。不要仅因为 KPI 框架使用证据、比较候选或包含多个指标就加载 `$build-report`。当数据可视化能实质性改善答案时，使用 `$visualize-data` 和 `$build-report`，例如展示拟议目标与历史表现或基准的对比，或澄清权衡与候选打分。将用户明确要求的报告、仪表盘、笔记本、电子表格、原生文档或幻灯片视为主要产物。建议应包含：
 
-1. initiative summary
-2. recommended metric candidates, with definition and rationale
-3. target recommendation, if included, with anchor, assumptions, and methodology
-4. evidence reviewed
-5. assumptions and missing context
-6. risks and guardrails
-7. open questions
+1. 项目摘要
+2. 推荐的候选指标，含定义与理由
+3. 目标建议（如有），含锚点、假设与方法
+4. 已审阅的证据
+5. 假设与缺失的上下文
+6. 风险与护栏
+7. 未决问题
 
-## Example Metric Shapes
+## 示例指标形态
 
-Different contexts need different metric shapes. Use these as examples, not a template:
+不同场景需要不同的指标形态。以下作为示例，而非模板：
 
-- Product launch or adoption: pair an outcome metric for adoption or value realization with drivers for activation, engagement, repeat use, or time to value, plus guardrails for experience quality.
-- Growth work: choose the business outcome the team is trying to improve, such as activation, retention, or monetization; add drivers that explain how growth is expected to happen and guardrails for quality.
-- Funnel work: choose the progression or completion outcome that represents success; add drivers around where people advance or drop off and guardrails for downstream quality.
-- Operating review: focus on health, pacing, and action-oriented metrics that show whether the business is on track and where attention is needed.
-- Experiment or intervention: use one primary success metric tied to the decision, diagnostics that explain movement, and guardrails for unintended effects.
-- Data, model, or analytics initiative: connect technical performance to the decision or workflow it improves, with adoption, reliability, cost, or fairness guardrails when relevant.
-- Platform, reliability, or operations work: measure service health, throughput, quality, cost efficiency, and customer impact in terms the owning team can act on.
+- 产品发布或采用：将采用率或价值实现的结果指标，与激活、互动、重复使用或价值实现时间的驱动因子配对，并加上体验质量的护栏。
+- 增长工作：选择团队试图改善的业务结果，例如激活、留存或变现；补充解释增长预期如何发生的驱动因子，以及质量护栏。
+- 漏斗工作：选择代表成功的推进或完成结果；补充人们在哪里推进或流失的驱动因子，以及下游质量的护栏。
+- 运营评审：聚焦健康度、进度节奏和面向行动的指标，展示业务是否在轨以及哪里需要关注。
+- 实验或干预：使用一个与决策绑定的主要成功指标、解释变化的诊断指标，以及针对意外影响的护栏。
+- 数据、模型或分析计划：将技术表现与它所改善的决策或工作流关联，并在相关时加入采用、可靠性、成本或公平性护栏。
+- 平台、可靠性或运维工作：以负责团队能够行动的语言度量服务健康、吞吐、质量、成本效率和客户影响。

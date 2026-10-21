@@ -1,81 +1,81 @@
-# Dream: Memory Consolidation
+# Dream：记忆整合
 
-You consolidate durable project memory from two sources:
+你从两个来源整合出持久的项目记忆：
 
-1. Memory files under the data directory's memory tree.
-2. Raw ymcode trajectory in the local SQLite database.
+1. 数据目录下记忆树中的记忆文件。
+2. 本地 SQLite 数据库中的 ymcode 原始轨迹。
 
-Default window: review the last 7 days of sessions, or all available history if shorter.
+默认窗口：回顾最近 7 天的会话；历史不足 7 天则回顾全部可用历史。
 
-This command is manual. The user intentionally started it and is watching.
-You have bash access for inspection and SQLite queries, but use it carefully.
+此命令为手动触发。用户是有意启动它的，并且正在观察。
+你可以使用 bash 进行检查和 SQLite 查询，但要谨慎使用。
 
-## Data Source
+## 数据来源
 
-Trajectory database: `<DATA>/ymcode.db` (SQLite, read-only)
-Memory files root: `<DATA>/memory/`
+轨迹数据库：`<DATA>/ymcode.db`（SQLite，只读）
+记忆文件根目录：`<DATA>/memory/`
 
-## Ground Rules
+## 基本规则
 
-- Raw trajectory is authoritative; memory files are a structured index/cache.
-- Prefer read-only bash commands for discovery and SQLite queries.
-- Do not modify the SQLite database or raw trajectory.
-- Write final durable knowledge only to project memory files unless the task explicitly requires cleaning current session notes.
-- Do not touch source files unless only verifying a path/function mentioned by memory.
-- Keep the memory folder compact and high-signal. Information density matters more than completeness.
-- Reuse existing memories instead of duplicating them. Packaging repeated workflows into skills, subagents, or commands is the job of `/distill`, not dream.
-- `global/MEMORY.md` is for cross-project user preferences and habits (heading: `# Global memory`). Prefer the project's MEMORY.md for project-specific facts; promote to global when a rule or preference clearly applies across projects.
+- 原始轨迹是权威；记忆文件只是结构化的索引/缓存。
+- 探索与 SQLite 查询优先使用只读 bash 命令。
+- 不要修改 SQLite 数据库或原始轨迹。
+- 最终持久知识只写入项目记忆文件，除非任务明确要求清理当前会话的 notes。
+- 除非只是为了核实记忆提到的路径/函数，否则不要碰源文件。
+- 保持记忆目录精简、高信噪比。信息密度比完整性更重要。
+- 复用已有记忆，而不是重复记录。把重复工作流打包成技能、子代理或命令是 `/distill` 的职责，不是 dream 的。
+- `global/MEMORY.md` 用于跨项目的用户偏好与习惯（标题为 `# Global memory`）。项目特定事实优先放在项目的 MEMORY.md；当某条规则或偏好明显适用于多个项目时，再晋升到 global。
 
-## Phase 0 - Locate Data
+## 阶段 0 - 定位数据
 
-1. Use memory search with broad queries such as "project", "session", "rule", "decision", and "error".
-2. Use `glob`/`read` to inspect the memory paths from the system memory instructions.
-3. Use bash to locate the database:
-   - Infer `<DATA>/ymcode.db` from the resolved memory root.
-   - If `YMCODE_DB` is visible in the shell environment, account for its override behavior.
-   - Treat the resolved database path as read-only.
-4. If memory is empty and the database has no current project sessions, report "Nothing to consolidate - memory is empty" and stop.
+1. 用 memory 搜索，使用宽泛的查询词，如 "project"、"session"、"rule"、"decision" 和 "error"。
+2. 用 `glob`/`read` 查看系统记忆指令中给出的记忆路径。
+3. 用 bash 定位数据库：
+   - 从解析出的记忆根目录推断 `<DATA>/ymcode.db`。
+   - 如果 shell 环境中可见 `YMCODE_DB`，要考虑它的覆盖行为。
+   - 将解析出的数据库路径视为只读。
+4. 若记忆为空且数据库中没有当前项目的会话，报告“无可整合内容——记忆为空”并停止。
 
-## Phase 1 - Orient
+## 阶段 1 - 了解现状
 
-- Read the current project's `MEMORY.md`.
-- Read current session `notes.md` if it exists.
-- Glob `memory/sessions/*/checkpoint.md` and identify recent checkpoints.
-- Use bash/SQLite to list recent sessions for this project from `session`, newest first.
-- Record the current `MEMORY.md` section structure before editing to avoid duplicates.
+- 读取当前项目的 `MEMORY.md`。
+- 如果当前会话的 `notes.md` 存在，读取它。
+- Glob `memory/sessions/*/checkpoint.md`，识别最近的检查点。
+- 用 bash/SQLite 从 `session` 列出该项目最近的会话，最新的在前。
+- 编辑前先记录当前 `MEMORY.md` 的小节结构，避免重复。
 
-## Phase 2 - Gather From Memory Files
+## 阶段 2 - 从记忆文件收集
 
-Extract candidate durable facts from recent memory artifacts:
+从近期记忆产物中提取候选持久事实：
 
-1. Recent `checkpoint.md` files, focusing on discovered knowledge, errors/fixes, and design decisions.
-2. `tasks/*/progress.md` when checkpoint content points to durable task history.
-3. `notes.md` entries not already represented in project memory.
+1. 最近的 `checkpoint.md` 文件，重点关注已发现的知识、错误/修复和设计决策。
+2. 当检查点内容指向持久任务历史时，查看 `tasks/*/progress.md`。
+3. 尚未体现在项目记忆中的 `notes.md` 条目。
 
-Do not read every file exhaustively. Prefer recent and repeated signals.
+不要逐字通读每个文件。优先看近期且重复出现的信号。
 
-## Phase 3 - Verify Against Raw Trajectory
+## 阶段 3 - 对照原始轨迹核实
 
-Use bash with SQLite read-only queries to check candidate facts against raw trajectory:
+用 bash 配合 SQLite 只读查询，对照原始轨迹核查候选事实：
 
-- `session`: project/session/directory/title/time metadata.
-- `message`: user and assistant turns.
-- `part`: text parts, tool calls, tool results, checkpoint parts.
-- `task` and `task_event`: task state and progress events.
-- `actor_registry`: subagent/background actor history.
+- `session`：项目/会话/目录/标题/时间等元数据。
+- `message`：用户与助手轮次。
+- `part`：文本片段、工具调用、工具结果、检查点片段。
+- `task` 与 `task_event`：任务状态与进度事件。
+- `actor_registry`：子代理/后台 actor 历史。
 
-Schema notes:
+Schema 说明：
 
 - `message(id, session_id, agent_id, time_created, data JSON with $.role)`
 - `part(id, message_id, session_id, time_created, data JSON)`
-- Each assistant turn can produce multiple `part` rows.
-- Part types include:
-  - `{"type":"text","text":"..."}` - agent text output.
-  - `{"type":"tool","tool":"...","state":{"input":...,"output":...}}` - tool call and result.
-  - `{"type":"step-start"}` / `{"type":"step-finish","tokens":...}` - step boundaries and token stats.
-- Empty `agent_id` means main agent; non-empty `agent_id` means subagent.
+- 每个助手轮次可能产生多行 `part`。
+- 片段类型包括：
+  - `{"type":"text","text":"..."}` - 智能体文本输出。
+  - `{"type":"tool","tool":"...","state":{"input":...,"output":...}}` - 工具调用与结果。
+  - `{"type":"step-start"}` / `{"type":"step-finish","tokens":...}` - 步骤边界与 token 统计。
+- `agent_id` 为空表示主智能体；非空 `agent_id` 表示子代理。
 
-Query template for a session's assistant tool execution chain:
+某个会话中助手工具执行链的查询模板：
 
 ```sql
 SELECT m.id, m.agent_id,
@@ -89,71 +89,68 @@ WHERE m.session_id = '<SESSION_ID>'
 ORDER BY m.time_created, p.time_created;
 ```
 
-Useful searches include user statements containing English keywords like:
+有用的搜索包括：用户陈述中出现以下英文关键词：
 
-- "always", "never", "remember", "rule"
-- "decision", "decided", "tradeoff", "reason"
-- "repeat", "again", "every time", "workflow"
+- "always"、"never"、"remember"、"rule"
+- "decision"、"decided"、"tradeoff"、"reason"
+- "repeat"、"again"、"every time"、"workflow"
 
-Also search equivalent keywords in the user's language when the trajectory shows the user working in another language.
-Also search for repeated error text, failed commands, and recurring file paths.
+当轨迹显示用户使用其他语言工作时，也搜索该语言中的对应关键词。
+还要搜索重复的错误文本、失败的命令和反复出现的文件路径。
 
-Promote a fact only when supported by an explicit user statement, a clear design decision, or repeated evidence across sessions.
+只有当某条事实得到用户明确陈述、清晰的设计决策或跨会话重复证据的支持时，才将其晋升。
 
-Drill into full trajectories when:
+在以下情况下深入完整的轨迹：
 
-- A session produced code files or architecture decisions but memory lacks detail; inspect write/edit tool calls.
-- A session involved debugging and gotchas may need promotion; inspect bash tool output for errors.
-- `agent_id` is non-empty; group by `agent_id` to inspect each subagent execution chain.
-- A session has many turns, for example more than 10 assistant messages, but memory only has a short summary.
+- 某会话产出了代码文件或架构决策，但记忆缺少细节；检查 write/edit 工具调用。
+- 某会话涉及调试和坑点，可能需要晋升；检查 bash 工具输出中的错误。
+- `agent_id` 非空；按 `agent_id` 分组，逐个检查子代理的执行链。
+- 某会话轮次很多，例如助手消息超过 10 条，但记忆里只有简短摘要。
 
-## Workflow Packaging
+## 工作流打包
 
-If you notice a repeated manual workflow worth packaging, leave it to the
-`/distill` command, which is dedicated to that. You may note such a candidate in
-one line, but do not create skills, subagents, or commands here. Stay focused on
-memory consolidation.
+如果你发现值得打包的重复手工工作流，交给 `/distill` 命令处理，它专门负责这件事。你可以在记忆中用一行记下这类候选，但不要在这里创建技能、子代理或命令。请保持聚焦于记忆整合。
 
-## Phase 3.5 - Review Instincts
+## 阶段 3.5 - 审阅直觉规则
 
-Call the `instinct` tool with operation="review" for the current project. This applies decay and promotes only candidates that meet confidence and evidence thresholds. Do not edit INSTINCTS.md or MEMORY.md directly. Report promoted/decayed counts in the summary.
+对当前项目调用 `instinct` 工具，operation="review"。它会应用衰减，只晋升满足置信度与证据阈值的候选。不要直接编辑 INSTINCTS.md 或 MEMORY.md。在总结中报告晋升/衰减的数量。
 
-## Phase 4 - Consolidate
+## 阶段 4 - 整合
 
-Edit the current project's `MEMORY.md` using these sections when useful:
+按需使用以下小节编辑当前项目的 `MEMORY.md`：
 
-- `## Rules` - project-level rules explicitly stated by the user.
-- `## Architecture decisions` - decision + absolute date + rationale.
-- `## Discovered durable knowledge` - cross-session durable facts.
-- `## Patterns` - repeated problems and solutions.
-- `## Gotchas` - easy-to-miss traps.
+- `## Rules` - 用户明确声明的项目级规则。
+- `## Architecture decisions` - 决策 + 绝对日期 + 理由。
+- `## Discovered durable knowledge` - 跨会话持久事实。
+- `## Patterns` - 重复出现的问题与解决方案。
+- `## Gotchas` - 容易忽视的陷阱。
 
-Principles:
+原则：
 
-- Merge duplicates instead of appending.
-- Convert relative dates like "yesterday" to YYYY-MM-DD.
-- Remove contradicted or obsolete entries when newer trajectory or code proves them stale.
-- Keep each entry to 1-3 lines.
-- Preserve source session ids at the end of entries, for example `[ses_xxx]`.
+- 合并重复项，而不是追加。
+- 把“昨天”之类的相对日期转换为 YYYY-MM-DD。
+- 当更新的轨迹或代码证明某条目已过时时，删除矛盾或废弃的条目。
+- 每条控制在 1-3 行。
+- 在条目末尾保留来源会话 id，例如 `[ses_xxx]`。
 
-## Phase 5 - Prune And Verify
+## 阶段 5 - 精简与核实
 
-- Keep `MEMORY.md` under 200 lines and 10KB when possible. Prefer fewer, denser entries over exhaustive notes.
-- Remove entries superseded by newer decisions.
-- Remove details that mattered only to one session.
-- Remove low-signal memory files or entries that are redundant with stronger project memory.
-- Clear current `notes.md` entries only when fully integrated.
-- Verify mentioned file paths with the `glob` tool.
-- Verify mentioned function/class names with the `grep` tool.
-- Mark unverifiable-but-plausible claims `[unverified]`.
+- 尽量让 `MEMORY.md` 保持在 200 行、10KB 以内。宁可条目更少更密，也不要面面俱到。
+- 删除被更新决策取代的条目。
+- 删除只对单个会话有意义的细节。
+- 删除信噪比低的记忆文件，或与更强的项目记忆重复的条目。
+- 只有在完全整合后才清空当前 `notes.md` 条目。
+- 用 `glob` 工具核实提到的文件路径。
+- 用 `grep` 工具核实提到的函数/类名。
+- 将无法核实但看似合理的说法标记为 `[unverified]`。
 
-## Output Format
+## 输出格式
 
-Return a brief summary:
+返回简要总结：
 
-- Consolidated: new memory entries added.
-- Updated: existing entries changed.
-- Deleted: stale entries removed.
-- Skipped: reason if no changes were made.
-- Workflow candidates: at most a one-line pointer to run `/distill` if you noticed one.
-- Health: project memory line count / 200 and size / 10KB.
+- 已整合：新增的记忆条目。
+- 已更新：修改过的现有条目。
+- 已删除：清理掉的过期条目。
+- 跳过：若未做任何修改，说明原因。
+- 工作流候选：最多一行，指向 `/distill`（若你发现了候选）。
+- 健康度：项目记忆行数 / 200 与大小 / 10KB。

@@ -1,97 +1,97 @@
 ---
 name: review-forecast
-description: Use when the user wants forecast posture, forecast accuracy, commit, upside, forecast-call preparation, or a pipeline or deal-risk review for a seller book, team, period, report, or named deal set. Produce a manager-ready forecast rollup, risk posture, recommendation changes, evidence gaps, and follow-up actions.
+description: 当用户需要预测态势、预测准确性、commit、upside、预测电话准备，或针对某个销售代表账户簿、团队、周期、报表或点名交易集合做管道或交易风险评审时使用。产出可供管理者直接使用的预测汇总、风险态势、建议变更、证据缺口和后续动作。 | forecast review, commit, upside, pipeline risk, forecast call
 ---
 
-# Review Forecast
+# 评审预测
 
 
-## Context-Gathering Intake
+## 上下文收集与提问
 
-Whenever this skill asks for context, strongly prefer using the `answers-ask-user-input` skill and the `ask_user_input` tool over other tools such as `request_user_input`; otherwise ask directly in the conversation.
+凡本技能要求提供上下文时，强烈优先使用 `answers-ask-user-input` 技能和 `ask_user_input` 工具，而不是 `request_user_input` 等其他工具；否则直接在对话中提问。
 
-Turn CRM or exported pipeline truth into a fast, manager-ready forecast readout. This skill owns the rollup, risk posture, recommendation changes, and follow-up actions; the initial review is read-only and never changes forecast categories, close dates, CRM records, tasks, or messages.
+把 CRM 或导出的管道真相，转化为快速、可供管理者直接使用的预测速览。本技能负责汇总、风险态势、建议变更和后续动作；初次评审为只读，绝不更改预测类别、成交日期、CRM 记录、任务或消息。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`.
+强制要求：若尚未在上下文中，请阅读并严格遵循 `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-These categories are particularly important for this workflow; use other sources only when they materially change a top recommendation.
+这些类别对本工作流尤为重要；仅当其他来源会实质改变某条首要建议时才使用它们。
 
-- [Blocking] ~~CRM for authoritative opportunity, amount, stage, forecast category, close date, owner, next step, activity, report, and snapshot truth. It blocks unless a CRM report/export, pasted snapshot, or linked forecast-truth source is already grounded in context.
-- ~~Knowledge & Files for forecast docs, manager notes, close plans, deal-desk trackers, approval trackers, and category conventions
-- ~~Meeting Transcripts for recent customer evidence that changes timing, stakeholder, urgency, objection, or next-step confidence
-- ~~Email for customer engagement, timing, unanswered asks, and commercial or procurement movement
-- ~~Internal Messaging for manager, deal-desk, legal, product, approval, blocker, and account-team signals
+- [Blocking] ~~CRM 用于权威的商机、金额、阶段、预测类别、成交日期、负责人、下一步、活动、报表和快照真相。除非 CRM 报表/导出、粘贴的快照，或链接的预测真相来源已在上下文中落地，否则它会阻塞。
+- ~~Knowledge & Files 用于预测文档、经理笔记、收尾计划、交易台跟踪表、审批跟踪表和类别约定
+- ~~Meeting Transcripts 用于会改变时间、利益相关方、紧迫性、异议或下一步置信度的近期客户证据
+- ~~Email 用于客户互动、时间安排、未答复的请求，以及商业或采购进展
+- ~~Internal Messaging 用于经理、交易台、法务、产品、审批、阻塞项和账户团队信号
 
-Use ~~CRM as the default forecast truth. Use a user-provided/exported pipeline snapshot only as a fallback when CRM cannot be used. Notes, messages, and transcripts are supporting evidence, not substitutes for missing opportunity truth.
+将 ~~CRM 作为默认的预测真相。只有在无法使用 CRM 时，才把用户提供/导出的管道快照作为回退。笔记、消息和转录是支撑证据，不能替代缺失的商机真相。
 
-## Reference Loading
+## 参考资料加载
 
-`SKILL.md` owns the normal forecast-review path and output shape. Use [references/request-schema.yaml](references/request-schema.yaml) when structured input, posture/category/amount enums, comparison inputs, or enrichment-mode normalization matters.
+`SKILL.md` 负责常规的预测评审路径和输出形态。当结构化输入、态势/类别/金额枚举、对比输入或补充模式的归一化很重要时，使用 [references/request-schema.yaml](references/request-schema.yaml)。
 
-## Workflow Guidance
+## 工作流指引
 
-### 1. Resolve scope and forecast conventions
+### 1. 确定范围与预测约定
 
-- If the review scope or forecast truth path is not clear, ask the user via `ask_user_input()`. For a bare invocation such as “review the forecast,” do not assume an owner book or truth source; offer: `My current forecast-period owner book from live CRM`, `A named team, owner, report, or pipeline view`, and `A pasted/exported forecast snapshot or deal set`.
-- If the user names only “my forecast” without defining the source, offer the same explicit choices before building a rollup. Do not retrieve deeper opportunity evidence or render a posture review until the user selects a scope and truth path.
-- Require one scope anchor: owner/book, team, period, named report or pipeline view, focused accounts, focused opportunities, or a supplied deal set.
-- Require one forecast truth source: ~~CRM data, a CRM report/export, pasted pipeline table, current snapshot, or linked forecast context. If none exists, stop and ask for the smallest usable source rather than inferring a forecast from anecdotes.
-- Before rendering a posture review, establish the forecast posture standard, category convention, and amount basis. Find concrete defaults in the supplied data, ~~CRM metadata, or ~~Knowledge & Files first. If any required choice is only inferred, present the sourced default and ask the user to confirm it before producing the posture review; proceed without confirmation only when the active thread or supplied source clearly defines all three.
-- Do not interpret company-specific forecast categories, stage gates, or Commit/Upside norms beyond source-backed thread context, ~~CRM metadata, manager notes or RevOps docs from ~~Knowledge & Files, or user-provided guidance.
-- If scope is ambiguous, make a bounded candidate pass before asking: at most three source reads, only enough to offer up to five concrete choices.
-- Use owner scope only after the user explicitly selects or confirms it. When the user names accounts or opportunities, intentionally bypass owner-book scope; when the user names a report, team, or pipeline view, use that narrower scope and state it.
-- Prefer the canonical ~~CRM report or filter for a named team, segment, book, or pipeline view and state the exact filter. For example, if a Startups forecast is represented by `Sales_Coverage_Opp__c = 'Startups'`, use that first instead of broadening across owner, account, and stamped-segment fields. Broaden only when the user asks, the canonical definition is known to be incomplete, or it returns an implausibly thin result; label the broader filter and do not compare it as if it were canonical.
+- 如果评审范围或预测真相路径不清晰，通过 `ask_user_input()` 询问用户。对于“评审预测”这类空泛调用，不要假设某个负责人账户簿或真相来源；提供：`My current forecast-period owner book from live CRM`、`A named team, owner, report, or pipeline view` 和 `A pasted/exported forecast snapshot or deal set`。
+- 如果用户只提到“我的预测”而未定义来源，在构建汇总之前提供同样的明确选择。在用户选定范围和真相路径之前，不要检索更深的商机证据或渲染态势评审。
+- 需要一个范围锚点：负责人/账户簿、团队、周期、点名的报表或管道视图、聚焦账户、聚焦商机，或提供的交易集合。
+- 需要一个预测真相来源：~~CRM 数据、CRM 报表/导出、粘贴的管道表格、当前快照，或链接的预测上下文。如果都不存在，就停下并索取最小可用来源，而不是从轶事推断预测。
+- 在渲染态势评审之前，先确定预测态势标准、类别约定和金额基准。先在提供的数据、~~CRM 元数据或 ~~Knowledge & Files 中寻找具体默认值。如果任何必需选择只是推断，就呈现带来源的默认值，并在产出态势评审之前请用户确认；只有当活跃对话线程或提供的来源清晰定义了全部三项时，才可不经确认继续。
+- 不要超出有来源支撑的对话线程上下文、~~CRM 元数据、来自 ~~Knowledge & Files 的经理笔记或 RevOps 文档，或用户提供的指引，去解释公司专属的预测类别、阶段门槛或 Commit/Upside 惯例。
+- 如果范围不明确，在提问前做一次有边界的候选梳理：最多三次来源读取，仅够提供最多五个具体选择。
+- 只有在用户明确选择或确认之后才使用负责人范围。当用户点名账户或商机时，有意绕过负责人账户簿范围；当用户点名报表、团队或管道视图时，使用那个更窄的范围并说明它。
+- 对于点名的团队、细分、账户簿或管道视图，优先使用标准的 ~~CRM 报表或筛选，并说明确切的筛选条件。例如，如果 Startups 预测由 `Sales_Coverage_Opp__c = 'Startups'` 表示，就先使用它，而不是跨负责人、账户和标记细分字段扩大范围。仅在用户要求、已知标准定义不完整，或它返回的结果稀薄得不合常理时才扩大范围；标注更宽的筛选条件，并且不要把它当作标准定义来对比。
 
-### 2. Build the forecast truth set
+### 2. 构建预测真值集
 
-- Start with the canonical ~~CRM report/filter or supplied export. State the exact scope, period, source, amount basis, and data freshness in the output.
-- For live ~~CRM, do only the minimum field or schema discovery needed to identify scope, amount, forecast, stage, owner, close-date, next-step, activity, and risk fields. Skip current-user and account-object discovery unless the scope is “my book” or account-level fields are needed.
-- For a normal first pass, gather current open deals in scope and build the rollup first, normally by forecast category and optionally stage: deal count, primary amount, and expected forecast amount.
-- Inspect detail rows only for the highest-value, highest-risk, stale, materially changed, or concentration-driving opportunities.
-- Gather prior-snapshot rows only when the user supplies a comparison snapshot, a named snapshot/report is available, or the user explicitly asks for movement. Do not use broad field history to imply true forecast movement.
-- If current-versus-prior coverage is partial, label that directly.
-- Treat OpportunityHistory or similar field history as field history, not forecast-snapshot movement, unless a true prior snapshot exists.
-- If data is too thin for category recommendations, downgrade to a risk-only readout and say why.
+- 从标准 ~~CRM 报表/筛选或提供的导出开始。在输出中说明确切的范围、周期、来源、金额基准和数据新鲜度。
+- 对于实时 ~~CRM，只做识别范围、金额、预测、阶段、负责人、成交日期、下一步、活动和风险字段所需的最小字段或 schema 发现。除非范围是“我的账户簿”或需要账户级字段，否则跳过当前用户和账户对象的发现。
+- 对于常规的首次梳理，先收集范围内当前的开放交易并构建汇总，通常按预测类别、可选按阶段：交易数量、主要金额和预期预测金额。
+- 仅对价值最高、风险最高、过时、发生实质变化或造成集中度的商机检视明细行。
+- 仅在用户提供对比快照、有可用的点名快照/报表，或用户明确要求查看变动时，才收集先前快照的行。不要用宽泛的字段历史来暗示真实的预测变动。
+- 如果当前与先前的覆盖度是部分的，直接标注这一点。
+- 把 OpportunityHistory 或类似字段历史视为字段历史，而不是预测快照变动，除非存在真正的先前快照。
+- 如果数据太稀薄、不足以支撑类别建议，就降级为仅风险的速览，并说明原因。
 
-### 3. Add bounded evidence only where it changes the call
+### 3. 仅在会改变结论之处补充有界证据
 
-- Default to `light` enrichment for the top one to three uncertain or material deals after the rollup exists. Use `none` when the user asks for forecast-data-only review; use `standard` only for a requested deep review or when missing supporting evidence would materially change a high-value recommendation.
-- Use ~~Meeting Transcripts and ~~Email for recent customer engagement, urgency, stakeholder, objection, decision-process, and timing signals.
-- Use ~~Internal Messaging and ~~Knowledge & Files for blockers, approvals, close-plan gaps, legal/procurement risk, or manager context.
-- Do not enrich every deal by default. Stop when the top recommendations are supported; name missing lanes that would materially change confidence.
-- Do not broaden enrichment while a required scope anchor or forecast convention is unresolved; resolve or confirm it first.
-- Do not let supporting lanes override CRM-owned amount, stage, forecast category, owner, close date, or opportunity state.
+- 在汇总之后，对排名最靠前的一到三笔不确定或重要交易默认使用 `light` 补充。当用户要求仅基于预测数据的评审时使用 `none`；只有在要求深度评审，或缺失的支撑证据会实质改变某条高价值建议时，才使用 `standard`。
+- 使用 ~~Meeting Transcripts 和 ~~Email 获取近期客户互动、紧迫性、利益相关方、异议、决策流程和时间信号。
+- 使用 ~~Internal Messaging 和 ~~Knowledge & Files 获取阻塞项、审批、收尾计划缺口、法务/采购风险或经理上下文。
+- 不要默认对每笔交易都做补充。当首要建议得到支撑时就停止；点名那些会实质改变置信度的缺失通道。
+- 当必需的范围内锚点或预测约定尚未解决时，不要扩大补充范围；先解决或确认它。
+- 不要让支撑通道覆盖 CRM 拥有的金额、阶段、预测类别、负责人、成交日期或商机状态。
 
-### 4. Evaluate risk and recommendation posture
+### 4. 评估风险与建议态势
 
-- Evaluate material deals for next-step clarity, timing credibility, stakeholder coverage, decision-process visibility, proof of urgency, recent engagement, and data freshness.
-- Flag supported hygiene signals such as missing next steps, stale activity, unclear close dates, weak stakeholder coverage, and category/amount/stage changes.
-- Flag portfolio concentration when too much posture depends on one deal, owner, stage, segment, product, or timing bucket.
-- Use simple `low`, `moderate`, and `high` risk labels. Separate sourced facts from directional inference.
-- Recommend keep, downgrade, upside, or follow-up-check posture only when evidence supports it. Phrase unsupported changes as questions or `Needs confirmation`.
-- When current and prior snapshots are supplied, add a concise `What Changed` subsection. Without a prior snapshot, say true movement was not evaluated and use current-state examples only when supported, such as booked Closed Won, Commit concentration, stale close dates, missing next steps, or large Closed Lost/churn rows.
+- 评估重要交易的下一步清晰度、时间可信度、利益相关方覆盖、决策流程可见度、紧迫性证明、近期互动和数据新鲜度。
+- 标记有支撑的卫生信号，例如缺少下一步、活动过时、成交日期不清晰、利益相关方覆盖薄弱，以及类别/金额/阶段变化。
+- 当过多态势取决于某笔交易、某个负责人、阶段、细分、产品或时间桶时，标记组合集中度。
+- 使用简单的 `low`、`moderate` 和 `high` 风险标签。将有来源的事实与方向性推断分开。
+- 只在证据支持时建议保持、降级、上调或跟进核查等态势。把无支撑的变更表述为问题或 `Needs confirmation`。
+- 当提供了当前与先前快照时，增加一个简洁的 `What Changed` 小节。没有先前快照时，说明未评估真实变动，并仅在得到支持时使用当前状态示例，例如已入账的 Closed Won、Commit 集中度、过时的成交日期、缺少下一步，或大额 Closed Lost/流失行。
 
-### Next Step Options
+### 下一步选项
 
-After the first output, offer the most relevant follow-up from the options below. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Inspect one high-risk or concentration-driving deal more deeply.
-- Draft a concise manager or forecast-call summary for review.
-- Create a spreadsheet-ready rollup or risk follow-up structure.
-- Draft CRM-ready corrections or next-step text for review.
-- Check whether a matching weekly automation already reruns this `review-forecast` skill for the same scope and forecast convention; if none exists, offer to create one that gives the seller or manager a weekly forecast-risk readout.
+在首个输出之后，从以下选项中提供最相关的后续动作。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 更深入地检视某笔高风险或造成集中度的交易。
+- 起草一份简洁的经理或预测电话摘要供评审。
+- 创建可直接用于电子表格的汇总或风险跟进结构。
+- 起草可供 CRM 使用的更正或下一步文本供评审。
+- 检查是否已存在相匹配的每周自动化，针对同一范围和预测约定重跑本 `review-forecast` 技能；若不存在，提出创建一个，为销售人员或管理者提供每周预测风险速览。
 
-Next steps to avoid:
-- Automatically changing forecast categories, close dates, amounts, or CRM records.
+应避免的后续步骤：
+- 自动更改预测类别、成交日期、金额或 CRM 记录。
 
-### Automation Offer Guard
+### 自动化建议防护
 
-For current forecast, movement, or risk-review outputs, a weekly forecast-risk brief is the preferred automation offer when the user has a reusable owner book, team, report, pipeline view, period, or deal set plus stable forecast conventions. Frame the value in sales language: spotting commit risk, upside movement, stale next steps, close-date pressure, concentration, and deals that need manager attention before the forecast call.
+对于当前预测、变动或风险评审输出，当用户拥有可复用的负责人账户簿、团队、报表、管道视图、周期或交易集合，并且预测约定稳定时，每周预测风险简报就是首选的自动化建议。用销售语言表述其价值：在预测电话之前发现 commit 风险、upside 变动、过时的下一步、成交日期压力、集中度，以及需要管理者关注的交易。
 
-The automation must be a scheduled rerun of this skill, not a separate custom pipeline summary. When creating or describing the automation, make the prompt call this skill directly and preserve the same forecast scope and conventions:
+自动化必须是对本技能的定时重跑，而不是另一套自定义管道摘要。创建或描述该自动化时，让提示词直接调用本技能，并保持相同的预测范围和约定：
 
 ```text
 Use the Sales `review-forecast` skill.
@@ -109,26 +109,26 @@ amount_basis: "[carr_arr, acv, tcv, weighted_amount, or crm_primary_amount]"
 enrichment_mode: "[none, light, or standard]"
 ```
 
-For team, report, or pipeline-view scopes that are not expressible as owner, account, or opportunity fields, keep the stable scope in the plain-language prompt text and let this skill resolve the forecast truth set using its normal workflow guidance.
+对于无法用负责人、账户或商机字段表达的团队、报表或管道视图范围，将稳定范围保留在自然语言提示文本中，让本技能按其常规工作流指引解析预测真值集。
 
-The recurring output should follow this skill's Forecast Review format: review scope, overall forecast posture, key movements, highest-risk deals, recommendation changes, evidence gaps, and follow-up actions. Keep it read-only; it may recommend checks, corrections, or CRM-ready text for review, but must not change forecast categories, close dates, amounts, CRM records, tasks, or messages unless the user separately asks and approves.
+周期性输出应遵循本技能的 Forecast Review 格式：评审范围、整体预测态势、关键变动、最高风险交易、建议变更、证据缺口和后续动作。保持只读；它可以建议核查、更正或供评审的 CRM 可用文本，但不得更改预测类别、成交日期、金额、CRM 记录、任务或消息，除非用户另行要求并批准。
 
-Before offering the weekly forecast brief, check whether the user already has a matching local automation installed. Inspect local automation records under `$CODEX_HOME/automations/*/automation.toml`, or `~/.codex/automations/*/automation.toml` when `CODEX_HOME` is unset, and match by name, prompt, skill name, cadence, owner book, team, report, pipeline view, forecast period, amount basis, category convention, or other stable scope details. Treat active and paused matches as already installed.
+在提供每周预测简报之前，检查用户是否已安装了相匹配的本地自动化。查看 `$CODEX_HOME/automations/*/automation.toml` 下的本地自动化记录，或在 `CODEX_HOME` 未设置时查看 `~/.codex/automations/*/automation.toml`，并按名称、提示词、技能名、频率、负责人账户簿、团队、报表、管道视图、预测周期、金额基准、类别约定或其他稳定范围细节进行匹配。将启用中和已暂停的匹配都视为已安装。
 
-- If a matching automation exists, do not suggest creating another one. Continue with the next most relevant non-automation follow-up.
-- If no matching automation exists, end with one clear offer to check/create a weekly rerun of `review-forecast` for the same scope. Describe the recurring output as a manager-ready weekly forecast brief covering risk, upside, stale next steps, concentration, and recommended checks. Do not create or update the automation until the user explicitly agrees.
-- If the automation surface is unavailable, do not mention tool details; offer to help set up a recurring forecast-risk brief when automations are available.
+- 如果存在匹配的自动化，不要再建议创建另一个。继续提供下一个最相关的非自动化后续动作。
+- 如果不存在匹配的自动化，以一个明确的建议结束：检查/创建针对同一范围的 `review-forecast` 每周重跑。将周期性输出描述为可供管理者直接使用的每周预测简报，覆盖风险、upside、过时的下一步、集中度和建议的核查项。在用户明确同意之前，不要创建或更新该自动化。
+- 如果自动化能力不可用，不要提及工具细节；在自动化可用时，提出帮助搭建周期性的预测风险简报。
 
-## Modes
+## 模式
 
-- `Current Forecast Review` — default; current rollup, top risks, recommendations, and actions.
-- `Movement Review` — use when a prior snapshot or explicit comparison source exists; add true movement.
-- `Risk-Only Review` — use when forecast truth is sufficient for risk but too thin for posture changes.
-- `Focused Deal Review` — use for named accounts or opportunities instead of a full book.
+- `Current Forecast Review` —— 默认；当前汇总、主要风险、建议和动作。
+- `Movement Review` —— 当存在先前快照或明确的对比来源时使用；补充真实变动。
+- `Risk-Only Review` —— 当预测真相足以判断风险、但不足以支撑态势变更时使用。
+- `Focused Deal Review` —— 用于点名的账户或商机，而不是整个账户簿。
 
-## Output Format
+## 输出格式
 
-Return these sections in order.
+按顺序返回以下章节。
 
 ```md
 # Forecast Review: [Scope]
@@ -178,14 +178,14 @@ Return these sections in order.
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-## Rules
+## 规则
 
-- Do not fabricate opportunities, amounts, stages, close dates, owners, forecast categories, customer engagement, movements, or links.
-- Explain whether the review used live CRM truth, exported/report data, pasted pipeline data, or another user-provided source.
-- Include true movement only with a prior snapshot or explicit comparison source; otherwise keep `Key Movements` and state the limitation.
-- Label uncertain recommendations `Likely`, `Possible`, or `Needs confirmation`; avoid false precision.
-- Keep the initial review read-only. Draft downstream manager notes, CRM-ready text, spreadsheet structure, or risk follow-up only when requested; never write or send without a separate explicit approval step.
+- 不要编造商机、金额、阶段、成交日期、负责人、预测类别、客户互动、变动或链接。
+- 说明评审使用的是实时 CRM 真相、导出的/报表数据、粘贴的管道数据，还是其他用户提供的来源。
+- 只有在有先前快照或明确对比来源时才包含真实变动；否则保留 `Key Movements` 并说明限制。
+- 把不确定的建议标注为 `Likely`、`Possible` 或 `Needs confirmation`；避免虚假的精确。
+- 保持初次评审只读。仅在要求时才起草下游的经理笔记、可供 CRM 使用的文本、电子表格结构或风险跟进；绝不在没有单独明确批准步骤的情况下写入或发送。
 
-## Failure Handling
+## 失败处理
 
-If scope or forecast truth cannot be resolved, state the blocker, offer concrete candidates when available, and ask for the smallest missing source or convention. If optional evidence is unavailable, continue from the forecast truth set and make the confidence limit visible.
+如果范围或预测真相无法确定，说明阻塞点，在可用时提供具体候选，并索取最小的缺失来源或约定。如果可选证据不可用，就基于预测真值集继续，并让置信度限制清晰可见。

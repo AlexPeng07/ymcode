@@ -1,41 +1,41 @@
 ---
 name: share
-description: "Share a runnable prototype using the user's preferred deployment tool."
+description: "使用用户偏好的部署工具分享可运行的原型。 | Trigger keywords: share prototype, deploy, publish, hosting."
 ---
 
-# Share
+# 分享
 
-Deploy the user's runnable prototype so they can share it with others.
+部署用户的可运行原型，使其可以与他人分享。
 
-## Critical Overrides
+## 关键覆盖规则
 
-- Refer to the Plugin router [$index](../index/SKILL.md) before proceeding.
-- Follow [$critical-overrides](../../references/critical-overrides.md).
+- 继续之前，先参考插件路由 [$index](../index/SKILL.md)。
+- 遵循 [$critical-overrides](../../references/critical-overrides.md)。
 
-## User Context
+## 用户上下文
 
-Before starting, load [$user-context](../user-context/SKILL.md) and run its preflight script when local shell access is available.
+开始之前，加载 [$user-context](../user-context/SKILL.md)，并在本地 shell 可用时运行其预检脚本。
 
-Use saved product URLs, Figma files, screenshots, reference images, codebase paths, Storybook, tokens, design systems, brand assets, component refs, browser preferences, and share targets as grounding material when relevant.
+在相关时，使用已保存的产品 URL、Figma 文件、截图、参考图片、代码库路径、Storybook、tokens、设计系统、品牌资源、组件引用、浏览器偏好与分享目标作为依据材料。
 
-Do not inspect every saved reference. Inspect only what the current task needs.
+不要检查每个已保存的参考。只检查当前任务所需的内容。
 
-## Workflow
+## 工作流
 
-1. Confirm the prototype directory and the user's preferred deployment target.
-2. If the user invokes Product Design with @Sites, @Vercel, or another deployment tool, treat that as the selected hosting target.
-3. If the user did not choose a target, ask one question:
+1. 确认原型目录与用户偏好的部署目标。
+2. 如果用户通过 @Sites、@Vercel 或其他部署工具调用产品设计，将其视为选定的托管目标。
+3. 如果用户未选择目标，提出一个问题：
 
-> Where should I deploy this: @Sites, @Vercel, or another target?
+> 我应该把它部署到哪里：@Sites、@Vercel，还是其他目标？
 
-4. Use the selected deployment tool when it is available.
-5. If the selected tool is not available, say that clearly and ask whether to use another target.
-6. Run the deployment when possible. Do not give setup instructions if you can complete the deployment directly.
-7. Return the shareable URL.
-8. State any misses or manual follow-up the user still needs to do.
+4. 在可用时使用选定的部署工具。
+5. 如果选定的工具不可用，明确说明并询问是否改用其他目标。
+6. 尽可能执行部署。如果能直接完成部署，就不要只给出设置说明。
+7. 返回可分享的 URL。
+8. 说明任何未达成之处或用户仍需手动跟进的事项。
 
-## Rules
+## 规则
 
-- Do not deploy before the user chooses or confirms the target.
-- Do not claim the prototype is shared until you have a working URL.
-- If the selected tool is not available, say that clearly and ask whether to use another target.
+- 在用户选择或确认目标之前不要部署。
+- 在获得可用 URL 之前，不要声称原型已分享。
+- 如果选定的工具不可用，明确说明并询问是否改用其他目标。

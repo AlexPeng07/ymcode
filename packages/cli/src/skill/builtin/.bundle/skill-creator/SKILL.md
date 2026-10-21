@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Interactive guide for creating, reviewing, and improving agent skills (SKILL.md folders). Use when the user wants to build a new skill ('create a skill', 'make a skill for X', 'write a SKILL.md', 'turn this workflow into a skill'), review or improve an existing skill, fix a skill that never triggers or triggers too often, or validate a skill folder before sharing it. Do NOT use for general prompt writing, MCP server development, or editing arbitrary markdown files."
+description: "创建、审查与改进智能体技能（SKILL.md 文件夹）的交互式指南。适用于用户想新建技能（‘create a skill’、‘make a skill for X’、‘write a SKILL.md’、‘turn this workflow into a skill’），审查或改进已有技能，修复从不触发或触发过于频繁的技能，或在分享前校验技能文件夹。不适用于通用提示词撰写、MCP 服务器开发或编辑任意 markdown 文件。 | Create, review, and validate agent skills."
 version: 1.0.0
 license: MIT
 platforms: [linux, macos, windows]
@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 
 # Skill Creator
 
-A skill is a folder that teaches an agent how to handle a specific task or workflow:
+技能是一个文件夹，教会智能体如何处理某项特定任务或工作流：
 
 ```
 your-skill-name/
@@ -18,39 +18,39 @@ your-skill-name/
 └── assets/        # Optional — templates, fonts, icons used in output
 ```
 
-Skills rely on **progressive disclosure**: the frontmatter is always in context (so it decides *when* the skill loads), the SKILL.md body loads when relevant, and linked files load only on demand. Keep each level as small as it can be.
+技能依赖**渐进披露**：frontmatter 始终在上下文中（因此它决定技能*何时*加载），SKILL.md 正文在相关时加载，链接文件仅在需要时加载。每一层都尽可能小。
 
-## Workflow: Creating a New Skill
+## 工作流：创建新技能
 
-### Step 1: Define 2-3 concrete use cases
+### 第 1 步：定义 2-3 个具体用例
 
-Before writing anything, pin down with the user:
+写任何东西之前，先与用户敲定：
 
-- What does the user want to accomplish? (outcome, not feature)
-- What triggers it? Collect literal phrases users would say.
-- What steps does the workflow require, in order?
-- Which tools are needed (built-in, scripts, MCP servers)?
-- What domain knowledge or best practices must be embedded?
+- 用户想达成什么？（成果，而不是功能）
+- 什么会触发它？收集用户会说的原话。
+- 该工作流按顺序需要哪些步骤？
+- 需要哪些工具（内置工具、脚本、MCP 服务器）？
+- 必须内嵌哪些领域知识或最佳实践？
 
-Write each use case as: **Trigger → Steps → Result**. If the user is vague, propose use cases and confirm rather than guessing silently.
+把每个用例写成：**触发 → 步骤 → 结果**。如果用户表述含糊，就提出用例并确认，而不是默默猜测。
 
-Identify the category — it shapes the structure:
+判断类别——它决定结构：
 
-1. **Document & asset creation** — embed style guides, templates, quality checklists.
-2. **Workflow automation** — step-by-step process with validation gates.
-3. **MCP enhancement** — orchestrate MCP tool calls in sequence with domain expertise.
+1. **文档与资产创建** — 内嵌风格指南、模板、质量检查清单。
+2. **工作流自动化** — 带校验关卡的逐步流程。
+3. **MCP 增强** — 结合领域专长，按顺序编排 MCP 工具调用。
 
-### Step 2: Plan the folder structure
+### 第 2 步：规划文件夹结构
 
-- Folder name: kebab-case only (`my-skill` — no spaces, capitals, or underscores) and it should match the frontmatter `name`.
-- `SKILL.md` must be named exactly that, case-sensitive.
-- Never put a `README.md` inside the skill folder.
-- Keep SKILL.md under ~5,000 words; move detail to `references/` and link to it.
-- For critical validations, prefer a bundled script over prose — code is deterministic, language interpretation isn't.
+- 文件夹名：只能用 kebab-case（`my-skill`——不含空格、大写字母或下划线），且应与 frontmatter 的 `name` 一致。
+- `SKILL.md` 必须严格使用这个文件名，区分大小写。
+- 绝不要在技能文件夹内放 `README.md`。
+- SKILL.md 控制在约 5,000 词以内；把细节移到 `references/` 并链接过去。
+- 对关键校验，优先使用随附脚本而不是文字说明——代码是确定性的，语言解释不是。
 
-### Step 3: Write the frontmatter
+### 第 3 步：编写 frontmatter
 
-The frontmatter is the single most important part — it alone decides whether the skill ever loads.
+frontmatter 是最重要的一部分——仅它一项就决定技能是否会被加载。
 
 ```yaml
 ---
@@ -59,23 +59,23 @@ description: [What it does] + [When to use it, with literal trigger phrases] + [
 ---
 ```
 
-Rules (hard requirements):
+规则（硬性要求）：
 
-- `description` MUST state both WHAT the skill does and WHEN to use it, under 1024 characters.
-- Include specific phrases users would actually say, and file types if relevant.
-- No XML angle brackets anywhere in frontmatter (it is injected into the system prompt).
-- `name` must not use reserved prefixes ("claude", "anthropic").
+- `description` 必须同时说明技能做什么（WHAT）以及何时使用（WHEN），长度在 1024 字符以内。
+- 包含用户实际会说的具体短语；相关时说明文件类型。
+- frontmatter 中不得出现任何 XML 尖括号（它会被注入系统提示词）。
+- `name` 不得使用保留前缀（"claude"、"anthropic"）。
 
-Weak: `description: Helps with projects.`
-Strong: `description: Manages Linear sprint workflows including planning, task creation, and status tracking. Use when the user mentions "sprint", "Linear tasks", or asks to "create tickets".`
+弱示例：`description: Helps with projects.`
+强示例：`description: Manages Linear sprint workflows including planning, task creation, and status tracking. Use when the user mentions "sprint", "Linear tasks", or asks to "create tickets".`
 
-Optional `disable-model-invocation: true` makes the skill user-only: the agent never sees it (no skill catalog entry, no `skill_search` hit, and the `skill` tool refuses it), while `/skill-name` still works for the user. Use it for a long or interrupting workflow whose timing the user should control — a multi-phase orchestration, a deploy, anything with side effects. Leave it off by default; a skill the agent cannot see is a skill it cannot offer. Keep the "only when the user asks" rule in the `description` and body as well, so the skill still behaves if the flag is ever removed.
+可选的 `disable-model-invocation: true` 让技能仅限用户使用：智能体永远看不到它（没有技能目录条目、没有 `skill_search` 命中，且 `skill` 工具会拒绝），而 `/skill-name` 对用户仍然有效。用于耗时长或会打断工作、且时机应由用户掌控的工作流——多阶段编排、部署，以及任何有副作用的操作。默认不要开启；智能体看不见的技能，它也无法主动提供。同时在 `description` 和正文中保留「仅当用户要求时」的规则，以便该标志一旦被移除，技能行为仍然正确。
 
-For all optional fields (`license`, `compatibility`, `metadata`, `allowed-tools`) and more good/bad examples, read `references/frontmatter.md`.
+关于所有可选字段（`license`、`compatibility`、`metadata`、`allowed-tools`）以及更多正反示例，请阅读 `references/frontmatter.md`。
 
-### Step 4: Write the instructions
+### 第 4 步：编写指令
 
-Recommended body structure:
+建议的正文结构：
 
 ```markdown
 # Skill Name
@@ -91,60 +91,60 @@ User says X → actions → result.
 Error → cause → fix.
 ```
 
-Best practices:
+最佳实践：
 
-- Be specific and actionable: give exact commands with flags and expected output, not vibes ("validate the data").
-- Put critical instructions at the top; use `## Important` headers for must-not-skip rules.
-- Include error handling for the failures users will actually hit.
-- Reference bundled resources explicitly ("Before writing queries, read the API-patterns file in references/").
-- Number steps that must happen in order; state data dependencies between steps.
+- 具体且可执行：给出带参数的精确命令与预期输出，而不是「校验一下数据」这类感觉描述。
+- 把关键指令放在顶部；用 `## Important` 标题标记不可跳过的规则。
+- 为用户实际会遇到的失败写明错误处理。
+- 显式引用随附资源（「写查询之前，先读 references/ 中的 API-patterns 文件」）。
+- 为必须按顺序发生的步骤编号；说明步骤之间的数据依赖。
 
-For proven structural patterns (sequential orchestration, multi-MCP coordination, iterative refinement, context-aware tool selection, domain-specific intelligence), read `references/patterns.md`.
+关于经过验证的结构模式（顺序编排、多 MCP 协同、迭代精炼、上下文感知的工具选择、领域专属智能），请阅读 `references/patterns.md`。
 
-### Step 5: Validate
+### 第 5 步：校验
 
-Run the bundled validator on the skill folder:
+对技能文件夹运行随附的校验器：
 
 ```bash
 python scripts/validate_skill.py /path/to/your-skill-name
 ```
 
-It checks naming, frontmatter format and length, forbidden content, missing linked files, and body size. Fix every ERROR; treat WARNINGs as review prompts. Expected output on success: `PASS` with 0 errors.
+它会检查命名、frontmatter 格式与长度、禁止内容、缺失的链接文件以及正文大小。修复所有 ERROR；把 WARNING 当作需要复核的提示。成功时的预期输出：`PASS` 且 0 个错误。
 
-### Step 6: Test and iterate
+### 第 6 步：测试并迭代
 
-Iterate on a single challenging task until it succeeds, then extract the winning approach into the skill — this gives faster signal than broad testing. Then cover:
+先在一个有挑战性的任务上迭代直到成功，然后把制胜方法提炼进技能——这比大范围测试给出更快的信号。然后覆盖：
 
-1. **Triggering**: obvious phrasing loads it, paraphrases load it, unrelated queries don't.
-2. **Function**: outputs correct, tool calls succeed, edge cases handled.
-3. **Baseline comparison**: fewer corrections / tool calls / tokens than without the skill.
+1. **触发**：明显措辞能加载它，改写措辞也能加载，不相关的查询不会加载。
+2. **功能**：输出正确、工具调用成功、边界情形得到处理。
+3. **基线对比**：相比没有该技能时，修正次数/工具调用次数/token 更少。
 
-Debugging trick: ask the agent "When would you use the [name] skill?" — it will paraphrase the description back; fix what's missing.
+调试技巧：问智能体「你会在什么时候使用 [name] 技能？」——它会把描述转述回来；据此修复缺失之处。
 
-Full test-case templates and iteration signals are in `references/testing.md`.
+完整的测试用例模板与迭代信号见 `references/testing.md`。
 
-## Workflow: Reviewing an Existing Skill
+## 工作流：审查已有技能
 
-When asked to review or improve a skill:
+当被要求审查或改进某个技能时：
 
-1. Read its SKILL.md and run `python scripts/validate_skill.py <folder>`.
-2. Diagnose against the common failure modes:
-   - **Never triggers** → description too generic or missing user-facing trigger phrases. Rewrite with literal phrases and keywords.
-   - **Triggers too often** → add negative triggers ("Do NOT use for...") and narrow the scope.
-   - **Loads but instructions ignored** → instructions too verbose, buried, or ambiguous. Move critical rules to the top, replace prose validations with a script.
-   - **Slow / degraded responses** → SKILL.md too large; move detail into `references/`.
-3. Propose concrete edits (before/after for the description), not general advice.
-4. If the user brings failure examples from real sessions, encode the fix as an explicit instruction or troubleshooting entry — that is the highest-value iteration loop.
+1. 阅读其 SKILL.md，并运行 `python scripts/validate_skill.py <folder>`。
+2. 对照常见失败模式诊断：
+   - **从不触发** → 描述过于泛化或缺少面向用户的触发短语。用原话短语和关键词重写。
+   - **触发过于频繁** → 添加否定触发（「不要用于……」）并收窄范围。
+   - **能加载但指令被忽略** → 指令过于冗长、被埋在深处或含糊。把关键规则移到顶部，用脚本替代文字校验。
+   - **响应慢/质量下降** → SKILL.md 太大；把细节移入 `references/`。
+3. 提出具体的修改建议（描述的前后对比），而不是泛泛的建议。
+4. 如果用户带来真实会话中的失败案例，把修复写成显式指令或故障排查条目——这是价值最高的迭代回路。
 
-## Quick Checklist
+## 快速检查清单
 
-Before delivering a skill, verify:
+交付技能前，核对：
 
-- [ ] Folder is kebab-case and matches frontmatter `name`
-- [ ] `SKILL.md` exact filename; no `README.md` inside the folder
-- [ ] Frontmatter has `---` delimiters, `name`, and a WHAT+WHEN `description` under 1024 chars
-- [ ] No XML angle brackets in frontmatter
-- [ ] Instructions specific and actionable, with examples and error handling
-- [ ] Every referenced `scripts/`, `references/`, `assets/` file actually exists
-- [ ] `validate_skill.py` passes with 0 errors
-- [ ] Triggering tested: fires on target phrasings, silent on unrelated ones
+- [ ] 文件夹为 kebab-case，且与 frontmatter 的 `name` 一致
+- [ ] `SKILL.md` 文件名准确；文件夹内没有 `README.md`
+- [ ] frontmatter 有 `---` 分隔符、`name`，以及写明 WHAT+WHEN 且少于 1024 字符的 `description`
+- [ ] frontmatter 中没有 XML 尖括号
+- [ ] 指令具体可执行，含示例与错误处理
+- [ ] 每个被引用的 `scripts/`、`references/`、`assets/` 文件确实存在
+- [ ] `validate_skill.py` 以 0 错误通过
+- [ ] 已测试触发：目标措辞会触发，无关措辞保持静默

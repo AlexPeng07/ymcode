@@ -1,3 +1,3 @@
-## Checkpoint integration
+## 检查点集成
 
-- Findings captured to `tasks/<TID>/progress.md` are reconciled into the next checkpoint. After the subagent finishes writing that file, the checkpoint writer reads it and integrates verbatim commands, outcome, and discoveries into the main checkpoint.
+- 记录到 `tasks/<TID>/progress.md` 的发现会并入下一个检查点。子代理写完该文件后，检查点写入器（checkpoint writer）会读取它，并将逐字记录的命令、结果和发现整合进主检查点。

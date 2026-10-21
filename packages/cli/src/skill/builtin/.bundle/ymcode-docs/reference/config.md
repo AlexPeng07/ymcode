@@ -1,65 +1,65 @@
-# ymcode Configuration Reference
+# ymcode 配置参考
 
-## File locations & precedence
+## 文件位置与优先级
 
-Config is JSON or JSONC. ymcode discovers it by walking up from the cwd to the worktree root, then falls back to global.
+配置为 JSON 或 JSONC。ymcode 从 cwd 向上走到工作树根来发现配置，然后回退到全局配置。
 
-- Project: `.ymcode/ymcode.json` or `.ymcode/ymcode.jsonc`
-- Global: `~/.config/ymcode/ymcode.jsonc` or `ymcode.json` (XDG config dir). New installs seed `ymcode.jsonc`.
-- Extra config dirs are also searched via `$YMCODE_CONFIG_DIR`.
+- 项目级：`.ymcode/ymcode.json` 或 `.ymcode/ymcode.jsonc`
+- 全局：`~/.config/ymcode/ymcode.jsonc` 或 `ymcode.json`（XDG 配置目录）。新安装会生成 `ymcode.jsonc`。
+- 额外的配置目录也会通过 `$YMCODE_CONFIG_DIR` 搜索。
 
-Project config merges **over** global. Always include `"$schema": "https://mimo.xiaomi.com/ymcode/config.json"` for validation.
+项目配置**覆盖**全局配置。始终包含 `"$schema": "https://mimo.xiaomi.com/ymcode/config.json"` 以获得校验。
 
-## On-disk data layout
+## 磁盘数据布局
 
-Base directories resolve from `YMCODE_HOME` if set (must be absolute → `<home>/{data,cache,config,state}`), otherwise from XDG:
+基础目录优先由 `YMCODE_HOME` 解析（必须是绝对路径 → `<home>/{data,cache,config,state}`），否则由 XDG 解析：
 
-| Kind | Default location | Holds |
+| 类别 | 默认位置 | 存放内容 |
 |------|------------------|-------|
-| data | `~/.local/share/ymcode/` | memory, logs, `builtin_skills/<version>/`, bin |
-| config | `~/.config/ymcode/` | global `ymcode.jsonc` / `ymcode.json` |
-| cache | `~/.cache/ymcode/` | caches, downloaded bins |
-| state | `~/.local/state/ymcode/` | runtime state, including TUI recent/favorite models in `model.json` |
+| data | `~/.local/share/ymcode/` | 记忆、日志、`builtin_skills/<version>/`、bin |
+| config | `~/.config/ymcode/` | 全局 `ymcode.jsonc` / `ymcode.json` |
+| cache | `~/.cache/ymcode/` | 缓存、下载的二进制 |
+| state | `~/.local/state/ymcode/` | 运行时状态，包括 `model.json` 中的 TUI 最近/收藏模型 |
 
-Memory files live under `~/.local/share/ymcode/memory/`:
-- `projects/global/MEMORY.md` — project memory
-- `sessions/<id>/checkpoint.md`, `notes.md`, `tasks/<id>/progress.md`
-- `global/MEMORY.md` — cross-project user preferences
+记忆文件位于 `~/.local/share/ymcode/memory/` 下：
+- `projects/global/MEMORY.md` — 项目记忆
+- `sessions/<id>/checkpoint.md`、`notes.md`、`tasks/<id>/progress.md`
+- `global/MEMORY.md` — 跨项目的用户偏好
 
-## Environment variables & flags
+## 环境变量与标志
 
-- `YMCODE_HOME` — override all base dirs (absolute path).
-- `YMCODE_CONFIG_DIR` — extra config directory to search.
-- `YMCODE_PURE` — run without external plugins (same as `mimo --pure`). Does **not** change models or Claude Code inheritance.
-- `YMCODE_DISABLE_LOG_ROTATION` — keep a single growing log file instead of rotating.
-- `YMCODE_TEXT_TOOL_CALL_RETRY_LIMIT` — retries when a model emits a tool call as prose markup instead of a structured call (default 2).
-- `YMCODE_EXPERIMENTAL_CRON` — scheduled prompts (cron/loop); **on by default**. `YMCODE_DISABLE_CRON` kills it at runtime. Tune loop keepalive with `YMCODE_LOOP_KEEPALIVE_BUDGET` (default 1) and `YMCODE_LOOP_KEEPALIVE_DELAY_S` (default 1200).
-- `YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY_HEURISTIC` — shape-based compaction of bash output to save tokens; off by default.
-- `YMCODE_MIMO_ONLY` — pure-MiMo mode: don't inherit Claude Code settings (CLAUDE.md, `~/.claude/CLAUDE.md`), don't read provider API keys from env, fall back to the mimo-auto model.
-- **External skill roots** — default load surface is `.ymcode` + open-standard `.agents`. Brand roots are opt-in: `YMCODE_ENABLE_CLAUDE_CODE_SKILLS`, `YMCODE_ENABLE_CODEX_SKILLS`, `YMCODE_ENABLE_OPENCODE_SKILLS`. Turn agents off with `YMCODE_DISABLE_AGENTS_SKILLS`. External scans skip dotted path segments under `skills/`.
-- `YMCODE_ENABLE_CLAUDE_IMPORT` — automatically import Claude Code sessions on startup; off by default. Set to `true` or `1` to enable. Manual session imports remain available; Codex sessions are imported only on explicit request.
-- `YMCODE_DISABLE_BUILTIN_SKILLS`, `_PROJECT_CONFIG` — feature toggles.
+- `YMCODE_HOME` — 覆盖所有基础目录（绝对路径）。
+- `YMCODE_CONFIG_DIR` — 额外要搜索的配置目录。
+- `YMCODE_PURE` — 不加载外部插件运行（等同于 `mimo --pure`）。**不**改变模型或 Claude Code 继承。
+- `YMCODE_DISABLE_LOG_ROTATION` — 保留单个持续增长的日志文件，而不轮转。
+- `YMCODE_TEXT_TOOL_CALL_RETRY_LIMIT` — 模型把工具调用作为散文标记而非结构化调用发出时的重试次数（默认 2）。
+- `YMCODE_EXPERIMENTAL_CRON` — 定时提示词（cron/loop）；**默认开启**。`YMCODE_DISABLE_CRON` 在运行时关闭它。用 `YMCODE_LOOP_KEEPALIVE_BUDGET`（默认 1）与 `YMCODE_LOOP_KEEPALIVE_DELAY_S`（默认 1200）调整循环保活。
+- `YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY_HEURISTIC` — 基于形状的 bash 输出压缩以节省 token；默认关闭。
+- `YMCODE_MIMO_ONLY` — 纯 MiMo 模式：不继承 Claude Code 设置（CLAUDE.md、`~/.claude/CLAUDE.md`），不从环境读取提供方 API key，回退到 mimo-auto 模型。
+- **外部技能根目录** — 默认加载面为 `.ymcode` + 开放标准 `.agents`。品牌根目录需显式开启：`YMCODE_ENABLE_CLAUDE_CODE_SKILLS`、`YMCODE_ENABLE_CODEX_SKILLS`、`YMCODE_ENABLE_OPENCODE_SKILLS`。用 `YMCODE_DISABLE_AGENTS_SKILLS` 关闭 agents。外部扫描会跳过 `skills/` 下的点号路径段。
+- `YMCODE_ENABLE_CLAUDE_IMPORT` — 启动时自动导入 Claude Code 会话；默认关闭。设为 `true` 或 `1` 启用。手动导入会话仍可用；Codex 会话仅在显式请求时导入。
+- `YMCODE_DISABLE_BUILTIN_SKILLS`、`_PROJECT_CONFIG` — 功能开关。
 
-## Top-level config keys
+## 顶层配置键
 
-All optional.
+全部可选。
 
-### Models & providers
-| Key | Purpose |
+### 模型与提供方
+| 键 | 用途 |
 |-----|---------|
-| `model` | Primary model, `provider/model` (e.g. `anthropic/claude-2`) |
-| `small_model` | **Legacy / not recommended** — carried over from OpenCode for back-compat. Prefer configuring the `lite` group instead. If set, its literal `provider/model` still wins for cheap tasks (title generation, etc.); if unset, cheap tasks route through the `lite` group |
-| `model_groups` | Named capability tiers usable anywhere a model string is accepted — see [Model groups](#model-groups) |
-| `provider` | Custom provider configs & model overrides |
-| `enabled_providers` / `disabled_providers` | Allowlist / blocklist providers |
+| `model` | 主模型，`provider/model`（例如 `anthropic/claude-2`） |
+| `small_model` | **旧版 / 不推荐** —— 为向后兼容从 OpenCode 沿用。建议改为配置 `lite` 组。若设置，其字面 `provider/model` 仍在廉价任务（标题生成等）中优先；若未设置，廉价任务走 `lite` 组 |
+| `model_groups` | 可在任何接受模型字符串的位置使用的命名能力层级——见 [Model groups](#model-groups) |
+| `provider` | 自定义提供方配置与模型覆盖 |
+| `enabled_providers` / `disabled_providers` | 允许列表 / 阻止列表提供方 |
 
-For custom endpoints, adapter selection, provider reuse, credential handling, and verification, read @providers.md before editing.
+关于自定义端点、适配器选择、提供方复用、凭据处理与验证，编辑前请阅读 @providers.md。
 
 ### Model groups
 
-`model_groups` lets you define named capability tiers and reference them by name (e.g. `"ultra"`) anywhere a `provider/model` string is accepted — the `model` key, an agent's model, the `actor` subagent `model` argument, and workflow model tiers.
+`model_groups` 允许你定义命名能力层级，并在任何接受 `provider/model` 字符串的位置按名称引用（例如 `"ultra"`）——包括 `model` 键、某个智能体的模型、`actor` 子代理的 `model` 参数，以及工作流模型层级。
 
-Each group maps a name to either a single default model (string shorthand) or an object with a `default` plus optional member `models`:
+每个组把名称映射为单个默认模型（字符串简写），或一个带 `default` 与可选成员 `models` 的对象：
 
 ```jsonc
 {
@@ -78,90 +78,90 @@ Each group maps a name to either a single default model (string shorthand) or an
 }
 ```
 
-**Resolution rules:**
-- A ref containing `/` is a literal `provider/model` and is used as-is.
-- A ref without `/` is a group name. If configured, ymcode is **provider-aware**: it prefers a member on the caller's current provider, otherwise falls back to the group's `default`.
-- `ultra`, `standard`, `lite` are **built-in tier names**. If you reference one but haven't configured it, it silently falls back to the default model (zero-config never errors).
-- Any other unconfigured name errors with fuzzy suggestions of your defined groups.
-- Cheap-task (small) model: **configure the `lite` group** — that is the recommended path. The legacy `small_model` literal, if set, still takes precedence for back-compat, but is not recommended for new configs.
+**解析规则：**
+- 含 `/` 的引用是字面 `provider/model`，按原样使用。
+- 不含 `/` 的引用是组名。若已配置，ymcode 是**提供方感知**的：优先使用调用方当前提供方上的成员，否则回退到该组的 `default`。
+- `ultra`、`standard`、`lite` 是**内置层级名**。引用但未配置时，会静默回退到默认模型（零配置永不报错）。
+- 其他任何未配置的名称都会报错，并模糊提示你已定义的组。
+- 廉价任务（小模型）：**配置 `lite` 组**——这是推荐路径。旧版 `small_model` 字面值若已设置仍优先以保持向后兼容，但不建议在新配置中使用。
 
-Use groups when you want one label (`"standard"`) to map to different concrete models per provider, or to swap tiers globally without editing every agent/model reference.
+当你希望一个标签（`"standard"`）在不同提供方上映射到不同具体模型，或全局更换层级而不必逐个修改每个智能体/模型引用时，使用组。
 
-### Agents
-| Key | Purpose |
+### 智能体
+| 键 | 用途 |
 |-----|---------|
-| `default_agent` | Primary agent when none specified (falls back to `build`) |
-| `agent` | Per-agent config: `plan`, `build`, `general`, `explore`, `title`, `summary`, `compaction`, plus custom |
-| `username` | Display name in conversations |
+| `default_agent` | 未指定时使用的主智能体（回退到 `build`） |
+| `agent` | 逐智能体配置：`plan`、`build`、`general`、`explore`、`title`、`summary`、`compaction`，以及自定义 |
+| `username` | 对话中的显示名称 |
 
-Prefer a markdown file (`.ymcode/agent/<name>.md`, body = system prompt) for defining a custom agent/mode — see the "Custom agents & modes" section in @guide.md. Use the `agent` config key for short, inline per-agent overrides.
+定义自定义智能体/模式时，优先使用 markdown 文件（`.ymcode/agent/<name>.md`，正文 = 系统提示词）——见 @guide.md 的「自定义智能体与模式」一节。短小的逐智能体内联覆盖使用 `agent` 配置键。
 
-### Tools, skills, MCP, extensions
-| Key | Purpose |
+### 工具、技能、MCP、扩展
+| 键 | 用途 |
 |-----|---------|
-| `skills` | `paths[]` extra skill folders + `urls[]` remote skill indexes |
-| `mcp` | MCP servers: `local` (command/env) or `remote` (url/headers/oauth); `{ "enabled": false }` disables one; `sampling` sets the client-sampling policy (`deny`/`ask`/`allow`, default `ask`) |
-| `tools` | Record of tool-id → boolean enable/disable |
-| `command` | Custom slash commands |
-| `plugin` | Plugin specs |
-| `formatter`, `lsp` | Formatter & language-server config |
-| `instructions` | Extra instruction files/globs to include |
-| `permission` | Permission rules incl. `external_directory` allowlist |
+| `skills` | `paths[]` 额外技能文件夹 + `urls[]` 远程技能索引 |
+| `mcp` | MCP 服务器：`local`（command/env）或 `remote`（url/headers/oauth）；`{ "enabled": false }` 禁用其中一个；`sampling` 设置客户端采样策略（`deny`/`ask`/`allow`，默认 `ask`） |
+| `tools` | 工具 id → 布尔值的启用/停用记录 |
+| `command` | 自定义斜杠命令 |
+| `plugin` | 插件规格 |
+| `formatter`, `lsp` | 格式化器与语言服务器配置 |
+| `instructions` | 要包含的额外指令文件/glob |
+| `permission` | 权限规则，包括 `external_directory` 允许列表 |
 
-### Context management
+### 上下文管理
 
-As context fills, ymcode auto-checkpoints (a background writer distills the conversation into `checkpoint.md`) and, near the limit, **rebuilds**: it inserts a boundary at the last successful checkpoint so earlier messages collapse to the checkpoint summary while recent messages are kept verbatim. If a checkpoint writer is still running when a rebuild is needed, the rebuild waits for it (with a visible "Preparing conversation context…" status) — briefly when a usable checkpoint already exists, longer for the very first one — then proceeds; if no checkpoint can be produced it falls back to lossy compaction. You can trigger a rebuild yourself any time with the `/rebuild` slash command.
+随着上下文被填满，ymcode 会自动检查点（后台写入器把对话提炼进 `checkpoint.md`），并在接近上限时**重建**：在最后一个成功检查点处插入边界，使更早的消息坍缩为检查点摘要，而近期消息逐字保留。若需要重建时检查点写入器仍在运行，重建会等待它（显示「Preparing conversation context…」状态）——已有可用检查点时等待很短，首次检查点则更久——然后继续；若无法产出检查点，则回退到有损压缩。你随时可以用 `/rebuild` 斜杠命令手动触发重建。
 
-The trigger is the model's prompt capacity (`limit.input` when the provider publishes one, else `limit.context`) minus the reserves, optionally lowered by `compaction.max_context`. `ymcode models <provider>` prints the resolved window and the trigger per model, and `/status` shows both plus the current usage. Two things users hit here: a model's usable window depends on the route (ChatGPT/Codex subscription vs direct API key vs a reseller like OpenRouter can all differ for the same model name, and a 1M catalog figure does not mean the route serves 1M), and providers may price very long prompts higher (OpenAI charges 2x input / 1.5x output for GPT-5.6 requests above 272K input) — `compaction.max_context` is the knob for both.
+触发点是模型的提示词容量（提供方公布时用 `limit.input`，否则 `limit.context`）减去各项预留，可再由 `compaction.max_context` 下调。`ymcode models <provider>` 会为每个模型打印解析后的窗口与触发点，`/status` 同时显示两者以及当前用量。这里有两点用户常碰到：模型可用窗口取决于路由（ChatGPT/Codex 订阅、直连 API key、OpenRouter 之类转售商，对同一模型名可能各不相同；目录里标 1M 不代表该路由提供 1M），且提供方可能对超长提示词收更高价（OpenAI 对超过 272K 输入的 GPT-5.6 请求按 2 倍输入 / 1.5 倍输出计费）——`compaction.max_context` 是应对这两点的旋钮。
 
-| Key | Purpose |
+| 键 | 用途 |
 |-----|---------|
-| `compaction.auto` | Auto-compact when context full (default true) |
-| `compaction.prune` | Prune old tool outputs (default true) |
-| `compaction.tail_turns` | Recent user turns kept verbatim (default 2) |
-| `compaction.preserve_recent_tokens` | Max recent tokens kept verbatim |
-| `compaction.reserved` | Token buffer to avoid overflow |
-| `compaction.max_context` | Compact earlier than the model window. One value for all models, or a map keyed `"<providerID>/<modelID>"` (wildcards allowed, longest pattern wins). Values: token count, `"300K"`, `"1M"`, or `"50%"` of the window. Always clamped to the provider cap — can only lower the trigger, never raise it. `0` = no budget. Set it from the TUI with `/context-limit` |
-| `checkpoint.thresholds` | Context-fill triggers, e.g. `["40%","60%","80%"]` |
-| `checkpoint.reserved` | Token buffer for checkpoint ops (default 20000) |
-| `checkpoint.fork` | Fork parent prefix into writer session for cache reuse (default true) |
-| `checkpoint.push_caps.*` | Per-section token caps for rebuild context (tasks_ledger, focus_task, checkpoint, memory, notes, global, recent_user, …) |
-| `checkpoint.task_archive_days` | Days before done/abandoned tasks filtered out (default 7) |
-| `checkpoint.memory_search_score_floor` | BM25 relative floor for memory search (default 0.15) |
-| `memory.cc_index` | Index Claude Code memory under scope `cc` (default false; see privacy note in schema) |
-| `history` | Conversation-history FTS index config |
+| `compaction.auto` | 上下文满时自动压缩（默认 true） |
+| `compaction.prune` | 修剪旧的工具输出（默认 true） |
+| `compaction.tail_turns` | 逐字保留的近期用户轮次（默认 2） |
+| `compaction.preserve_recent_tokens` | 逐字保留的近期 token 上限 |
+| `compaction.reserved` | 用于避免溢出的 token 缓冲 |
+| `compaction.max_context` | 比模型窗口更早压缩。所有模型共用一个值，或使用以 `"<providerID>/<modelID>"` 为键的映射（允许通配，最长模式优先）。取值：token 数、`"300K"`、`"1M"`，或窗口的 `"50%"`。总是被夹紧到提供方上限——只能降低触发点，绝不提高。`0` = 无预算。可在 TUI 中用 `/context-limit` 设置 |
+| `checkpoint.thresholds` | 上下文填充触发点，例如 `["40%","60%","80%"]` |
+| `checkpoint.reserved` | 检查点操作的 token 缓冲（默认 20000） |
+| `checkpoint.fork` | 把父前缀分叉进写入器会话以复用缓存（默认 true） |
+| `checkpoint.push_caps.*` | 重建上下文的逐段 token 上限（tasks_ledger、focus_task、checkpoint、memory、notes、global、recent_user、……） |
+| `checkpoint.task_archive_days` | 已完成/已放弃任务被过滤掉前的天数（默认 7） |
+| `checkpoint.memory_search_score_floor` | 记忆检索的 BM25 相对下限（默认 0.15） |
+| `memory.cc_index` | 在 `cc` 作用域下索引 Claude Code 记忆（默认 false；隐私说明见 schema） |
+| `history` | 对话历史 FTS 索引配置 |
 
-### Autonomous / self-improvement
-| Key | Purpose |
+### 自治 / 自我改进
+| 键 | 用途 |
 |-----|---------|
-| `dream.auto` / `dream.interval_days` | Auto memory consolidation on session start (default true / 7 days) |
-| `distill.auto` / `distill.interval_days` | Auto workflow packaging (default true / 30 days) |
-| `voice.asr_model` | ASR model (default `xiaomi/mimo-v2.5-asr`) |
-| `voice.control_model` | Voice control model (default `xiaomi/mimo-v2.5`) |
-| `workflow.maxConcurrentAgents` | Process-wide subagent concurrency ceiling (default min(16, 2×cores)) |
-| `workflow.maxDepth` | Max workflow nesting depth (default 8) |
+| `dream.auto` / `dream.interval_days` | 会话启动时自动整合记忆（默认 true / 7 天） |
+| `distill.auto` / `distill.interval_days` | 自动打包工作流（默认 true / 30 天） |
+| `voice.asr_model` | ASR 模型（默认 `xiaomi/mimo-v2.5-asr`） |
+| `voice.control_model` | 语音控制模型（默认 `xiaomi/mimo-v2.5`） |
+| `workflow.maxConcurrentAgents` | 进程级子代理并发上限（默认 min(16, 2×cores)） |
+| `workflow.maxDepth` | 工作流最大嵌套深度（默认 8） |
 
-### Experimental
-| Key | Purpose |
+### 实验特性
+| 键 | 用途 |
 |-----|---------|
-| `experimental.maxMode` | `max` agent runs N parallel reasoning candidates, judge picks winner (`candidates`, default 5) |
-| `experimental.batch_tool` | Enable the batch tool |
-| `experimental.predict_next_prompt` | Inline ghost-text next-prompt prediction (default on) |
-| `experimental.continue_loop_on_deny` | Keep looping when a tool call is denied |
-| `experimental.primary_tools` | Tools restricted to primary agents |
-| `experimental.mcp_timeout` | MCP request timeout (ms) |
+| `experimental.maxMode` | `max` 智能体并行运行 N 个推理候选，由裁判选出优胜者（`candidates`，默认 5） |
+| `experimental.batch_tool` | 启用 batch 工具 |
+| `experimental.predict_next_prompt` | 行内幽灵文本式下一提示词预测（默认开启） |
+| `experimental.continue_loop_on_deny` | 工具调用被拒时继续循环 |
+| `experimental.primary_tools` | 限制为主智能体可用的工具 |
+| `experimental.mcp_timeout` | MCP 请求超时（毫秒） |
 
-### Misc
-| Key | Purpose |
+### 杂项
+| 键 | 用途 |
 |-----|---------|
 | `autoupdate` | `true` / `false` / `"notify"` |
 | `share` | `"manual"` / `"auto"` / `"disabled"` |
-| `snapshot` | Filesystem snapshot tracking for undo/redo (default true) |
-| `logLevel` | Log verbosity |
-| `server` | Config for `ymcode serve` |
-| `enterprise.url` | Enterprise endpoint |
+| `snapshot` | 用于撤销/重做的文件系统快照跟踪（默认 true） |
+| `logLevel` | 日志详细程度 |
+| `server` | `ymcode serve` 的配置 |
+| `enterprise.url` | 企业端点 |
 
-## Example: common tweaks
+## 示例：常见调整
 
 ```jsonc
 {

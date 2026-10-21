@@ -1,151 +1,151 @@
 ---
 name: index
-description: "Use when Product Design is explicitly invoked, or when the user's main goal is to explore a design, research UX, audit or critique a flow, faithfully clone a visual source, check a built design, or share a prototype. Do not use Product Design for ordinary implementation unless the user explicitly asks for it."
+description: "当显式调用 Product Design，或用户的主要目标是探索设计、研究 UX、审计或评审流程、忠实克隆视觉来源、检查已构建的设计、分享原型时使用。除非用户明确要求，否则不要将 Product Design 用于普通实现工作。 | Trigger keywords: Product Design, design exploration, UX research, flow audit, clone visual source, design check, share prototype."
 ---
 
-# Skill Purpose
+# 技能用途
 
-Route Product Design requests to the right Product Design skill. Use this plugin for an `@Product Design` mention, a direct Product Design request, or a request mainly about design exploration, faithful source cloning, audits, research, critique, or sharing. A request is not Product Design just because it mentions UI, a prototype, or visual style.
+将产品设计请求路由到正确的产品设计技能。适用于提到 `@Product Design`、直接提出产品设计请求，或请求主要涉及设计探索、忠实克隆来源、审计、研究、评审或分享的场景。仅仅提到 UI、原型或视觉风格，并不意味着该请求属于产品设计。
 
-# Plugin Purpose
+# 插件用途
 
-The Product Design plugin helps designers and other non-coders close the gap between product ideas and working software.
+产品设计插件帮助设计师及其他非编程人员弥合产品想法与可运行软件之间的差距。
 
-The Product Design plugin equips you with the following set of skills to:
+产品设计插件为你提供以下技能，以便：
 
-- Research ideas and pain points related to your product.
-- Conduct product-flow audits.
-- Generate distinctly new ideas for your product with ImageGen.
-- Clone existing product apps into lightweight prototypes.
-- Build lightweight or interactive prototypes to share with your team.
+- 研究与你的产品相关的想法与痛点。
+- 开展产品流程审计。
+- 使用 ImageGen 为你的产品生成别具新意的想法。
+- 将现有产品应用克隆为轻量原型。
+- 构建轻量或可交互的原型，与团队分享。
 
-## Communication Style
+## 沟通风格
 
-Speak to the user in a warm, fun, and collaborative way, prioritizing pithy explanations over long walls of text and numerous bullet points. Refer to the [communication-protocol](../../references/communication-protocol.md) for relaying Product Design plugin progress updates and handoff.
+以温暖、有趣、协作的语气与用户交流，优先使用简洁的解释，而不是大段文字和堆砌的要点。转发产品设计插件的进度更新与交接时，请参考 [communication-protocol](../../references/communication-protocol.md)。
 
-## Critical Overrides
+## 关键覆盖规则
 
-- Follow [$critical-overrides](../../references/critical-overrides.md).
+- 遵循 [$critical-overrides](../../references/critical-overrides.md)。
 
-## Router Only
+## 仅作路由
 
-This index chooses the next Product Design skill. It does not do that skill's work.
+本索引负责选择下一个产品设计技能，但不执行该技能的工作。
 
-If the user names a focused skill, read that exact skill first. Do not replace it with a related skill.
+如果用户点名了某个聚焦技能，请先阅读该技能本身，不要用相关技能替代。
 
-When a request matches `$user-context`, `$get-context`, `$research`, `$ideate`, `$image-to-code`, `$url-to-code`, `$audit`, `$design-qa`, or `$share`, load the focused skill and follow it.
+当请求匹配 `$user-context`、`$get-context`、`$research`、`$ideate`、`$image-to-code`、`$url-to-code`、`$audit`、`$design-qa` 或 `$share` 时，加载对应的聚焦技能并遵循它。
 
-For requests to audit, review, critique, inspect, assess, analyze, evaluate, or give feedback on an existing product experience, load `$audit` directly; do not load `$get-context` first. If the same request also asks to build, fix, redesign, or implement afterward, run `$audit` first, then continue through the appropriate normal workflow.
+对于审计、审查、评审、检查、评估、分析、评价现有产品体验或对其给出反馈的请求，直接加载 `$audit`，不要先加载 `$get-context`。如果同一请求还要求随后构建、修复、重新设计或实现，先运行 `$audit`，再继续进入相应的常规工作流。
 
-For visual ideation, `$ideate` is the focused workflow. Use `$get-context` to resolve the minimum brief and play back any defaults before `$ideate` starts.
+对于视觉构思，聚焦工作流是 `$ideate`。在 `$ideate` 开始前，用 `$get-context` 确定最小简报并复述所有默认值。
 
-For clone or recreation of a live URL, load `$url-to-code` directly.
+对于克隆或重建线上 URL，直接加载 `$url-to-code`。
 
-For a redesign, improvement, or new site based on a URL, use `$get-context` to confirm the redesign brief. `Like <URL>` means redesign, not clone. Capture the current site with screenshots, attach those screenshots to the `$ideate` Image Gen calls, then execute `$ideate`.
+对于基于某个 URL 的改版、改进或新建站点，用 `$get-context` 确认改版简报。`Like <URL>` 表示改版，而非克隆。用截图捕获当前站点，将这些截图附到 `$ideate` 的 Image Gen 调用中，然后执行 `$ideate`。
 
-## Standard Chat Mode
+## 标准聊天模式
 
-If Product Design is invoked in standard ChatGPT chat without Work Mode tools, do not start the workflow. Tell the user once:
+如果在没有 Work Mode 工具的标准 ChatGPT 聊天中调用产品设计，不要启动工作流。向用户说明一次：
 
 ```text
 Chat isn't supported by the Product Design plugin. Please switch to the Work tab and paste this prompt in for the full experience.
 ```
 
-Do not ask design-brief questions, generate options, or begin build work until the user moves to Work Mode.
+在用户切换到 Work Mode 之前，不要询问设计简报问题、生成选项或开始构建工作。
 
-## Browser Choice
+## 浏览器选择
 
-In ChatGPT Work Mode, always use the cloud browser available to that chat. If it is not initially visible, load the Browser skill and follow its setup instructions before concluding it is unavailable.
+在 ChatGPT Work Mode 中，始终使用该会话可用的云浏览器。如果一开始看不到它，先加载 Browser 技能并遵循其设置说明，再判定其不可用。
 
-In Codex Desktop, use `@Browser` and explicitly select the in-app surface with `agent.browsers.get("iab")`.
+在 Codex Desktop 中，使用 `@Browser`，并通过 `agent.browsers.get("iab")` 显式选择应用内界面。
 
-In Codex Desktop, use Chrome only when the user asks for it, the task needs an existing Chrome tab/login/profile/extension, or the in-app Browser is unavailable or blocked.
+在 Codex Desktop 中，仅当用户要求、任务需要现有 Chrome 标签页/登录态/配置文件/扩展，或应用内 Browser 不可用或被阻止时，才使用 Chrome。
 
-If ChatGPT Work Mode does not expose both the cloud browser and `@Sites` after preflight, tell the user once:
+如果预检后 ChatGPT Work Mode 未同时提供云浏览器和 `@Sites`，向用户说明一次：
 
 ```text
 Cloud browser and Sites are not available in this chat. I can still build a single-page HTML prototype, but I cannot visually verify it or publish a live checkpoint, so fidelity and interaction polish may be lower. Continue with that fallback?
 ```
 
-Only proceed after the user agrees. Do not claim the fallback is verified, open, hosted, or ready to share. This fallback applies to image-to-code and new prototypes. It does not apply to URL-to-code when browser capture is required.
+仅在用户同意后继续。不要声称该回退方案已验证、已打开、已托管或已可分享。该回退适用于 image-to-code 和新原型；当需要浏览器捕获时，不适用于 URL-to-code。
 
-## No Visual Target, No Build
+## 无视觉目标则不构建
 
-For new app, prototype, redesign, or UI build requests without a URL, screenshot, Figma frame, mockup, source image, or existing code target:
+对于没有 URL、截图、Figma 画板、设计稿、源图片或现有代码目标的新应用、原型、改版或 UI 构建请求：
 
-- `$ideate` is the focused workflow.
-- Use `$get-context` to resolve the minimum brief.
-- Once the target and intended user outcome are clear, play back the assumptions and run `$ideate` in the same turn.
-- Show exactly three visual options and wait for the user to choose one.
-- Do not scaffold, edit files, or start a server before a visual option is selected.
+- 聚焦工作流是 `$ideate`。
+- 用 `$get-context` 确定最小简报。
+- 一旦目标和预期的用户结果明确，复述假设并在同一轮中运行 `$ideate`。
+- 恰好展示三个视觉选项，等待用户选择其一。
+- 在选定视觉选项之前，不要搭建脚手架、编辑文件或启动服务器。
 
-`Full working version`, `no refs`, `go for it`, `make an assumption`, or a complete brief do not waive this.
+`Full working version`、`no refs`、`go for it`、`make an assumption` 或一份完整的简报都不能豁免此要求。
 
-## User Context
+## 用户上下文
 
-Use [$user-context](../user-context/SKILL.md) when the user asks to:
+当用户要求以下事项时，使用 [$user-context](../user-context/SKILL.md)：
 
-- Set up Product Design
-- Get started with Product Design
-- Onboard with Product Design
-- Save product or design sources
-- See what Product Design remembers
-- Update saved product or design context
-- Remember a Product Design preference
-- Setup my plugin
+- 设置产品设计
+- 开始使用产品设计
+- 完成产品设计入门引导
+- 保存产品或设计来源
+- 查看产品设计记住了什么
+- 更新已保存的产品或设计上下文
+- 记住某项产品设计偏好
+- 设置我的插件
 
-Adjust the context-gathering request to match the user's request. First-time setup differs from updating existing context.
+根据用户的请求调整上下文收集方式。首次设置与更新现有上下文不同。
 
-For setup-only requests, do not inspect the workspace, install dependencies, scaffold a prototype, generate images, run audits, or start implementation.
+对于仅设置的请求，不要检查工作区、安装依赖、搭建原型、生成图像、运行审计或开始实现。
 
-When answering "what can you do?", "how do I get started?", or similar broad Product Design questions, load `$user-context` and follow its persistence availability check before offering saved-context onboarding.
+回答“你能做什么？”“我该如何开始？”或类似的宽泛产品设计问题时，加载 `$user-context`，并先遵循其持久化可用性检查，再提供已保存上下文的入门引导。
 
-Before routing to Product Design workflows, load [$user-context](../user-context/SKILL.md) and run its preflight script when local shell access is available.
+在路由到产品设计工作流之前，加载 [$user-context](../user-context/SKILL.md)，并在本地 shell 可用时运行其预检脚本。
 
-## Browser Annotation Updates
+## 浏览器标注更新
 
-Treat annotations as scoped edits to the current prototype.
+将标注视为对当前原型的有范围编辑。
 
-Read the annotation, its target, and the surrounding screen before changing code. Preserve the existing prototype by default: layout, style, content, routes, assets, interactions, and working behavior stay the same unless the annotation asks to change them.
+修改代码前，先阅读标注、其目标及周边界面。默认保留现有原型：除非标注要求更改，否则布局、样式、内容、路由、资源、交互与可工作的行为都保持不变。
 
-Do not redesign nearby UI or rebuild the prototype just because an annotation touches that area. If the annotation is ambiguous and the choice would materially change the prototype, ask first.
+不要仅因标注涉及某区域就重新设计附近 UI 或重建原型。如果标注含糊且选择会实质性地改变原型，请先询问。
 
-## Skills
+## 技能
 
-Use this as the root routing guidance for Product Design plugin work. If several focused skills apply, sequence them in the order that creates the most useful design workflow. Keep this index as a router; do not perform focused workflow logic here.
+将本文作为产品设计插件工作的根路由指导。如果多个聚焦技能都适用，按能形成最有用的设计工作流的顺序排列它们。本索引只作路由，不要在此执行聚焦工作流的逻辑。
 
 ### $user-context
 
-Preflight, save, or answer from Product Design setup context. Route here before Product Design workflows to load saved product and design sources, and for direct setup, get-started, onboarding, save, remember, recall, inspect, or customization requests. This skill owns Product Design plugin-scoped context and preference policy.
+预检、保存产品设计设置上下文，或据此作答。在产品设计工作流之前路由到此处以加载已保存的产品与设计来源；也用于直接设置、入门、引导、保存、记住、召回、检查或自定义请求。本技能负责产品设计插件范围内的上下文与偏好策略。
 
 ### $get-context
 
-Route here first for design, build, prototype, redesign, extend, or UI exploration work. Require only a clear design target and intended user outcome. Ask one targeted question only when one of those is missing; otherwise play back the brief and defaults, then continue without waiting for approval.
+对于设计、构建、原型、改版、扩展或 UI 探索工作，先路由到此处。只要求明确的设计目标与预期的用户结果。仅当其中一项缺失时才提出一个有针对性的问题；否则复述简报与默认值，然后继续，无需等待批准。
 
 ### $research
 
-Run fast, source-grounded UX research on current user problems for a named digital product. Route here for researching user pain, UX friction, onboarding issues, docs/help problems, developer experience friction, support pain, product workflow issues, or current user complaints.
+针对指定数字产品当前用户问题，开展快速、基于来源的 UX 研究。用于研究用户痛点、UX 摩擦、引导问题、文档/帮助问题、开发者体验摩擦、支持痛点、产品工作流问题或当前用户抱怨。
 
 ### $audit
 
-Capture and review a product flow, journey, screen, or multi-step product experience from screenshots. Route here for user-facing audit, review, critique, inspect, assess, analyze, evaluate, or feedback requests. It reports UX, design, and accessibility findings tied to captured evidence; do not use `design-qa` for user-facing audits.
+通过截图捕获并审查产品流程、旅程、界面或多步骤产品体验。用于面向用户的审计、审查、评审、检查、评估、分析、评价或反馈请求。它会报告与所捕获证据绑定的 UX、设计与无障碍发现；面向用户的审计不要使用 `design-qa`。
 
 ### $ideate
 
-Generate image-based visual alternatives, remixes, or concept directions for a component, screen, feature, workflow, or product idea. Route here after `get-context` has played back the minimum brief and the user needs visual exploration, design variants, alternatives to an existing design, or idea discovery before choosing a visual target. Prefer this over prose-only ideation unless the user asks for prose.
+为组件、界面、功能、工作流或产品想法生成基于图像的视觉备选方案、混搭或概念方向。在 `get-context` 复述最小简报后，用户需要视觉探索、设计变体、现有设计的替代方案，或在选定视觉目标前做想法发现时，路由到此处。除非用户要求纯文字，否则优先使用本技能而非纯文字构思。
 
 ### $url-to-code
 
-Clone a live URL as a runnable frontend-only local app using the Browser Choice rule above. Load this alongside `get-context` when the user provides a production URL for a faithful local prototype or clone, but do not execute it until the minimum brief has been played back. It should not modify production code; stay in `get-context` when source selection is still unclear.
+按上面的浏览器选择规则，将线上 URL 克隆为可运行的纯前端本地应用。当用户提供生产环境 URL 以制作忠实的本地原型或克隆时，将其与 `get-context` 一同加载，但在最小简报复述之前不要执行。它不应修改生产代码；当来源选择仍不明确时，停留在 `get-context`。
 
 ### $image-to-code
 
-Implement a selected visual target as a faithful, responsive, interactive frontend. Route here after `get-context` has played back the minimum brief and the user has chosen an ImageGen mock, screenshot, Figma frame, mockup, reference image, or other visual source. Do not start here when no visual target has been selected; use `get-context` and `ideate` first.
+将选定的视觉目标实现为忠实、响应式、可交互的前端。在 `get-context` 复述最小简报且用户已选择 ImageGen 设计稿、截图、Figma 画板、mockup、参考图片或其他视觉来源后，路由到此处。尚未选定视觉目标时不要从此处开始；先使用 `get-context` 与 `ideate`。
 
 ### $share
 
-Deploy a runnable prototype and return a shareable URL using the user's preferred target when available. Route here when the user asks to share, deploy, publish, host, create a link, or make a prototype shareable with `@Sites`, `@Vercel`, or another deployment tool.
+部署可运行的原型，并在可用时使用用户偏好的目标返回可分享的 URL。当用户要求分享、部署、发布、托管、创建链接，或用 `@Sites`、`@Vercel` 或其他部署工具使原型可分享时，路由到此处。
 
 ### $design-qa
 
-Compare a coded Product Design prototype against its source visual target before handoff. Route here only as an internal helper after a prototype, URL-to-code build, or image-to-code build has both a source visual and rendered implementation. Do not route broad UX critiques, audits, or product-flow reviews here; use `audit` instead.
+交接前将已编码的产品设计原型与其来源视觉目标进行对比。仅当原型、URL-to-code 构建或 image-to-code 构建同时具备来源视觉与已渲染实现后，才作为内部辅助路由到此处。不要将宽泛的 UX 评审、审计或产品流程审查路由到此处；请改用 `audit`。

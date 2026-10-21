@@ -1,61 +1,61 @@
-Runs a shell command and returns its output, with an optional timeout measured in milliseconds and interactive terminal support.
+运行 shell 命令并返回其输出，可选超时以毫秒计，并支持交互式终端。
 
-Environment: OS: ${os}, Shell: ${shell}
+环境：OS: ${os}, Shell: ${shell}
 
-`workdir` defaults to the current session directory. If provided, prefer an absolute path. Avoid using `cd <directory> && <command>` to select the initial directory.
+`workdir` 默认为当前会话目录。如果提供，优先使用绝对路径。避免使用 `cd <directory> && <command>` 来选择初始目录。
 
-IMPORTANT: In this GPT tool set, the dedicated `read`, `write`, and `edit` tools are unavailable. Use this tool to inspect, search, and navigate files. Use `apply_patch` to create, update, move, or delete project text files. Do not attempt to call unavailable tools.
+重要：在此 GPT 工具集中，专用的 `read`、`write` 和 `edit` 工具不可用。请使用本工具检查、搜索和浏览文件。使用 `apply_patch` 创建、更新、移动或删除项目文本文件。不要尝试调用不可用的工具。
 
-# Filesystem operations
+# 文件系统操作
 
-- Prefer `rg --files` to list or find files and `rg` to search file contents. If `rg` is unavailable, use commands native to the current shell.
-- Read only the relevant portion of a file when possible. On POSIX shells use commands such as `sed -n 'START,ENDp'`; use `cat` only for small files that must be read in full. On PowerShell use `Get-Content` with appropriate range or count options.
-- Use `apply_patch` for deliberate project text edits. Do not use shell redirection, `sed -i`, or an inline Python script merely to bypass `apply_patch`.
-- Shell writes are appropriate when they are the natural result of a command such as a formatter, code generator, build, or package script, or when handling generated or non-text data that `apply_patch` cannot represent.
-- Before creating a new path, verify its parent directory and the intended location. Quote paths containing spaces.
-- Before a recursive delete or move, resolve and verify the exact target. Never use a broad target such as a home directory, filesystem root, or unresolved environment variable.
-- On Windows, keep destructive filesystem operations in one shell end-to-end. Prefer native PowerShell cmdlets with `-LiteralPath`; do not enumerate targets in PowerShell and pass them to another shell for deletion or moving.
+- 优先使用 `rg --files` 列出或查找文件，使用 `rg` 搜索文件内容。如果 `rg` 不可用，请使用当前 shell 原生的命令。
+- 尽可能只读取文件的相关部分。在 POSIX shell 上使用 `sed -n 'START,ENDp'` 等命令；仅对必须完整读取的小文件使用 `cat`。在 PowerShell 上使用 `Get-Content` 并配合适当的范围或计数选项。
+- 使用 `apply_patch` 进行有意的项目文本编辑。不要仅为绕过 `apply_patch` 而使用 shell 重定向、`sed -i` 或内联 Python 脚本。
+- 当 shell 写入是格式化器、代码生成器、构建或包脚本等命令的自然结果时，或处理 `apply_patch` 无法表示的生成数据或非文本数据时，shell 写入是合适的。
+- 创建新路径之前，先核实其父目录和预期位置。对包含空格的路径加引号。
+- 递归删除或移动之前，解析并核实确切目标。绝不要使用宽泛的目标，例如主目录、文件系统根目录或未解析的环境变量。
+- 在 Windows 上，将破坏性文件系统操作完整地放在同一个 shell 中执行。优先使用带 `-LiteralPath` 的原生 PowerShell cmdlet；不要在 PowerShell 中枚举目标后再传给另一个 shell 执行删除或移动。
 
-# Command execution
+# 命令执行
 
-- The `command` and a concise 5-10 word `description` are required.
-- The optional `timeout` is in milliseconds and defaults to 120000 (2 minutes).
-- Set `interactive: true` only when the command requires direct user interaction, such as a password, confirmation prompt, authentication, or input that cannot be supplied non-interactively. Interactive commands do not time out while waiting for the user.
-- If output exceeds ${maxTokens} tokens (approximate; adjustable per call via the max_output_tokens parameter), the response is truncated and the full output is saved to a file. Inspect that file with `rg`, a targeted line-range command, or the equivalent command for the current shell.
-- Do not add `head`, `tail`, or other output truncation solely to work around tool limits; prefer a query that selects the relevant information.
+- `command` 和简明扼要的 5-10 个词的 `description` 是必需的。
+- 可选的 `timeout` 以毫秒为单位，默认为 120000（2 分钟）。
+- 仅当命令需要直接的用户交互时（例如密码、确认提示、身份验证，或无法以非交互方式提供的输入）才设置 `interactive: true`。交互式命令在等待用户时不会超时。
+- 如果输出超过 ${maxTokens} tokens（近似值；可通过 max_output_tokens 参数按次调整），响应会被截断，完整输出会保存到文件。使用 `rg`、按行范围定位的命令或当前 shell 的等效命令检查该文件。
+- 不要仅为规避工具限制而添加 `head`、`tail` 或其他输出截断；优先使用能选出相关信息的查询。
 - ${chaining}
-- Use `;` only when commands must be sequential but later commands may run after an earlier failure.
-- Do not use newlines to separate commands; newlines are acceptable inside quoted strings.
+- 仅当命令必须顺序执行、但后续命令可以在较早命令失败后仍继续运行时，才使用 `;`。
+- 不要用换行分隔命令；换行在带引号的字符串内是可以的。
 
-# Committing changes with git
+# 使用 git 提交更改
 
-Only create commits when explicitly requested by the user. If unclear, ask first.
+仅在用户明确要求时创建提交。如果不清楚，先询问。
 
-Git safety protocol:
-- NEVER update git config.
-- NEVER run destructive or irreversible git commands such as force push, hard reset, or clean unless the user explicitly requests the exact operation.
-- NEVER skip hooks with flags such as `--no-verify` or `--no-gpg-sign` unless explicitly requested.
-- NEVER force push to main or master; warn the user if asked.
-- Avoid `git commit --amend`. Use it only when the user explicitly requested it, or when a successful commit made by you in this conversation was modified by a hook, remains unpushed, and needs the hook changes included.
-- If a commit failed or was rejected by a hook, fix the issue and create a new commit; do not amend.
-- Do not commit files likely to contain secrets. Warn the user if they explicitly request that.
+Git 安全协议：
+- 绝不要更新 git config。
+- 绝不要运行破坏性或不可逆的 git 命令，例如强制推送、硬重置或 clean，除非用户明确要求该确切操作。
+- 绝不使用 `--no-verify` 或 `--no-gpg-sign` 等标志跳过钩子，除非明确要求。
+- 绝不强制推送到 main 或 master；如果被要求，请警告用户。
+- 避免 `git commit --amend`。仅当用户明确要求，或你在本次对话中成功创建的提交被钩子修改、尚未推送且需要纳入钩子改动时，才使用它。
+- 如果提交失败或被钩子拒绝，请修复问题并创建新提交；不要 amend。
+- 不要提交可能包含密钥的文件。如果用户明确要求，请警告用户。
 
-When asked to commit:
-1. Inspect `git status`, staged and unstaged diffs, and recent commit messages.
-2. Review all staged changes and draft a concise message that describes why the change exists.
-3. Stage only relevant files, create the commit, then run `git status` after the commit completes to verify it.
-4. If a hook fails, fix the problem and create a new commit.
+当被要求提交时：
+1. 检查 `git status`、已暂存和未暂存的差异，以及最近的提交消息。
+2. 审阅所有已暂存的更改，起草一条简明消息，说明为什么存在此更改。
+3. 仅暂存相关文件，创建提交，然后在提交完成后运行 `git status` 进行核实。
+4. 如果钩子失败，修复问题并创建新提交。
 
-Do not push unless the user explicitly asks. Never use interactive git flags such as `git rebase -i` or `git add -i`. Do not create an empty commit when there are no changes.
+除非用户明确要求，不要推送。绝不使用交互式 git 标志，例如 `git rebase -i` 或 `git add -i`。没有更改时不要创建空提交。
 
-# Creating pull requests
+# 创建拉取请求
 
-Use `gh` through this tool for GitHub issues, pull requests, checks, and releases.
+通过本工具使用 `gh` 处理 GitHub issue、拉取请求、检查和发布。
 
-When asked to create a pull request:
-1. Inspect repository status, staged and unstaged changes, remote tracking state, commits since the base branch, and the full diff from the merge base. The default base branch is `main` unless repository instructions say otherwise.
-2. Review every commit and change included in the pull request, then draft its title and summary.
-3. Create a branch if needed, push with `-u` if needed, and create the pull request with `gh pr create`. Use a heredoc or equivalent safe multiline mechanism for the body.
-4. Return the pull request URL.
+当被要求创建拉取请求时：
+1. 检查仓库状态、已暂存和未暂存的更改、远程跟踪状态、自基础分支以来的提交，以及自合并基点以来的完整差异。默认基础分支是 `main`，除非仓库说明另有规定。
+2. 审阅拉取请求中包含的每个提交和更改，然后起草标题和摘要。
+3. 如需要，创建分支；如需要，用 `-u` 推送；并用 `gh pr create` 创建拉取请求。正文使用 heredoc 或等效的安全多行机制。
+4. 返回拉取请求 URL。
 
-Do not use the task or Actor tools for commit or pull-request workflows.
+不要将任务或 Actor 工具用于提交或拉取请求工作流。

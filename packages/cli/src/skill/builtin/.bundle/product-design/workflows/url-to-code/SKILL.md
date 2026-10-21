@@ -1,33 +1,32 @@
 ---
 name: url-to-code
-description: "Recreate an authorized live website or app URL as a faithful, runnable, frontend-only local implementation."
+description: "将已获授权的线上网站或应用 URL 重建为忠实、可运行、纯前端的本地实现。 | Trigger keywords: URL to code, clone website, recreate site, frontend-only prototype."
 ---
 
-# URL to Code
+# URL 转代码
 
-Use this workflow only when the user asks to clone or faithfully recreate a live site they own or have permission to reproduce. For redesign, improvement, or a loosely inspired result, route through `../index/SKILL.md` to context and ideation instead.
+仅当用户要求克隆或忠实重建其拥有或已获许可复制的线上站点时使用本工作流。对于改版、改进或仅松散借鉴的结果，请通过 `../index/SKILL.md` 路由到上下文与构思。
 
-Read `../index/SKILL.md`, `../../references/critical-overrides.md`, and relevant saved context before building.
+构建前阅读 `../index/SKILL.md`、`../../references/critical-overrides.md` 及相关已保存上下文。
 
-## Workflow
+## 工作流
 
-1. Remind the user that they must have permission and follow the target site's terms.
-2. Open the source with the browser selected by the index. Stop if it resolves to a wrong page, login wall, error, unrelated redirect, or other surface that cannot ground the requested clone.
-3. Capture the full desktop page and a representative mobile viewport. Inspect small scroll increments so sticky, lazy-loaded, and animated content is not missed.
-4. Inspect the DOM and visible behavior for text, links, controls, component states, images, icons, fonts, colors, spacing, dimensions, breakpoints, and interaction behavior.
-5. Test important interactions one at a time and return to the starting state between tests. Preserve evidence for changed states.
-6. Save permitted source assets locally. Do not hotlink them in the final result. When an asset cannot be obtained, use an available generation tool or an appropriate open replacement and disclose the substitution.
-7. Inspect the target repository and use its existing framework and conventions. React is not required. If no app exists, create the smallest suitable frontend supported by the harness; plain HTML/CSS/JavaScript is acceptable.
-8. Build only from captured evidence. Implement the visible desktop/mobile layouts and primary interactions without inventing unrelated design choices or backend behavior.
-9. Run and inspect the local implementation with a real browser. Compare the same viewport and states against the source.
-10. Run `../design-qa/SKILL.md`, save `design-qa.md`, fix blocking and high-impact mismatches, and hand off only after `final result: passed` or a clearly documented verification blocker.
+1. 提醒用户必须获得许可并遵守目标站点的条款。
+2. 用索引选定的浏览器打开来源。如果解析到错误页面、登录墙、错误、无关重定向或其他无法支撑所请求克隆的界面，停止。
+3. 捕获完整桌面页面与有代表性的移动视口。以小幅度滚动增量检查，以免遗漏吸顶、懒加载与动画内容。
+4. 检查 DOM 与可见行为，涵盖文本、链接、控件、组件状态、图片、图标、字体、颜色、间距、尺寸、断点与交互行为。
+5. 逐项测试重要交互，并在测试之间回到起始状态。为变化后的状态保留证据。
+6. 将允许的来源资源保存到本地。不要在最终结果中热链它们。无法获取资源时，使用可用的生成工具或合适的开源替代品，并披露替换。
+7. 检查目标仓库，使用其现有框架与约定。不要求使用 React。如果不存在应用，创建运行框架支持的最小合适前端；纯 HTML/CSS/JavaScript 亦可。
+8. 仅依据捕获的证据构建。实现可见的桌面端/移动端布局与主要交互，不要凭空发明无关的设计选择或后端行为。
+9. 用真实浏览器运行并检查本地实现。在相同视口与状态下与来源对比。
+10. 运行 `../design-qa/SKILL.md`，保存 `design-qa.md`，修复阻塞性与高影响的不匹配，仅在 `final result: passed` 或已清晰记录验证阻塞项之后才交接。
 
-## Hard rules
+## 硬性规则
 
-- Capture source evidence before scaffolding or editing.
-- Do not infer hidden states when source evidence is available.
-- Do not use screenshots alone when DOM/style/interaction evidence can be inspected.
-- Do not leave placeholder assets or improvised icon glyphs in the final implementation.
-- Build success and server health are not visual verification.
-- Publish only when the user asks and the host exposes an authorized deployment tool.
-
+- 在搭建脚手架或编辑之前捕获来源证据。
+- 有来源证据时不要推断隐藏状态。
+- 当可以检查 DOM/样式/交互证据时，不要仅使用截图。
+- 不要在最终实现中留下占位资源或即兴图标字形。
+- 构建成功与服务器健康不等于视觉验证。
+- 仅当用户要求且宿主提供已授权的部署工具时才发布。

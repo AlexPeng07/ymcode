@@ -1,78 +1,78 @@
 ---
 name: prepare-for-meeting
-description: "Use when the user wants to prepare for one or more upcoming meetings with customers, prospects, partners, accounts, or important stakeholders; requests daily or date-based meeting preparation; asks to organize a same-day customer call queue; asks for the most important qualifying meeting of the day; or identifies meetings only by company, attendee, topic, or date. Produce an individual meeting brief or a chronological multi-meeting agenda as appropriate."
+description: "当用户希望为一场或多场即将与客户、潜客、合作伙伴、账户或重要利益相关方的会议做准备；请求当天或按日期的会议准备；要求整理当天的客户通话队列；询问当天最重要的资格会议；或仅通过公司、参会人、话题或日期来指明会议时使用。视情况产出单场会议简报或按时间排序的多会议日程。 | meeting prep, daily briefing, customer meeting, agenda, account context"
 ---
 
-# Prepare for Meeting
+# 会议准备
 
 
-## Context-Gathering Intake
+## 上下文收集与提问
 
-Whenever this skill asks for context, strongly prefer using the `answers-ask-user-input` skill and the `ask_user_input` tool over other tools such as `request_user_input`; otherwise ask directly in the conversation.
+凡本技能要求提供上下文时，强烈优先使用 `answers-ask-user-input` 技能和 `ask_user_input` 工具，而不是 `request_user_input` 等其他工具；否则直接在对话中提问。
 
-Prepare a sales person for a critical customer or internal meeting, with all relevant context needed to help them reach the stated or assumed goal of the meeting.
+帮助销售人员为一场关键的客户会议或内部会议做好准备，提供帮助其达成会议既定或假定目标所需的全部相关上下文。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`.
+强制要求：若尚未在上下文中，请阅读并严格遵循 `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`。
 
-## Meeting Ranking
+## 会议排序
 
-Use this priority order for selecting meetings if the specific meeting is ambiguous.
+当具体会议不明确时，使用以下优先顺序选择会议。
 
-1. Explicit user request, named meeting, named account, named topic, or stated preference
-2. Meetings the user owns, leads, presents in, or is expected to drive
-3. Customer, prospect, partner, renewal, opportunity, or strategic account meetings
-4. Large or cross-stakeholder internal meetings with decisions, dependencies, launches, escalations, or leadership visibility
-5. Meetings with buyer, executive, technical decision-maker, or senior stakeholder attendance
-6. Meetings with explicit decisions, blockers, risks, commitments, or time-sensitive next steps
-7. Meetings where prep is likely to materially improve the user’s next action
+1. 用户明确请求、点名会议、点名账户、点名话题或明确说明的偏好
+2. 用户拥有、主持、演讲或应主导推进的会议
+3. 客户、潜客、合作伙伴、续约、商机或战略账户会议
+4. 涉及决策、依赖、发布、升级或高层关注的大型或跨利益相关方的内部会议
+5. 有买方、高管、技术决策者或高级利益相关方出席的会议
+6. 有明确决策、阻塞项、风险、承诺或时效性下一步的会议
+7. 准备很可能实质改善用户下一步动作的会议
 
-Routine internal syncs, 1:1s, recruiting meetings, and performance discussions are lower priority, but may still qualify when explicitly requested, user-owned, or clearly high-stakes.
+常规内部同步会、一对一、招聘会和绩效讨论优先级较低，但当用户明确要求、由用户主导或明显高风险时仍可入选。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-These are particularly important for this workflow; use your best judgment to potentially include other data sources to improve quality.
+这些类别对本工作流尤为重要；请自行判断是否可能纳入其他数据来源以提升质量。
 
-- [Blocking] ~~Calendar for meeting identity, invite context, agenda, and attendees. It blocks only when the meeting must be discovered or selected.
-- ~~Meeting Transcripts for prior decisions, objections, commitments, and continuity
-- ~~Email for prior meeting notes, recent questions, and customer-facing context
-- ~~Internal Messaging for internal strategy, blockers, owners, and dependencies
-- ~~Knowledge & Files for prior meeting notes, strategy docs, and assets
-- ~~CRM for account, opportunity, renewal, and contact truth
-- ~~Sales Intelligence only when it materially improves preparation
+- [Blocking] ~~Calendar 用于会议身份、邀请上下文、议程和参会人。只有当必须发现或选择会议时，它才会阻塞。
+- ~~Meeting Transcripts 用于既往决策、异议、承诺和连续性
+- ~~Email 用于既往会议笔记、近期问题和面向客户的上下文
+- ~~Internal Messaging 用于内部策略、阻塞项、负责人和依赖
+- ~~Knowledge & Files 用于既往会议笔记、策略文档和资产
+- ~~CRM 用于账户、商机、续约和联系人的真相
+- ~~Sales Intelligence 仅在能实质改善准备时使用
 
-Avoid unsupported claims. If context is missing, stale, or conflicting, state the limitation.
+避免无支撑的主张。如果上下文缺失、过时或冲突，说明限制。
 
-## Workflow Guidance
+## 工作流指引
 
-These meeting-specific steps modify and override the default workflow in the index skill.
+这些会议专属步骤会修改并覆盖索引技能中的默认工作流。
 
-- 1. Resolve Dependencies and Clarify
-    - If the mode isn't clear, ask the user via `ask_user_input()`. For a bare invocation such as “run the sales meeting prep workflow,” do not assume upcoming-meeting prep; offer: `Prep for an upcoming meeting`, `Overview of today's meetings`, and `Overview of tomorrow's meetings`.
-    - If intent is "prep for an upcoming meeting" and the user did not supply a meeting, account, attendee, topic, or date, search, rank, and offer up to three candidates via `ask_user_input()`. Do not retrieve deeper context or draft a brief until the user selects one. All suggested events must be in the future relative to the user's current time.
-        - This search should just be for the next 3 business days, with 25 max results, and no broad free-text query unless the user supplied an account, attendee, topic, or keyword
-    - Resolve the account or workstream from the user request, invite, attendees, attendee domains, and nearby context. If CRM has multiple opportunities, use the one that matches the meeting topic, attendees, product, and recent activity; do not let an unrelated same-account opportunity drive the brief. If no credible anchor exists, state the gap instead of inventing one.
-    - After the first draft, offer the most relevant follow-up from the Next Step Options below.
+- 1. 解析依赖并澄清
+    - 如果模式不明确，通过 `ask_user_input()` 询问用户。对于“运行销售会议准备流程”这类空泛调用，不要假设是即将到来的会议准备；提供：`Prep for an upcoming meeting`、`Overview of today's meetings` 和 `Overview of tomorrow's meetings`。
+    - 如果意图是“为即将到来的会议做准备”，且用户没有提供会议、账户、参会人、话题或日期，就搜索、排序，并通过 `ask_user_input()` 提供最多三个候选。在用户选定之前，不要检索更深的上下文或起草简报。所有建议的事件都必须晚于用户当前时间。
+        - 该搜索只应覆盖接下来的 3 个工作日，最多 25 条结果，且除非用户提供了账户、参会人、话题或关键词，否则不要做宽泛的自由文本查询
+    - 从用户请求、邀请、参会人、参会人域名和周边上下文中确定账户或工作流。如果 CRM 中有多个商机，使用与会议话题、参会人、产品和近期活动相匹配的那个；不要让同账户但无关的商机主导简报。如果不存在可信的锚点，说明该缺口，而不是编造一个。
+    - 初稿之后，从下方的“下一步选项”中提供最相关的后续动作。
 
-### Next Step Options
+### 下一步选项
 
-Use these as high-value transitions. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Install new connectors if they could materially improve output quality
-- Improve or refine the brief based on the user's guidance.
-- Add the prep to an existing meeting note or create a new meeting document as a pre-read. If needed and possible, offer to attach the document to the calendar invite. Be mindful of the broader audience when creating this prep doc; don't add your draft verbatim.
-- Draft a concise Slack or email update for attendees, owners, or internal stakeholders.
-- For `Daily Prep Digest` outputs, check whether a matching daily automation already reruns this `prepare-for-meeting` skill in that mode; if none exists, offer to create one that gives the seller a morning view of today's customer meetings, watchouts, and suggested closes.
-- Set a heartbeat automation to follow-up with summary and action items after the meeting.
+将这些作为高价值的过渡。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 如果新连接器能实质提升输出质量，就安装它们
+- 根据用户的指导改进或细化简报。
+- 将准备内容添加到现有会议笔记，或创建新的会议文档作为预读材料。如有需要且可行，提出把文档附加到日历邀请中。创建该准备文档时要注意更大的受众；不要把你的草稿逐字放入。
+- 起草一份简洁的 Slack 或邮件更新，发给参会人、负责人或内部利益相关方。
+- 对于 `Daily Prep Digest` 输出，检查是否已存在相匹配的每日自动化，以该模式重跑本 `prepare-for-meeting` 技能；若不存在，提出创建一个，让销售人员每天早晨看到当天客户会议的概览、注意事项和建议的收尾动作。
+- 设置一个心跳自动化，在会议之后跟进摘要和行动项。
 
-Next steps to avoid:
-- Talk tracks or facilitation scripts
+应避免的后续步骤：
+- 话术或主持脚本
 
-### Automation Offer Guard
+### 自动化建议防护
 
-For `Daily Prep Digest` outputs, a daily meeting-prep brief is the preferred automation offer when the user benefits from starting each day with a seller-ready view of customer, prospect, partner, renewal, opportunity, or high-stakes internal meetings. Frame the value in sales language: knowing which meetings matter today, what account or deal context changed, where the watchouts are, and how to close each meeting toward a concrete next step.
+对于 `Daily Prep Digest` 输出，当用户能从每天开始时获得一份可直接使用的客户、潜客、合作伙伴、续约、商机或高风险内部会议视图而获益时，每日会议准备简报就是首选的自动化建议。用销售语言表述其价值：知道今天哪些会议重要、账户或交易上下文发生了什么变化、注意事项在哪里，以及如何把每场会议推向具体的下一步。
 
-The automation must be a scheduled rerun of this skill, not a separate custom calendar summary. When creating or describing the automation, make the prompt call this skill directly and preserve the same digest shape:
+自动化必须是对本技能的定时重跑，而不是另一套自定义日历摘要。创建或描述该自动化时，让提示词直接调用本技能，并保持相同的摘要形态：
 
 ```text
 Use the Sales `prepare-for-meeting` skill in `Daily Prep Digest` mode.
@@ -84,25 +84,25 @@ date: "today"
 meeting_scope: "customer, prospect, partner, renewal, opportunity, or high-stakes internal meetings"
 ```
 
-The recurring output should follow this skill's `Daily Prep Digest` format: today's meetings, each meeting's goal, key context, watchout, suggested close, and cross-meeting priority watchouts. Keep it read-only; it may recommend preparation and follow-up actions, but must not create meeting notes, attach documents, send messages, post updates, or write CRM unless the user separately asks and approves.
+周期性输出应遵循本技能的 `Daily Prep Digest` 格式：今天的会议、每场会议的目标、关键上下文、注意事项、建议的收尾动作，以及跨会议的优先注意事项。保持只读；它可以建议准备和跟进动作，但不得创建会议笔记、附加文档、发送消息、发布更新或写入 CRM，除非用户另行要求并批准。
 
-Before offering the daily prep brief, check whether the user already has a matching local automation installed. Inspect local automation records under `$CODEX_HOME/automations/*/automation.toml`, or `~/.codex/automations/*/automation.toml` when `CODEX_HOME` is unset, and match by name, prompt, skill name, mode, cadence, meeting scope, or other stable scope details. Treat active and paused matches as already installed.
+在提供每日准备简报之前，检查用户是否已安装了相匹配的本地自动化。查看 `$CODEX_HOME/automations/*/automation.toml` 下的本地自动化记录，或在 `CODEX_HOME` 未设置时查看 `~/.codex/automations/*/automation.toml`，并按名称、提示词、技能名、模式、频率、会议范围或其他稳定范围细节进行匹配。将启用中和已暂停的匹配都视为已安装。
 
-- If a matching automation exists, do not suggest creating another one. Continue with the next most relevant non-automation follow-up.
-- If no matching automation exists, end with one clear offer to check/create a daily rerun of `prepare-for-meeting` for the Daily Prep Digest. Describe the recurring output as a morning seller brief for the meetings that need attention, why each matters commercially, and the recommended close or next step. Do not create or update the automation until the user explicitly agrees.
-- If the automation surface is unavailable, do not mention tool details; offer to help set up a recurring meeting-prep brief when automations are available.
+- 如果存在匹配的自动化，不要再建议创建另一个。继续提供下一个最相关的非自动化后续动作。
+- 如果不存在匹配的自动化，以一个明确的建议结束：检查/创建用于 Daily Prep Digest 的 `prepare-for-meeting` 每日重跑。将周期性输出描述为面向销售人员的晨间简报，说明需要关注的会议、每场会议在商业上的重要性，以及建议的收尾或下一步。在用户明确同意之前，不要创建或更新该自动化。
+- 如果自动化能力不可用，不要提及工具细节；在自动化可用时，提出帮助搭建周期性的会议准备简报。
 
-## Overall Rules
-- If asking the user a straightforward question where the set of potential answers are bounded and high-confidence, use the user_input form tool if available.
-- Always cite sources using hyperlinks so users can click through to source docs
+## 总体规则
+- 如果向用户提的问题直接明了、潜在答案有限且置信度高，在可用时使用 user_input 表单工具。
+- 始终用超链接引用来源，便于用户点击跳转到来源文档
 
-## Modes
-### 1. Single Meeting Prep
+## 模式
+### 1. 单场会议准备
 
-- Use when the user names one meeting, account, attendee, invite, or topic.
-- You can pull in relevant information from other related meeting and context, but ensure that you make the link to the target meeting clear.
+- 当用户点名一场会议、账户、参会人、邀请或话题时使用。
+- 你可以引入其他相关会议和上下文中的信息，但要确保与目标会议的关联清晰。
 
-#### Output Format
+#### 输出格式
 
 ```md
 # [Meeting Name]
@@ -145,13 +145,13 @@ Before offering the daily prep brief, check whether the user already has a match
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-### 2. Daily Prep Digest
+### 2. 每日准备摘要
 
-Use when the user asks for today’s, tomorrow’s, or another date-based meeting summary.
+当用户要求今天、明天或其他按日期的会议摘要时使用。
 
-Start from calendar, apply the shared selection rules, keep qualifying meetings, and order them chronologically. Keep separate briefs for separate meetings.
+从日历开始，应用共享的选取规则，保留符合资格的会议，并按时间顺序排列。为不同会议保留各自独立的简报。
 
-### Output Format
+### 输出格式
 
 ```md
 ## Today's Meetings

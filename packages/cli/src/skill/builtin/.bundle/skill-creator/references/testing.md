@@ -1,14 +1,14 @@
-# Testing and Iteration
+# 测试与迭代
 
-Pick rigor to match the skill's audience: a personal skill needs manual spot-checks; one deployed to a whole org deserves a scripted test suite.
+严格程度与技能的受众匹配：个人技能做人工抽查即可；部署给整个组织的技能值得配一套脚本化测试。
 
-**Pro tip**: iterate on a single challenging task until the agent succeeds, then extract the winning approach into the skill. This gives faster signal than broad testing. Expand to multiple cases only once the foundation works.
+**提示**：先在一个有挑战性的任务上迭代，直到智能体成功，再把制胜方法提炼进技能。这比大范围测试给出更快的信号。基础跑通后再扩展到多个用例。
 
-## 1. Triggering tests
+## 1. 触发测试
 
-Goal: the skill loads at the right times — and only then.
+目标：技能在正确的时点加载——且仅在正确的时点加载。
 
-Build a test suite like:
+构建类似这样的测试集：
 
 ```
 Should trigger:
@@ -22,11 +22,11 @@ Should NOT trigger:
 - "Create a spreadsheet"  (unless the skill handles sheets)
 ```
 
-Aim for triggering on ~90% of relevant queries. Debugging: ask the agent "When would you use the [name] skill?" — it will quote the description back; adjust based on what's missing.
+目标是在约 90% 的相关查询上触发。调试方法：问智能体「你会在什么时候使用 [name] 技能？」——它会把描述复述回来；据此调整缺失之处。
 
-## 2. Functional tests
+## 2. 功能测试
 
-Goal: the skill produces correct outputs.
+目标：技能产出正确的输出。
 
 ```
 Test: Create project with 5 tasks
@@ -36,38 +36,38 @@ Then:  Project created; 5 tasks with correct properties;
        all tasks linked; no API errors
 ```
 
-Cover: valid outputs, tool/API calls succeed, error handling works, edge cases.
+覆盖：有效输出、工具/API 调用成功、错误处理有效、边界情形。
 
-## 3. Performance comparison
+## 3. 性能对比
 
-Goal: prove the skill beats the baseline. Run the same task with and without the skill; compare:
+目标：证明技能优于基线。用同一任务分别在有无技能时运行，比较：
 
 ```
 Without skill: 15 back-and-forth messages, 3 failed API calls, 12,000 tokens
 With skill:    2 clarifying questions,     0 failed API calls,  6,000 tokens
 ```
 
-Qualitative checks: does the user ever need to prompt for next steps? Do 3-5 runs of the same request produce structurally consistent output? Can a new user succeed on the first try?
+定性检查：用户是否需要催问下一步？同一请求跑 3-5 次，产出结构是否一致？新用户能否一次成功？
 
-## Iteration signals
+## 迭代信号
 
-Skills are living documents. Watch for:
+技能是活文档。留意：
 
-| Signal | Diagnosis | Fix |
+| 信号 | 诊断 | 修复 |
 |---|---|---|
-| Skill doesn't load when it should; users invoke it manually | Under-triggering | Add detail, keywords, and literal trigger phrases to the description |
-| Skill loads for irrelevant queries; users disable it | Over-triggering | Add negative triggers ("Do NOT use for..."), narrow the scope |
-| Inconsistent results, failed calls, user corrections | Execution issues | Sharpen instructions, add error handling, replace prose validation with a script |
-| Slow or degraded responses | Context bloat | Shrink SKILL.md, move detail to `references/` |
+| 该加载时技能不加载；用户手动调用它 | 触发不足 | 在描述中补充细节、关键词与原话触发短语 |
+| 技能在无关查询上加载；用户将其禁用 | 过度触发 | 添加否定触发（「不要用于……」），收窄范围 |
+| 结果不一致、调用失败、用户频繁纠正 | 执行问题 | 精炼指令、补充错误处理、用脚本替代文字校验 |
+| 响应变慢或质量下降 | 上下文膨胀 | 缩小 SKILL.md，把细节移入 `references/` |
 
-When real sessions surface an edge case or failure, bring the transcript back and encode the fix directly: an explicit instruction, a troubleshooting entry, or a validation step. This is the highest-value iteration loop.
+当真实会话暴露出边界情形或失败时，把记录带回来并直接编码修复：一条显式指令、一个故障排查条目，或一个校验步骤。这是价值最高的迭代回路。
 
-## Common troubleshooting
+## 常见故障排查
 
-**"Could not find SKILL.md"** — file not named exactly `SKILL.md` (case-sensitive).
+**"Could not find SKILL.md"** —— 文件名不是精确的 `SKILL.md`（区分大小写）。
 
-**"Invalid frontmatter"** — missing `---` delimiters or malformed YAML (unclosed quotes are the usual culprit).
+**"Invalid frontmatter"** —— 缺少 `---` 分隔符或 YAML 格式错误（未闭合的引号通常是元凶）。
 
-**"Invalid skill name"** — spaces or capitals in `name`; use kebab-case.
+**"Invalid skill name"** —— `name` 中含空格或大写字母；请使用 kebab-case。
 
-**Skill loads but instructions are ignored** — instructions too verbose or buried. Keep them concise, put critical rules at the top under `## Important`, and move detail to `references/`. For must-pass validations, bundle a script instead of relying on prose.
+**技能能加载但指令被忽略** —— 指令过于冗长或埋在深处。保持简洁，把关键规则放在顶部 `## Important` 下，并把细节移入 `references/`。对必须通过的校验，随附脚本而不是依赖文字说明。

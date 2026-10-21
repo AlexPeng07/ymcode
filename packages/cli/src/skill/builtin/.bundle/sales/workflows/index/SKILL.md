@@ -1,80 +1,80 @@
 ---
 name: index
-description: "Use this Sales index first for explicit Sales mentions and clear seller workflows: prospecting, lead qualification, account research, monitoring or prioritization, meeting prep, call follow-up, outreach research, deal strategy, pipeline or forecast review, CRM-backed context or data enrichment, internal source finding or sales support, customer quotes or evidence, business cases, competitive briefs, rep coaching, sales company research, and company or contact enrichment. For implicit use require clear seller, prospect, account, opportunity, pipeline, forecast, CRM, or customer-facing sales intent."
+description: "在明确提及 Sales 或出现清晰的销售方工作流时，优先使用本 Sales 索引：潜客开发、线索资格认定、账户研究、监控或优先级排序、会议准备、通话跟进、外联研究、交易策略、管道或预测评审、CRM 支撑的上下文或数据丰富、内部来源查找或销售支持、客户引述或证据、商业论证、竞品简报、销售代表辅导、销售公司研究，以及公司或联系人数据丰富。隐式使用时，要求存在明确的销售方、潜客、账户、商机、管道、预测、CRM 或面向客户的销售意图。 | Sales index, prospecting, lead qualification, account research, meeting prep, call follow-up, deal strategy, pipeline review, forecast, CRM context, enrichment"
 ---
 
-# Sales Index Skill
+# Sales 索引技能
 
 
-## Context-Gathering Intake
+## 上下文收集与提问
 
-Whenever this skill asks for context, strongly prefer using the `answers-ask-user-input` skill and the `ask_user_input` tool over other tools such as `request_user_input`; otherwise ask directly in the conversation.
+凡本技能要求提供上下文时，强烈优先使用 `answers-ask-user-input` 技能和 `ask_user_input` 工具，而不是 `request_user_input` 等其他工具；否则直接在对话中提问。
 
-After this index is invoked, treat it as a router rather than the final workflow. If any focused skill plausibly owns the request, select and follow the best match; do not answer through the index alone. Handle broad orientation requests directly through the canonical orientation response, and handle other plugin-level questions directly only when no focused skill owns them.
+本索引被调用后，应把它当作路由器而非最终工作流。如果任何聚焦技能可能合理承接该请求，就选择并遵循最匹配的那个；不要仅通过索引作答。宽泛的入门类请求直接由标准引导响应处理；其他插件级问题仅在没有聚焦技能承接时才直接回答。
 
-MANDATORY: Read the frontmatter description for ALL skills in this plugin, and based on that, decide which to trigger and read more deeply.
+强制要求：阅读本插件中所有技能的 frontmatter description，并据此决定触发哪些技能、进一步深入阅读哪些技能。
 
-## Plugin Purpose
+## 插件目的
 
-Sales provides evidence-grounded workflows for customer-facing preparation, follow-up, account and prospect research, pipeline decisions, deal strategy, customer evidence, internal navigation, business cases, coaching, and CRM-backed context.
+Sales 提供以证据为基础的工作流，覆盖面向客户的准备、跟进、账户与潜客研究、管道决策、交易策略、客户证据、内部导航、商业论证、辅导，以及 CRM 支撑的上下文。
 
-## Broad Orientation
+## 宽泛引导
 
-For broad orientation requests such as “what can you do?”, “help me get started”, “what should I try?”, or “how do I use Sales?”, do not choose a focused workflow. Load `references/orientation-response.md` and return its user-facing content as written. Treat that file as the canonical, updatable output surface for this branch. Offer the full skill catalog only when the user asks for it.
+对于“你能做什么？”、“帮我上手”、“我该试什么？”或“我该如何使用 Sales？”这类宽泛的入门请求，不要选择任何聚焦工作流。加载 `references/orientation-response.md`，原样返回其面向用户的内容。将该文件视为该分支的权威且可更新的输出界面。仅在用户主动要求时才提供完整技能目录。
 
-## Cross-Skill Best Practices
+## 跨技能最佳实践
 
-These should be used as configuration and rules to be followed by default across all skills.
+以下内容应作为配置和规则，在所有技能中默认遵循。
 
-### Audience and Language
+### 受众与语言
 
-- Users of this plugin are not expected to know code or internal implementation details
-- Use simple, high-level language that communicates the key information needed about the work, not about what's happening under the hood. Don't narrate mechanical processes during the rollout.
-- These users are experts in their domain, and want information about why you made certain logical decisions, want to provide input to improve outputs and apply their taste, and want to learn enough about what's happening so they can reason about and trust the outputs.
-- These users want to be treated as intelligent collaborators who are in the driver seat for key decisions, you should work with them to ensure you're on the right track and giving them what they need.
+- 本插件的用户不应被假定了解代码或内部实现细节
+- 使用简单、高层次的语言，传达工作所需的关键信息，而不是底层正在发生什么。不要在交付过程中叙述机械流程。
+- 这些用户是其所在领域的专家，他们想知道你为什么做出某些逻辑决策，希望提供输入以改进产出并融入自己的品味，也希望了解足够多的信息，从而能够推理并信任产出。
+- 这些用户希望被视为聪明的协作者，并在关键决策中处于主导位置；你应与他们协作，确保方向正确，并提供他们真正需要的内容。
 
-### Dependencies
+### 依赖
 
-Skills refer to source categories with placeholders such as `~~CRM`, `~~Calendar`, or `~~Meeting Transcripts`.
+技能使用 `~~CRM`、`~~Calendar` 或 `~~Meeting Transcripts` 等占位符来指代来源类别。
 
-Resolve each category from the host harness's actually available tools, connectors, uploaded files, pasted context, and current conversation. Do not assume a bundled connector manifest exists or that a named provider is installed.
+请依据宿主运行框架实际可用的工具、连接器、已上传文件、粘贴的上下文和当前对话来解析每个类别。不要假定存在内置连接器清单，也不要假定某个具名提供方已安装。
 
-#### Category Resolution
+#### 类别解析
 
-1. Identify the categories used by the selected workflow in its dependency categories section.
-2. Treat every listed category as useful but non-blocking by default. A category blocks the first output only when the focused skill explicitly marks it `[Blocking]`.
-3. A `[Blocking]` category is satisfied when either a suitable installed app is available or the user has already provided equivalent context. Do not request installation merely because the connector is absent when the needed information is already grounded in the conversation, pasted notes, links, or files.
-4. Check whether an installed app matches each category you plan to use. The initially surfaced app list is only a hint and is NEVER sufficient evidence that a provider is absent. Before making any negative availability claim, saying a connector is not installed, naming an installation gap, or offering an install, you MUST search the live/lazy tool registry for the provider name and credible category-equivalent providers. A live tool match is sufficient to treat that provider as installed and available for dependency resolution, even when it was omitted from the surfaced app list. If the provider is found but its tools are missing on the first discovery pass, recheck discovery once. Only after both checks fail may you describe it as unavailable. Do not infer readiness or absence from metadata, recommended-install lists, manifests, vendored skills, or the initially surfaced app list alone.
-5. Note that only one suitable app is needed to satisfy a category. Use additional apps when they materially improve coverage, freshness, confidence, or actionability.
+1. 在所选工作流的依赖类别章节中，找出它使用的类别。
+2. 默认将列出的每个类别视为有用但不阻塞。只有当聚焦技能明确将其标记为 `[Blocking]` 时，该类别才会阻塞首个输出。
+3. 当已安装合适的应用，或用户已经提供等效上下文时，`[Blocking]` 类别即视为已满足。如果所需信息已由对话、粘贴的笔记、链接或文件提供，不要仅因连接器缺失就要求安装。
+4. 检查已安装应用是否匹配你计划使用的每个类别。初始展示的应用列表只是一个提示，绝不足以证明某个提供方不存在。在做出任何“不可用”的负面判断、声称某连接器未安装、指出安装缺口或提供安装选项之前，你必须先在实时/懒加载工具注册表中搜索该提供方名称以及可信的等效类别提供方。只要实时工具匹配成功，就足以将该提供方视为已安装且可用于依赖解析，即使它未出现在初始展示的应用列表中。如果找到了提供方但首次发现过程中缺少其工具，请再重新检查一次发现结果。只有两次检查都失败后，才可将其描述为不可用。不要仅凭元数据、推荐安装列表、清单、内置技能或初始展示的应用列表来推断就绪状态或缺失情况。
+5. 注意，一个类别只需一个合适的应用即可满足。当额外的应用能实质提升覆盖度、新鲜度、置信度或可执行性时，再使用它们。
 
-#### Missing Source Resolution
+#### 缺失来源的处理
 
-- Apply this sequence whenever a material category selected for the current workflow has no verified usable source, whether the category is blocking or non-blocking:
-  1. If equivalent user-provided context already exists, proceed without requesting installation.
-  2. Before declaring the category unavailable, search the host's live or lazy tool registry for suitable category-equivalent providers. If the host exposes an install/connect surface, use it only with real provider identifiers returned by that surface; never guess identifiers.
-  3. For a `[Blocking]` category, briefly explain why the source is needed, what evidence it would add, and that the first output cannot proceed without it. If a suitable provider is available, offer it through the install/connect UI before asking for fallback context. Prefer a user-named provider; otherwise recommend the best available match. When multiple options are materially different and no preference is known, offer a bounded choice.
-  4. For a `[Blocking]` category with no suitable provider, or when the install/connect attempt is declined or fails, offer the user a choice: check the installed plugin's page in the Plugins tab for other provider options, or provide the smallest useful uploaded or pasted context needed to proceed. Pause the first output until the source or equivalent context is available; otherwise return a clearly blocked result.
-  5. For a non-blocking category, do not open the install/connect UI, ask for fallback context, or pause before the first useful output. Continue with a safe partial output, state the practical limitation, and only after presenting that result offer the suitable provider or fallback context as an optional improvement.
-- Prefer canonical plugins over connectors only when choosing among installation options. Do not request a second app solely because it is more canonical when an installed app already satisfies the category.
+- 只要当前工作流所选的某个重要类别没有经验证可用的来源，无论该类别是否阻塞，都适用以下顺序：
+  1. 如果已存在等效的用户提供上下文，直接继续，无需请求安装。
+  2. 在宣布该类别不可用之前，先在宿主的实时或懒加载工具注册表中搜索合适的等效类别提供方。如果宿主提供了安装/连接界面，仅使用该界面返回的真实提供方标识；绝不猜测标识。
+  3. 对于 `[Blocking]` 类别，简要说明为何需要该来源、它将补充什么证据，以及没有它首个输出无法进行。若有合适的提供方可用，先通过安装/连接界面提供它，再询问回退上下文。优先选择用户点名的提供方；否则推荐最佳可用匹配。当多个选项存在实质差异且用户没有已知偏好时，提供有限的选择。
+  4. 对于没有合适提供方的 `[Blocking]` 类别，或用户拒绝/安装连接失败时，给用户一个选择：在“插件”标签页中查看已安装插件的页面以寻找其他提供方选项，或提供继续所需的最小有用上传或粘贴上下文。在来源或等效上下文可用之前，暂停首个输出；否则返回明确受阻的结果。
+  5. 对于非阻塞类别，不要打开安装/连接界面、不要请求回退上下文，也不要在首个有用输出前暂停。继续给出安全的局部输出，说明实际限制，并且只有在该结果呈现之后，才把合适的提供方或回退上下文作为可选的改进项提供。
+- 仅在安装选项之间做选择时，才优先选择官方（canonical）插件而非连接器。如果已安装的应用已满足该类别，不要仅因某个应用更“官方”就要求再装一个。
 
-#### Source authority
+#### 来源权威性
 
-- Strongly prefer `~~CRM` for customer truth, account ownership, opportunity status, contacts, and pipeline context.
-- If CRM is unavailable, clearly state that customer information came from less authoritative sources.
-- Use web search only as fallback context or additional enrichment.
-- Do not use browser automation as a fallback for unavailable connectors.
-- When the Salesforce or Hubspot Connector is the CRM, use the appropriate vendored skills in this plugin.
-- When connected ZoomInfo is selected for Sales Intelligence work, load the vendored ZoomInfo skill before provider-specific search, enrichment, or recovery.
-- When connected Apollo is selected for Sales Intelligence work, load the vendored Apollo skill.
+- 对于客户真相、账户归属、商机状态、联系人和管道上下文，强烈优先使用 `~~CRM`。
+- 如果 CRM 不可用，明确说明客户信息来自权威性较低的来源。
+- 仅将网络搜索作为回退上下文或额外补充。
+- 不要把浏览器自动化作为不可用连接器的替代方案。
+- 当 Salesforce 或 Hubspot Connector 就是 CRM 时，使用本插件中相应的内置技能。
+- 当选择已连接的 ZoomInfo 用于销售情报工作时，在提供方专属的搜索、数据丰富或恢复操作之前，先加载内置的 ZoomInfo 技能。
+- 当选择已连接的 Apollo 用于销售情报工作时，先加载内置的 Apollo 技能。
 
-### User Input Modalities
+### 用户输入方式
 
-You have multiple available methods of getting input from the user:
-- User input elicitation: You can ask the user to answer questions with a generic form, usually via the `ask_user_input()` function. Prefer this whenever there are questions with strong suggested defaults, where it would be faster to accept via a click than typing a response. Bias strongly to preferring this tool over a text-based question.
-- Plugin install elicitation: You can ask the user to install plugins, connectors or apps with a special UI, usually via the `request_plugin_install()` function.
-- Text: You can always ask the user questions via markdown in a chat context.
+你有多种获取用户输入的方式：
+- 用户输入征集：你可以用通用表单请用户回答问题，通常通过 `ask_user_input()` 函数。当问题有很强的推荐默认值、点击比打字更快时，优先使用它。强烈倾向于使用该工具而非文本提问。
+- 插件安装征集：你可以通过专用界面请用户安装插件、连接器或应用，通常通过 `request_plugin_install()` 函数。
+- 文本：你始终可以在聊天上下文中用 markdown 向用户提问。
 
-Example
+示例
 ```
 *thinking*
 {need CRM account truth and CRM is marked [Blocking]; Salesforce is available to install}
@@ -90,42 +90,42 @@ Example
 {final answer to the user}
 ```
 
-### Workflow Steps
+### 工作流步骤
 
-Your goal is to provide the user with the most value with the least amount of mental load and burden. You should default to making assumptions to produce user value more quickly, but if there are questions that materially change the output, and help de-risk the downstream value of longer workflows, you should ask. This is also an opportunity to help the user discover additional value and next steps they might not have been aware of. Avoid dead-ends and always provide a short offer for a helpful next step given their intent.
+你的目标是以最少的心智负担和打扰，为用户提供最大的价值。默认应主动做出假设，以便更快产生用户价值；但如果某些问题会实质性改变输出，并有助于降低较长工作流下游价值的风险，就应当提问。这也是帮助用户发现额外价值和后续步骤的机会，而这些可能是他们此前没有意识到的。避免把用户带入死胡同，并始终根据其意图提供一个简短的、有帮助的下一步建议。
 
-The offer for a next step should always append to any output formatting specified in a particular skill.
+下一步建议应始终追加到特定技能所指定的任何输出格式之后。
 
-Here is the default flow you should follow for each skill:
+以下是每个技能应遵循的默认流程：
 
-#### 1. Resolve Dependencies and Clarify
-- Review the dependency categories listed in the skill. Treat unlabeled categories as useful but non-blocking. Resolve missing `[Blocking]` categories before the first output; defer non-blocking install offers and fallback requests until after the first useful output.
-- Do a quick context gathering pass to better understand the problem and constraints
-- If needed, ask the user to resolve any high-impact, high-uncertainty questions. Use the ask_user_input tool with a batch of questions. This must happen within the first 20s of the rollout. After these questions you should be clear to execute on the First Output.
+#### 1. 解析依赖并澄清
+- 查看技能中列出的依赖类别。将未标注的类别视为有用但不阻塞。在首个输出前解析缺失的 `[Blocking]` 类别；非阻塞的安装建议和回退请求推迟到首个有用输出之后再提。
+- 快速做一遍上下文收集，以更好地理解问题与约束
+- 如有需要，请用户解决影响大、不确定性高的问题。使用 ask_user_input 工具提出一批问题。这必须发生在交付开始后的前 20 秒内。这些问题之后，你应当可以明确地执行首个输出。
 
-#### 2. Gather Context
-- After assessing user-provided context, start with an available category that owns the core source of truth, then attempt only additional available categories that can materially improve the selected artifact, confidence, or next action.
-- In an intermediate update message to the user, highlight which material dependencies are available that you'll try to use.
-- Aim for a balance of completeness and speed: broaden when the first pass is empty, thin, conflicting, or a decision depends on the missing evidence; stop once the artifact is grounded.
-- If a material dependency category isn't available, or a material search returned no useful context, communicate the practical limitation to the user.
+#### 2. 收集上下文
+- 评估用户提供的上下文后，从掌握核心真相来源的可用类别开始，然后仅尝试那些能实质改善所选产物、置信度或下一步行动的额外可用类别。
+- 在给用户的中间进展消息中，突出说明哪些重要依赖可用、你将尝试使用它们。
+- 在完整性与速度之间取得平衡：当第一遍结果为空、稀薄、相互冲突，或某项决策依赖缺失证据时，扩大范围；一旦产物有据可依，就停止。
+- 如果某个重要依赖类别不可用，或某项重要搜索没有返回有用上下文，向用户说明实际限制。
 
-#### 3. First Output
-- After sufficient context has been gathered, provide the user with an output
-- Default to providing output in chat, but if the skill or user instruction prefers another output like html or a document, use that instead.
-- Remember to identify the likely underlying user goal behind the request and try to address that, as well as satisfying their object-level request.
-- Below are two common elements that should be used by default in all outputs.
+#### 3. 首个输出
+- 收集到足够上下文后，向用户提供输出
+- 默认在聊天中提供输出，但如果技能或用户指示偏好 html 或文档等其他输出形式，则改用那种形式。
+- 记住要识别请求背后可能的用户目标并尽量满足它，同时满足其表层请求。
+- 以下两个常见元素应在所有输出中默认使用。
 
-##### Limitations and Improvements
+##### 局限与改进
 
-The first output is "best effort" and tries to give the most useful response relative to the connectors and context available. In this output, you should give the user context on the strength of your answer and instruct how it can be improved through installing new connectors.
+首个输出是“尽力而为”的，力求在可用连接器和上下文条件下给出最有用的回答。在该输出中，你应向用户说明答案的可靠程度，并指导其如何通过安装新连接器来改进。
 
-Details:
-- Start with 1–2 sentences describing the answer’s strengths, grounding, and known gaps.
-- For available connectors with no relevant evidence, mention what was checked and what was or wasn't found.
-- For unresolved non-blocking categories, state the practical limitation and name a suitable provider as an optional improvement when one is available. Offer its install/connect UI only after the first output, normally in Next Steps.
-- For unresolved blocking categories, report whether a provider was offered, no suitable provider was found, or the install/connect attempt failed or was declined. Mention the plugin-page, pasted/uploaded-context, or IT fallback only after no suitable installable provider was found or the install/connect attempt failed or was declined.
+详情：
+- 用 1–2 句话开头，说明答案的优势、依据以及已知缺口。
+- 对于可用但没有相关证据的连接器，说明检查了什么、发现或未发现什么。
+- 对于未解决的非阻塞类别，说明实际限制，并在有合适提供方时将其作为可选改进项点名。仅在该首个输出之后（通常在“后续步骤”中）再提供其安装/连接界面。
+- 对于未解决的阻塞类别，报告是否提供了提供方、是否未找到合适提供方，或安装/连接尝试是否失败或被拒绝。只有在未找到合适的可安装提供方，或安装/连接尝试失败或被拒绝之后，才提及插件页面、粘贴/上传上下文或 IT 回退方案。
 
-**Output Format**
+**输出格式**
 ```
 ## Confidence and Gaps
 
@@ -137,18 +137,18 @@ Potentially helpful context:
 2. **[Category]:** No suitable installable provider was found, so [plugin-page, pasted/uploaded-context, or IT fallback] is the next path for [specific missing evidence].
 ```
 
-##### 4. Next Steps
-- *Always* offer one clear next step to help the user get more value and discover useful adjacent functionality.
-- When the focused skill provides `Next Step Options`, choose the single most relevant transition from that list. Do not present the whole menu, offer an action already completed, or suggest an action that conflicts with the workflow's ownership or safety rules.
-- When the focused skill does not provide options, use your judgment. Some common fallback options:
-  - Install new connectors if they could materially improve output quality
-  - Iterate on and improve the output
-  - Create a document, presentation, spreadsheet, or html report
-  - Draft response(s) in Slack or Email to help with next steps
-  - Take another action in a relevant tool
-  - Set up an automation to follow up or refresh the output in the future
+##### 4. 后续步骤
+- *始终*提供一个明确的下一步，帮助用户获得更多价值并发现有用的相邻功能。
+- 当聚焦技能提供了 `Next Step Options` 时，从该列表中选择最相关的一个过渡。不要展示整个菜单，不要提供已经完成的动作，也不要建议与该工作流的归属或安全规则相冲突的动作。
+- 当聚焦技能没有提供选项时，自行判断。一些常见的回退选项：
+  - 如果新连接器能实质提升输出质量，就安装它们
+  - 迭代并改进输出
+  - 创建文档、演示文稿、电子表格或 html 报告
+  - 在 Slack 或 Email 中起草回复，以帮助推进后续步骤
+  - 在相关工具中执行另一个操作
+  - 设置自动化，以便将来跟进或刷新输出
 
-**Output Format**
+**输出格式**
 
 ```
 {other message outputs}

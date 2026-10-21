@@ -1,25 +1,25 @@
-# ymcode Models and Providers
+# ymcode 模型与提供方
 
-Read this reference whenever a request involves a provider, model, API key, base URL, authentication, or an OpenAI-/Anthropic-compatible endpoint.
+只要请求涉及提供方、模型、API key、base URL、认证或 OpenAI/Anthropic 兼容端点，就阅读本参考。
 
-## Sign-in options (TUI login dialog / `/connect`)
+## 登录选项（TUI 登录对话框 / `/connect`）
 
-- **Xiaomi MiMo Platform** — OAuth device flow (recommended).
-- **Codex (ChatGPT Pro/Plus)** — OpenAI OAuth login.
-- **Import from Claude Code** — reads API keys from `~/.claude/settings*.json`.
-- **xAI (Grok)** — OAuth login, provider id `xai`.
-- **Other catalog providers** — API-key entry (e.g. OpenRouter), plus **+ Custom provider** for any OpenAI-compatible endpoint.
+- **小米 MiMo 平台** —— OAuth 设备流（推荐）。
+- **Codex（ChatGPT Pro/Plus）** —— OpenAI OAuth 登录。
+- **从 Claude Code 导入** —— 从 `~/.claude/settings*.json` 读取 API key。
+- **xAI（Grok）** —— OAuth 登录，提供方 id 为 `xai`。
+- **其他目录中的提供方** —— 输入 API key（例如 OpenRouter），另有 **+ 自定义提供方** 用于任何 OpenAI 兼容端点。
 
-## Choose the target config
+## 选择目标配置
 
-- Use `.ymcode/ymcode.jsonc` or `.ymcode/ymcode.json` only when the user explicitly wants project-local behavior.
-- Otherwise use the global config directory (normally `~/.config/ymcode/`). Global files merge in this order: `config.json`, `ymcode.json`, then `ymcode.jsonc`; later files win. Edit the existing highest-precedence file, or create `ymcode.jsonc` when none exists.
-- Inspect these exact candidates directly. Do not recursively glob or search the entire home directory.
-- If both JSON and JSONC exist, account for the merged result before editing so a higher-precedence file cannot silently override the change.
+- 只有当用户明确想要项目本地行为时，才使用 `.ymcode/ymcode.jsonc` 或 `.ymcode/ymcode.json`。
+- 否则使用全局配置目录（通常是 `~/.config/ymcode/`）。全局文件按此顺序合并：`config.json`、`ymcode.json`，然后是 `ymcode.jsonc`；后者胜出。编辑已存在的最高优先级文件，若都不存在则创建 `ymcode.jsonc`。
+- 直接检查这些确切的候选文件。不要递归 glob 或搜索整个主目录。
+- 若 JSON 与 JSONC 同时存在，编辑前要考虑合并结果，以免更高优先级的文件悄悄覆盖改动。
 
-## Custom OpenAI-compatible endpoint
+## 自定义 OpenAI 兼容端点
 
-Given a base URL, API key, and model ID, configure a provider that does not depend on the built-in catalog:
+给定 base URL、API key 与模型 ID，配置一个不依赖内置目录的提供方：
 
 ```jsonc
 {
@@ -44,18 +44,18 @@ Given a base URL, API key, and model ID, configure a provider that does not depe
 }
 ```
 
-Use the exact package and camel-case field names shown above:
+严格使用上面展示的包名与驼峰字段名：
 
-- `@ai-sdk/openai-compatible` is the adapter implemented and shipped by ymcode. Do not substitute `@ai-sdk/compatible-openai`.
-- `baseURL` and `apiKey` are valid; `base_url`, `base-url`, and `api_key` are not.
-- The key under `models` is the exact ID sent upstream. Preserve its case, punctuation, and `/` characters. `name` is only the display label.
-- The top-level selection is `<provider-id>/<model-id>`. ymcode treats only the first `/` as the separator, so a model ID may contain `/`.
-- Preserve the base URL exactly. Do not add, remove, or normalize `/v1` unless the user requests it.
-- A non-OpenAI wire protocol needs its provider-specific adapter. A base URL, key, and model name do not by themselves change protocol semantics.
+- `@ai-sdk/openai-compatible` 是 ymcode 实现并随附的适配器。不要替换为 `@ai-sdk/compatible-openai`。
+- `baseURL` 与 `apiKey` 有效；`base_url`、`base-url` 与 `api_key` 无效。
+- `models` 下的键是发往上游的确切 ID。保留其大小写、标点与 `/` 字符。`name` 只是显示标签。
+- 顶层选择为 `<provider-id>/<model-id>`。ymcode 只把第一个 `/` 当作分隔符，因此模型 ID 可以包含 `/`。
+- 精确保留 base URL。除非用户要求，不要增删或规范化 `/v1`。
+- 非 OpenAI 线协议的端点需要其提供方专属适配器。仅有 base URL、key 与模型名并不会改变协议语义。
 
-## Custom Anthropic-compatible endpoint
+## 自定义 Anthropic 兼容端点
 
-For a service that implements Anthropic's Messages API rather than OpenAI Chat Completions or Responses, use the native Anthropic adapter:
+对于实现 Anthropic Messages API（而非 OpenAI Chat Completions 或 Responses）的服务，使用原生 Anthropic 适配器：
 
 ```jsonc
 {
@@ -80,51 +80,51 @@ For a service that implements Anthropic's Messages API rather than OpenAI Chat C
 }
 ```
 
-ymcode ships `@ai-sdk/anthropic`; its SDK constructs Anthropic Messages API requests, including the Anthropic authentication/version headers and the `/messages` request path. Configure `baseURL` as the API base (commonly ending in `/v1`), not as the full `/v1/messages` endpoint, because the adapter appends `/messages`.
+ymcode 随附 `@ai-sdk/anthropic`；其 SDK 构造 Anthropic Messages API 请求，包括 Anthropic 认证/版本头与 `/messages` 请求路径。把 `baseURL` 配置为 API 基址（通常以 `/v1` 结尾），而不是完整的 `/v1/messages` 端点，因为适配器会追加 `/messages`。
 
-Choose the adapter from the endpoint's documented wire protocol, not the model name:
+依据端点文档所述的线协议选择适配器，而不是依据模型名：
 
-- Use `@ai-sdk/openai-compatible` for OpenAI-compatible Chat Completions/Responses, even when the upstream model ID contains `claude`.
-- Use `@ai-sdk/anthropic` when the endpoint implements Anthropic Messages semantics such as `POST /v1/messages`, `x-api-key`, and `anthropic-version`.
-- If the user explicitly states the format, follow it. If they provide only a URL, key, and Claude-like model name, do not infer the protocol from the name; inspect authoritative endpoint documentation or ask which API format it implements.
-- Do not add OpenAI-only settings to an Anthropic provider or Anthropic-only headers to an OpenAI-compatible provider unless the gateway documentation requires them.
+- OpenAI 兼容的 Chat Completions/Responses 使用 `@ai-sdk/openai-compatible`，即使上游模型 ID 含 `claude`。
+- 当端点实现 Anthropic Messages 语义（如 `POST /v1/messages`、`x-api-key` 与 `anthropic-version`）时使用 `@ai-sdk/anthropic`。
+- 如果用户明确说明了格式，就照办。若只给出 URL、key 与类似 Claude 的模型名，不要从名称推断协议；查看权威端点文档，或询问它实现哪种 API 格式。
+- 不要把仅 OpenAI 的设置加到 Anthropic 提供方，也不要把仅 Anthropic 的头加到 OpenAI 兼容提供方，除非网关文档要求。
 
-## Reuse or create a provider
+## 复用或新建提供方
 
-Provider options, including credentials and base URL, are shared by every model under that provider. Choose deliberately:
+提供方选项（包括凭据与 base URL）由该提供方下的所有模型共享。要有意选择：
 
-- Reuse a provider and append the model when its endpoint and credential already match.
-- If the endpoint matches but the supplied credential differs, create a distinct provider ID unless the user explicitly wants to rotate the existing provider's key. Overwriting it would silently change every existing model under that provider.
-- If the desired provider ID already exists with different options, choose an unused short lowercase ID or a meaningful suffixed ID. Update `model` and allowlists consistently.
-- If `enabled_providers` is present, add the new provider ID. If `disabled_providers` contains it and the user wants to use the model, remove only that entry.
-- Set the top-level `model` when the user says configure, use, select, switch, or make default. When the user only asks to add/register a model, preserve the current selection.
+- 当端点和凭据都已匹配时，复用提供方并追加模型。
+- 若端点匹配但提供的凭据不同，除非用户明确想轮换现有提供方的 key，否则新建一个独立的提供方 ID。覆盖它会悄悄改变该提供方下的所有现有模型。
+- 若期望的提供方 ID 已存在但选项不同，选择一个未使用的短小写 ID，或带含义后缀的 ID。同步更新 `model` 与允许列表。
+- 若存在 `enabled_providers`，加入新提供方 ID。若 `disabled_providers` 包含它且用户想使用该模型，只移除该条目。
+- 当用户说配置、使用、选择、切换或设为默认时，设置顶层 `model`。当用户只要求添加/注册模型时，保持当前选择。
 
-## Do not invent model metadata
+## 不要臆造模型元数据
 
-The model's display name is enough to register it. Do not guess `limit.context`, `limit.output`, `reasoning`, `tool_call`, `modalities`, cost, or other capabilities from the model name. Internal routers often expose aliases whose behavior differs from similarly named public models.
+模型的显示名足以注册它。不要根据模型名猜测 `limit.context`、`limit.output`、`reasoning`、`tool_call`、`modalities`、成本或其他能力。内部路由常暴露别名，其行为与名称相似的公开模型不同。
 
-Add optional metadata only when the user supplied it or a current authoritative source verifies it. If limits are important but unknown, omit them and state that they remain unspecified; ymcode will apply its runtime fallback and log a warning for an unknown context window.
+仅当用户提供或当前权威来源可验证时才添加可选元数据。若上限很重要但未知，就省略并说明其仍未指定；ymcode 会应用运行时回退，并为未知上下文窗口记录一条警告。
 
-For input modalities specifically, the user can set them in the TUI with `/modalities` (multi-select image/audio/video/pdf; persists to `provider.<id>.models.<id>.modalities` in global config) — prefer pointing them there over hand-editing.
+具体到输入模态，用户可在 TUI 中用 `/modalities` 设置（多选 image/audio/video/pdf；持久化到全局配置中的 `provider.<id>.models.<id>.modalities`）——优先引导他们去那里，而不是手工编辑。
 
-## Credential handling
+## 凭据处理
 
-- Treat any API key as a secret even when the user pasted it into the prompt. Never repeat it in commentary, tool summaries, diffs, or the final response.
-- Avoid printing an unredacted config because it may contain unrelated credentials. Inspect with sensitive values masked and make the smallest possible edit.
-- Direct `options.apiKey` storage is supported when the user asks ymcode to persist the supplied key. Keep the config user-readable only where file modes are available.
-- If the user prefers not to store plaintext, use a config token such as `"apiKey": "{env:CUSTOM_API_KEY}"` and explain that the variable must exist in the ymcode process environment. Do not silently switch to an environment reference when the user asked for a ready-to-use persisted configuration.
-- If a real key was posted in a conversation or log, recommend rotating it after completing the requested setup.
+- 把任何 API key 都视为机密，即使它是用户粘贴进提示词的。绝不在评论、工具摘要、差异或最终回复中重复它。
+- 避免打印未脱敏的配置，因为它可能包含无关凭据。以掩码方式查看敏感值，并做尽可能小的编辑。
+- 当用户要求 ymcode 持久化所提供的 key 时，支持直接存储 `options.apiKey`。仅在文件权限可用的地方让配置保持用户可读。
+- 如果用户不愿存明文，使用配置 token，例如 `"apiKey": "{env:CUSTOM_API_KEY}"`，并说明该变量必须存在于 ymcode 进程环境中。当用户要求一份可直接使用的持久配置时，不要悄悄改用环境引用。
+- 如果真实 key 曾出现在对话或日志中，建议在完成所请求的设置后轮换它。
 
-## Keep a newly configured model in TUI recents
+## 让新配置的模型留在 TUI 最近列表
 
-When the user supplies a new API key and model to configure, update the TUI recent-model state after the provider config validates. Do this whether the request makes the model the default or only registers it: the recent entry is what makes the model immediately available to the TUI model-cycle shortcut.
+当用户提供新的 API key 与模型进行配置时，在提供方配置通过校验后更新 TUI 最近模型状态。无论请求是把该模型设为默认还是仅注册它，都要这样做：最近条目才使该模型立即出现在 TUI 的模型循环快捷键中。
 
-The state file is `model.json` under ymcode's state directory:
+状态文件是 ymcode 状态目录下的 `model.json`：
 
-- With a non-empty absolute `YMCODE_HOME`: `$YMCODE_HOME/state/model.json`.
-- Otherwise: the XDG state directory for ymcode, normally `~/.local/state/ymcode/model.json` on Linux and macOS. Respect `XDG_STATE_HOME` when it is set.
+- 当 `YMCODE_HOME` 为非空绝对路径时：`$YMCODE_HOME/state/model.json`。
+- 否则：ymcode 的 XDG 状态目录，在 Linux 与 macOS 上通常是 `~/.local/state/ymcode/model.json`。若设置了 `XDG_STATE_HOME`，遵循它。
 
-Read the existing JSON object first. Preserve every top-level field, especially `favorite` and `variant`. Prepend the configured model to `recent`, remove any later entry with the same `providerID` and `modelID`, preserve the order of all other entries, and keep at most 10 entries:
+先读取已有的 JSON 对象。保留每个顶层字段，尤其是 `favorite` 与 `variant`。把配置的模型前插到 `recent`，移除其后任何 `providerID` 与 `modelID` 相同的条目，保持其他所有条目的顺序，最多保留 10 条：
 
 ```json
 {
@@ -136,20 +136,20 @@ Read the existing JSON object first. Preserve every top-level field, especially 
 }
 ```
 
-The snippet illustrates the shape; it is not permission to reset existing fields. If the file does not exist, create it with the new `recent` entry plus empty `favorite` and `variant` values. If it contains malformed JSON, do not overwrite it silently: preserve or back it up before repairing it. Never put the API key, base URL, display name, or combined `provider/model` string in a recent entry.
+该片段只说明结构；它不授权你重置现有字段。若文件不存在，创建它并写入新的 `recent` 条目以及空的 `favorite` 与 `variant`。若其中 JSON 格式错误，不要悄悄覆盖：先保留或备份再修复。绝不要把 API key、base URL、显示名或拼接的 `provider/model` 字符串放进最近条目。
 
-Write the recent state only after `ymcode models PROVIDER_ID` confirms that the exact model is registered. An already-running TUI may have loaded the old state and can overwrite an external edit, so tell the user to close or restart that TUI before relying on the updated shortcut.
+只有在 `ymcode models PROVIDER_ID` 确认该确切模型已注册后，才写入最近状态。已运行的 TUI 可能加载了旧状态，并可能覆盖外部编辑，因此告诉用户在依赖更新后的快捷键之前关闭或重启该 TUI。
 
-## Minimal edit and verification
+## 最小编辑与验证
 
-Preserve JSONC comments, `$schema`, unrelated providers, models, and settings. Avoid whole-file rewrites when a targeted insertion is possible.
+保留 JSONC 注释、`$schema`、无关的提供方、模型与设置。能定向插入时，避免整文件重写。
 
-Do not make a paid or state-changing API request merely to verify configuration. Validate locally from the same working directory in which the user will run ymcode:
+不要仅仅为了验证配置就发起付费或改变状态的 API 请求。在用户将来运行 ymcode 的同一工作目录中做本地验证：
 
 ```sh
 ymcode models PROVIDER_ID
 ```
 
-Confirm that the output contains exactly `PROVIDER_ID/MODEL_ID`. This proves the config parsed and the provider/model registered; it does not prove the remote credential, endpoint, or selected wire protocol works. If the current TUI session already pinned a model, reselect it or start a new session after the edit.
+确认输出中恰好包含 `PROVIDER_ID/MODEL_ID`。这证明配置已被解析、提供方/模型已注册；它并不证明远端凭据、端点或所选线协议可用。若当前 TUI 会话已固定某个模型，编辑后重新选择它或开始新会话。
 
-In the final response, name the config file and recent-model state file, identify the selected `provider/model`, state whether it was added or made default, and report local validation. Never include the key.
+在最终回复中，说明配置文件与最近模型状态文件的名称，指明所选的 `provider/model`，说明是新增还是设为默认，并报告本地验证结果。绝不要包含 key。

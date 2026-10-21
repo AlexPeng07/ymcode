@@ -1,107 +1,107 @@
 ---
 name: plan-deal-strategy
-description: Use when the user wants strategy for one active deal, renewal, negotiation, buying process, or initial sales motion for an offer or product. Build a grounded deal map or practical sales plan with objections, sequencing, posture, and prioritized next actions. Use prepare-for-meeting instead for multi-account same-day customer call queues.
+description: 当用户需要针对某一活跃交易、续约、谈判、采购流程，或针对某个报价或产品的初始销售动作制定策略时使用。构建有据可依的交易地图或实用的销售计划，包含异议、次序、态势和排定优先级的后续动作。对于多账户、当天的客户通话队列，请改用 prepare-for-meeting。 | deal strategy, negotiation, buying committee, procurement risk, next actions
 ---
 
-# Plan Deal Strategy
+# 规划交易策略
 
 
-## Context-Gathering Intake
+## 上下文收集与提问
 
-Whenever this skill asks for context, strongly prefer using the `answers-ask-user-input` skill and the `ask_user_input` tool over other tools such as `request_user_input`; otherwise ask directly in the conversation.
+凡本技能要求提供上下文时，强烈优先使用 `answers-ask-user-input` 技能和 `ask_user_input` 工具，而不是 `request_user_input` 等其他工具；否则直接在对话中提问。
 
-Turn active-deal evidence or clearly supplied offer context into a practical strategy for advancing a sale or shaping an initial sales motion. This skill owns the deal map, buying committee, negotiation posture, objections, sequencing, and action plan; it is not first-call prep, data-first prospecting, or a writeback workflow.
+把活跃交易的证据或清楚提供的报价上下文，转化为推进销售或塑造初始销售动作的实用策略。本技能负责交易地图、采购委员会、谈判态势、异议、次序和行动计划；它不是首次通话准备、以数据为先的潜客开发或回写流程。
 
-## Common Skill Instructions
+## 通用技能说明
 
-MANDATORY: If not already in context, read and adhere closely to `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`.
+强制要求：若尚未在上下文中，请阅读并严格遵循 `plugins/sales/skills/index/SKILL.md## Cross-Skill Best Practices`。
 
-## Key Dependency Categories
+## 关键依赖类别
 
-These categories are particularly important for this workflow; use other sources only when they materially improve the strategy.
+这些类别对本工作流尤为重要；仅当其他来源能实质改善策略时才使用它们。
 
-- [Blocking] ~~CRM for authoritative account and opportunity identity, stage, amount, close date, owner, contacts, and recent activity. It blocks the default active-deal strategy path unless sufficiently grounded deal truth is already in context.
-- ~~Meeting Transcripts for stakeholder language, objections, commitments, decisions, procurement signals, and call continuity
-- ~~Email for customer-facing progression, approvals, negotiation, legal/procurement exchange, and unanswered asks
-- ~~Internal Messaging for internal blockers, owner alignment, escalation paths, and execution risk
-- ~~Knowledge & Files for account plans, mutual action plans, implementation docs, risk logs, and strategy artifacts
-- ~~Calendar for upcoming decision forums, executive meetings, procurement/legal milestones, and timing pressure
-- ~~Sales Intelligence only when it sharpens a stakeholder or company hypothesis after the deal is anchored
+- [Blocking] ~~CRM 用于权威的账户与商机身份、阶段、金额、成交日期、负责人、联系人和近期活动。除非已足够有据的交易真相已在上下文中，否则它会阻塞默认的活跃交易策略路径。
+- ~~Meeting Transcripts 用于利益相关方用语、异议、承诺、决策、采购信号和通话连续性
+- ~~Email 用于面向客户的推进、审批、谈判、法务/采购往来和未答复的请求
+- ~~Internal Messaging 用于内部阻塞项、负责人对齐、升级路径和执行风险
+- ~~Knowledge & Files 用于账户计划、共同行动计划、实施文档、风险日志和策略产物
+- ~~Calendar 用于即将到来的决策论坛、高管会议、采购/法务里程碑和时间压力
+- ~~Sales Intelligence 仅在交易已锚定后能锐化对利益相关方或公司的假设时使用
 
-Keep ~~CRM authoritative for CRM-owned deal truth. Supporting sources sharpen risks, stakeholders, timing, and actions; they do not invent or override stage, amount, owner, close date, or active-deal presence.
+保持 ~~CRM 对 CRM 拥有的交易真相具有权威性。支撑来源会锐化风险、利益相关方、时间和动作；它们不会凭空创造或覆盖阶段、金额、负责人、成交日期或活跃交易的存在。
 
-## Reference Loading
+## 参考资料加载
 
-`SKILL.md` owns the normal deal-strategy flow and output package. Load references only when their extra detail matters:
+`SKILL.md` 负责常规的交易策略流程和输出包。只有当参考资料的额外细节确有必要时才加载：
 
-- Use [references/request-schema.yaml](references/request-schema.yaml) for structured input, legacy aliases, mode enums, stage hints, time-window bounds, or seed-evidence normalization.
-- Use [references/risk-rubric.md](references/risk-rubric.md) when risk type, severity, likelihood, confidence, prioritization, or mitigation fields are ambiguous.
+- 当需要结构化输入、旧版别名、模式枚举、阶段提示、时间窗口边界或种子证据归一化时，使用 [references/request-schema.yaml](references/request-schema.yaml)。
+- 当风险类型、严重度、可能性、置信度、优先级或缓解字段不明确时，使用 [references/risk-rubric.md](references/risk-rubric.md)。
 
-## Workflow Guidance
+## 工作流指引
 
-### 1. Qualify and choose a mode
+### 1. 资格判断并选择模式
 
-- Use this only when there is an active account, opportunity, renewal, buying process, or sufficiently detailed deal context after discovery.
-- Seek enough evidence to identify the current deal motion and at least one blocker, stakeholder question, or next-action need. If the anchor is sufficient but evidence is thin, produce a low-confidence pack with explicit gaps rather than inventing detail.
-- If the request is first-call prep with little prior evidence, route to `prepare-for-meeting` when a meeting anchor exists; otherwise ask for basic account context and provide lightweight manual prep.
-- Default to `Full Strategy Pack`. If the user asks for only one artifact, use the matching partial mode and keep the investigation scoped to it.
+- 仅当存在活跃账户、商机、续约、采购流程，或发现之后足够详细的交易上下文时才使用。
+- 收集足够证据以识别当前的交易动作，以及至少一个阻塞项、利益相关方问题或下一步需求。如果锚点充分但证据稀薄，产出低置信度的材料包并明确列出缺口，而不是编造细节。
+- 如果请求是首次通话准备且此前证据很少，在存在会议锚点时路由到 `prepare-for-meeting`；否则索取基础账户上下文，并提供轻量的手工准备。
+- 默认使用 `Full Strategy Pack`。如果用户只要求某一件产物，就使用对应的局部模式，并把调查范围限定在该产物内。
 
-### 2. Resolve the deal anchor
+### 2. 确定交易锚点
 
-- Start with the user-named account, opportunity, renewal, initiative, link, or notes.
-- Accept `sfdc_account_id` as a legacy alias for `crm_account_id`.
-- When available, use ~~CRM first to identify the account and the opportunity that best matches the named product, solution, renewal, stakeholders, timing, and recent activity.
-- If the user asks for deal strategy but did not supply an account, opportunity, renewal, initiative, link, or notes, use ~~CRM first to search, rank, and offer up to five concrete current-opportunity candidates via `ask_user_input()`. For a bare invocation such as “Plan the deal strategy for my most appropriate current opportunity,” do not assume a target; offer the connector-backed candidates and ask the user to choose before broad enrichment or drafting.
-- Build a small alias set from the selected opportunity name, product or solution terms, activity titles, and user wording. Use it to validate related meetings, threads, and docs and reject same-account artifacts for a different deal motion.
-- If multiple plausible deals remain, make at most three source reads to offer up to five concrete candidates via `ask_user_input()`, then ask the user to choose before broad enrichment. If exactly one inferred candidate remains, ask the user to confirm it via `ask_user_input()` before broad enrichment or drafting.
-- If CRM is unavailable but user-provided evidence is sufficient, continue with a clear CRM gap. Do not treat same-account evidence for another opportunity as proof for the selected motion.
+- 从用户点名的账户、商机、续约、举措、链接或笔记开始。
+- 接受 `sfdc_account_id` 作为 `crm_account_id` 的旧版别名。
+- 在可用时，先用 ~~CRM 识别账户，以及最匹配所点名产品、解决方案、续约、利益相关方、时间和近期活动的商机。
+- 如果用户要求交易策略但没有提供账户、商机、续约、举措、链接或笔记，先用 ~~CRM 搜索、排序，并通过 `ask_user_input()` 提供最多五个具体的当前商机候选。对于“为我最合适的当前商机规划交易策略”这类空泛调用，不要假设目标；提供由连接器支撑的候选，并在广泛丰富或起草之前请用户选择。
+- 从所选商机名称、产品或解决方案术语、活动标题和用户措辞构建一小组别名。用它来验证相关的会议、讨论串和文档，并排除同账户但属于不同交易动作的产物。
+- 如果仍有多个可能的交易，最多做三次来源读取，通过 `ask_user_input()` 提供最多五个具体候选，然后请用户在广泛丰富之前选择。如果只剩一个推断出的候选，在广泛丰富或起草之前通过 `ask_user_input()` 请用户确认。
+- 如果 CRM 不可用但用户提供的证据足够，继续并在结果中明确 CRM 缺口。不要把同账户但属于其他商机的证据当作所选交易动作的证明。
 
-### 3. Gather evidence by lane
+### 3. 按通道收集证据
 
-- Use the selected account and deal-motion aliases to find relevant recent evidence in ~~Meeting Transcripts, ~~Email, ~~Internal Messaging, ~~Knowledge & Files, and ~~Calendar.
-- Prefer the narrowest relevant window; default to the last 90 days unless the user provides another window.
-- Do not require transcript, thread, or document links up front; use the selected account and deal-motion aliases to discover relevant artifacts.
-- Read enough to support the current motion, stakeholder posture, procurement risks, and next actions. If the first same-account artifact belongs to another deal motion, continue to the next targeted result when available; otherwise skip it, label the gap, or ask the user to choose.
-- Record each lane as available, unavailable, empty, stale, conflicting, or user-provided-only. Stop once the core strategy is supported; do not chase indirect substitutes for unavailable source truth.
+- 使用所选账户和交易动作的别名，在 ~~Meeting Transcripts、~~Email、~~Internal Messaging、~~Knowledge & Files 和 ~~Calendar 中查找相关的近期证据。
+- 优先使用最窄的相关窗口；除非用户提供其他窗口，默认取最近 90 天。
+- 不要求用户事先提供转录、讨论串或文档链接；使用所选账户和交易动作的别名去发现相关产物。
+- 阅读到足以支撑当前动作、利益相关方态势、采购风险和下一步动作即可。如果第一个同账户产物属于另一个交易动作，在有下一个定向结果时继续；否则跳过它、标注缺口，或请用户选择。
+- 将每条通道记录为可用、不可用、为空、过时、冲突或仅用户提供。在核心策略得到支撑后就停止；不要为不可用的来源真相追逐间接替代品。
 
-### 4. Build the strategy
+### 4. 构建策略
 
-- Build a concise deal map: initiative, target outcome, motion/timeline, active workstreams, recent account or service context that materially changes deal execution when evidenced, blockers, and dependencies.
-- Build the buying committee from evidenced people and roles. Use roles `economic_buyer`, `decision_maker`, `champion`, `influencer`, `blocker`, `procurement`, `legal`, `security`, or `unknown`; stance `supportive`, `neutral`, `skeptical`, `blocking`, or `unknown`; and influence `high`, `medium`, `low`, or `unknown`. Label inferred role, stance, or influence with `Inference:`.
-- Build procurement risks with severity, likelihood, confidence, owner or suggested owner, mitigation, timing, and source. Load `references/risk-rubric.md` when classification or prioritization is ambiguous.
-- Produce 5-7 high-signal actions by default. Each action needs an owner or suggested owner, due date or `TBD`, expected outcome, linked risk/stakeholder, and source.
+- 构建简洁的交易地图：举措、目标成果、动作/时间线、活跃工作流、在有证据时会影响交易执行的近期账户或服务上下文、阻塞项和依赖。
+- 从有证据的人和角色构建采购委员会。使用角色 `economic_buyer`、`decision_maker`、`champion`、`influencer`、`blocker`、`procurement`、`legal`、`security` 或 `unknown`；立场 `supportive`、`neutral`、`skeptical`、`blocking` 或 `unknown`；影响力 `high`、`medium`、`low` 或 `unknown`。对推断出的角色、立场或影响力标注 `Inference:`。
+- 构建采购风险，包含严重度、可能性、置信度、负责人或建议负责人、缓解措施、时间和来源。当分类或优先级不明确时，加载 `references/risk-rubric.md`。
+- 默认产出 5-7 个高信号动作。每个动作都需要负责人或建议负责人、截止日期或 `TBD`、预期结果、关联的风险/利益相关方，以及来源。
 
-### 5. Separate evidence from inference
+### 5. 将证据与推断分开
 
-- Cite useful source links inline when available; use plain source labels only when no stable link exists.
-- Do not link meeting join URLs, generic room URLs, or opaque connector ids as evidence.
-- If evidence conflicts, lower confidence and add an evidence gap instead of forcing a conclusion.
-- Use exact dates and confirmed customer-side owners only when directly evidenced. Otherwise use relative timing, `TBD`, or `Suggested owner:`; avoid exact-day due dates when confidence is low or evidence is sparse.
-- Use public or user-provided market context only when it sharpens a company or stakeholder hypothesis after the deal is anchored. Treat it as supporting context, never a hard dependency or override for account/deal truth.
+- 在有可用来源链接时行内引用；只有在没有稳定链接时才使用纯文本来源标注。
+- 不要把会议加入 URL、通用房间 URL 或不透明的连接器 id 作为证据链接。
+- 如果证据冲突，降低置信度并补充一条证据缺口，而不是强行得出结论。
+- 仅在直接有证据时才使用确切日期和已确认的客户端负责人。否则使用相对时间、`TBD` 或 `Suggested owner:`；当置信度低或证据稀薄时，避免精确到日的截止日期。
+- 仅在交易锚定后、能锐化对公司或利益相关方假设时，才使用公开或用户提供的市场上下文。将其视为支撑性上下文，绝不是硬性依赖，也不能覆盖账户/交易真相。
 
-### Next Step Options
+### 下一步选项
 
-After the first output, offer the most relevant follow-up from the options below. Offer one clear transition, not a menu. Suggest ONLY these unless you are very confident another option is more useful:
-- Turn the prioritized actions into a mutual action plan or execution tracker.
-- Prepare the next customer, partner, or internal meeting around the highest-risk decision.
-- Draft stakeholder-specific email or Slack language for review.
-- Draft CRM-ready opportunity updates for review.
-- Deepen one blocker, stakeholder, or procurement risk where evidence is still thin.
+在首个输出之后，从以下选项中提供最相关的后续动作。提供一个明确的过渡，而不是菜单。除非你非常有把握另有更合适的选项，否则只建议以下内容：
+- 将排定优先级的动作转化为共同行动计划或执行跟踪表。
+- 围绕风险最高的决策，准备下一次客户、合作伙伴或内部会议。
+- 起草针对具体利益相关方的邮件或 Slack 话术供评审。
+- 起草可供 CRM 使用的商机更新供评审。
+- 在证据仍然稀薄之处，深入某一个阻塞项、利益相关方或采购风险。
 
-Next steps to avoid:
-- Sending messages, updating CRM, or creating downstream artifacts without a separate explicit request.
+应避免的后续步骤：
+- 未单独明确请求就发送消息、更新 CRM 或创建下游产物。
 
-## Modes
+## 模式
 
-- `Full Strategy Pack` — default; return every section below.
-- `Deal Map Only` — return Deal Snapshot, Deal Map, Evidence Gaps, and Inference Notes.
-- `Buying Committee Only` — return Deal Snapshot, Buying Committee Map, Evidence Gaps, and Inference Notes.
-- `Procurement Risk Only` — return Deal Snapshot, Procurement Risk Register, Evidence Gaps, and Inference Notes.
-- `Next Actions Only` — return Deal Snapshot, Prioritized Next Actions, Evidence Gaps, and Inference Notes.
+- `Full Strategy Pack` —— 默认；返回下方每个章节。
+- `Deal Map Only` —— 返回交易快照、交易地图、证据缺口和推断说明。
+- `Buying Committee Only` —— 返回交易快照、采购委员会地图、证据缺口和推断说明。
+- `Procurement Risk Only` —— 返回交易快照、采购风险登记表、证据缺口和推断说明。
+- `Next Actions Only` —— 返回交易快照、排定优先级的后续动作、证据缺口和推断说明。
 
-## Output Format
+## 输出格式
 
-For a full strategy pack, return sections in this exact order.
+对于完整的策略包，按以下确切顺序返回章节。
 
 ```md
 # Deal Strategy: [Account / Opportunity]
@@ -163,15 +163,15 @@ For a full strategy pack, return sections in this exact order.
 {Follow the instructions and output format/conditions in [Next Steps](../index/SKILL.md#4-next-steps)}
 ```
 
-## Rules
+## 规则
 
-- Do not fabricate stakeholders, approvals, blockers, owners, commitments, amounts, stages, close dates, or exact dates.
-- Keep facts and inference separate; omit empty inference notes rather than padding them.
-- Prefer fewer strong actions over broad advice, and prioritize the risks most likely to block signature or slip timing.
-- Use human-readable Title Case labels in normal output; use machine-readable keys only when the user asks for JSON or YAML.
-- Keep this workflow read-only. Do not update CRM, send messages, post recaps, or create downstream artifacts unless the user explicitly asks in a later step.
-- If evidence is sparse but the deal anchor is sufficient, produce a low-confidence pack with explicit gaps rather than stopping.
+- 不要编造利益相关方、审批、阻塞项、负责人、承诺、金额、阶段、成交日期或确切日期。
+- 将事实与推断分开；省略空的推断说明，而不是用填充内容凑数。
+- 宁可给出更少但有力的动作，也不要泛泛的建议，并优先处理最可能阻碍签署或导致时间滑落的风险。
+- 在常规输出中使用人类可读的 Title Case 标签；只有当用户要求 JSON 或 YAML 时才使用机器可读的键。
+- 保持本工作流只读。除非用户在后续步骤中明确要求，不要更新 CRM、发送消息、发布纪要或创建下游产物。
+- 如果证据稀薄但交易锚点充分，产出带明确缺口的低置信度材料包，而不是停下。
 
-## Failure Handling
+## 失败处理
 
-If no credible active-deal anchor exists, state the blocker, offer concrete candidates when available, and ask for the smallest missing input. If optional lanes are unavailable, continue with the strongest grounded evidence and make the resulting confidence limits visible.
+如果不存在可信的活跃交易锚点，说明阻塞点，在可用时提供具体候选，并索取最小的缺失输入。如果可选通道不可用，就用最强的有据证据继续，并让由此产生的置信度限制清晰可见。

@@ -1,14 +1,14 @@
-Request to exit plan mode and switch to build agent for implementation.
+请求退出计划模式，切换到构建智能体进行实现。
 
-This tool is always present regardless of current mode. It is only effective in plan mode — calling it from any other mode will return an error.
+无论当前处于何种模式，此工具始终存在。它仅在计划模式下有效——从任何其他模式调用都会返回错误。
 
-Call this tool:
-- After you have written a complete plan to the plan file
-- After you have clarified any questions with the user
-- When you are confident the plan is ready for implementation
+在以下情况下调用此工具：
+- 已将完整计划写入计划文件之后
+- 已与用户澄清所有问题之后
+- 你确信计划已就绪（ready）、可付诸实现时
 
-Do NOT call this tool:
-- If you are not currently in plan mode
-- Before you have created or finalized the plan
-- If you still have unanswered questions about the implementation
-- If the user has indicated they want to continue planning
+不要在以下情况下调用此工具：
+- 当前不处于计划模式
+- 尚未创建或定稿计划
+- 对实现仍有未解答的问题
+- 用户已表示希望继续规划

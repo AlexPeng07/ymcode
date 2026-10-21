@@ -1,42 +1,41 @@
 ---
 name: build-dashboard
-description: "Build a source-backed dashboard or monitoring view with clear metrics, filters, visual hierarchy, definitions, refresh context, and QA."
+description: "构建有数据源支撑的仪表盘或监控视图，具备清晰的指标、过滤器、视觉层级、定义、刷新说明和 QA。 | Trigger keywords: dashboard, monitoring view, BI dashboard, Streamlit, HTML dashboard, metrics, filters, refresh."
 ---
 
-# Build a Dashboard
+# 构建仪表盘
 
-Use this workflow when the user needs a reusable monitoring or exploration surface rather than a one-time report. Read the relevant analysis and KPI workflows first when metric definitions or decision logic are not already settled.
+当用户需要一个可复用的监控或探索界面，而不是一次性报告时，使用本工作流。当指标定义或决策逻辑尚未确定时，先阅读相关的分析和 KPI 工作流。
 
-## Select a portable surface
+## 选择可移植的呈现方式
 
-Honor the user's destination. Otherwise choose the simplest surface supported by the harness:
+尊重用户指定的目标。否则选择运行环境支持的最简单方式：
 
-- Existing BI/product analytics platform when the user wants a governed shared dashboard there.
-- Streamlit when Python execution and local/server operation are appropriate; read `specifications/streamlit-dashboard.md`.
-- Self-contained plain HTML/CSS/vanilla JavaScript for a portable local dashboard; read `specifications/html-dashboard.md`.
+- 当用户希望在其中拥有受治理的共享仪表盘时，使用现有的 BI/产品分析平台。
+- 当适合执行 Python 并在本地或服务器上运行时，使用 Streamlit；阅读 `specifications/streamlit-dashboard.md`。
+- 需要可移植的本地仪表盘时，使用自包含的纯 HTML/CSS/原生 JavaScript；阅读 `specifications/html-dashboard.md`。
 
-Do not require React, Vite, Recharts, MCP Apps, or widget runtimes.
+不要依赖 React、Vite、Recharts、MCP Apps 或组件运行时。
 
-## Workflow
+## 工作流
 
-1. Define the audience, operating decision, monitoring cadence, and questions the dashboard must answer.
-2. Define each metric: formula, numerator/denominator, unit, grain, time window, filters, exclusions, owner, source, and freshness expectation.
-3. Validate joins, completeness, duplicates, missingness, comparability, and refresh status before presenting metrics as trustworthy.
-4. Design the information hierarchy:
-   - Overview and primary outcomes.
-   - Drivers and diagnostic cuts.
-   - Guardrails and risks.
-   - Detail tables or drill-down paths.
-5. Add only decision-relevant filters. Make default date ranges, segments, comparison periods, and filter state visible.
-6. Use `../visualize-data/SKILL.md` for each chart and keep exact lookup values accessible in tables.
-7. Show data freshness, source context, definitions, and material caveats in the dashboard.
-8. Implement and test the real artifact with representative, empty, partial, and error states when feasible.
+1. 定义受众、运营决策、监控节奏，以及仪表盘必须回答的问题。
+2. 定义每个指标：公式、分子/分母、单位、粒度、时间窗口、过滤器、排除项、负责人、数据源和新鲜度预期。
+3. 在把指标当作可信之前，先校验 join、完整性、重复、缺失、可比性和刷新状态。
+4. 设计信息层级：
+   - 概览与主要结果。
+   - 驱动因子与诊断切分。
+   - 护栏与风险。
+   - 明细表或下钻路径。
+5. 只添加与决策相关的过滤器。让默认日期范围、分段、对比期和过滤状态可见。
+6. 每张图表都使用 `../visualize-data/SKILL.md`，并在表格中保留精确的查找值。
+7. 在仪表盘中展示数据新鲜度、数据源背景、定义和重要注意事项。
+8. 在可行时，用有代表性的、空的、部分的和错误的状态实现并测试真实产物。
 
-## QA and handoff
+## QA 与交付
 
-- Reconcile displayed totals and KPIs against reviewed source results.
-- Test filters, date boundaries, sorting, responsive layout, and refresh behavior.
-- Check chart labels, units, legends, accessibility, and table readability.
-- Ensure the artifact does not expose secrets, credentials, unnecessary personal data, or temporary local paths.
-- Deliver the dashboard artifact or governed platform link plus metric definitions, source/query files, refresh instructions, and known limitations.
-
+- 将展示的合计和 KPI 与已核对的源结果对账。
+- 测试过滤器、日期边界、排序、响应式布局和刷新行为。
+- 检查图表标签、单位、图例、可访问性和表格可读性。
+- 确保产物不暴露密钥、凭证、不必要的个人数据或本地临时路径。
+- 交付仪表盘产物或受治理的平台链接，以及指标定义、数据源/查询文件、刷新说明和已知限制。
