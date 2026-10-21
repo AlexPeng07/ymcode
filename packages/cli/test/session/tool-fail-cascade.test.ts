@@ -110,19 +110,19 @@ for (const entry of cases)
     () =>
       Effect.gen(function* () {
         const previous = {
-          cascade: process.env.MIMOCODE_DISABLE_FAIL_CASCADE,
-          search: process.env.MIMOCODE_MCP_TOOL_SEARCH,
+          cascade: process.env.YMCODE_DISABLE_FAIL_CASCADE,
+          search: process.env.YMCODE_MCP_TOOL_SEARCH,
         }
-        delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-        if ("disable" in entry) process.env.MIMOCODE_DISABLE_FAIL_CASCADE = entry.disable
+        delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+        if ("disable" in entry) process.env.YMCODE_DISABLE_FAIL_CASCADE = entry.disable
         // The scripted model calls the MCP tool directly, without loading it through mcp_tool_search first.
-        if ("mcp" in entry) process.env.MIMOCODE_MCP_TOOL_SEARCH = "false"
+        if ("mcp" in entry) process.env.YMCODE_MCP_TOOL_SEARCH = "false"
         yield* Effect.addFinalizer(() =>
           Effect.sync(() => {
-            if (previous.cascade == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-            else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous.cascade
-            if (previous.search == null) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-            else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous.search
+            if (previous.cascade == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+            else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous.cascade
+            if (previous.search == null) delete process.env.YMCODE_MCP_TOOL_SEARCH
+            else process.env.YMCODE_MCP_TOOL_SEARCH = previous.search
           }),
         )
         const server = startScriptedLLMServer([
@@ -182,9 +182,9 @@ for (const entry of cases)
               yield* Effect.promise(() => Bun.write(path.join(dir, "source.txt"), "original"))
               if ("hook" in entry && entry.hook)
                 yield* Effect.promise(async () => {
-                  await fs.mkdir(path.join(dir, ".mimocode", "hooks"), { recursive: true })
+                  await fs.mkdir(path.join(dir, ".ymcode", "hooks"), { recursive: true })
                   await fs.writeFile(
-                    path.join(dir, ".mimocode", "hooks", "cancel-write.ts"),
+                    path.join(dir, ".ymcode", "hooks", "cancel-write.ts"),
                     `export default {
   "tool.execute.before": async (input, output) => {
     if (input.tool !== "write" || output.args.file_path !== "blocked.txt") return
@@ -259,12 +259,12 @@ for (const mode of ["deny", "ask"] as const)
     `permission ${mode} cancels the following bash and preserves its cascade result`,
     () =>
       Effect.gen(function* () {
-        const previous = process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-        delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
+        const previous = process.env.YMCODE_DISABLE_FAIL_CASCADE
+        delete process.env.YMCODE_DISABLE_FAIL_CASCADE
         yield* Effect.addFinalizer(() =>
           Effect.sync(() => {
-            if (previous == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-            else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous
+            if (previous == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+            else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous
           }),
         )
         const server = startScriptedLLMServer([

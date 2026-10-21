@@ -25,7 +25,7 @@ describe("tool.registry", () => {
         provideTmpdirInstance((dir) =>
           Effect.gen(function* () {
             const root = location === "config" ? Global.Path.config : location === "home" ? Global.Path.home : dir
-            const directory = path.join(root, ...(location === "config" ? [] : [".mimocode"]), folder)
+            const directory = path.join(root, ...(location === "config" ? [] : [".ymcode"]), folder)
             const sink = path.join(dir, "imports.log")
             const files = ["example.ts", "example_js.js", "late.ts"].map((name) => path.join(directory, name))
             const source = [
@@ -90,7 +90,7 @@ describe("tool.registry", () => {
           ),
         )
         yield* Effect.promise(() =>
-          Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({ plugin: [pathToFileURL(file).href] })),
+          Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({ plugin: [pathToFileURL(file).href] })),
         )
 
         const registry = yield* ToolRegistry.Service

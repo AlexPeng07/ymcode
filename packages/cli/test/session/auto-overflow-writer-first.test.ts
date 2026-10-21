@@ -206,7 +206,7 @@ function writerThatFails(): SpawnImpl {
 // Shrink the usable window so a seeded token count trips
 // SessionOverflow.isOverflow deterministically. The trigger is a flat fraction
 // of the working window — `usable = floor(max_context * ratio)`, ratio being
-// MIMOCODE_COMPACTION_TRIGGER_RATIO (default 0.9) — so max_context alone decides
+// YMCODE_COMPACTION_TRIGGER_RATIO (default 0.9) — so max_context alone decides
 // it, as long as it exceeds reserves() = compaction.reserved (100) + a 20_000
 // output reservation (this model publishes no limit.input); below that, budget()
 // ignores it and the model's own million-token window applies. 40_000 puts the
@@ -217,7 +217,7 @@ function writerThatFails(): SpawnImpl {
 // keeps fireCheckpoints out of the way regardless of the window. That is what
 // makes the writer counts asserted below attributable to the overflow path
 // alone.
-function mimocodeConfig(
+function ymcodeConfig(
   baseURL: string,
   maxContext = 40_000,
   checkpoint: { thresholds: string[]; reserved: number } = { thresholds: [], reserved: 100 },
@@ -320,13 +320,13 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
   test(
     "checkpoint disabled + empty compaction summary restores the original context",
     async () => {
-      const previous = process.env.MIMOCODE_DISABLE_CHECKPOINT
-      process.env.MIMOCODE_DISABLE_CHECKPOINT = "true"
+      const previous = process.env.YMCODE_DISABLE_CHECKPOINT
+      process.env.YMCODE_DISABLE_CHECKPOINT = "true"
       const llm = startLLM("")
       try {
         await using tmp = await tmpdir({
           git: true,
-          init: (dir) => Bun.write(path.join(dir, "mimocode.json"), mimocodeConfig(llm.origin)),
+          init: (dir) => Bun.write(path.join(dir, "ymcode.json"), ymcodeConfig(llm.origin)),
         })
 
         await Instance.provide({
@@ -361,8 +361,8 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
             ),
         })
       } finally {
-        if (previous === undefined) delete process.env.MIMOCODE_DISABLE_CHECKPOINT
-        else process.env.MIMOCODE_DISABLE_CHECKPOINT = previous
+        if (previous === undefined) delete process.env.YMCODE_DISABLE_CHECKPOINT
+        else process.env.YMCODE_DISABLE_CHECKPOINT = previous
         await llm.stop()
       }
     },
@@ -382,7 +382,7 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
       try {
         await using tmp = await tmpdir({
           git: true,
-          init: (dir) => Bun.write(path.join(dir, "mimocode.json"), mimocodeConfig(llm.origin)),
+          init: (dir) => Bun.write(path.join(dir, "ymcode.json"), ymcodeConfig(llm.origin)),
         })
 
         await Instance.provide({
@@ -455,8 +455,8 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
           git: true,
           init: (dir) =>
             Bun.write(
-              path.join(dir, "mimocode.json"),
-              mimocodeConfig(llm.origin, 50_000, { thresholds: ["24K"], reserved: 100 }),
+              path.join(dir, "ymcode.json"),
+              ymcodeConfig(llm.origin, 50_000, { thresholds: ["24K"], reserved: 100 }),
             ),
         })
 
@@ -553,7 +553,7 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
       try {
         await using tmp = await tmpdir({
           git: true,
-          init: (dir) => Bun.write(path.join(dir, "mimocode.json"), mimocodeConfig(llm.origin)),
+          init: (dir) => Bun.write(path.join(dir, "ymcode.json"), ymcodeConfig(llm.origin)),
         })
 
         await withSpawnRef(writer, () =>
@@ -635,7 +635,7 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
       try {
         await using tmp = await tmpdir({
           git: true,
-          init: (dir) => Bun.write(path.join(dir, "mimocode.json"), mimocodeConfig(llm.origin)),
+          init: (dir) => Bun.write(path.join(dir, "ymcode.json"), ymcodeConfig(llm.origin)),
         })
 
         await Instance.provide({
@@ -739,7 +739,7 @@ describe("Auto context overflow: write a checkpoint before degrading to compacti
       try {
         await using tmp = await tmpdir({
           git: true,
-          init: (dir) => Bun.write(path.join(dir, "mimocode.json"), mimocodeConfig(llm.origin)),
+          init: (dir) => Bun.write(path.join(dir, "ymcode.json"), ymcodeConfig(llm.origin)),
         })
 
         await withSpawnRef(writer, () =>

@@ -6,7 +6,7 @@ import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "./effect"
 
-if (process.env.MIMOCODE_EFFECT_TIMEOUT_TEST === "1") {
+if (process.env.YMCODE_EFFECT_TIMEOUT_TEST === "1") {
   const it = testEffect(CrossSpawnSpawner.defaultLayer)
   let directory = ""
   let finalized = false
@@ -34,7 +34,7 @@ if (process.env.MIMOCODE_EFFECT_TIMEOUT_TEST === "1") {
   test("Bun timeout interrupts and finalizes Effect tests before the next test", async () => {
     const child = Bun.spawn([process.execPath, "test", import.meta.path], {
       cwd: process.cwd(),
-      env: { ...process.env, MIMOCODE_EFFECT_TIMEOUT_TEST: "1" },
+      env: { ...process.env, YMCODE_EFFECT_TIMEOUT_TEST: "1" },
       stdout: "pipe",
       stderr: "pipe",
     })

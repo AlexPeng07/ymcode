@@ -59,7 +59,7 @@ const listDirs = () =>
   Effect.runPromise(Config.Service.use((svc) => svc.directories()).pipe(Effect.scoped, Effect.provide(layer)))
 
 // Get managed config directory from environment (set in preload.ts)
-const managedConfigDir = process.env.MIMOCODE_TEST_MANAGED_CONFIG_DIR!
+const managedConfigDir = process.env.YMCODE_TEST_MANAGED_CONFIG_DIR!
 
 beforeEach(async () => {
   await clear(true)
@@ -71,12 +71,12 @@ afterEach(async () => {
   await clear(true)
 })
 
-async function writeManagedSettings(settings: object, filename = "mimocode.json") {
+async function writeManagedSettings(settings: object, filename = "ymcode.json") {
   await fs.mkdir(managedConfigDir, { recursive: true })
   await Filesystem.write(path.join(managedConfigDir, filename), JSON.stringify(settings))
 }
 
-async function writeConfig(dir: string, config: object, name = "mimocode.json") {
+async function writeConfig(dir: string, config: object, name = "ymcode.json") {
   await Filesystem.write(path.join(dir, name), JSON.stringify(config))
 }
 
@@ -347,7 +347,7 @@ test("loads JSONC config file", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.jsonc"),
+        path.join(dir, "ymcode.jsonc"),
         `{
         // This is a comment
         "$schema": "https://opencode.ai/config.json",
@@ -377,7 +377,7 @@ test("jsonc overrides json in the same directory", async () => {
           model: "base",
           username: "base",
         },
-        "mimocode.jsonc",
+        "ymcode.jsonc",
       )
       await writeConfig(dir, {
         $schema: "https://opencode.ai/config.json",
@@ -424,16 +424,15 @@ test("handles environment variable substitution", async () => {
   }
 })
 
-test("preserves env variables when adding $schema to config", async () => {
+test("preserves env variables when loading config", async () => {
   const originalEnv = process.env["PRESERVE_VAR"]
   process.env["PRESERVE_VAR"] = "secret_value"
 
   try {
     await using tmp = await tmpdir({
       init: async (dir) => {
-        // Config without $schema - should trigger auto-add
         await Filesystem.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             username: "{env:PRESERVE_VAR}",
           }),
@@ -447,10 +446,10 @@ test("preserves env variables when adding $schema to config", async () => {
         expect(config.username).toBe("secret_value")
 
         // Read the file to verify the env variable was preserved
-        const content = await Filesystem.readText(path.join(tmp.path, "mimocode.json"))
+        const content = await Filesystem.readText(path.join(tmp.path, "ymcode.json"))
         expect(content).toContain("{env:PRESERVE_VAR}")
         expect(content).not.toContain("secret_value")
-        expect(content).toContain("$schema")
+        expect(content).not.toContain("$schema")
       },
     })
   } finally {
@@ -462,11 +461,11 @@ test("preserves env variables when adding $schema to config", async () => {
   }
 })
 
-test("migrates old opencode.ai $schema URL to mimo.xiaomi.com", async () => {
+test("removes legacy $schema URL", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({ $schema: "https://opencode.ai/config.json", model: "test/model" }, null, 2),
       )
     },
@@ -475,9 +474,10 @@ test("migrates old opencode.ai $schema URL to mimo.xiaomi.com", async () => {
     directory: tmp.path,
     fn: async () => {
       await load()
-      const content = await Filesystem.readText(path.join(tmp.path, "mimocode.json"))
-      expect(content).toContain('"$schema": "https://mimo.xiaomi.com/mimocode/config.json"')
+      const content = await Filesystem.readText(path.join(tmp.path, "ymcode.json"))
+      expect(content).not.toContain("$schema")
       expect(content).not.toContain("opencode.ai")
+      expect(content).not.toContain("mimo.xiaomi.com")
       expect(content).toContain('"model": "test/model"')
     },
   })
@@ -487,7 +487,7 @@ test("does not modify custom $schema URL", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({ $schema: "https://example.com/custom.json", model: "test/model" }, null, 2),
       )
     },
@@ -496,20 +496,21 @@ test("does not modify custom $schema URL", async () => {
     directory: tmp.path,
     fn: async () => {
       await load()
-      const content = await Filesystem.readText(path.join(tmp.path, "mimocode.json"))
+      const content = await Filesystem.readText(path.join(tmp.path, "ymcode.json"))
       expect(content).toContain('"$schema": "https://example.com/custom.json"')
       expect(content).not.toContain("mimo.xiaomi.com")
     },
   })
 })
 
-test("preserves JSONC comments when injecting $schema", async () => {
+test("preserves JSONC comments when removing legacy $schema", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.jsonc"),
+        path.join(dir, "ymcode.jsonc"),
         `{
   // My config
+  "$schema": "https://opencode.ai/config.json",
   "model": "test/model"
 }`,
       )
@@ -519,8 +520,8 @@ test("preserves JSONC comments when injecting $schema", async () => {
     directory: tmp.path,
     fn: async () => {
       await load()
-      const content = await Filesystem.readText(path.join(tmp.path, "mimocode.jsonc"))
-      expect(content).toContain("$schema")
+      const content = await Filesystem.readText(path.join(tmp.path, "ymcode.jsonc"))
+      expect(content).not.toContain("$schema")
       expect(content).toContain("// My config")
       expect(content).toContain('"model": "test/model"')
     },
@@ -528,7 +529,7 @@ test("preserves JSONC comments when injecting $schema", async () => {
 })
 
 test("resolves env templates in account config with account token", async () => {
-  const originalControlToken = process.env["MIMOCODE_CONSOLE_TOKEN"]
+  const originalControlToken = process.env["YMCODE_CONSOLE_TOKEN"]
 
   const fakeAccount = Layer.mock(Account.Service)({
     active: () =>
@@ -558,7 +559,7 @@ test("resolves env templates in account config with account token", async () => 
     config: () =>
       Effect.succeed(
         Option.some({
-          provider: { opencode: { options: { apiKey: "{env:MIMOCODE_CONSOLE_TOKEN}" } } },
+          provider: { opencode: { options: { apiKey: "{env:YMCODE_CONSOLE_TOKEN}" } } },
         }),
       ),
     token: () => Effect.succeed(Option.some(AccessToken.make("st_test_token"))),
@@ -584,9 +585,9 @@ test("resolves env templates in account config with account token", async () => 
     ).pipe(Effect.scoped, Effect.provide(layer), Effect.runPromise)
   } finally {
     if (originalControlToken !== undefined) {
-      process.env["MIMOCODE_CONSOLE_TOKEN"] = originalControlToken
+      process.env["YMCODE_CONSOLE_TOKEN"] = originalControlToken
     } else {
-      delete process.env["MIMOCODE_CONSOLE_TOKEN"]
+      delete process.env["YMCODE_CONSOLE_TOKEN"]
     }
   }
 })
@@ -650,7 +651,7 @@ test("validates config schema and throws on invalid fields", async () => {
 test("throws error for invalid JSON", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Filesystem.write(path.join(dir, "mimocode.json"), "{ invalid json }")
+      await Filesystem.write(path.join(dir, "ymcode.json"), "{ invalid json }")
     },
   })
   await Instance.provide({
@@ -754,7 +755,7 @@ test("migrates autoshare to share field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           autoshare: true,
@@ -776,7 +777,7 @@ test("migrates mode field to agent field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mode: {
@@ -804,10 +805,10 @@ test("migrates mode field to agent field", async () => {
   })
 })
 
-test("loads config from .mimocode directory", async () => {
+test("loads config from .ymcode directory", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".mimocode")
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
@@ -836,10 +837,10 @@ Test agent prompt`,
   })
 })
 
-test("loads agents from .mimocode/agents (plural)", async () => {
+test("loads agents from .ymcode/agents (plural)", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".mimocode")
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       const agentsDir = path.join(opencodeDir, "agents")
@@ -887,10 +888,10 @@ Nested agent prompt`,
   })
 })
 
-test("loads commands from .mimocode/command (singular)", async () => {
+test("loads commands from .ymcode/command (singular)", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".mimocode")
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       const commandDir = path.join(opencodeDir, "command")
@@ -932,10 +933,10 @@ Nested command template`,
   })
 })
 
-test("loads commands from .mimocode/commands (plural)", async () => {
+test("loads commands from .ymcode/commands (plural)", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".mimocode")
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       const commandsDir = path.join(opencodeDir, "commands")
@@ -1019,7 +1020,7 @@ Nested claude template`,
   })
 })
 
-test("mimocode command overrides .claude command on name collision", async () => {
+test("ymcode command overrides .claude command on name collision", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
@@ -1031,11 +1032,11 @@ from claude`,
       )
 
       await Filesystem.write(
-        path.join(dir, ".mimocode", "command", "dup.md"),
+        path.join(dir, ".ymcode", "command", "dup.md"),
         `---
-description: mimocode version
+description: ymcode version
 ---
-from mimocode`,
+from ymcode`,
       )
     },
   })
@@ -1046,8 +1047,8 @@ from mimocode`,
       const config = await load()
 
       expect(config.command?.["dup"]).toEqual({
-        description: "mimocode version",
-        template: "from mimocode",
+        description: "ymcode version",
+        template: "from ymcode",
       })
     },
   })
@@ -1078,7 +1079,7 @@ test("gets config directories", async () => {
   })
 })
 
-test("loads config from read-only MIMOCODE_CONFIG_DIR", async () => {
+test("loads config from read-only YMCODE_CONFIG_DIR", async () => {
   if (process.platform === "win32") return
 
   await using tmp = await tmpdir<string>({
@@ -1095,8 +1096,8 @@ test("loads config from read-only MIMOCODE_CONFIG_DIR", async () => {
     },
   })
 
-  const prev = process.env.MIMOCODE_CONFIG_DIR
-  process.env.MIMOCODE_CONFIG_DIR = tmp.extra
+  const prev = process.env.YMCODE_CONFIG_DIR
+  process.env.YMCODE_CONFIG_DIR = tmp.extra
 
   try {
     await Instance.provide({
@@ -1106,12 +1107,12 @@ test("loads config from read-only MIMOCODE_CONFIG_DIR", async () => {
       },
     })
   } finally {
-    if (prev === undefined) delete process.env.MIMOCODE_CONFIG_DIR
-    else process.env.MIMOCODE_CONFIG_DIR = prev
+    if (prev === undefined) delete process.env.YMCODE_CONFIG_DIR
+    else process.env.YMCODE_CONFIG_DIR = prev
   }
 })
 
-test("creates gitignore in writable MIMOCODE_CONFIG_DIR", async () => {
+test("creates gitignore in writable YMCODE_CONFIG_DIR", async () => {
   await using tmp = await tmpdir<string>({
     init: async (dir) => {
       const cfg = path.join(dir, "configdir")
@@ -1120,8 +1121,8 @@ test("creates gitignore in writable MIMOCODE_CONFIG_DIR", async () => {
     },
   })
 
-  const prev = process.env.MIMOCODE_CONFIG_DIR
-  process.env.MIMOCODE_CONFIG_DIR = tmp.extra
+  const prev = process.env.YMCODE_CONFIG_DIR
+  process.env.YMCODE_CONFIG_DIR = tmp.extra
 
   try {
     await Instance.provide({
@@ -1134,8 +1135,8 @@ test("creates gitignore in writable MIMOCODE_CONFIG_DIR", async () => {
     expect(await Filesystem.exists(path.join(tmp.extra, ".gitignore"))).toBe(true)
     expect(await Filesystem.readText(path.join(tmp.extra, ".gitignore"))).toContain("package-lock.json")
   } finally {
-    if (prev === undefined) delete process.env.MIMOCODE_CONFIG_DIR
-    else process.env.MIMOCODE_CONFIG_DIR = prev
+    if (prev === undefined) delete process.env.YMCODE_CONFIG_DIR
+    else process.env.YMCODE_CONFIG_DIR = prev
   }
 })
 
@@ -1167,7 +1168,7 @@ test("resolves scoped npm plugins in config", async () => {
       await Filesystem.write(path.join(pluginDir, "index.js"), "export default {}\n")
 
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({ $schema: "https://opencode.ai/config.json", plugin: ["@scope/plugin"] }, null, 2),
       )
     },
@@ -1186,23 +1187,23 @@ test("resolves scoped npm plugins in config", async () => {
 test("merges plugin arrays from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Create a nested project structure with local .mimocode config
+      // Create a nested project structure with local .ymcode config
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".mimocode")
+      const opencodeDir = path.join(projectDir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       // Global config with plugins
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: ["global-plugin-1", "global-plugin-2"],
         }),
       )
 
-      // Local .mimocode config with different plugins
+      // Local .ymcode config with different plugins
       await Filesystem.write(
-        path.join(opencodeDir, "mimocode.json"),
+        path.join(opencodeDir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: ["local-plugin-1"],
@@ -1232,7 +1233,7 @@ test("merges plugin arrays from global and local configs", async () => {
 test("does not error when only custom agent is a subagent", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".mimocode")
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
@@ -1265,11 +1266,11 @@ test("merges instructions arrays from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".mimocode")
+      const opencodeDir = path.join(projectDir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           instructions: ["global-instructions.md", "shared-rules.md"],
@@ -1277,7 +1278,7 @@ test("merges instructions arrays from global and local configs", async () => {
       )
 
       await Filesystem.write(
-        path.join(opencodeDir, "mimocode.json"),
+        path.join(opencodeDir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           instructions: ["local-instructions.md"],
@@ -1304,11 +1305,11 @@ test("deduplicates duplicate instructions from global and local configs", async 
   await using tmp = await tmpdir({
     init: async (dir) => {
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".mimocode")
+      const opencodeDir = path.join(projectDir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           instructions: ["duplicate.md", "global-only.md"],
@@ -1316,7 +1317,7 @@ test("deduplicates duplicate instructions from global and local configs", async 
       )
 
       await Filesystem.write(
-        path.join(opencodeDir, "mimocode.json"),
+        path.join(opencodeDir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           instructions: ["duplicate.md", "local-only.md"],
@@ -1345,23 +1346,23 @@ test("deduplicates duplicate instructions from global and local configs", async 
 test("deduplicates duplicate plugins from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Create a nested project structure with local .mimocode config
+      // Create a nested project structure with local .ymcode config
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".mimocode")
+      const opencodeDir = path.join(projectDir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       // Global config with plugins
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: ["duplicate-plugin", "global-plugin-1"],
         }),
       )
 
-      // Local .mimocode config with some overlapping plugins
+      // Local .ymcode config with some overlapping plugins
       await Filesystem.write(
-        path.join(opencodeDir, "mimocode.json"),
+        path.join(opencodeDir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: ["duplicate-plugin", "local-plugin-1"],
@@ -1398,11 +1399,11 @@ test("keeps plugin origins aligned with merged plugin list", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       const project = path.join(dir, "project")
-      const local = path.join(project, ".mimocode")
+      const local = path.join(project, ".ymcode")
       await fs.mkdir(local, { recursive: true })
 
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: [["shared-plugin@1.0.0", { source: "global" }], "global-only@1.0.0"],
@@ -1410,7 +1411,7 @@ test("keeps plugin origins aligned with merged plugin list", async () => {
       )
 
       await Filesystem.write(
-        path.join(local, "mimocode.json"),
+        path.join(local, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           plugin: [["shared-plugin@2.0.0", { source: "local" }], "local-only@1.0.0"],
@@ -1445,7 +1446,7 @@ test("migrates legacy tools config to permissions - allow", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1476,7 +1477,7 @@ test("migrates legacy tools config to permissions - deny", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1507,7 +1508,7 @@ test("migrates legacy write tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1533,7 +1534,7 @@ test("migrates legacy write tool to edit permission", async () => {
 })
 
 // Managed settings tests
-// Note: preload.ts sets MIMOCODE_TEST_MANAGED_CONFIG which Global.Path.managedConfig uses
+// Note: preload.ts sets YMCODE_TEST_MANAGED_CONFIG which Global.Path.managedConfig uses
 
 test("managed settings override user settings", async () => {
   await using tmp = await tmpdir({
@@ -1614,7 +1615,7 @@ test("migrates legacy edit tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1643,7 +1644,7 @@ test("migrates legacy patch tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1672,7 +1673,7 @@ test("migrates legacy multiedit tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1701,7 +1702,7 @@ test("migrates mixed legacy tools config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1736,7 +1737,7 @@ test("merges legacy tools with existing permission config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           agent: {
@@ -1769,7 +1770,7 @@ test("permission config preserves key order", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           permission: {
@@ -1815,7 +1816,7 @@ test("project config can override MCP server enabled status", async () => {
     init: async (dir) => {
       // Simulates a base config (like from remote .well-known) with disabled MCP
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1834,7 +1835,7 @@ test("project config can override MCP server enabled status", async () => {
       )
       // Project config enables just jira
       await Filesystem.write(
-        path.join(dir, "mimocode.jsonc"),
+        path.join(dir, "ymcode.jsonc"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1873,7 +1874,7 @@ test("MCP config deep merges preserving base config properties", async () => {
     init: async (dir) => {
       // Base config with full MCP definition
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1890,7 +1891,7 @@ test("MCP config deep merges preserving base config properties", async () => {
       )
       // Override just enables it, should preserve other properties
       await Filesystem.write(
-        path.join(dir, "mimocode.jsonc"),
+        path.join(dir, "ymcode.jsonc"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1920,12 +1921,12 @@ test("MCP config deep merges preserving base config properties", async () => {
   })
 })
 
-test("local .mimocode config can override MCP from project config", async () => {
+test("local .ymcode config can override MCP from project config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       // Project config with disabled MCP
       await Filesystem.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1937,11 +1938,11 @@ test("local .mimocode config can override MCP from project config", async () => 
           },
         }),
       )
-      // Local .mimocode directory config enables it
-      const opencodeDir = path.join(dir, ".mimocode")
+      // Local .ymcode directory config enables it
+      const opencodeDir = path.join(dir, ".ymcode")
       await fs.mkdir(opencodeDir, { recursive: true })
       await Filesystem.write(
-        path.join(opencodeDir, "mimocode.json"),
+        path.join(opencodeDir, "ymcode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -2077,7 +2078,7 @@ test("wellknown URL with trailing slash is normalized", async () => {
 describe("resolvePluginSpec", () => {
   test("keeps package specs unchanged", async () => {
     await using tmp = await tmpdir()
-    const file = path.join(tmp.path, "mimocode.json")
+    const file = path.join(tmp.path, "ymcode.json")
     expect(await ConfigPlugin.resolvePluginSpec("oh-my-opencode@2.4.3", file)).toBe("oh-my-opencode@2.4.3")
     expect(await ConfigPlugin.resolvePluginSpec("@scope/pkg", file)).toBe("@scope/pkg")
   })
@@ -2093,7 +2094,7 @@ describe("resolvePluginSpec", () => {
       },
     })
 
-    const file = path.join(tmp.path, "mimocode.json")
+    const file = path.join(tmp.path, "ymcode.json")
     const hit = await ConfigPlugin.resolvePluginSpec(".\\plugin", file)
     expect(ConfigPlugin.pluginSpecifier(hit)).toBe(pathToFileURL(path.join(tmp.path, "plugin", "index.ts")).href)
   })
@@ -2105,7 +2106,7 @@ describe("resolvePluginSpec", () => {
       },
     })
 
-    const file = path.join(tmp.path, "mimocode.json")
+    const file = path.join(tmp.path, "ymcode.json")
     const hit = await ConfigPlugin.resolvePluginSpec("./plugin.ts", file)
     expect(ConfigPlugin.pluginSpecifier(hit)).toBe(pathToFileURL(path.join(tmp.path, "plugin.ts")).href)
   })
@@ -2124,7 +2125,7 @@ describe("resolvePluginSpec", () => {
       },
     })
 
-    const file = path.join(tmp.path, "mimocode.json")
+    const file = path.join(tmp.path, "ymcode.json")
     const hit = await ConfigPlugin.resolvePluginSpec("./plugin", file)
     expect(ConfigPlugin.pluginSpecifier(hit)).toBe(pathToFileURL(path.join(tmp.path, "plugin")).href)
   })
@@ -2138,7 +2139,7 @@ describe("resolvePluginSpec", () => {
       },
     })
 
-    const file = path.join(tmp.path, "mimocode.json")
+    const file = path.join(tmp.path, "ymcode.json")
     const hit = await ConfigPlugin.resolvePluginSpec("./plugin", file)
     expect(ConfigPlugin.pluginSpecifier(hit)).toBe(pathToFileURL(path.join(tmp.path, "plugin", "index.ts")).href)
   })
@@ -2167,7 +2168,7 @@ describe("deduplicatePluginOrigins", () => {
   })
 
   test("keeps path plugins separate from package plugins", () => {
-    const plugins = ["oh-my-opencode@2.4.3", "file:///project/.mimocode/plugin/oh-my-opencode.js"]
+    const plugins = ["oh-my-opencode@2.4.3", "file:///project/.ymcode/plugin/oh-my-opencode.js"]
 
     const result = dedupe(plugins)
 
@@ -2175,11 +2176,11 @@ describe("deduplicatePluginOrigins", () => {
   })
 
   test("deduplicates direct path plugins by exact spec", () => {
-    const plugins = ["file:///project/.mimocode/plugin/demo.ts", "file:///project/.mimocode/plugin/demo.ts"]
+    const plugins = ["file:///project/.ymcode/plugin/demo.ts", "file:///project/.ymcode/plugin/demo.ts"]
 
     const result = dedupe(plugins)
 
-    expect(result).toEqual(["file:///project/.mimocode/plugin/demo.ts"])
+    expect(result).toEqual(["file:///project/.ymcode/plugin/demo.ts"])
   })
 
   test("preserves order of remaining plugins", () => {
@@ -2194,12 +2195,12 @@ describe("deduplicatePluginOrigins", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         const projectDir = path.join(dir, "project")
-        const opencodeDir = path.join(projectDir, ".mimocode")
+        const opencodeDir = path.join(projectDir, ".ymcode")
         const pluginDir = path.join(opencodeDir, "plugin")
         await fs.mkdir(pluginDir, { recursive: true })
 
         await Filesystem.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             plugin: ["my-plugin@1.0.0"],
@@ -2223,17 +2224,17 @@ describe("deduplicatePluginOrigins", () => {
   })
 })
 
-describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
+describe("YMCODE_DISABLE_PROJECT_CONFIG", () => {
   test("skips project config files when flag is set", async () => {
-    const originalEnv = process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
-    process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = "true"
+    const originalEnv = process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
+    process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = "true"
 
     try {
       await using tmp = await tmpdir({
         init: async (dir) => {
           // Create a project config that would normally be loaded
           await Filesystem.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               model: "project/model",
@@ -2253,22 +2254,22 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
       })
     } finally {
       if (originalEnv === undefined) {
-        delete process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
+        delete process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
       } else {
-        process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
+        process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
       }
     }
   })
 
-  test("skips project .mimocode/ directories when flag is set", async () => {
-    const originalEnv = process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
-    process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = "true"
+  test("skips project .ymcode/ directories when flag is set", async () => {
+    const originalEnv = process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
+    process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = "true"
 
     try {
       await using tmp = await tmpdir({
         init: async (dir) => {
-          // Create a .mimocode directory with a command
-          const opencodeDir = path.join(dir, ".mimocode", "command")
+          // Create a .ymcode directory with a command
+          const opencodeDir = path.join(dir, ".ymcode", "command")
           await fs.mkdir(opencodeDir, { recursive: true })
           await Filesystem.write(path.join(opencodeDir, "test-cmd.md"), "# Test Command\nThis is a test command.")
         },
@@ -2277,23 +2278,23 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
         directory: tmp.path,
         fn: async () => {
           const directories = await listDirs()
-          // Project .mimocode should NOT be in directories list
+          // Project .ymcode should NOT be in directories list
           const hasProjectOpencode = directories.some((d) => d.startsWith(tmp.path))
           expect(hasProjectOpencode).toBe(false)
         },
       })
     } finally {
       if (originalEnv === undefined) {
-        delete process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
+        delete process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
       } else {
-        process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
+        process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
       }
     }
   })
 
   test("still loads global config when flag is set", async () => {
-    const originalEnv = process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
-    process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = "true"
+    const originalEnv = process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
+    process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = "true"
 
     try {
       await using tmp = await tmpdir()
@@ -2308,27 +2309,27 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
       })
     } finally {
       if (originalEnv === undefined) {
-        delete process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
+        delete process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
       } else {
-        process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
+        process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = originalEnv
       }
     }
   })
 
   test("skips relative instructions with warning when flag is set but no config dir", async () => {
-    const originalDisable = process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
-    const originalConfigDir = process.env["MIMOCODE_CONFIG_DIR"]
+    const originalDisable = process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
+    const originalConfigDir = process.env["YMCODE_CONFIG_DIR"]
 
     try {
       // Ensure no config dir is set
-      delete process.env["MIMOCODE_CONFIG_DIR"]
-      process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = "true"
+      delete process.env["YMCODE_CONFIG_DIR"]
+      process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = "true"
 
       await using tmp = await tmpdir({
         init: async (dir) => {
           // Create a config with relative instruction path
           await Filesystem.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               instructions: ["./CUSTOM.md"],
@@ -2353,28 +2354,28 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
       })
     } finally {
       if (originalDisable === undefined) {
-        delete process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
+        delete process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
       } else {
-        process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = originalDisable
+        process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = originalDisable
       }
       if (originalConfigDir === undefined) {
-        delete process.env["MIMOCODE_CONFIG_DIR"]
+        delete process.env["YMCODE_CONFIG_DIR"]
       } else {
-        process.env["MIMOCODE_CONFIG_DIR"] = originalConfigDir
+        process.env["YMCODE_CONFIG_DIR"] = originalConfigDir
       }
     }
   })
 
-  test("MIMOCODE_CONFIG_DIR still works when flag is set", async () => {
-    const originalDisable = process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
-    const originalConfigDir = process.env["MIMOCODE_CONFIG_DIR"]
+  test("YMCODE_CONFIG_DIR still works when flag is set", async () => {
+    const originalDisable = process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
+    const originalConfigDir = process.env["YMCODE_CONFIG_DIR"]
 
     try {
       await using configDirTmp = await tmpdir({
         init: async (dir) => {
           // Create config in the custom config dir
           await Filesystem.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               model: "configdir/model",
@@ -2387,7 +2388,7 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
         init: async (dir) => {
           // Create config in project (should be ignored)
           await Filesystem.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               model: "project/model",
@@ -2396,38 +2397,38 @@ describe("MIMOCODE_DISABLE_PROJECT_CONFIG", () => {
         },
       })
 
-      process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = "true"
-      process.env["MIMOCODE_CONFIG_DIR"] = configDirTmp.path
+      process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = "true"
+      process.env["YMCODE_CONFIG_DIR"] = configDirTmp.path
 
       await Instance.provide({
         directory: projectTmp.path,
         fn: async () => {
           const config = await load()
-          // Should load from MIMOCODE_CONFIG_DIR, not project
+          // Should load from YMCODE_CONFIG_DIR, not project
           expect(config.model).toBe("configdir/model")
         },
       })
     } finally {
       if (originalDisable === undefined) {
-        delete process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"]
+        delete process.env["YMCODE_DISABLE_PROJECT_CONFIG"]
       } else {
-        process.env["MIMOCODE_DISABLE_PROJECT_CONFIG"] = originalDisable
+        process.env["YMCODE_DISABLE_PROJECT_CONFIG"] = originalDisable
       }
       if (originalConfigDir === undefined) {
-        delete process.env["MIMOCODE_CONFIG_DIR"]
+        delete process.env["YMCODE_CONFIG_DIR"]
       } else {
-        process.env["MIMOCODE_CONFIG_DIR"] = originalConfigDir
+        process.env["YMCODE_CONFIG_DIR"] = originalConfigDir
       }
     }
   })
 })
 
-describe("MIMOCODE_CONFIG_CONTENT token substitution", () => {
-  test("substitutes {env:} tokens in MIMOCODE_CONFIG_CONTENT", async () => {
-    const originalEnv = process.env["MIMOCODE_CONFIG_CONTENT"]
+describe("YMCODE_CONFIG_CONTENT token substitution", () => {
+  test("substitutes {env:} tokens in YMCODE_CONFIG_CONTENT", async () => {
+    const originalEnv = process.env["YMCODE_CONFIG_CONTENT"]
     const originalTestVar = process.env["TEST_CONFIG_VAR"]
     process.env["TEST_CONFIG_VAR"] = "test_api_key_12345"
-    process.env["MIMOCODE_CONFIG_CONTENT"] = JSON.stringify({
+    process.env["YMCODE_CONFIG_CONTENT"] = JSON.stringify({
       $schema: "https://opencode.ai/config.json",
       username: "{env:TEST_CONFIG_VAR}",
     })
@@ -2443,9 +2444,9 @@ describe("MIMOCODE_CONFIG_CONTENT token substitution", () => {
       })
     } finally {
       if (originalEnv !== undefined) {
-        process.env["MIMOCODE_CONFIG_CONTENT"] = originalEnv
+        process.env["YMCODE_CONFIG_CONTENT"] = originalEnv
       } else {
-        delete process.env["MIMOCODE_CONFIG_CONTENT"]
+        delete process.env["YMCODE_CONFIG_CONTENT"]
       }
       if (originalTestVar !== undefined) {
         process.env["TEST_CONFIG_VAR"] = originalTestVar
@@ -2455,14 +2456,14 @@ describe("MIMOCODE_CONFIG_CONTENT token substitution", () => {
     }
   })
 
-  test("substitutes {file:} tokens in MIMOCODE_CONFIG_CONTENT", async () => {
-    const originalEnv = process.env["MIMOCODE_CONFIG_CONTENT"]
+  test("substitutes {file:} tokens in YMCODE_CONFIG_CONTENT", async () => {
+    const originalEnv = process.env["YMCODE_CONFIG_CONTENT"]
 
     try {
       await using tmp = await tmpdir({
         init: async (dir) => {
           await Filesystem.write(path.join(dir, "api_key.txt"), "secret_key_from_file")
-          process.env["MIMOCODE_CONFIG_CONTENT"] = JSON.stringify({
+          process.env["YMCODE_CONFIG_CONTENT"] = JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             username: "{file:./api_key.txt}",
           })
@@ -2477,9 +2478,9 @@ describe("MIMOCODE_CONFIG_CONTENT token substitution", () => {
       })
     } finally {
       if (originalEnv !== undefined) {
-        process.env["MIMOCODE_CONFIG_CONTENT"] = originalEnv
+        process.env["YMCODE_CONFIG_CONTENT"] = originalEnv
       } else {
-        delete process.env["MIMOCODE_CONFIG_CONTENT"]
+        delete process.env["YMCODE_CONFIG_CONTENT"]
       }
     }
   })
@@ -2494,8 +2495,8 @@ test("parseManagedPlist strips MDM metadata keys", async () => {
       await ConfigManaged.parseManagedPlist(
         JSON.stringify({
           PayloadDisplayName: "OpenCode Managed",
-          PayloadIdentifier: "ai.mimocode.managed.test",
-          PayloadType: "ai.mimocode.managed",
+          PayloadIdentifier: "ai.ymcode.managed.test",
+          PayloadType: "ai.ymcode.managed",
           PayloadUUID: "AAAA-BBBB-CCCC",
           PayloadVersion: 1,
           _manualProfile: true,
@@ -2615,7 +2616,7 @@ for (const extension of ["json", "jsonc"]) {
     provideTmpdirInstance(() => Effect.gen(function* () {
       const original = Global.Path.config
       const dir = yield* Effect.promise(() => fs.mkdtemp(path.join(original, "history-write-")))
-      const file = path.join(dir, `mimocode.${extension}`)
+      const file = path.join(dir, `ymcode.${extension}`)
       const before = extension === "jsonc"
         ? '{\n // keep this comment\n "history": {"kinds": []}, "model": "test/original"\n}'
         : JSON.stringify({ history: { kinds: [] }, model: "test/original" })

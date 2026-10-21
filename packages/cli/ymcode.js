@@ -46,7 +46,7 @@ async function main() {
     console.error(`    ${installHint}`)
     console.error("")
     console.error("  Or set YMCODE_BIN_PATH to an existing ymcode executable,")
-    console.error("  or retry with network access (MIMO_FDS_BASE can point at a mirror).")
+    console.error("  or retry with network access (YMCODE_FDS_BASE can point at a mirror).")
     process.exit(1)
   }
 }

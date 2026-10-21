@@ -259,7 +259,7 @@ export async function run(opts?: { force?: boolean }) {
       if (existing && ownedMessageIDs == null) throw new Error("Cannot resync: imported message ownership is missing")
 
       // Only reuse a prior import's session if that session still exists. If the
-      // user deleted it in mimocode, drop the stale mapping and import fresh —
+      // user deleted it in ymcode, drop the stale mapping and import fresh —
       // otherwise the update would touch zero rows and the inserts below would
       // fail the message→session foreign key.
       let existingUpdated: number | undefined
@@ -304,7 +304,7 @@ export async function run(opts?: { force?: boolean }) {
             tx.delete(MessageTable)
               .where(inArray(MessageTable.id, ownedMessageIDs!.slice(i, i + 500)))
               .run()
-          // Preserve mimocode-owned metadata on re-sync: keep any user rename
+          // Preserve ymcode-owned metadata on re-sync: keep any user rename
           // (don't reset title — the Claude title is the immutable first prompt),
           // and never move time_updated backward past native activity.
           tx.update(SessionTable)

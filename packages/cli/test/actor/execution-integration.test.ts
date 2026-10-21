@@ -77,7 +77,7 @@ test("new main messages preserve four background actors awaiting model responses
             }
             expect(yield* status.get(parent.id)).toEqual({ type: "idle" })
             const initialConfig = yield* Config.Service.use((cfg) => cfg.get())
-            yield* Effect.promise(() => Bun.write(path.join(tmp.path, "mimocode.json"), JSON.stringify({ model: "test/changed" })))
+            yield* Effect.promise(() => Bun.write(path.join(tmp.path, "ymcode.json"), JSON.stringify({ model: "test/changed" })))
             yield* Effect.promise(() => Instance.disposeAll())
             expect(Instance.refreshStatus(tmp.path).state).toBe("pending")
             expect(yield* Config.Service.use((cfg) => cfg.get())).toBe(initialConfig)
@@ -144,7 +144,7 @@ test("a pending wait receives a preStop failure's partial delivery before termin
         `export default async () => ({ 'actor.preStop': async (input, output) => { if (input.iteration === 0) { output.continue = true; output.reason = 'required verification'; } } });`,
       )
       await Bun.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           plugin: [pathToFileURL(hook).href],
           enabled_providers: ["alibaba"],
@@ -350,7 +350,7 @@ test("hook steps claim queued inbox inputs and late inputs continue after execut
         `import fs from 'node:fs/promises'; export default async () => ({'actor.postStop': async (input, output) => { await fs.writeFile(${JSON.stringify(path.join(dir, "entered"))}, '1'); while (!await fs.stat(${JSON.stringify(path.join(dir, "release"))}).then(() => true, () => false)) await new Promise(r => setTimeout(r, 10)); if (input.iteration === 0) { output.continue = true; output.reason = 'postStop housekeeping'; } }});`,
       )
       await Bun.write(
-        path.join(dir, "mimocode.json"),
+        path.join(dir, "ymcode.json"),
         JSON.stringify({
           plugin: [pathToFileURL(hook).href],
           enabled_providers: ["alibaba"],

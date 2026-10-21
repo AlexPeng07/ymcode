@@ -782,7 +782,7 @@ export type QuestionInfo = {
    */
   key?: string
   /**
-   * Template parameters for i18n interpolation (e.g. { plan: '.mimocode/plans/...' })
+   * Template parameters for i18n interpolation (e.g. { plan: '.ymcode/plans/...' })
    */
   params?: {
     [key: string]: string
@@ -2483,7 +2483,7 @@ export type Config = {
   server?: ServerConfig
   llmServer?: LlmServerConfig
   /**
-   * Command configuration, see https://mimo.xiaomi.com/mimocode/commands
+   * Command configuration, see https://mimo.xiaomi.com/ymcode/commands
    */
   command?: {
     [key: string]: {
@@ -2583,7 +2583,7 @@ export type Config = {
     [key: string]: AgentConfig | undefined
   }
   /**
-   * Agent configuration, see https://mimo.xiaomi.com/mimocode/agents
+   * Agent configuration, see https://mimo.xiaomi.com/ymcode/agents
    */
   agent?: {
     plan?: AgentConfig
@@ -2955,7 +2955,7 @@ export type Config = {
      */
     disable_write?: boolean
     /**
-     * Index Claude Code memory (~/.claude/projects/<slug>/memory) and expose under scope='cc'. Default: false. Note: when enabled, every mimocode agent (build/explore/subagents) can search these memories via the builtin `memory` tool — including CC's `type: user` (your role/preferences) and `type: feedback` (your guidance) categories. CC originally writes them for future CC sessions; flipping this on widens the consumer set to mimocode agents on the same machine. Leave disabled (default) if you don't want personal context recallable from a prompt-injection-vulnerable agent.
+     * Index Claude Code memory (~/.claude/projects/<slug>/memory) and expose under scope='cc'. Default: false. Note: when enabled, every ymcode agent (build/explore/subagents) can search these memories via the builtin `memory` tool — including CC's `type: user` (your role/preferences) and `type: feedback` (your guidance) categories. CC originally writes them for future CC sessions; flipping this on widens the consumer set to ymcode agents on the same machine. Leave disabled (default) if you don't want personal context recallable from a prompt-injection-vulnerable agent.
      */
     cc_index?: boolean
   }
@@ -5595,7 +5595,7 @@ export type SessionPromptData = {
      */
     systemMode?: "append" | "replace-agent"
     /**
-     * Harness mode selected by the session's first user query. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. MIMOCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
+     * Harness mode selected by the session's first user query. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. YMCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
      */
     harness?: "auto" | "codex" | "default"
     variant?: string
@@ -5970,7 +5970,7 @@ export type SessionPromptAsyncData = {
      */
     systemMode?: "append" | "replace-agent"
     /**
-     * Harness mode selected by the session's first user query. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. MIMOCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
+     * Harness mode selected by the session's first user query. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. YMCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
      */
     harness?: "auto" | "codex" | "default"
     variant?: string
@@ -6088,7 +6088,7 @@ export type SessionCommandData = {
      */
     systemMode?: "append" | "replace-agent"
     /**
-     * Harness mode selected by the session's first user command. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. MIMOCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
+     * Harness mode selected by the session's first user command. Later values are ignored. Auto preserves model/process inference and explicit default forces the native tool schema for non-GPT models. YMCODE_CODEX_MODE=false forces the default harness for every model, including GPT.
      */
     harness?: "auto" | "codex" | "default"
     parts?: Array<

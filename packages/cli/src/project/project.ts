@@ -25,8 +25,8 @@ async function setupProjectIdEnvironment(workingDir: string): Promise<void> {
   const mainGit = resolveMainGitDir(workingDir)
   if (!mainGit) return
 
-  const localFile = nodePath.join(workingDir, ".mimocode-project-id")
-  const idFile = nodePath.join(mainGit, "mimocode-project-id")
+  const localFile = nodePath.join(workingDir, ".ymcode-project-id")
+  const idFile = nodePath.join(mainGit, "ymcode-project-id")
 
   // 运行时无关:用 node fs(node engine 构建里没有 Bun 全局)
   const exists = (p: string) =>
@@ -43,13 +43,13 @@ async function setupProjectIdEnvironment(workingDir: string): Promise<void> {
     await nodeFs.unlink(localFile).catch(() => {})
   }
 
-  // Belt-and-suspenders: ensure .git/info/exclude lists .mimocode-project-id
+  // Belt-and-suspenders: ensure .git/info/exclude lists .ymcode-project-id
   try {
     const excludeFile = nodePath.join(mainGit, "info", "exclude")
     await nodeFs.mkdir(nodePath.dirname(excludeFile), { recursive: true })
     const existing = await nodeFs.readFile(excludeFile, "utf-8").catch(() => "")
-    if (!existing.includes(".mimocode-project-id")) {
-      await nodeFs.appendFile(excludeFile, "\n.mimocode-project-id\n")
+    if (!existing.includes(".ymcode-project-id")) {
+      await nodeFs.appendFile(excludeFile, "\n.ymcode-project-id\n")
     }
   } catch {
     // Advisory hygiene write only; never fail instance setup over it.
@@ -189,7 +189,7 @@ export const layer: Layer.Layer<
         }),
       )
 
-    const fakeVcs = Schema.decodeUnknownSync(Schema.optional(ProjectVcs))(Flag.MIMOCODE_FAKE_VCS)
+    const fakeVcs = Schema.decodeUnknownSync(Schema.optional(ProjectVcs))(Flag.YMCODE_FAKE_VCS)
 
     const resolveGitPath = (cwd: string, name: string) => {
       if (!name) return cwd
@@ -209,7 +209,7 @@ export const layer: Layer.Layer<
       type DiscoveryResult = { id: ProjectID; worktree: string; sandbox: string; vcs: Info["vcs"] }
 
       const data: DiscoveryResult = yield* Effect.gen(function* () {
-        if (Flag.MIMOCODE_DISABLE_GIT) {
+        if (Flag.YMCODE_DISABLE_GIT) {
           return {
             id: ProjectID.global,
             worktree: directory,
@@ -239,7 +239,7 @@ export const layer: Layer.Layer<
 
         // Refuse to anchor snapshots at the user's home directory or a filesystem root.
         // Anchoring there makes git's pathspec walk cover the entire user tree on every
-        // turn, which has shipped as a bug for users opening mimocode in $HOME.
+        // turn, which has shipped as a bug for users opening ymcode in $HOME.
         const candidate = pathSvc.dirname(dotgit)
         const home = process.env.HOME ?? process.env.USERPROFILE ?? nodeOs.homedir()
         if (candidate === home || nodePath.parse(candidate).root === candidate) {
@@ -310,7 +310,7 @@ export const layer: Layer.Layer<
             time: { created: Date.now(), updated: Date.now() },
           }
 
-      if (Flag.MIMOCODE_EXPERIMENTAL_ICON_DISCOVERY) yield* discover(existing).pipe(Effect.ignore, Effect.forkIn(scope))
+      if (Flag.YMCODE_EXPERIMENTAL_ICON_DISCOVERY) yield* discover(existing).pipe(Effect.ignore, Effect.forkIn(scope))
 
       const result: Info = {
         ...existing,

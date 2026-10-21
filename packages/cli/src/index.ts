@@ -1,3 +1,4 @@
+import "./env/legacy-boot"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 import { RunCommand } from "./cli/cmd/run"
@@ -32,6 +33,7 @@ import { EOL } from "os"
 import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
 import { DbCommand } from "./cli/cmd/db"
+import { MigrateCommand } from "./cli/cmd/migrate"
 import path from "path"
 import { readdirSync, unlinkSync } from "fs"
 import { Global } from "./global"
@@ -43,7 +45,7 @@ import { errorMessage } from "./util/error"
 import { PluginCommand } from "./cli/cmd/plug"
 import { Heap } from "./cli/heap"
 import { drizzle } from "drizzle-orm/bun-sqlite"
-import { ensureProcessMetadata } from "./util/mimo-process"
+import { ensureProcessMetadata } from "./util/ymcode-process"
 
 import { ModelsDev } from "./provider/models"
 
@@ -67,7 +69,7 @@ const CLI_EXIT = Symbol("CLI_EXIT")
 
 function show(out: string) {
   const text = out.trimStart()
-  if (!text.startsWith("mimo ")) {
+  if (!text.startsWith("ymcode ")) {
     process.stderr.write(UI.logo() + EOL + EOL)
     process.stderr.write(UI.withTrailingEOL(text))
     return
@@ -77,7 +79,7 @@ function show(out: string) {
 
 const cli = yargs(args)
   .parserConfiguration({ "populate--": true })
-  .scriptName("mimo")
+  .scriptName("ymcode")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -98,7 +100,7 @@ const cli = yargs(args)
   })
   .middleware(async (opts) => {
     if (opts.pure) {
-      process.env.MIMOCODE_PURE = "1"
+      process.env.YMCODE_PURE = "1"
     }
 
     await Log.init({
@@ -114,17 +116,17 @@ const cli = yargs(args)
     Heap.start()
 
     process.env.AGENT = "1"
-    process.env.MIMOCODE = "1"
-    process.env.MIMOCODE_PID = String(process.pid)
+    process.env.YMCODE = "1"
+    process.env.YMCODE_PID = String(process.pid)
 
-    Log.Default.info("mimocode", {
+    Log.Default.info("ymcode", {
       version: InstallationVersion,
       args: process.argv.slice(2),
       process_role: processMetadata.processRole,
       run_id: processMetadata.runID,
     })
 
-    const marker = path.join(Global.Path.data, "mimocode.db")
+    const marker = path.join(Global.Path.data, "ymcode.db")
     if (!(await Filesystem.exists(marker))) {
       const tty = process.stderr.isTTY
       process.stderr.write("Performing one time database migration, may take a few minutes..." + EOL)
@@ -164,8 +166,8 @@ const cli = yargs(args)
     // Opt-in import of Claude Code sessions into SQLite. Runs once per process
     // tree (the env guard is inherited by spawned children) and is best-effort:
     // a failure here must never block command startup.
-    if (Flag.MIMOCODE_ENABLE_CLAUDE_IMPORT && !process.env.MIMOCODE_CLAUDE_IMPORTED) {
-      process.env.MIMOCODE_CLAUDE_IMPORTED = "1"
+    if (Flag.YMCODE_ENABLE_CLAUDE_IMPORT && !process.env.YMCODE_CLAUDE_IMPORTED) {
+      process.env.YMCODE_CLAUDE_IMPORTED = "1"
       try {
         await ClaudeImport.run()
       } catch (e) {
@@ -178,7 +180,7 @@ const cli = yargs(args)
       try {
         const binDir = path.dirname(process.execPath)
         for (const entry of readdirSync(binDir)) {
-          if (entry.startsWith("mimo.exe.old_")) {
+          if (entry.startsWith("ymcode.exe.old_")) {
             try { unlinkSync(path.join(binDir, entry)) } catch {}
           }
         }
@@ -212,6 +214,7 @@ const cli = yargs(args)
   .command(SessionCommand)
   .command(PluginCommand)
   .command(DbCommand)
+  .command(MigrateCommand)
   .fail((msg, err) => {
     if (
       msg?.startsWith("Unknown argument") ||

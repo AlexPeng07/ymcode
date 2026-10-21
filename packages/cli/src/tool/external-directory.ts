@@ -121,7 +121,7 @@ export const assertWriteAllowed = Effect.fn("Tool.assertWriteAllowed")(function*
   })()
 
   // System-agent write sandbox: checkpoint-writer is memory-only, while
-  // dream/distill may also write <worktree>/.mimocode.
+  // dream/distill may also write <worktree>/.ymcode.
   assertAgentWriteSandbox({
     target,
     agentName: ctx.agent,

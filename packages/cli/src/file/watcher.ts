@@ -17,7 +17,7 @@ import { FileIgnore } from "./ignore"
 import { Protected } from "./protected"
 import { Log } from "../util"
 
-declare const MIMOCODE_LIBC: string | undefined
+declare const YMCODE_LIBC: string | undefined
 
 const log = Log.create({ service: "file.watcher" })
 const SUBSCRIBE_TIMEOUT_MS = 10_000
@@ -35,7 +35,7 @@ export const Event = {
 const watcher = lazy((): typeof import("@parcel/watcher") | undefined => {
   try {
     const binding = require(
-      `@parcel/watcher-${process.platform}-${process.arch}${process.platform === "linux" ? `-${MIMOCODE_LIBC || "glibc"}` : ""}`,
+      `@parcel/watcher-${process.platform}-${process.arch}${process.platform === "linux" ? `-${YMCODE_LIBC || "glibc"}` : ""}`,
     )
     return createWrapper(binding) as typeof import("@parcel/watcher")
   } catch (error) {
@@ -74,7 +74,7 @@ export const layer = Layer.effect(
     const state = yield* InstanceState.make(
       Effect.fn("FileWatcher.state")(
         function* () {
-          if (yield* Flag.MIMOCODE_EXPERIMENTAL_DISABLE_FILEWATCHER) return
+          if (yield* Flag.YMCODE_EXPERIMENTAL_DISABLE_FILEWATCHER) return
 
           log.info("init", { directory: Instance.directory })
 
@@ -121,7 +121,7 @@ export const layer = Layer.effect(
           const cfg = yield* config.get()
           const cfgIgnores = cfg.watcher?.ignore ?? []
 
-          if (yield* Flag.MIMOCODE_EXPERIMENTAL_FILEWATCHER) {
+          if (yield* Flag.YMCODE_EXPERIMENTAL_FILEWATCHER) {
             yield* subscribe(Instance.directory, [
               ...FileIgnore.PATTERNS,
               ...cfgIgnores,

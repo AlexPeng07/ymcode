@@ -43,7 +43,7 @@ async function waitMimo(proc: ReturnType<typeof runMimo>) {
 }
 
 describe("bin/mimo launcher", () => {
-  test("forwards argv and exit code to MIMOCODE_BIN_PATH without network", async () => {
+  test("forwards argv and exit code to YMCODE_BIN_PATH without network", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
@@ -53,7 +53,7 @@ describe("bin/mimo launcher", () => {
     fs.chmodSync(sh, 0o755)
     const result = await waitMimo(
       runMimo(dir, ["--version", "hello"], {
-        MIMOCODE_BIN_PATH: sh,
+        YMCODE_BIN_PATH: sh,
         MIMO_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
@@ -65,7 +65,7 @@ describe("bin/mimo launcher", () => {
     fs.chmodSync(failSh, 0o755)
     const failed = await waitMimo(
       runMimo(dir, [], {
-        MIMOCODE_BIN_PATH: failSh,
+        YMCODE_BIN_PATH: failSh,
         MIMO_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
@@ -90,7 +90,7 @@ describe("bin/mimo launcher", () => {
 
     const result = await waitMimo(
       runMimo(dir, ["hello"], {
-        MIMOCODE_BIN_PATH: "",
+        YMCODE_BIN_PATH: "",
         MIMO_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
@@ -127,7 +127,7 @@ describe("bin/mimo launcher", () => {
     try {
       const result = await waitMimo(
         runMimo(dir, ["hi"], {
-          MIMOCODE_BIN_PATH: "",
+          YMCODE_BIN_PATH: "",
           MIMO_FDS_BASE: `http://127.0.0.1:${server.port}`,
         }),
       )
@@ -149,13 +149,13 @@ describe("bin/mimo launcher", () => {
 
     const result = await waitMimo(
       runMimo(dir, [], {
-        MIMOCODE_BIN_PATH: "",
+        YMCODE_BIN_PATH: "",
         MIMO_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(1)
     const combined = result.stdout + result.stderr
-    expect(combined).toMatch(/Failed to install MiMoCode binary/i)
+    expect(combined).toMatch(/Failed to install ymcode binary/i)
     if (process.platform === "win32") {
       expect(combined).toContain("irm https://mimo.xiaomi.com/install.ps1 | iex")
     } else {

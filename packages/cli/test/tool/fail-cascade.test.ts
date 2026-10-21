@@ -83,12 +83,12 @@ it.live("an exclusive cleanup failure cascades before the next body starts", () 
 
 it.live("disabling cascade restores admission after tool failure", () =>
   Effect.gen(function* () {
-    const previous = process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-    process.env.MIMOCODE_DISABLE_FAIL_CASCADE = "true"
+    const previous = process.env.YMCODE_DISABLE_FAIL_CASCADE
+    process.env.YMCODE_DISABLE_FAIL_CASCADE = "true"
     yield* Effect.addFinalizer(() =>
       Effect.sync(() => {
-        if (previous == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-        else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous
+        if (previous == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+        else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous
       }),
     )
     const gate = new ToolGate()

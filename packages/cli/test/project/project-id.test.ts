@@ -136,7 +136,7 @@ describe("resolveProjectId", () => {
     git(tmp.path, "init")
     const id = resolveProjectId(tmp.path)
     expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-    const cached = await fs.readFile(path.join(tmp.path, ".git", "mimocode-project-id"), "utf-8")
+    const cached = await fs.readFile(path.join(tmp.path, ".git", "ymcode-project-id"), "utf-8")
     expect(cached.trim()).toBe(id)
   })
 
@@ -144,7 +144,7 @@ describe("resolveProjectId", () => {
     await using tmp = await directory()
     git(tmp.path, "init")
     const id = randomUUID()
-    await fs.writeFile(path.join(tmp.path, ".git", "mimocode-project-id"), id)
+    await fs.writeFile(path.join(tmp.path, ".git", "ymcode-project-id"), id)
     expect(resolveProjectId(tmp.path)).toBe(ProjectID.make(id))
   })
 
@@ -162,8 +162,8 @@ describe("resolveProjectId", () => {
     })
     expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
     expect(id).not.toBe(ancestorId)
-    expect((await fs.readFile(path.join(child, ".mimocode-project-id"), "utf-8")).trim()).toBe(id)
-    expect((await fs.readFile(path.join(tmp.path, ".git", "mimocode-project-id"), "utf-8")).trim()).toBe(ancestorId)
+    expect((await fs.readFile(path.join(child, ".ymcode-project-id"), "utf-8")).trim()).toBe(id)
+    expect((await fs.readFile(path.join(tmp.path, ".git", "ymcode-project-id"), "utf-8")).trim()).toBe(ancestorId)
   })
 
   test("shares UUID between a real worktree and its main repository", async () => {
@@ -174,8 +174,8 @@ describe("resolveProjectId", () => {
     git(main, "init")
     git(main, "worktree", "add", "--orphan", "-b", "test-worktree", worktree)
     withCeilings(tmp.path, () => expect(resolveProjectId(worktree)).toBe(resolveProjectId(main)))
-    expect(await fs.stat(path.join(main, ".git", "mimocode-project-id"))).toBeDefined()
-    await fs.stat(path.join(worktree, ".mimocode-project-id")).then(
+    expect(await fs.stat(path.join(main, ".git", "ymcode-project-id"))).toBeDefined()
+    await fs.stat(path.join(worktree, ".ymcode-project-id")).then(
       () => { throw new Error("worktree has a local project ID") },
       (error: NodeJS.ErrnoException) => expect(error.code).toBe("ENOENT"),
     )

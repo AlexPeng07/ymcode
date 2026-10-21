@@ -132,7 +132,7 @@ test.each(["directory", "all"] as const)(
 test("refresh does not rewrite configuration for a cold instance", async () => {
   const { refreshProviders } = await import("../../src/provider/refresh")
   await using tmp = await tmpdir()
-  const file = `${tmp.path}/mimocode.json`
+  const file = `${tmp.path}/ymcode.json`
   const original = JSON.stringify({ model: "test/example" })
   await Bun.write(file, original)
   await Instance.provide({ directory: tmp.path, fn: () => {} })

@@ -11,14 +11,14 @@ import { Log } from "../../src/util"
 
 void Log.init({ print: false })
 
-const originalDangerouslySkipPermissions = Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS
+const originalDangerouslySkipPermissions = Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS
 
 beforeEach(() => {
-  Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS = false
+  Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS = false
 })
 
 afterEach(async () => {
-  Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS = originalDangerouslySkipPermissions
+  Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS = originalDangerouslySkipPermissions
   await Instance.disposeAll()
 })
 
@@ -52,7 +52,7 @@ describe.serial("Permission auto-approve-delete runtime toggle", () => {
     "enables delete approval bypass in dangerous startup mode",
     provideTmpdirInstance(() =>
       Effect.gen(function* () {
-        Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS = true
+        Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS = true
         const perm = yield* Permission.Service
         expect(yield* perm.autoApproveDelete()).toBe(true)
       }),

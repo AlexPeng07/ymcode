@@ -105,7 +105,7 @@ async function isolateZshDotfiles() {
   Shell.acceptable.reset()
   if (Shell.name(Shell.acceptable()) !== "zsh") return
 
-  const zdotdir = path.join(os.tmpdir(), `mimocode-zdotdir-${Math.random().toString(36).slice(2)}`)
+  const zdotdir = path.join(os.tmpdir(), `ymcode-zdotdir-${Math.random().toString(36).slice(2)}`)
   await fs.mkdir(zdotdir, { recursive: true })
   const prev = process.env.ZDOTDIR
   process.env.ZDOTDIR = zdotdir
@@ -229,11 +229,11 @@ describe("tool.bash git identity floor", () => {
           const result = await Effect.runPromise(
             bash.execute({ command: printGitEnv, description: "print git env" }, ctx),
           )
-          // The tmpdir git fixture sets user.name=Test / user.email=test@mimocode.test.
+          // The tmpdir git fixture sets user.name=Test / user.email=test@ymcode.test.
           expect(result.metadata.output).toContain("GIT_AUTHOR_NAME=Test")
-          expect(result.metadata.output).toContain("GIT_AUTHOR_EMAIL=test@mimocode.test")
+          expect(result.metadata.output).toContain("GIT_AUTHOR_EMAIL=test@ymcode.test")
           expect(result.metadata.output).toContain("GIT_COMMITTER_NAME=Test")
-          expect(result.metadata.output).toContain("GIT_COMMITTER_EMAIL=test@mimocode.test")
+          expect(result.metadata.output).toContain("GIT_COMMITTER_EMAIL=test@ymcode.test")
         },
       })
     } finally {
@@ -303,10 +303,10 @@ describe("tool.bash git identity floor", () => {
           expect(result.metadata.output).toContain("GIT_AUTHOR_NAME=Operator")
           // The other three are absent from process.env, so each still receives
           // the floor independently. The tmpdir git fixture sets
-          // user.name=Test / user.email=test@mimocode.test.
-          expect(result.metadata.output).toContain("GIT_AUTHOR_EMAIL=test@mimocode.test")
+          // user.name=Test / user.email=test@ymcode.test.
+          expect(result.metadata.output).toContain("GIT_AUTHOR_EMAIL=test@ymcode.test")
           expect(result.metadata.output).toContain("GIT_COMMITTER_NAME=Test")
-          expect(result.metadata.output).toContain("GIT_COMMITTER_EMAIL=test@mimocode.test")
+          expect(result.metadata.output).toContain("GIT_COMMITTER_EMAIL=test@ymcode.test")
         },
       })
     } finally {
@@ -503,7 +503,7 @@ describe("tool.bash permissions", () => {
   // irreversible action, so every case it CANNOT prove must still ask.
   each("skips bash_delete for a delete confined to the OS temp dir", async () => {
     await using tmp = await tmpdir({ git: true })
-    const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "mimocode-bash-tmpdel-"))
+    const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-bash-tmpdel-"))
     await Bun.write(path.join(scratch, "scratch.txt"), "x")
     await Instance.provide({
       directory: tmp.path,
@@ -559,7 +559,7 @@ describe("tool.bash permissions", () => {
         await Bun.write(path.join(dir, "victim.txt"), "x")
       },
     })
-    const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "mimocode-bash-tmpdel-"))
+    const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-bash-tmpdel-"))
     await Bun.write(path.join(scratch, "scratch.txt"), "x")
     await Instance.provide({
       directory: tmp.path,
@@ -589,7 +589,7 @@ describe("tool.bash permissions", () => {
     // "is it under temp?" test, taking the checkout's own files with it. The
     // shared fixture roots tmpdirs under cwd, so this case has to build the
     // project inside os.tmpdir() explicitly or it proves nothing.
-    const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "mimocode-bash-tmpproj-"))
+    const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-bash-tmpproj-"))
     const project = await fs.realpath(projectRoot)
     await Bun.write(path.join(project, "victim.txt"), "x")
     await Instance.provide({
@@ -875,7 +875,7 @@ describe("tool.bash permissions", () => {
       test(
         `asks for external_directory permission for missing PowerShell env paths [${item.label}]`,
         withShell(item, async () => {
-          const key = "MIMOCODE_TEST_MISSING"
+          const key = "YMCODE_TEST_MISSING"
           const prev = process.env[key]
           delete process.env[key]
           try {

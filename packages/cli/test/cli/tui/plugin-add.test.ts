@@ -30,7 +30,7 @@ test("adds tui plugin at runtime from spec", async () => {
     },
   })
 
-  process.env.MIMOCODE_PLUGIN_META_FILE = path.join(tmp.path, "plugin-meta.json")
+  process.env.YMCODE_PLUGIN_META_FILE = path.join(tmp.path, "plugin-meta.json")
   const config: TuiConfig.Info = {
     plugin: [],
     plugin_origins: undefined,
@@ -56,7 +56,7 @@ test("adds tui plugin at runtime from spec", async () => {
   } finally {
     await TuiPluginRuntime.dispose()
     cwd.mockRestore()
-    delete process.env.MIMOCODE_PLUGIN_META_FILE
+    delete process.env.YMCODE_PLUGIN_META_FILE
   }
 })
 
@@ -83,7 +83,7 @@ export default {
     },
   })
 
-  process.env.MIMOCODE_PLUGIN_META_FILE = path.join(tmp.path, "plugin-meta.json")
+  process.env.YMCODE_PLUGIN_META_FILE = path.join(tmp.path, "plugin-meta.json")
   const config: TuiConfig.Info = {
     plugin: [],
     plugin_origins: undefined,
@@ -102,6 +102,6 @@ export default {
   } finally {
     await TuiPluginRuntime.dispose()
     cwd.mockRestore()
-    delete process.env.MIMOCODE_PLUGIN_META_FILE
+    delete process.env.YMCODE_PLUGIN_META_FILE
   }
 })

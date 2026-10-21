@@ -24,7 +24,7 @@ import nightowl from "./theme/nightowl.json" with { type: "json" }
 import nord from "./theme/nord.json" with { type: "json" }
 import osakaJade from "./theme/osaka-jade.json" with { type: "json" }
 import onedark from "./theme/one-dark.json" with { type: "json" }
-import mimocode from "./theme/mimocode.json" with { type: "json" }
+import ymcode from "./theme/ymcode.json" with { type: "json" }
 import orng from "./theme/orng.json" with { type: "json" }
 import lucentOrng from "./theme/lucent-orng.json" with { type: "json" }
 import palenight from "./theme/palenight.json" with { type: "json" }
@@ -43,7 +43,7 @@ import { Global } from "@/global"
 import { Filesystem } from "@/util"
 import { useTuiConfig } from "./tui-config"
 import { isRecord } from "@/util/record"
-import { applyEdits, modify } from "jsonc-parser"
+import { stripLegacySchema } from "@/util/strip-legacy-schema"
 import type { TuiThemeCurrent } from "@ymcode/plugin/tui"
 
 type Theme = TuiThemeCurrent & {
@@ -87,9 +87,9 @@ export type ThemeJson = {
 }
 
 const PLAIN_TERMINAL_THEME: ThemeJson = {
-  ...mimocode,
+  ...ymcode,
   theme: {
-    ...mimocode.theme,
+    ...ymcode.theme,
     text: {
       dark: "darkStep12",
       light: "lightStep12",
@@ -143,7 +143,7 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   nord,
   ["one-dark"]: onedark,
   ["osaka-jade"]: osakaJade,
-  mimocode,
+  ymcode,
   orng,
   ["lucent-orng"]: lucentOrng,
   palenight,
@@ -191,7 +191,7 @@ const [store, setStore] = createStore<State>({
   themes: listThemes(),
   mode: "dark",
   lock: undefined,
-  active: "mimocode",
+  active: "ymcode",
   ready: false,
 })
 
@@ -356,8 +356,8 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         }
         draft.mode = mode
         draft.lock = lock
-        const active = props.plain ? "system" : config.theme ?? kv.get("theme", "mimocode")
-        draft.active = typeof active === "string" ? active : "mimocode"
+        const active = props.plain ? "system" : config.theme ?? kv.get("theme", "ymcode")
+        draft.active = typeof active === "string" ? active : "ymcode"
         draft.ready = false
       }),
     )
@@ -377,7 +377,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
             syncThemes()
           })
           .catch(() => {
-            setStore("active", "mimocode")
+            setStore("active", "ymcode")
           }),
       ]).finally(() => {
         setStore("ready", true)
@@ -396,7 +396,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
             systemTheme = undefined
             syncThemes()
             if (store.active === "system") {
-              setStore("active", "mimocode")
+              setStore("active", "ymcode")
             }
             return
           }
@@ -407,7 +407,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
           systemTheme = undefined
           syncThemes()
           if (store.active === "system") {
-            setStore("active", "mimocode")
+            setStore("active", "ymcode")
           }
         })
     }
@@ -478,7 +478,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         if (theme) return resolveTheme(theme, store.mode)
       }
 
-      return resolveTheme(store.themes.mimocode, store.mode)
+      return resolveTheme(store.themes.ymcode, store.mode)
     })
 
     createEffect(() => {
@@ -535,14 +535,12 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
   },
 })
 
-const THEME_SCHEMA_URL = "https://mimo.xiaomi.com/mimocode/theme.json"
-
 async function getCustomThemes() {
   const directories = [
     Global.Path.config,
     ...(await Array.fromAsync(
       Filesystem.up({
-        targets: [".mimocode"],
+        targets: [".ymcode"],
         start: process.cwd(),
       }),
     )),
@@ -561,13 +559,13 @@ async function getCustomThemes() {
       if (!text) continue
       let data: ThemeJson
       try { data = JSON.parse(text) } catch { continue }
-      if (!data.$schema || data.$schema === "https://opencode.ai/theme.json") {
-        data.$schema = THEME_SCHEMA_URL
-        const edits = modify(text, ["$schema"], THEME_SCHEMA_URL, {
-          formattingOptions: { insertSpaces: true, tabSize: 2 },
-          isArrayInsertion: false,
-        })
-        if (edits.length) await Filesystem.write(item, applyEdits(text, edits)).catch(() => {})
+      if (
+        data.$schema === "https://opencode.ai/theme.json" ||
+        data.$schema?.startsWith("https://mimo.xiaomi.com/")
+      ) {
+        delete data.$schema
+        const updated = stripLegacySchema(text)
+        if (updated !== undefined) await Filesystem.write(item, updated).catch(() => {})
       }
       result[name] = data
     }

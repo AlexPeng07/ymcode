@@ -200,7 +200,7 @@ describe("SessionPrompt.genTitle multimodal request", () => {
         git: true,
         init: async (dir) => {
           await Bun.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               enabled_providers: ["title-test"],
@@ -292,8 +292,8 @@ describe("SessionPrompt.genTitle source model routing", () => {
     const recentFile = Bun.file(path.join(Global.Path.state, "model.json"))
     const recent = item.recent && await recentFile.exists() ? await recentFile.text() : undefined
     if (item.recent) await Bun.write(recentFile, JSON.stringify({ recent: [{ providerID: "title-test", modelID: "other" }] }))
-    const defaults = process.env.MIMOCODE_CONFIG_DEFAULTS
-    if (item.defaults) process.env.MIMOCODE_CONFIG_DEFAULTS = JSON.stringify(item.defaults)
+    const defaults = process.env.YMCODE_CONFIG_DEFAULTS
+    if (item.defaults) process.env.YMCODE_CONFIG_DEFAULTS = JSON.stringify(item.defaults)
     const good = { lines: toolCallResponse({ id: "call-title", name: "StructuredOutput", args: JSON.stringify({ title: "Generated title" }) }) }
     const bad = { status: 403, lines: [] }
     const stub = startScriptedLLMServer([
@@ -325,8 +325,8 @@ describe("SessionPrompt.genTitle source model routing", () => {
         if (recent === undefined) await rm(path.join(Global.Path.state, "model.json"), { force: true })
         else await Bun.write(recentFile, recent)
       }
-      if (defaults === undefined) delete process.env.MIMOCODE_CONFIG_DEFAULTS
-      else process.env.MIMOCODE_CONFIG_DEFAULTS = defaults
+      if (defaults === undefined) delete process.env.YMCODE_CONFIG_DEFAULTS
+      else process.env.YMCODE_CONFIG_DEFAULTS = defaults
       await stub.stop()
     }
   }, 15000)
@@ -1327,7 +1327,7 @@ describe("session.prompt regression", () => {
         git: true,
         init: async (dir) => {
           await Bun.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               enabled_providers: ["alibaba"],
@@ -1401,7 +1401,7 @@ describe("session.prompt regression", () => {
         git: true,
         init: async (dir) => {
           await Bun.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               enabled_providers: ["alibaba"],
@@ -1501,7 +1501,7 @@ describe("session.prompt regression", () => {
         git: true,
         init: async (dir) => {
           await Bun.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               enabled_providers: ["alibaba"],
@@ -1765,7 +1765,7 @@ describe("session.prompt F37 subagent context isolation", () => {
         git: true,
         init: async (dir) => {
           await Bun.write(
-            path.join(dir, "mimocode.json"),
+            path.join(dir, "ymcode.json"),
             JSON.stringify({
               $schema: "https://opencode.ai/config.json",
               enabled_providers: ["alibaba"],
@@ -1850,16 +1850,16 @@ describe("session.prompt F37 subagent context isolation", () => {
 })
 
 describe("session.prompt oversized attachment", () => {
-  // Flag.MIMOCODE_MAX_ATTACHMENT_SIZE, lowered so the fixtures stay small.
+  // Flag.YMCODE_MAX_ATTACHMENT_SIZE, lowered so the fixtures stay small.
   const LIMIT = 4096
   const CEILING = 32 * 1024
   beforeAll(() => {
-    process.env["MIMOCODE_MAX_ATTACHMENT_SIZE"] = String(LIMIT)
-    process.env["MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE"] = String(CEILING)
+    process.env["YMCODE_MAX_ATTACHMENT_SIZE"] = String(LIMIT)
+    process.env["YMCODE_MAX_ATTACHMENT_SOURCE_SIZE"] = String(CEILING)
   })
   afterAll(() => {
-    delete process.env["MIMOCODE_MAX_ATTACHMENT_SIZE"]
-    delete process.env["MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE"]
+    delete process.env["YMCODE_MAX_ATTACHMENT_SIZE"]
+    delete process.env["YMCODE_MAX_ATTACHMENT_SOURCE_SIZE"]
   })
   const config = { agent: { build: { model: "openai/gpt-5.2" } } }
   const noFileParts = (parts: MessageV2.Part[]) => parts.every((part) => part.type !== "file")
@@ -1948,7 +1948,7 @@ describe("session.prompt oversized attachment", () => {
 
   test("attaches oversized inline audio that fits the encoded media cap", async () => {
     await using tmp = await tmpdir({ git: true, config })
-    // Over Flag.MIMOCODE_MAX_ATTACHMENT_SIZE, but audio is bounded only by the
+    // Over Flag.YMCODE_MAX_ATTACHMENT_SIZE, but audio is bounded only by the
     // provider's encoded-size cap (MAX_MEDIA_BASE64_BYTES), so it passes.
     const base64 = "A".repeat(Math.ceil((LIMIT + 1) / 3) * 4)
 

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test"
 import path from "path"
-import { resolveMimocodeHome } from "@ymcode/shared/global"
+import { resolveYmcodeHome } from "@ymcode/shared/global"
 
-describe("resolveMimocodeHome", () => {
-  test("with MIMOCODE_HOME set, resolves 4 subdirs under root", () => {
-    const result = resolveMimocodeHome({
-      MIMOCODE_HOME: "/tmp/profile-a",
+describe("resolveYmcodeHome", () => {
+  test("with YMCODE_HOME set, resolves 4 subdirs under root", () => {
+    const result = resolveYmcodeHome({
+      YMCODE_HOME: "/tmp/profile-a",
     })
-    expect(result.mode).toBe("mimocode_home")
+    expect(result.mode).toBe("ymcode_home")
     expect(result.root).toBe("/tmp/profile-a")
     expect(result.config).toBe(path.join("/tmp/profile-a", "config"))
     expect(result.data).toBe(path.join("/tmp/profile-a", "data"))
@@ -15,39 +15,39 @@ describe("resolveMimocodeHome", () => {
     expect(result.cache).toBe(path.join("/tmp/profile-a", "cache"))
   })
 
-  test("without MIMOCODE_HOME, falls through to xdg mode", () => {
-    const result = resolveMimocodeHome({})
+  test("without YMCODE_HOME, falls through to xdg mode", () => {
+    const result = resolveYmcodeHome({})
     expect(result.mode).toBe("xdg")
     expect(result.root).toBeUndefined()
-    // xdg paths end with "/mimocode"
-    expect(result.config.endsWith(path.join("", "mimocode"))).toBe(true)
-    expect(result.data.endsWith(path.join("", "mimocode"))).toBe(true)
-    expect(result.state.endsWith(path.join("", "mimocode"))).toBe(true)
-    expect(result.cache.endsWith(path.join("", "mimocode"))).toBe(true)
+    // xdg paths end with "/ymcode"
+    expect(result.config.endsWith(path.join("", "ymcode"))).toBe(true)
+    expect(result.data.endsWith(path.join("", "ymcode"))).toBe(true)
+    expect(result.state.endsWith(path.join("", "ymcode"))).toBe(true)
+    expect(result.cache.endsWith(path.join("", "ymcode"))).toBe(true)
   })
 
-  test("empty MIMOCODE_HOME string is treated as unset (xdg mode)", () => {
-    const result = resolveMimocodeHome({ MIMOCODE_HOME: "" })
+  test("empty YMCODE_HOME string is treated as unset (xdg mode)", () => {
+    const result = resolveYmcodeHome({ YMCODE_HOME: "" })
     expect(result.mode).toBe("xdg")
   })
 
-  test("relative MIMOCODE_HOME path throws with clear error", () => {
-    expect(() => resolveMimocodeHome({ MIMOCODE_HOME: "./foo" })).toThrow(
-      /MIMOCODE_HOME must be an absolute path/,
+  test("relative YMCODE_HOME path throws with clear error", () => {
+    expect(() => resolveYmcodeHome({ YMCODE_HOME: "./foo" })).toThrow(
+      /YMCODE_HOME must be an absolute path/,
     )
-    expect(() => resolveMimocodeHome({ MIMOCODE_HOME: "foo/bar" })).toThrow(
-      /MIMOCODE_HOME must be an absolute path/,
+    expect(() => resolveYmcodeHome({ YMCODE_HOME: "foo/bar" })).toThrow(
+      /YMCODE_HOME must be an absolute path/,
     )
   })
 
-  test("tilde-prefixed MIMOCODE_HOME throws (not treated as absolute)", () => {
-    expect(() => resolveMimocodeHome({ MIMOCODE_HOME: "~/profiles/a" })).toThrow(
-      /MIMOCODE_HOME must be an absolute path/,
+  test("tilde-prefixed YMCODE_HOME throws (not treated as absolute)", () => {
+    expect(() => resolveYmcodeHome({ YMCODE_HOME: "~/profiles/a" })).toThrow(
+      /YMCODE_HOME must be an absolute path/,
     )
   })
 
   test("error message includes the offending value", () => {
-    expect(() => resolveMimocodeHome({ MIMOCODE_HOME: "./relative" })).toThrow(
+    expect(() => resolveYmcodeHome({ YMCODE_HOME: "./relative" })).toThrow(
       /\.\/relative/,
     )
   })

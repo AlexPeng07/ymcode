@@ -115,16 +115,16 @@ const addDueTask = (scheduler: SchedulerInterface, prompt: string) =>
   )
 
 const MountContext = Context.Reference("cron-bridge-test/MountContext", { defaultValue: () => "outside" })
-const originalCronFlag = Flag.MIMOCODE_EXPERIMENTAL_CRON
-const originalCronEnv = process.env.MIMOCODE_EXPERIMENTAL_CRON
-const originalDisableEnv = process.env.MIMOCODE_DISABLE_CRON
+const originalCronFlag = Flag.YMCODE_EXPERIMENTAL_CRON
+const originalCronEnv = process.env.YMCODE_EXPERIMENTAL_CRON
+const originalDisableEnv = process.env.YMCODE_DISABLE_CRON
 
 afterEach(() => {
-  ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = originalCronFlag
-  if (originalCronEnv === undefined) delete process.env.MIMOCODE_EXPERIMENTAL_CRON
-  else process.env.MIMOCODE_EXPERIMENTAL_CRON = originalCronEnv
-  if (originalDisableEnv === undefined) delete process.env.MIMOCODE_DISABLE_CRON
-  else process.env.MIMOCODE_DISABLE_CRON = originalDisableEnv
+  ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = originalCronFlag
+  if (originalCronEnv === undefined) delete process.env.YMCODE_EXPERIMENTAL_CRON
+  else process.env.YMCODE_EXPERIMENTAL_CRON = originalCronEnv
+  if (originalDisableEnv === undefined) delete process.env.YMCODE_DISABLE_CRON
+  else process.env.YMCODE_DISABLE_CRON = originalDisableEnv
 })
 
 const freshDir = () => mkdtempSync(join(tmpdir(), "cron-bridge-"))
@@ -132,9 +132,9 @@ const freshDir = () => mkdtempSync(join(tmpdir(), "cron-bridge-"))
 beforeEach(() => {
   clearAllLoopStates()
   removeSessionCronTasks(getSessionCronTasks().map((t) => t.id))
-  delete process.env.MIMOCODE_DISABLE_CRON
-  process.env.MIMOCODE_EXPERIMENTAL_CRON = "1"
-  ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = true
+  delete process.env.YMCODE_DISABLE_CRON
+  process.env.YMCODE_EXPERIMENTAL_CRON = "1"
+  ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = true
 })
 
 const sid = SessionID.make("ses_cronbridge_test")
@@ -263,8 +263,8 @@ test("scheduler tick delivers through the mounted prompt service and start-time 
 test("busy to idle runs keepalive on the mounted scheduler and stop removes the subscription", async () => {
   const captured: Capture = { value: [] }
   const dir = freshDir()
-  const priorBudget = process.env.MIMOCODE_LOOP_KEEPALIVE_BUDGET
-  process.env.MIMOCODE_LOOP_KEEPALIVE_BUDGET = "1"
+  const priorBudget = process.env.YMCODE_LOOP_KEEPALIVE_BUDGET
+  process.env.YMCODE_LOOP_KEEPALIVE_BUDGET = "1"
   try {
     await harness(captured, ({ bridge, scheduler, inject, bus }) =>
       Effect.gen(function* () {
@@ -301,8 +301,8 @@ test("busy to idle runs keepalive on the mounted scheduler and stop removes the 
       }),
     )
   } finally {
-    if (priorBudget === undefined) delete process.env.MIMOCODE_LOOP_KEEPALIVE_BUDGET
-    else process.env.MIMOCODE_LOOP_KEEPALIVE_BUDGET = priorBudget
+    if (priorBudget === undefined) delete process.env.YMCODE_LOOP_KEEPALIVE_BUDGET
+    else process.env.YMCODE_LOOP_KEEPALIVE_BUDGET = priorBudget
     rmSync(dir, { recursive: true, force: true })
   }
 })
@@ -473,16 +473,16 @@ test("cron-bridge start wires Scheduler with isLoading + isKilled + onFire", asy
         expect(list.length).toBe(1)
         expect(list[0]!.id).toBe(created.id)
 
-        // isKilled honors process.env.MIMOCODE_DISABLE_CRON live (verified by
+        // isKilled honors process.env.YMCODE_DISABLE_CRON live (verified by
         // forcing it and observing armLoop refuse to schedule).
-        process.env.MIMOCODE_DISABLE_CRON = "1"
+        process.env.YMCODE_DISABLE_CRON = "1"
         const arm = yield* scheduler.armLoop({
           prompt: "k",
           delay_seconds: 120,
           reason_length: 0,
         })
         expect(arm).toBe(null)
-        delete process.env.MIMOCODE_DISABLE_CRON
+        delete process.env.YMCODE_DISABLE_CRON
 
         yield* bridge.stop()
       }),
@@ -556,10 +556,10 @@ for (const kind of ["git-root", "git-subdirectory", "non-git"] as const) {
   )
 }
 
-test("cron-bridge is a no-op when MIMOCODE_EXPERIMENTAL_CRON is explicitly disabled", async () => {
+test("cron-bridge is a no-op when YMCODE_EXPERIMENTAL_CRON is explicitly disabled", async () => {
   const captured: { value: CapturedPrompt[] } = { value: [] }
-  const originalFlag = Flag.MIMOCODE_EXPERIMENTAL_CRON
-  ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = false
+  const originalFlag = Flag.YMCODE_EXPERIMENTAL_CRON
+  ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = false
   const dir = freshDir()
   try {
     await harness(captured, ({ bridge, scheduler, inject }) =>
@@ -577,7 +577,7 @@ test("cron-bridge is a no-op when MIMOCODE_EXPERIMENTAL_CRON is explicitly disab
       }),
     )
   } finally {
-    ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = originalFlag
+    ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = originalFlag
     rmSync(dir, { recursive: true, force: true })
   }
 })
@@ -639,8 +639,8 @@ test("cron-bridge resets sentinel cache on main-agent Compacted, ignores subagen
     // Set up loop.md so the sentinel expansion is exercisable.
     const mkdirSync2 = (await import("fs")).mkdirSync
     const writeFileSync2 = (await import("fs")).writeFileSync
-    mkdirSync2(join(wsDir, ".mimocode"), { recursive: true })
-    writeFileSync2(join(wsDir, ".mimocode", "loop.md"), "cached body")
+    mkdirSync2(join(wsDir, ".ymcode"), { recursive: true })
+    writeFileSync2(join(wsDir, ".ymcode", "loop.md"), "cached body")
 
     const capture = makeCaptureLayer(captured)
     const base = Layer.mergeAll(SchedulerDefaultLayer, SessionStatus.defaultLayer, Bus.layer, capture)

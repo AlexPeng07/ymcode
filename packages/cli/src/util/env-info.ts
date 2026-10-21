@@ -2,7 +2,7 @@ import os from "os"
 import { Global } from "@/global"
 import { InstallationChannel, InstallationVersion } from "@/installation/version"
 import { getInstallationID } from "@/metrics/installation"
-import { MIMOCODE_PROCESS_ROLE, MIMOCODE_RUN_ID } from "./mimo-process"
+import { YMCODE_PROCESS_ROLE, YMCODE_RUN_ID } from "./ymcode-process"
 
 function username() {
   if (process.env.USER) return process.env.USER
@@ -51,12 +51,12 @@ export async function getEnvInfo() {
       data: Global.Path.data,
       config: Global.Path.config,
     },
-    mimocode: {
+    ymcode: {
       version: InstallationVersion,
       channel: InstallationChannel,
       installation_id: await getInstallationID(),
-      run_id: MIMOCODE_RUN_ID,
-      process_role: MIMOCODE_PROCESS_ROLE,
+      run_id: YMCODE_RUN_ID,
+      process_role: YMCODE_PROCESS_ROLE,
     },
   }
 }

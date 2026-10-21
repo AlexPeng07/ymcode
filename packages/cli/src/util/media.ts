@@ -100,8 +100,8 @@ export function sniffAttachmentMime(bytes: Uint8Array, fallback: string) {
   return fallback
 }
 
-// Attachment size gate, driven by Flag.MIMOCODE_MAX_ATTACHMENT_SIZE and
-// Flag.MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE. Enforced where the attachment is
+// Attachment size gate, driven by Flag.YMCODE_MAX_ATTACHMENT_SIZE and
+// Flag.YMCODE_MAX_ATTACHMENT_SOURCE_SIZE. Enforced where the attachment is
 // produced (read tool, user prompt attachments, MCP result normalization) on a
 // size known up front (stat or base64 length), so nothing over the limit
 // reaches the session DB:
@@ -121,9 +121,9 @@ export function base64ByteSize(base64: string) {
 }
 
 export function classifyAttachment(mime: string, size: number): "fits" | "shrink" | "reject" {
-  if (size <= Flag.MIMOCODE_MAX_ATTACHMENT_SIZE) return "fits"
+  if (size <= Flag.YMCODE_MAX_ATTACHMENT_SIZE) return "fits"
   if (!mime.startsWith("image/")) return "reject"
-  return size > Flag.MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE ? "reject" : "shrink"
+  return size > Flag.YMCODE_MAX_ATTACHMENT_SOURCE_SIZE ? "reject" : "shrink"
 }
 
 function mb(bytes: number) {
@@ -134,11 +134,11 @@ function mb(bytes: number) {
 // attempted and failed; otherwise the payload was refused on size alone and
 // the notice says why (over the source ceiling, or not an image).
 export function oversizedAttachmentNotice(input: { label: string; size: number; compressed?: boolean; hint: string }) {
-  const limit = mb(Flag.MIMOCODE_MAX_ATTACHMENT_SIZE)
+  const limit = mb(Flag.YMCODE_MAX_ATTACHMENT_SIZE)
   const reason = input.compressed
     ? "it could not be compressed under the limit"
-    : input.size > Flag.MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE
-      ? `it is also over the ${mb(Flag.MIMOCODE_MAX_ATTACHMENT_SOURCE_SIZE)} ceiling above which compression is not attempted`
+    : input.size > Flag.YMCODE_MAX_ATTACHMENT_SOURCE_SIZE
+      ? `it is also over the ${mb(Flag.YMCODE_MAX_ATTACHMENT_SOURCE_SIZE)} ceiling above which compression is not attempted`
       : "it cannot be compressed"
   return `Attachment ${input.label} is ${input.size} bytes, over the ${limit} attachment limit, and ${reason}. ${input.hint}`
 }

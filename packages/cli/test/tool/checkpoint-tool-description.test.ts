@@ -6,11 +6,11 @@ import MEMORY_CHECKPOINT from "../../src/tool/memory.checkpoint.txt"
 import TASK_DESCRIPTION from "../../src/tool/task.txt"
 import { withCheckpointClause, withCheckpointDescription } from "../../src/tool/checkpoint-description"
 
-const original = process.env.MIMOCODE_DISABLE_CHECKPOINT
+const original = process.env.YMCODE_DISABLE_CHECKPOINT
 
 function set(value?: string) {
-  if (value === undefined) delete process.env.MIMOCODE_DISABLE_CHECKPOINT
-  else process.env.MIMOCODE_DISABLE_CHECKPOINT = value
+  if (value === undefined) delete process.env.YMCODE_DISABLE_CHECKPOINT
+  else process.env.YMCODE_DISABLE_CHECKPOINT = value
 }
 
 afterEach(() => set(original))

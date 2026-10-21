@@ -30,7 +30,7 @@ export const dict = {
   "tui.home.placeholder.example.todo": "Corriger un TODO dans le code",
   "tui.home.placeholder.example.stack": "Quelle est la stack technique de ce projet ?",
   "tui.home.placeholder.example.tests": "Réparer les tests cassés",
-  "tui.home.agreement.prefix": "En utilisant MiMoCode, vous acceptez nos ",
+  "tui.home.agreement.prefix": "En utilisant ymcode, vous acceptez nos ",
   "tui.home.agreement.terms": "Conditions d'utilisation",
   "tui.home.agreement.separator": " et notre ",
   "tui.home.agreement.privacy": "Politique de confidentialité",
@@ -116,9 +116,9 @@ export const dict = {
   "tui.tips.cycle_sessions":
     "Appuyez sur {highlight}Ctrl+X Right/Left{/highlight} pour parcourir les sessions parent et enfant",
   "tui.tips.config_files":
-    "Créez {highlight}mimocode.json{/highlight} pour la configuration serveur et {highlight}tui.json{/highlight} pour le TUI",
+    "Créez {highlight}ymcode.json{/highlight} pour la configuration serveur et {highlight}tui.json{/highlight} pour le TUI",
   "tui.tips.global_config":
-    "Placez les paramètres TUI dans {highlight}~/.config/mimocode/tui.json{/highlight} comme configuration globale",
+    "Placez les paramètres TUI dans {highlight}~/.config/ymcode/tui.json{/highlight} comme configuration globale",
   "tui.tips.schema": "Ajoutez {highlight}$schema{/highlight} à votre config pour l'auto-complétion dans l'éditeur",
   "tui.tips.default_model": "Configurez {highlight}model{/highlight} dans la config pour définir le modèle par défaut",
   "tui.tips.keybinds":
@@ -128,15 +128,15 @@ export const dict = {
   "tui.tips.mcp_config":
     "Configurez les serveurs MCP locaux ou distants dans la section {highlight}mcp{/highlight}",
   "tui.tips.mcp_oauth":
-    "MiMoCode gère automatiquement OAuth pour les serveurs MCP distants nécessitant une authentification",
+    "ymcode gère automatiquement OAuth pour les serveurs MCP distants nécessitant une authentification",
   "tui.tips.custom_command":
-    "Ajoutez des fichiers {highlight}.md{/highlight} dans {highlight}.mimocode/command/{/highlight} pour définir des invites personnalisées réutilisables",
+    "Ajoutez des fichiers {highlight}.md{/highlight} dans {highlight}.ymcode/command/{/highlight} pour définir des invites personnalisées réutilisables",
   "tui.tips.command_args":
     "Utilisez {highlight}$ARGUMENTS{/highlight}, {highlight}$1{/highlight}, {highlight}$2{/highlight} dans les commandes pour des entrées dynamiques",
   "tui.tips.command_backticks":
     "Utilisez des backticks dans les commandes pour injecter la sortie shell (ex. {highlight}`git status`{/highlight})",
   "tui.tips.custom_agent":
-    "Ajoutez des fichiers {highlight}.md{/highlight} dans {highlight}.mimocode/agent/{/highlight} pour des personas IA spécialisés",
+    "Ajoutez des fichiers {highlight}.md{/highlight} dans {highlight}.ymcode/agent/{/highlight} pour des personas IA spécialisés",
   "tui.tips.agent_perms":
     "Configurez par agent les permissions des outils {highlight}edit{/highlight}, {highlight}bash{/highlight} et {highlight}webfetch{/highlight}",
   "tui.tips.bash_allow":
@@ -145,26 +145,26 @@ export const dict = {
     'Définissez {highlight}"rm -rf *": "deny"{/highlight} pour bloquer les commandes destructrices',
   "tui.tips.bash_ask":
     'Configurez {highlight}"git push": "ask"{/highlight} pour exiger une confirmation avant le push',
-  "tui.tips.formatter": "MiMoCode formate automatiquement les fichiers avec prettier, gofmt, ruff, etc.",
+  "tui.tips.formatter": "ymcode formate automatiquement les fichiers avec prettier, gofmt, ruff, etc.",
   "tui.tips.disable_formatter":
     'Définissez {highlight}"formatter": false{/highlight} dans la config pour désactiver le formatage automatique',
   "tui.tips.custom_formatter":
     "Définissez des commandes de formatage personnalisées par extension de fichier dans la config",
-  "tui.tips.lsp": "MiMoCode utilise des serveurs LSP pour une analyse de code intelligente",
+  "tui.tips.lsp": "ymcode utilise des serveurs LSP pour une analyse de code intelligente",
   "tui.tips.tool_scripts": "Les définitions d'outils peuvent invoquer des scripts en Python, Go, etc.",
   "tui.tips.plugins":
-    "Ajoutez des fichiers {highlight}.ts{/highlight} dans {highlight}.mimocode/plugin/{/highlight} pour des hooks d'événements",
+    "Ajoutez des fichiers {highlight}.ts{/highlight} dans {highlight}.ymcode/plugin/{/highlight} pour des hooks d'événements",
   "tui.tips.plugin_notify":
     "Utilisez des plugins pour envoyer des notifications système à la fin des sessions",
   "tui.tips.plugin_protect":
-    "Créez un plugin pour empêcher MiMoCode de lire des fichiers sensibles",
+    "Créez un plugin pour empêcher ymcode de lire des fichiers sensibles",
   "tui.tips.run": "Utilisez {highlight}mimo run{/highlight} pour des scripts non interactifs",
   "tui.tips.continue": "Utilisez {highlight}mimo --continue{/highlight} pour reprendre la dernière session",
   "tui.tips.attach_cli":
     "Utilisez {highlight}mimo run -f file.ts{/highlight} pour joindre des fichiers via la CLI",
   "tui.tips.format_json":
     "Utilisez {highlight}--format json{/highlight} pour une sortie lisible par machine dans les scripts",
-  "tui.tips.serve": "Exécutez {highlight}mimo serve{/highlight} pour exposer l'API MiMoCode en mode headless",
+  "tui.tips.serve": "Exécutez {highlight}mimo serve{/highlight} pour exposer l'API ymcode en mode headless",
   "tui.tips.attach_server":
     "Utilisez {highlight}mimo run --attach{/highlight} pour vous connecter à un serveur en cours",
   "tui.tips.upgrade": "Exécutez {highlight}mimo upgrade{/highlight} pour passer à la dernière version",
@@ -179,7 +179,7 @@ export const dict = {
   "tui.tips.theme_system":
     'Utilisez {highlight}"theme": "system"{/highlight} pour suivre les couleurs du terminal',
   "tui.tips.theme_files":
-    "Créez des fichiers de thème JSON dans le dossier {highlight}.mimocode/themes/{/highlight}",
+    "Créez des fichiers de thème JSON dans le dossier {highlight}.ymcode/themes/{/highlight}",
   "tui.tips.theme_variants": "Les thèmes prennent en charge des variantes claires/sombres pour les deux modes",
   "tui.tips.theme_ansi": "Référencez les couleurs ANSI 0-255 dans des thèmes personnalisés",
   "tui.tips.env_var":
@@ -223,7 +223,7 @@ export const dict = {
   "tui.tips.username_toggle":
     "Activez/désactivez l'affichage du nom d'utilisateur via la palette de commandes ({highlight}Ctrl+P{/highlight})",
   "tui.tips.zen":
-    "Utilisez {highlight}/connect{/highlight} avec MiMo Code pour des modèles testés et sélectionnés",
+    "Utilisez {highlight}/connect{/highlight} avec ymcode pour des modèles testés et sélectionnés",
   "tui.tips.agents_md":
     "Versionnez le fichier {highlight}AGENTS.md{/highlight} de votre projet sur Git pour le partager avec l'équipe",
   "tui.tips.review":
@@ -265,7 +265,7 @@ export const dict = {
   "tui.skill.xlsx-official.description": "Créer, modifier et lire des classeurs Microsoft Excel (.xlsx)",
   "tui.skill.pdf-official.description": "Créer, modifier, transformer et lire des fichiers PDF",
   "tui.skill.pptx-official.description": "Créer, modifier et lire des présentations Microsoft PowerPoint (.pptx)",
-  "tui.skill.mimocode.description": "Documentation intégrée des fonctionnalités, config et commandes MiMoCode",
+  "tui.skill.ymcode.description": "Documentation intégrée des fonctionnalités, config et commandes ymcode",
   "tui.skill.loop.description": "Planifier l'exécution récurrente d'un prompt",
   "tui.skill.html-to-video-pipeline.description": "L'arme ultime pour vidéos courtes — créez des vidéos courtes avec du HTML",
   "tui.skill.arxiv.description": "Rechercher, citer, télécharger et suivre des articles arXiv",
@@ -416,7 +416,7 @@ export const dict = {
   "tui.toast.update_available.confirm": "La nouvelle version v{{version}} est disponible. Voulez-vous mettre à jour maintenant ?",
   "tui.toast.update_available.updating": "Mise à jour vers v{{version}}...",
   "tui.toast.update_available.failed": "La mise à jour a échoué",
-  "tui.toast.update_available.success": "Mis à jour vers MiMoCode v{{version}}. Veuillez redémarrer l'application.",
+  "tui.toast.update_available.success": "Mis à jour vers ymcode v{{version}}. Veuillez redémarrer l'application.",
   "tui.toast.updated.title": "Mis à jour automatiquement",
   "tui.toast.updated.message": "Correctif appliqué automatiquement : v{{version}}. Redémarrez pour utiliser la nouvelle version. Désactivez avec autoupdate: false dans la configuration.",
   "tui.toast.native_installer_tip": "Conseil : l'installateur natif (curl/PowerShell) est recommandé pour une meilleure expérience.",
@@ -556,7 +556,7 @@ export const dict = {
   // Workspace trust
   "trust.title": "Accès à l'espace de travail :",
   "trust.safety_check": "Vérification rapide : est-ce un projet que vous avez créé ou auquel vous faites confiance ? (Votre propre code, un projet open source reconnu ou un travail de votre équipe). Sinon, prenez un moment pour examiner le contenu de ce dossier.",
-  "trust.capabilities": "MiMo Code pourra lire, modifier et exécuter des fichiers ici.",
+  "trust.capabilities": "ymcode pourra lire, modifier et exécuter des fichiers ici.",
   "trust.plugin_warn": "Si des plugins malveillants existent dans ce répertoire, ils peuvent exécuter du code arbitraire, lire, modifier ou exfiltrer vos fichiers.",
   "trust.option.yes": "Oui, je fais confiance à ce dossier",
   "trust.option.no": "Non, quitter",
@@ -570,7 +570,7 @@ export const dict = {
   "trust.dangerous.option.no": "Quitter (recommandé)",
   "skip_permissions.title": "AVERTISSEMENT : mode contournement des permissions",
   "skip_permissions.body":
-    "Vous avez démarré avec --dangerously-skip-permissions. MiMo Code va lire, modifier et exécuter des fichiers et lancer des commandes shell SANS demander d'approbation. Seules les règles que vous avez explicitement refusées (deny) dans la configuration restent appliquées. Vous êtes seul responsable de tout ce qu'il fait.",
+    "Vous avez démarré avec --dangerously-skip-permissions. ymcode va lire, modifier et exécuter des fichiers et lancer des commandes shell SANS demander d'approbation. Seules les règles que vous avez explicitement refusées (deny) dans la configuration restent appliquées. Vous êtes seul responsable de tout ce qu'il fait.",
   "skip_permissions.plugin_warn":
     "Dans ce mode, une invite, un fichier ou un plugin malveillant peut exécuter des commandes arbitraires et modifier ou exfiltrer vos données sans aucune confirmation.",
   "skip_permissions.root_warn":

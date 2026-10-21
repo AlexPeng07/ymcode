@@ -64,7 +64,7 @@ test("fallback commits before detached lite request; duplicate receipt and later
           },
         }
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             provider: {
               main: provider,
@@ -268,9 +268,9 @@ test("registered skill command titles use user arguments rather than the selecte
   } })
   try {
     await using tmp = await tmpdir({ git: true, init: async dir => {
-      await Bun.write(path.join(dir, ".mimocode/skill/title-fixture-skill/SKILL.md"), "---\nname: title-fixture-skill\ndescription: Test skill command title provenance.\n---\nSKILL_BODY_NOT_A_TITLE\n")
+      await Bun.write(path.join(dir, ".ymcode/skill/title-fixture-skill/SKILL.md"), "---\nname: title-fixture-skill\ndescription: Test skill command title provenance.\n---\nSKILL_BODY_NOT_A_TITLE\n")
       const provider = (prefix: string) => ({ npm: "@ai-sdk/openai-compatible", env: [], options: { apiKey: "fixture", baseURL: `http://localhost:${server.port}/${prefix}/v1` }, models: { text: { name: "Text", tool_call: true, limit: { context: 128000, output: 1000 }, modalities: { input: ["text"], output: ["text"] } } } })
-      await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({ enabled_providers: ["main", "lite"], model: "main/text", model_groups: { lite: "lite/text" }, provider: { main: provider("main"), lite: provider("lite") }, command: { "title-fixture-command": { template: "COMMAND_TEMPLATE_NOT_A_TITLE $ARGUMENTS" }, "title-delegated": { template: "Delegate task", agent: "explore", model: "main/text", subtask: true } } }))
+      await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({ enabled_providers: ["main", "lite"], model: "main/text", model_groups: { lite: "lite/text" }, provider: { main: provider("main"), lite: provider("lite") }, command: { "title-fixture-command": { template: "COMMAND_TEMPLATE_NOT_A_TITLE $ARGUMENTS" }, "title-delegated": { template: "Delegate task", agent: "explore", model: "main/text", subtask: true } } }))
     } })
     await Instance.provide({ directory: tmp.path, fn: async () => {
       const run = AppRuntime.runPromise
@@ -414,7 +414,7 @@ test("completed user turns do not automatically reconsider the title",  async ()
   } })
   try {
     await using tmp = await tmpdir({ git: true, init: async dir => {
-      await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({
+      await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({
         enabled_providers: ["fixture"], model: "fixture/text", model_groups: { lite: "fixture/text" },
         provider: { fixture: { npm: "@ai-sdk/openai-compatible", env: [], options: { apiKey: "fixture", baseURL: `http://localhost:${server.port}/v1` }, models: { text: { name: "Text", tool_call: true, limit: { context: 128000, output: 1000 }, modalities: { input: ["text"], output: ["text"] } } } } },
       }))
@@ -456,7 +456,7 @@ test("ephemeral title supports auto-only tool endpoints without reading files or
     await using tmp = await tmpdir({ git: true, init: async dir => {
       resource = path.join(dir, "notes.txt")
       await Bun.write(resource, "Queue latency comes from lock contention.")
-      await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({
+      await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({
         enabled_providers: ["fixture"], model: "fixture/text", model_groups: { lite: "fixture/text" },
         provider: { fixture: {
           npm: "@ai-sdk/openai-compatible",

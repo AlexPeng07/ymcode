@@ -799,7 +799,7 @@ const part = (row: typeof PartTable.$inferSelect) =>
   }) as Part
 
 /** Stable substring for the compose-agent synthetic protocol (request-order head). */
-export const COMPOSE_REMINDER_MARKER = "MiMoCode Compose Agent"
+export const COMPOSE_REMINDER_MARKER = "ymcode Compose Agent"
 
 /**
  * DB orders parts by `PartTable.id` (ascending). Compose protocol must sit at the

@@ -269,7 +269,7 @@ export function Session() {
     // The prohibition. Every way of reaching this route hands a raw session id
     // straight to the renderer and bypasses both hiding layers: -s/--session
     // (thread.ts → app.tsx), `attach --session`, POST /tui/select-session, POST
-    // /tui/event, the session tool's `switch`, MIMOCODE_ROUTE, plugin
+    // /tui/event, the session tool's `switch`, YMCODE_ROUTE, plugin
     // navigate("session", …) and the session-list dialog's child injection. This
     // effect is the one point all of them must pass, so the refusal lives here
     // rather than on any single entry point. What counts as forbidden lives in
@@ -2196,7 +2196,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
     <Show when={props.part.text.trim()}>
       <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
         <Switch>
-          <Match when={Flag.MIMOCODE_EXPERIMENTAL_MARKDOWN}>
+          <Match when={Flag.YMCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
               syntaxStyle={syntax()}
               streaming={true}
@@ -2206,7 +2206,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
               bg={theme.background}
             />
           </Match>
-          <Match when={!Flag.MIMOCODE_EXPERIMENTAL_MARKDOWN}>
+          <Match when={!Flag.YMCODE_EXPERIMENTAL_MARKDOWN}>
             <code
               filetype="markdown"
               drawUnstyledText={false}

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // FDS launcher core: detect the one platform target, fetch its binary into
-// package-local vendor/, and spawn it. Shared by mimo.js and postinstall.mjs.
+// package-local vendor/, and spawn it. Shared by ymcode.js and postinstall.mjs.
 
 import childProcess from "child_process"
 import fs from "fs"
@@ -11,22 +11,20 @@ import { pipeline } from "stream/promises"
 import { createHash } from "crypto"
 import { fileURLToPath } from "url"
 
-export const DEFAULT_FDS_BASE = "https://mimocode.cnbj1.mi-fds.com/mimocode/mimocode"
-
-/** Every target published to FDS / GitHub (matches script/release.ts platforms). */
+/** Every target published to a release channel (matches script/release.ts platforms). */
 export const PLATFORMS = [
-  "mimocode-linux-arm64",
-  "mimocode-linux-x64",
-  "mimocode-linux-x64-baseline",
-  "mimocode-linux-arm64-musl",
-  "mimocode-linux-x64-musl",
-  "mimocode-linux-x64-baseline-musl",
-  "mimocode-darwin-arm64",
-  "mimocode-darwin-x64",
-  "mimocode-darwin-x64-baseline",
-  "mimocode-windows-arm64",
-  "mimocode-windows-x64",
-  "mimocode-windows-x64-baseline",
+  "ymcode-linux-arm64",
+  "ymcode-linux-x64",
+  "ymcode-linux-x64-baseline",
+  "ymcode-linux-arm64-musl",
+  "ymcode-linux-x64-musl",
+  "ymcode-linux-x64-baseline-musl",
+  "ymcode-darwin-arm64",
+  "ymcode-darwin-x64",
+  "ymcode-darwin-x64-baseline",
+  "ymcode-windows-arm64",
+  "ymcode-windows-x64",
+  "ymcode-windows-x64-baseline",
 ]
 
 export function mapPlatform(value = os.platform()) {
@@ -122,7 +120,7 @@ export function detectTarget(options = {}) {
   const parts = [platform, arch]
   if (baseline) parts.push("baseline")
   if (musl) parts.push("musl")
-  const target = `mimocode-${parts.join("-")}`
+  const target = `ymcode-${parts.join("-")}`
   if (!PLATFORMS.includes(target)) {
     throw new Error(`Unsupported target: ${target}`)
   }
@@ -130,7 +128,7 @@ export function detectTarget(options = {}) {
 }
 
 export function binaryNameFor(target) {
-  return target.includes("windows") ? "mimo.exe" : "mimo"
+  return target.includes("windows") ? "ymcode.exe" : "ymcode"
 }
 
 export function archiveNameFor(target) {
@@ -151,7 +149,9 @@ export function readVersion(root) {
 }
 
 export function fdsBase() {
-  return (process.env.MIMO_FDS_BASE || DEFAULT_FDS_BASE).replace(/\/+$/, "")
+  const base = process.env.YMCODE_FDS_BASE
+  if (!base) throw new Error("YMCODE_FDS_BASE is not configured; build locally with `bun run --cwd packages/cli build:local`")
+  return base.replace(/\/+$/, "")
 }
 
 export function releaseUrl(version, target) {
@@ -217,7 +217,7 @@ async function verifySha256(filePath, url) {
 
 async function extractBinary(archivePath, target, dest) {
   const name = binaryNameFor(target)
-  const work = await fs.promises.mkdtemp(path.join(os.tmpdir(), "mimocode-extract-"))
+  const work = await fs.promises.mkdtemp(path.join(os.tmpdir(), "ymcode-extract-"))
   try {
     if (target.includes("linux")) {
       await exec("tar", ["-xzf", archivePath, "-C", work])
@@ -254,7 +254,7 @@ export async function ensureBinary(options = {}) {
   const archiveName = archiveNameFor(target)
   // Unique partial per attempt so concurrent first-runs do not clobber each other.
   const partial = `${dest}.partial.${process.pid}.${Math.random().toString(36).slice(2, 8)}`
-  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "mimocode-fetch-"))
+  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "ymcode-fetch-"))
   const archivePath = path.join(tmpDir, archiveName)
   try {
     log(`Downloading mimo ${version} (${target}) from FDS…`)
@@ -294,13 +294,13 @@ export function runBinary(targetPath, args = process.argv.slice(2)) {
 }
 
 /**
- * Windows locks a running PE. Executing vendor/mimo.exe in place would block
+ * Windows locks a running PE. Executing vendor/ymcode.exe in place would block
  * `npm uninstall`/`upgrade` from deleting the package directory. Copy the
  * binary out to %TEMP% once per version and run that; vendor/ stays deletable.
  */
 export function stageWindowsRunCopy(sourcePath, version) {
   if (process.platform !== "win32") return sourcePath
-  const dir = path.join(os.tmpdir(), "mimocode-bin", version || "dev")
+  const dir = path.join(os.tmpdir(), "ymcode-bin", version || "dev")
   const runPath = path.join(dir, path.basename(sourcePath))
   try {
     const sourceStat = fs.statSync(sourcePath)

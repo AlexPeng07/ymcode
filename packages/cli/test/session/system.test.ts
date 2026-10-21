@@ -14,24 +14,24 @@ function load<A>(dir: string, fn: (svc: Agent.Interface) => Effect.Effect<A>) {
   return Effect.runPromise(provideInstance(dir)(Agent.Service.use(fn)).pipe(Effect.provide(Agent.defaultLayer)))
 }
 
-const dynamicSystemPrompt = process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
-const codexMode = process.env.MIMOCODE_CODEX_MODE
+const dynamicSystemPrompt = process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+const codexMode = process.env.YMCODE_CODEX_MODE
 
 beforeEach(() => {
-  process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = "true"
-  delete process.env.MIMOCODE_CODEX_MODE
+  process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = "true"
+  delete process.env.YMCODE_CODEX_MODE
 })
 
 afterEach(() => {
-  if (dynamicSystemPrompt === undefined) delete process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
-  else process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = dynamicSystemPrompt
-  if (codexMode === undefined) delete process.env.MIMOCODE_CODEX_MODE
-  else process.env.MIMOCODE_CODEX_MODE = codexMode
+  if (dynamicSystemPrompt === undefined) delete process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+  else process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = dynamicSystemPrompt
+  if (codexMode === undefined) delete process.env.YMCODE_CODEX_MODE
+  else process.env.YMCODE_CODEX_MODE = codexMode
 })
 
 describe("session.system", () => {
   test("does not render dynamic environment information by default", async () => {
-    delete process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+    delete process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
     await using tmp = await tmpdir({ git: true })
 
     await Instance.provide({
@@ -235,7 +235,7 @@ describe("session.system", () => {
 
   test("Codex mode forces the GPT prompt for every model", () => {
     const gpt = SystemPrompt.provider(ProviderTest.model({ id: ModelID.make("gpt-5.4") }))[0]
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     const prompt = SystemPrompt.provider(
       ProviderTest.model({
         id: ModelID.make("claude-sonnet-4-6"),
@@ -250,7 +250,7 @@ describe("session.system", () => {
 
   test("disabled Codex mode forces the default prompt for GPT models", () => {
     const normal = SystemPrompt.provider(ProviderTest.model({ id: ModelID.make("model-default") }))[0]
-    process.env.MIMOCODE_CODEX_MODE = "false"
+    process.env.YMCODE_CODEX_MODE = "false"
 
     expect(SystemPrompt.provider(ProviderTest.model({ id: ModelID.make("gpt-5.4") }))[0]).toBe(normal)
     expect(
@@ -268,7 +268,7 @@ describe("session.system", () => {
     const gpt = SystemPrompt.provider(ProviderTest.model({ id: ModelID.make("gpt-5.4") }))[0]
 
     expect(SystemPrompt.provider(model, "codex")[0]).toBe(gpt)
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     expect(SystemPrompt.provider(model, "default")[0]).not.toBe(gpt)
   })
 
@@ -384,7 +384,7 @@ describe("session.system", () => {
           ["alpha-skill", "Alpha skill."],
           ["middle-skill", "Middle skill."],
         ]) {
-          const skillDir = path.join(dir, ".mimocode", "skill", name)
+          const skillDir = path.join(dir, ".ymcode", "skill", name)
           await Bun.write(
             path.join(skillDir, "SKILL.md"),
             `---

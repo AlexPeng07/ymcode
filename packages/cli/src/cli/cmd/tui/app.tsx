@@ -86,7 +86,7 @@ import { DialogPermissionTimeout } from "./component/dialog-permission-timeout"
 import { DialogAgreement, AGREEMENT_KEY, shouldShowAgreement } from "./component/dialog-agreement"
 
 function rendererConfig(_config: TuiConfig.Info, plainTerminal: boolean): CliRendererConfig {
-  const mouseEnabled = !plainTerminal && !Flag.MIMOCODE_DISABLE_MOUSE && (_config.mouse ?? true)
+  const mouseEnabled = !plainTerminal && !Flag.YMCODE_DISABLE_MOUSE && (_config.mouse ?? true)
 
   return {
     externalOutputMode: "passthrough",
@@ -290,7 +290,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
     })
 
   useKeyboard((evt) => {
-    if (!Flag.MIMOCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
+    if (!Flag.YMCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
     const sel = renderer.getSelection()
     if (!sel) return
 
@@ -338,17 +338,17 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
 
   // Update terminal window title based on current route and session
   createEffect(() => {
-    if (!terminalTitleEnabled() || Flag.MIMOCODE_DISABLE_TERMINAL_TITLE) return
+    if (!terminalTitleEnabled() || Flag.YMCODE_DISABLE_TERMINAL_TITLE) return
 
     if (route.data.type === "home") {
-      renderer.setTerminalTitle("MiMoCode")
+      renderer.setTerminalTitle("ymcode")
       return
     }
 
     if (route.data.type === "session") {
       const session = sync.session.get(route.data.sessionID)
       if (!session || SessionApi.isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("MiMoCode")
+        renderer.setTerminalTitle("ymcode")
         return
       }
 
@@ -470,7 +470,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
       title: t("tui.command.workflow.list.title"),
       value: "workflow.list",
       category: "session",
-      enabled: Flag.MIMOCODE_EXPERIMENTAL_WORKFLOW_TOOL,
+      enabled: Flag.YMCODE_EXPERIMENTAL_WORKFLOW_TOOL,
       slash: {
         name: "workflows",
       },
@@ -1344,7 +1344,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
         // When copy-on-mousedown is enabled, prefer copying an active selection;
         // fall through to paste when there is nothing selected.
         if (
-          Flag.MIMOCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT &&
+          Flag.YMCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT &&
           Selection.copy(renderer, toast, t("tui.toast.copied_to_clipboard"))
         ) {
           evt.preventDefault()
@@ -1361,12 +1361,12 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
         evt.stopPropagation()
       }}
       onMouseUp={
-        Flag.MIMOCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT
+        Flag.YMCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT
           ? undefined
           : () => Selection.copy(renderer, toast, t("tui.toast.copied_to_clipboard"))
       }
     >
-      <Show when={Flag.MIMOCODE_SHOW_TTFD}>
+      <Show when={Flag.YMCODE_SHOW_TTFD}>
         <TimeToFirstDraw />
       </Show>
       <Show when={ready()}>

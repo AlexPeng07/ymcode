@@ -50,7 +50,7 @@ test("agent prompts use runtime tool names and GPT generation guidance", () => {
 })
 
 test("default system prompt has no Claude Code residual and names real dispatch tools", () => {
-  expect(PROMPT_DEFAULT).toContain("MiMoCode")
+  expect(PROMPT_DEFAULT).toContain("ymcode")
   expect(PROMPT_DEFAULT).not.toContain("## Agent system")
   expect(PROMPT_DEFAULT).not.toContain("### Session lifecycle")
   expect(PROMPT_DEFAULT).toContain("## Skills")
@@ -84,7 +84,7 @@ test("default system prompt has no Claude Code residual and names real dispatch 
   // compose-next is advertised via skill description — never name compose in base sys.
   expect(PROMPT_DEFAULT).not.toContain("compose")
   // Skills roots: native + open standard only; other brand roots unnamed.
-  expect(PROMPT_DEFAULT).toContain(".mimocode/skill(s)")
+  expect(PROMPT_DEFAULT).toContain(".ymcode/skill(s)")
   expect(PROMPT_DEFAULT).toContain(".agents/skills")
   expect(PROMPT_DEFAULT).toContain("brand compatibility roots")
   expect(PROMPT_DEFAULT).not.toContain(".claude/skills")
@@ -149,7 +149,7 @@ test("plan denies edits except plan files (via runtimePermission)", async () => 
       expect(plan).toBeDefined()
       const rt = Agent.runtimePermission(plan!, [])
       expect(Permission.evaluate("edit", "*", rt).action).toBe("deny")
-      expect(Permission.evaluate("edit", ".mimocode/plans/foo.md", rt).action).toBe("allow")
+      expect(Permission.evaluate("edit", ".ymcode/plans/foo.md", rt).action).toBe("allow")
     },
   })
 })
@@ -164,7 +164,7 @@ test("plan edit deny is a backstop: user/session config cannot relax it", async 
       // config allow + session allow both lose to hardPermission's deny.
       expect(Permission.evaluate("edit", "src/file.ts", rt).action).toBe("deny")
       // plan files still writable.
-      expect(Permission.evaluate("edit", ".mimocode/plans/foo.md", rt).action).toBe("allow")
+      expect(Permission.evaluate("edit", ".ymcode/plans/foo.md", rt).action).toBe("allow")
     },
   })
 })
@@ -329,14 +329,14 @@ test("general and explore agents use dedicated prompts", async () => {
       expect(PROMPT_EXPLORE).not.toContain("**Status**:")
       // general sees skills (catalog + skill tool); explore's `*: deny` disables them.
       expect(PROMPT_GENERAL).toContain("## Skills")
-      expect(PROMPT_GENERAL).toContain(".mimocode/skill(s)")
+      expect(PROMPT_GENERAL).toContain(".ymcode/skill(s)")
       expect(PROMPT_GENERAL).toContain(".agents/skills")
       expect(PROMPT_GENERAL).toContain("bundled skill packs")
       expect(PROMPT_GENERAL).toContain("brand compatibility roots")
       expect(PROMPT_GENERAL).toContain("do not assume or advertise which brands those are")
       // Brand-root paths (catalog location / skill_content base dir) must not flip identity.
       expect(PROMPT_GENERAL).toContain("not your identity")
-      expect(PROMPT_GENERAL).toContain("MiMoCode general subagent")
+      expect(PROMPT_GENERAL).toContain("ymcode general subagent")
       expect(PROMPT_GENERAL).toContain("Skill tool")
       expect(PROMPT_GENERAL).toContain("SkillSearch tool")
       expect(PROMPT_GENERAL).toContain("Never call a tool absent from the current tool surface")
@@ -796,7 +796,7 @@ test("skill directories are allowed for external_directory", async () => {
   await using tmp = await tmpdir({
     git: true,
     init: async (dir) => {
-      const skillDir = path.join(dir, ".mimocode", "skill", "perm-skill")
+      const skillDir = path.join(dir, ".ymcode", "skill", "perm-skill")
       await Bun.write(
         path.join(skillDir, "SKILL.md"),
         `---
@@ -820,7 +820,7 @@ description: Permission skill.
       directory: tmp.path,
       fn: async () => {
         const build = await load(tmp.path, (svc) => svc.get("build"))
-        const skillDir = path.join(tmp.path, ".mimocode", "skill", "perm-skill")
+        const skillDir = path.join(tmp.path, ".ymcode", "skill", "perm-skill")
         const target = path.join(skillDir, "reference", "notes.md")
         expect(Permission.evaluate("external_directory", target, build!.permission).action).toBe("allow")
       },
@@ -840,7 +840,7 @@ test("skill directories are allowed even when user denies external_directory glo
       },
     },
     init: async (dir) => {
-      const skillDir = path.join(dir, ".mimocode", "skill", "perm-skill")
+      const skillDir = path.join(dir, ".ymcode", "skill", "perm-skill")
       await Bun.write(
         path.join(skillDir, "SKILL.md"),
         `---
@@ -864,7 +864,7 @@ description: Permission skill.
       directory: tmp.path,
       fn: async () => {
         const build = await load(tmp.path, (svc) => svc.get("build"))
-        const skillDir = path.join(tmp.path, ".mimocode", "skill", "perm-skill")
+        const skillDir = path.join(tmp.path, ".ymcode", "skill", "perm-skill")
         const target = path.join(skillDir, "reference", "notes.md")
         expect(Permission.evaluate("external_directory", target, build!.permission).action).toBe("allow")
         expect(Permission.evaluate("external_directory", "/some/other/path", build!.permission).action).toBe("deny")

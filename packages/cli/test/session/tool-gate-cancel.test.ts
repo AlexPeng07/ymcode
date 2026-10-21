@@ -216,7 +216,7 @@ async function hold(signal) {
         : `${boundary === "body" ? "await hold(ctx.abort)" : ""}
           appendFileSync(file("effects"), "once\\n")
           return { output: "real result", metadata: { actual: true } }`
-      yield* Effect.promise(() => Bun.write(path.join(dir, ".mimocode/plugins/settlement.ts"), `${helper}
+      yield* Effect.promise(() => Bun.write(path.join(dir, ".ymcode/plugins/settlement.ts"), `${helper}
 export default async () => ({
   tool: { settlement_probe: { description: "Controlled asynchronous test tool", args: {},
     execute: async (_args, ctx) => { ${body} }
@@ -224,7 +224,7 @@ export default async () => ({
   ${boundary === "before" || boundary === "after" ? `${JSON.stringify(hookName)}: ${hook}` : ""}
 })`))
       if (boundary.startsWith("file-")) {
-        yield* Effect.promise(() => Bun.write(path.join(dir, ".mimocode/hooks/settlement.ts"),
+        yield* Effect.promise(() => Bun.write(path.join(dir, ".ymcode/hooks/settlement.ts"),
           `${helper}\nexport default { ${JSON.stringify(hookName)}: ${hook} }`))
       }
       const sessions = yield* Session.Service
@@ -314,11 +314,11 @@ for (const isError of [false, true]) {
   it.live(`Stop in MCP after hook retains the actual result and attachments (isError=${isError})`, () => Effect.gen(function* () {
     // The scripted model calls the MCP tool directly; tool-search deferral would
     // reject it before tool.execute.after runs.
-    const previousSearch = process.env.MIMOCODE_MCP_TOOL_SEARCH
-    process.env.MIMOCODE_MCP_TOOL_SEARCH = "false"
+    const previousSearch = process.env.YMCODE_MCP_TOOL_SEARCH
+    process.env.YMCODE_MCP_TOOL_SEARCH = "false"
     yield* Effect.addFinalizer(() => Effect.sync(() => {
-      if (previousSearch === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-      else process.env.MIMOCODE_MCP_TOOL_SEARCH = previousSearch
+      if (previousSearch === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+      else process.env.YMCODE_MCP_TOOL_SEARCH = previousSearch
     }))
     const mcp = new McpServer({ name: "settlement", version: "1" })
     let calls = 0
@@ -345,7 +345,7 @@ for (const isError of [false, true]) {
     yield* provideTmpdirInstance((dir) => Effect.gen(function* () {
       const entered = path.join(dir, "after-entered")
       const release = path.join(dir, "after-release")
-      yield* Effect.promise(() => Bun.write(path.join(dir, ".mimocode/plugins/mcp-after.ts"), `
+      yield* Effect.promise(() => Bun.write(path.join(dir, ".ymcode/plugins/mcp-after.ts"), `
 import { existsSync, writeFileSync } from "node:fs"
 import { setTimeout as sleep } from "node:timers/promises"
 export default async () => ({
@@ -407,7 +407,7 @@ for (const guestCount of [1, 9]) {
     yield* Effect.addFinalizer(() => Effect.promise(() => server.stop()))
     yield* provideTmpdirInstance((dir) => Effect.gen(function* () {
       const file = (name: string) => path.join(dir, name)
-      yield* Effect.promise(() => Bun.write(path.join(dir, ".mimocode/plugins/exec-settlement.ts"), `
+      yield* Effect.promise(() => Bun.write(path.join(dir, ".ymcode/plugins/exec-settlement.ts"), `
 import { existsSync, appendFileSync } from "node:fs"
 import { setTimeout as sleep } from "node:timers/promises"
 const directory = ${JSON.stringify(dir)}
@@ -490,7 +490,7 @@ return await new Promise(() => {});`,
     yield* provideTmpdirInstance((dir) => Effect.gen(function* () {
       const effects = path.join(dir, "effects")
       if (withGuest) {
-        yield* Effect.promise(() => Bun.write(path.join(dir, ".mimocode/plugins/completed-guest.ts"), `
+        yield* Effect.promise(() => Bun.write(path.join(dir, ".ymcode/plugins/completed-guest.ts"), `
 import { appendFile } from "node:fs/promises"
 export default async () => ({
   tool: { settlement_probe: { description: "Complete once before JavaScript waits", args: {},

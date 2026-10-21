@@ -20,7 +20,7 @@
 // blocking path" is.
 //
 // Gated behind RUN_ACTOR_SPAWN_AB=1 so it never runs in the normal suite (it needs
-// the live router + a real key in ~/.config/mimocode/mimocode.json). Run with:
+// the live router + a real key in ~/.config/ymcode/ymcode.json). Run with:
 //   RUN_ACTOR_SPAWN_AB=1 bun test test/tool/actor-spawn-preference.test.ts
 import { describe, expect, test } from "bun:test"
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "fs"
@@ -35,7 +35,7 @@ const DELEGATION_PROMPT =
   "Investigate how session compaction is triggered in this repo and report back " +
   "a written summary of the trigger conditions."
 
-// A scratch MIMOCODE_HOME: the real mimo provider (test/preload.ts strips provider
+// A scratch YMCODE_HOME: the real mimo provider (test/preload.ts strips provider
 // keys from the environment, so the key has to be read from the user's config the
 // way verify-wow.test.ts does it) plus a deny rule that keeps the actor tool
 // advertised to the model while refusing to actually launch the subagent.
@@ -43,8 +43,8 @@ const DELEGATION_PROMPT =
 function scratchHome() {
   const home = mkdtempSync(path.join(os.tmpdir(), "actor-ab-home-"))
   mkdirSync(path.join(home, "config"), { recursive: true })
-  const user = JSON.parse(readFileSync(path.join(os.homedir(), ".config", "mimocode", "mimocode.json"), "utf8"))
-  if (!user.provider?.mimo?.options?.apiKey) throw new Error("no mimo provider/key in ~/.config/mimocode/mimocode.json")
+  const user = JSON.parse(readFileSync(path.join(os.homedir(), ".config", "ymcode", "ymcode.json"), "utf8"))
+  if (!user.provider?.mimo?.options?.apiKey) throw new Error("no mimo provider/key in ~/.config/ymcode/ymcode.json")
   writeFileSync(
     path.join(home, "config", "config.json"),
     JSON.stringify({
@@ -71,7 +71,7 @@ function emittedOperation(input: unknown): string | undefined {
 async function trial(home: string, prompt: string) {
   const proc = Bun.spawn(
     ["bun", "run", "--conditions=browser", "./src/index.ts", "run", "--model", "mimo/mimo-v2.5", "--format", "json", prompt],
-    { cwd: PKG, env: { ...process.env, MIMOCODE_HOME: home }, stdout: "pipe", stderr: "ignore" },
+    { cwd: PKG, env: { ...process.env, YMCODE_HOME: home }, stdout: "pipe", stderr: "ignore" },
   )
   const ops: string[] = []
   const reader = proc.stdout.getReader()

@@ -1110,7 +1110,7 @@ describe("ProviderTransform.message - DeepSeek reasoning content", () => {
 })
 
 describe("ProviderTransform.message - forced Anthropic reasoning content", () => {
-  const flag = "MIMOCODE_FORCE_ANTHROPIC_REASONING_CONTENT"
+  const flag = "YMCODE_FORCE_ANTHROPIC_REASONING_CONTENT"
   const model = {
     id: ModelID.make("anthropic/claude-sonnet-4"),
     providerID: ProviderID.make("anthropic"),
@@ -2773,7 +2773,7 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       providerID: "opencode",
       api: {
         id: "opencode-test",
-        url: "https://api.mimocode.ai",
+        url: "https://api.ymcode.ai",
         npm: "@ai-sdk/openai-compatible",
       },
     }
@@ -5310,8 +5310,8 @@ describe("prompt image count across user and native tool results", () => {
   test.each(["tool", "assistant"] as const)(
     "drops oldest images on %s while preserving result IDs and non-image content",
     (role) => {
-      const previous = Flag.MIMOCODE_MAX_PROMPT_IMAGES
-      Flag.MIMOCODE_MAX_PROMPT_IMAGES = 2
+      const previous = Flag.YMCODE_MAX_PROMPT_IMAGES
+      Flag.YMCODE_MAX_PROMPT_IMAGES = 2
       try {
         const model = ProviderTest.model()
         model.capabilities.input.image = true
@@ -5362,7 +5362,7 @@ describe("prompt image count across user and native tool results", () => {
         expect(result[2]).toEqual(messages[2])
         expect(JSON.stringify(messages)).not.toContain("Image omitted")
       } finally {
-        Flag.MIMOCODE_MAX_PROMPT_IMAGES = previous
+        Flag.YMCODE_MAX_PROMPT_IMAGES = previous
       }
     },
   )

@@ -222,7 +222,7 @@ export const layer = Layer.effect(
 
         yield* config.get()
         const questionEnabled =
-          ["app", "cli", "desktop"].includes(Flag.MIMOCODE_CLIENT) || Flag.MIMOCODE_ENABLE_QUESTION_TOOL
+          ["app", "cli", "desktop"].includes(Flag.YMCODE_CLIENT) || Flag.YMCODE_ENABLE_QUESTION_TOOL
 
         const tool = yield* Effect.all({
           invalid: Tool.init(invalid),
@@ -274,14 +274,14 @@ export const layer = Layer.effect(
             tool.skillsearch,
             tool.skill,
             tool.patch,
-            ...(Flag.MIMOCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
+            ...(Flag.YMCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
             tool.planexit,
             tool.memory,
             tool.history,
             tool.task,
             tool.toolscript,
-            ...(Flag.MIMOCODE_EXPERIMENTAL_CRON ? [tool.cron] : []),
-            ...(Flag.MIMOCODE_EXPERIMENTAL_WORKFLOW_TOOL ? [tool.workflow] : []),
+            ...(Flag.YMCODE_EXPERIMENTAL_CRON ? [tool.cron] : []),
+            ...(Flag.YMCODE_EXPERIMENTAL_WORKFLOW_TOOL ? [tool.workflow] : []),
           ],
           actor: tool.actor,
           read: tool.read,
@@ -343,16 +343,16 @@ export const layer = Layer.effect(
     }) {
       const useGPTTools = usesGPTToolset(input.modelID, input.harness, input.apiModelID, input.family)
       let filtered = (yield* all()).filter((tool) => {
-        if (tool.id === ToolScriptTool.id) return useGPTTools || Flag.MIMOCODE_ENABLE_EXEC_TOOL
+        if (tool.id === ToolScriptTool.id) return useGPTTools || Flag.YMCODE_ENABLE_EXEC_TOOL
         if (tool.id === CodeSearchTool.id || tool.id === WebSearchTool.id) {
           if (tool.id === WebSearchTool.id) {
             return (
               input.providerID === ProviderID.opencode ||
               input.providerID === "xiaomi" ||
-              Flag.MIMOCODE_ENABLE_EXA
+              Flag.YMCODE_ENABLE_EXA
             )
           }
-          return input.providerID === ProviderID.opencode || Flag.MIMOCODE_ENABLE_EXA
+          return input.providerID === ProviderID.opencode || Flag.YMCODE_ENABLE_EXA
         }
 
         if (tool.id === ApplyPatchTool.id || tool.id === ViewImageTool.id) return useGPTTools

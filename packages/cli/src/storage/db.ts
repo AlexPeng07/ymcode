@@ -17,7 +17,7 @@ import { init } from "#db"
 import { startIndexMigration, stopIndexMigration } from "../history/migration"
 import { migrateReplaySafe } from "./migrate-replay-safe"
 
-declare const MIMOCODE_MIGRATIONS: { sql: string; timestamp: number; name: string }[] | undefined
+declare const YMCODE_MIGRATIONS: { sql: string; timestamp: number; name: string }[] | undefined
 
 export const NotFoundError = NamedError.create(
   "NotFoundError",
@@ -29,16 +29,16 @@ export const NotFoundError = NamedError.create(
 const log = Log.create({ service: "db" })
 
 export function getChannelPath() {
-  if (["latest", "beta", "prod"].includes(InstallationChannel) || Flag.MIMOCODE_DISABLE_CHANNEL_DB)
-    return path.join(Global.Path.data, "mimocode.db")
+  if (["latest", "beta", "prod"].includes(InstallationChannel) || Flag.YMCODE_DISABLE_CHANNEL_DB)
+    return path.join(Global.Path.data, "ymcode.db")
   const safe = InstallationChannel.replace(/[^a-zA-Z0-9._-]/g, "-")
-  return path.join(Global.Path.data, `mimocode-${safe}.db`)
+  return path.join(Global.Path.data, `ymcode-${safe}.db`)
 }
 
 export const Path = iife(() => {
-  if (Flag.MIMOCODE_DB) {
-    if (Flag.MIMOCODE_DB === ":memory:" || path.isAbsolute(Flag.MIMOCODE_DB)) return Flag.MIMOCODE_DB
-    return path.join(Global.Path.data, Flag.MIMOCODE_DB)
+  if (Flag.YMCODE_DB) {
+    if (Flag.YMCODE_DB === ":memory:" || path.isAbsolute(Flag.YMCODE_DB)) return Flag.YMCODE_DB
+    return path.join(Global.Path.data, Flag.YMCODE_DB)
   }
   return getChannelPath()
 })
@@ -99,22 +99,22 @@ export const Client = lazy(() => {
   // Schema = sum of migration/*.sql. The runner only treats ALTER ADD/DROP
   // and CREATE INDEX replay-safe no-ops as already-applied on a desynced journal.
   const entries =
-    typeof MIMOCODE_MIGRATIONS !== "undefined"
-      ? MIMOCODE_MIGRATIONS
+    typeof YMCODE_MIGRATIONS !== "undefined"
+      ? YMCODE_MIGRATIONS
       : migrations(path.join(import.meta.dirname, "../../migration"))
   if (entries.length > 0) {
     log.info("applying migrations", {
       count: entries.length,
-      mode: typeof MIMOCODE_MIGRATIONS !== "undefined" ? "bundled" : "dev",
+      mode: typeof YMCODE_MIGRATIONS !== "undefined" ? "bundled" : "dev",
     })
-    if (Flag.MIMOCODE_SKIP_MIGRATIONS) {
+    if (Flag.YMCODE_SKIP_MIGRATIONS) {
       for (const item of entries) {
         item.sql = "select 1;"
       }
     }
     migrateReplaySafe(db, entries)
   }
-  if (!Flag.MIMOCODE_SKIP_MIGRATIONS) startIndexMigration(db)
+  if (!Flag.YMCODE_SKIP_MIGRATIONS) startIndexMigration(db)
   return db
 })
 

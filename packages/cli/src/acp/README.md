@@ -49,7 +49,7 @@ opencode acp --cwd /path/to/project
 ACP excludes `QuestionTool` by default.
 
 ```bash
-MIMOCODE_ENABLE_QUESTION_TOOL=1 opencode acp
+YMCODE_ENABLE_QUESTION_TOOL=1 opencode acp
 ```
 
 Enable this only for ACP clients that support interactive question prompts.

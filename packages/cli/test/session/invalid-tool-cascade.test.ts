@@ -51,14 +51,14 @@ for (const entry of [
     () =>
       Effect.gen(function* () {
         const previous = {
-          cascade: process.env.MIMOCODE_DISABLE_FAIL_CASCADE,
+          cascade: process.env.YMCODE_DISABLE_FAIL_CASCADE,
         }
-        delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-        if (entry.disable) process.env.MIMOCODE_DISABLE_FAIL_CASCADE = entry.disable
+        delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+        if (entry.disable) process.env.YMCODE_DISABLE_FAIL_CASCADE = entry.disable
         yield* Effect.addFinalizer(() =>
           Effect.sync(() => {
-            if (previous.cascade == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-            else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous.cascade
+            if (previous.cascade == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+            else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous.cascade
           }),
         )
         const server = startScriptedLLMServer([
@@ -175,13 +175,13 @@ it.live(
   () =>
     Effect.gen(function* () {
       const previous = {
-        cascade: process.env.MIMOCODE_DISABLE_FAIL_CASCADE,
+        cascade: process.env.YMCODE_DISABLE_FAIL_CASCADE,
       }
-      delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
+      delete process.env.YMCODE_DISABLE_FAIL_CASCADE
       yield* Effect.addFinalizer(() =>
         Effect.sync(() => {
-          if (previous.cascade == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-          else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous.cascade
+          if (previous.cascade == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+          else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous.cascade
         }),
       )
       let controller!: ReadableStreamDefaultController<Uint8Array>

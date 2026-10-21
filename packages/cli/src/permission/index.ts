@@ -21,7 +21,7 @@ import { forwardRef } from "./permission-forward-ref"
 // compat. When set to a positive integer, new instances start with that timeout.
 // When unset or 0, permissionAskTimeoutMs starts as null (no timeout).
 const envInitialAskTimeoutMs = (): number | null => {
-  const raw = Number(process.env.MIMOCODE_SKIP_ALL_FORCED_ASK_TIMEOUT_MS)
+  const raw = Number(process.env.YMCODE_SKIP_ALL_FORCED_ASK_TIMEOUT_MS)
   return raw > 0 ? raw : null
 }
 
@@ -187,7 +187,7 @@ interface State {
   // forced-ask) that reaches the human-confirmation path auto-rejects after
   // this duration. Orthogonal to skipAll: skipAll controls auto-allow for
   // normal asks; this controls timeout for asks that still require a human.
-  // Initialized from MIMOCODE_SKIP_ALL_FORCED_ASK_TIMEOUT_MS for backward compat.
+  // Initialized from YMCODE_SKIP_ALL_FORCED_ASK_TIMEOUT_MS for backward compat.
   permissionAskTimeoutMs: number | null
 }
 
@@ -220,7 +220,7 @@ export const layer = Layer.effect(
           pending: new Map<PermissionID, PendingEntry>(),
           approved: row?.data ?? [],
           skipAll: false,
-          autoApproveDelete: Flag.MIMOCODE_AUTO_APPROVE_DELETE || Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS,
+          autoApproveDelete: Flag.YMCODE_AUTO_APPROVE_DELETE || Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS,
           permissionAskTimeoutMs: envInitialAskTimeoutMs(),
         }
 

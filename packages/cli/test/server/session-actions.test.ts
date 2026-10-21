@@ -39,14 +39,14 @@ describe("session action routes", () => {
 
         const res = await app.request(`/session/${session.id}/abort`, {
           method: "POST",
-          headers: { "x-mimocode-directory": tmp.path },
+          headers: { "x-ymcode-directory": tmp.path },
         })
 
         const body = await res.json()
         expect({ status: res.status, body }).toEqual({ status: 200, body: { ok: true, epoch: 1 } })
         const again = await app.request(`/session/${session.id}/abort`, {
           method: "POST",
-          headers: { "x-mimocode-directory": tmp.path },
+          headers: { "x-ymcode-directory": tmp.path },
         })
         expect(again.status).toBe(200)
         expect(await again.json()).toEqual({ ok: true, epoch: 2 })

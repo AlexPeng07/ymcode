@@ -26,9 +26,16 @@ export const directories = Effect.fn("ConfigPaths.directories")(function* (direc
   const afs = yield* AppFileSystem.Service
   return unique([
     Global.Path.config,
-    ...(!Flag.MIMOCODE_DISABLE_PROJECT_CONFIG
+    ...(!Flag.YMCODE_DISABLE_PROJECT_CONFIG
       ? yield* afs.up({
           targets: [".mimocode"],
+          start: directory,
+          stop: worktree,
+        })
+      : []),
+    ...(!Flag.YMCODE_DISABLE_PROJECT_CONFIG
+      ? yield* afs.up({
+          targets: [".ymcode"],
           start: directory,
           stop: worktree,
         })
@@ -38,7 +45,12 @@ export const directories = Effect.fn("ConfigPaths.directories")(function* (direc
       start: Global.Path.home,
       stop: Global.Path.home,
     })),
-    ...(Flag.MIMOCODE_CONFIG_DIR ? [Flag.MIMOCODE_CONFIG_DIR] : []),
+    ...(yield* afs.up({
+      targets: [".ymcode"],
+      start: Global.Path.home,
+      stop: Global.Path.home,
+    })),
+    ...(Flag.YMCODE_CONFIG_DIR ? [Flag.YMCODE_CONFIG_DIR] : []),
   ])
 })
 
@@ -46,11 +58,11 @@ export const claudeCommandDirectories = Effect.fn("ConfigPaths.claudeCommandDire
   directory: string,
   worktree?: string,
 ) {
-  if (Flag.MIMOCODE_DISABLE_CLAUDE_CODE_COMMANDS) return []
+  if (Flag.YMCODE_DISABLE_CLAUDE_CODE_COMMANDS) return []
   const afs = yield* AppFileSystem.Service
   return unique([
     path.join(Global.Path.home, ".claude"),
-    ...(!Flag.MIMOCODE_DISABLE_PROJECT_CONFIG
+    ...(!Flag.YMCODE_DISABLE_PROJECT_CONFIG
       ? yield* afs.up({
           targets: [".claude"],
           start: directory,

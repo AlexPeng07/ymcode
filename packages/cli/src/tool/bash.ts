@@ -31,7 +31,7 @@ import * as BashTokenEfficientHeuristic from "./bash_token_efficient_heuristic"
 
 const MAX_METADATA_LENGTH = 30_000
 export const DEFAULT_MAX_OUTPUT_TOKENS = 30_000
-const DEFAULT_TIMEOUT = Flag.MIMOCODE_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS || 2 * 60 * 1000
+const DEFAULT_TIMEOUT = Flag.YMCODE_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS || 2 * 60 * 1000
 const PS = new Set(["powershell", "pwsh"])
 // Delete targets under the OS temp dir are exempt from the forced-ask
 // confirmation: scratch space is where an agent legitimately churns files, and
@@ -817,7 +817,7 @@ export const BashTool = Tool.define(
       // archive stays raw and cleaning is skipped to keep the inline preview
       // consistent with the archive.
       const cleaned =
-        !file && Flag.MIMOCODE_EXPERIMENTAL_TOKEN_EFFICIENCY
+        !file && Flag.YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY
           ? BashTokenEfficient.clean(end.text, { command: input.command })
           : null
       if (cleaned && cleaned.bytesOut < cleaned.bytesIn) {
@@ -833,8 +833,8 @@ export const BashTool = Tool.define(
       // doesn't shrink the bytes is discarded.
       const heuristic =
         !file &&
-        Flag.MIMOCODE_EXPERIMENTAL_TOKEN_EFFICIENCY &&
-        Flag.MIMOCODE_EXPERIMENTAL_TOKEN_EFFICIENCY_HEURISTIC
+        Flag.YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY &&
+        Flag.YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY_HEURISTIC
           ? BashTokenEfficientHeuristic.cleanHeuristic(cleaned?.text ?? end.text, { command: input.command })
           : null
       if (heuristic && heuristic.bytesOut < heuristic.bytesIn) {

@@ -7,9 +7,9 @@ import { AppRuntime } from "../../src/effect/app-runtime"
 
 // [TP-ST-R7-03, TP-ST-R7-06, TP-ST-R7-07] Test the real config assembly seam.
 test("effective explicit lite and small_model beat the lowest-priority official default", async () => {
-  const saved = process.env.MIMOCODE_CONFIG_DEFAULTS
+  const saved = process.env.YMCODE_CONFIG_DEFAULTS
   try {
-    process.env.MIMOCODE_CONFIG_DEFAULTS = JSON.stringify({ model_groups: { lite: "xiaomi/mimo-flash" } })
+    process.env.YMCODE_CONFIG_DEFAULTS = JSON.stringify({ model_groups: { lite: "xiaomi/mimo-flash" } })
     for (const [input, expected] of [
       [{}, "xiaomi/mimo-flash"],
       [{ small_model: "private/small" }, "private/small"],
@@ -18,7 +18,7 @@ test("effective explicit lite and small_model beat the lowest-priority official 
     ] as const) {
       await using tmp = await tmpdir({
         init: async (dir) => {
-          await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify(input))
+          await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify(input))
         },
       })
       await Instance.provide({
@@ -30,7 +30,7 @@ test("effective explicit lite and small_model beat the lowest-priority official 
         },
       })
     }
-    delete process.env.MIMOCODE_CONFIG_DEFAULTS
+    delete process.env.YMCODE_CONFIG_DEFAULTS
     await using tmp = await tmpdir()
     await Instance.provide({
       directory: tmp.path,
@@ -39,7 +39,7 @@ test("effective explicit lite and small_model beat the lowest-priority official 
       },
     })
   } finally {
-    if (saved === undefined) delete process.env.MIMOCODE_CONFIG_DEFAULTS
-    else process.env.MIMOCODE_CONFIG_DEFAULTS = saved
+    if (saved === undefined) delete process.env.YMCODE_CONFIG_DEFAULTS
+    else process.env.YMCODE_CONFIG_DEFAULTS = saved
   }
 })

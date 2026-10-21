@@ -10,11 +10,11 @@ import { withEnv } from "../lib/env"
 
 // Isolate from bundles and host ~/.agents. Each case sets the root env it needs.
 withEnv({
-  MIMOCODE_DISABLE_BUILTIN_SKILLS: "true",
-  MIMOCODE_DISABLE_AGENTS_SKILLS: "true",
-  MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS: undefined,
-  MIMOCODE_ENABLE_CODEX_SKILLS: undefined,
-  MIMOCODE_ENABLE_OPENCODE_SKILLS: undefined,
+  YMCODE_DISABLE_BUILTIN_SKILLS: "true",
+  YMCODE_DISABLE_AGENTS_SKILLS: "true",
+  YMCODE_ENABLE_CLAUDE_CODE_SKILLS: undefined,
+  YMCODE_ENABLE_CODEX_SKILLS: undefined,
+  YMCODE_ENABLE_OPENCODE_SKILLS: undefined,
 })
 
 const it = testEffect(Layer.mergeAll(Skill.defaultLayer, CrossSpawnSpawner.defaultLayer))
@@ -90,11 +90,11 @@ describe("skill external root defaults", () => {
     ),
   )
 
-  it.live("agents root loads when MIMOCODE_DISABLE_AGENTS_SKILLS is unset", () =>
+  it.live("agents root loads when YMCODE_DISABLE_AGENTS_SKILLS is unset", () =>
     provideTmpdirInstance(
       (dir) =>
         withEnvFor(
-          { MIMOCODE_DISABLE_AGENTS_SKILLS: undefined },
+          { YMCODE_DISABLE_AGENTS_SKILLS: undefined },
           Effect.gen(function* () {
             yield* Effect.promise(() => writeSkill(dir, ".agents/skills/agent-skill", "agent-skill", "agents"))
             const skill = yield* Skill.Service
@@ -105,7 +105,7 @@ describe("skill external root defaults", () => {
     ),
   )
 
-  it.live("MIMOCODE_DISABLE_AGENTS_SKILLS turns the agents root off", () =>
+  it.live("YMCODE_DISABLE_AGENTS_SKILLS turns the agents root off", () =>
     provideTmpdirInstance(
       (dir) =>
         Effect.gen(function* () {
@@ -117,11 +117,11 @@ describe("skill external root defaults", () => {
     ),
   )
 
-  it.live("MIMOCODE_ENABLE_CODEX_SKILLS loads user skills but not skills/.system", () =>
+  it.live("YMCODE_ENABLE_CODEX_SKILLS loads user skills but not skills/.system", () =>
     provideTmpdirInstance(
       (dir) =>
         withEnvFor(
-          { MIMOCODE_ENABLE_CODEX_SKILLS: "true" },
+          { YMCODE_ENABLE_CODEX_SKILLS: "true" },
           Effect.gen(function* () {
             yield* Effect.promise(() => writeSkill(dir, ".codex/skills/user-skill", "user-skill", "user"))
             yield* Effect.promise(() => writeSkill(dir, ".codex/skills/.system/system-skill", "system-skill", "system"))
@@ -135,11 +135,11 @@ describe("skill external root defaults", () => {
     ),
   )
 
-  it.live("MIMOCODE_ENABLE_OPENCODE_SKILLS loads user skills", () =>
+  it.live("YMCODE_ENABLE_OPENCODE_SKILLS loads user skills", () =>
     provideTmpdirInstance(
       (dir) =>
         withEnvFor(
-          { MIMOCODE_ENABLE_OPENCODE_SKILLS: "true" },
+          { YMCODE_ENABLE_OPENCODE_SKILLS: "true" },
           Effect.gen(function* () {
             yield* Effect.promise(() => writeSkill(dir, ".opencode/skills/user-skill", "user-skill", "user"))
 
@@ -151,11 +151,11 @@ describe("skill external root defaults", () => {
     ),
   )
 
-  it.live("MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS loads user skills but not skills/.trash", () =>
+  it.live("YMCODE_ENABLE_CLAUDE_CODE_SKILLS loads user skills but not skills/.trash", () =>
     provideTmpdirInstance(
       (dir) =>
         withEnvFor(
-          { MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS: "true" },
+          { YMCODE_ENABLE_CLAUDE_CODE_SKILLS: "true" },
           Effect.gen(function* () {
             yield* Effect.promise(() => writeSkill(dir, ".claude/skills/user-skill", "user-skill", "user"))
             yield* Effect.promise(() => writeSkill(dir, ".claude/skills/.trash/old-skill", "old-skill", "trash"))
@@ -179,7 +179,7 @@ describe("skill external root defaults", () => {
       yield* withHome(
         tmp.path,
         withEnvFor(
-          { MIMOCODE_ENABLE_CODEX_SKILLS: "true" },
+          { YMCODE_ENABLE_CODEX_SKILLS: "true" },
           Effect.gen(function* () {
             yield* Effect.promise(() => writeSkill(tmp.path, ".codex/skills/user-skill", "user-skill", "user"))
             yield* Effect.promise(() => writeSkill(tmp.path, ".codex/skills/.system/system-skill", "system-skill", "system"))

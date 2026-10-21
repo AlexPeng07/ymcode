@@ -360,7 +360,7 @@ export class Import extends HeyApiClient {
   /**
    * Import external sessions
    *
-   * Import sessions from external AI tools (Claude Code, Codex, opencode) into mimocode. Idempotent; pass force to re-sync. Per-source failures are not thrown as HTTP errors — they are collected into the corresponding stats.errors[] while other sources continue.
+   * Import sessions from external AI tools (Claude Code, Codex, opencode) into ymcode. Idempotent; pass force to re-sync. Per-source failures are not thrown as HTTP errors — they are collected into the corresponding stats.errors[] while other sources continue.
    */
   public run<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -3428,7 +3428,7 @@ export class Permission extends HeyApiClient {
   /**
    * Get auto-approve-delete state
    *
-   * Whether irreversible deletes skip the extra bash_delete confirmation. Instance-scoped; defaults to the MIMOCODE_AUTO_APPROVE_DELETE env var.
+   * Whether irreversible deletes skip the extra bash_delete confirmation. Instance-scoped; defaults to the YMCODE_AUTO_APPROVE_DELETE env var.
    */
   public autoApproveDelete<ThrowOnError extends boolean = false>(
     parameters?: {

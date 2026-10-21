@@ -40,7 +40,7 @@ export function compiled() {
 export function argv(...args: string[]): string[] {
   // Honours the same override `mimo.js` reads, so a host that pins a specific
   // binary keeps control of which one a re-invocation reaches.
-  const pinned = process.env["MIMOCODE_BIN_PATH"]
+  const pinned = process.env["YMCODE_BIN_PATH"]
   if (pinned) return [pinned, ...args]
   if (compiled()) return [process.execPath, ...args]
   return [process.execPath, Bun.main, ...args]

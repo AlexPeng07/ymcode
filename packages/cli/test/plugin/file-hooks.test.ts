@@ -7,8 +7,8 @@ import { testEffect } from "../lib/effect"
 import { Global } from "../../src/global"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 
-const disableDefault = process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS
-process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS = "1"
+const disableDefault = process.env.YMCODE_DISABLE_DEFAULT_PLUGINS
+process.env.YMCODE_DISABLE_DEFAULT_PLUGINS = "1"
 
 const { Plugin } = await import("../../src/plugin/index")
 const { Instance } = await import("../../src/project/instance")
@@ -21,10 +21,10 @@ afterEach(async () => {
 
 afterAll(() => {
   if (disableDefault === undefined) {
-    delete process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS
+    delete process.env.YMCODE_DISABLE_DEFAULT_PLUGINS
     return
   }
-  process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS = disableDefault
+  process.env.YMCODE_DISABLE_DEFAULT_PLUGINS = disableDefault
 })
 
 function hookSource(marker: string) {
@@ -55,7 +55,7 @@ describe("plugin file hooks", () => {
     it.live(`does not import home ${folder} on startup, external edits, or reload`, () =>
       provideTmpdirInstance((dir) =>
         Effect.gen(function* () {
-          const directory = path.join(Global.Path.home, ".mimocode", folder)
+          const directory = path.join(Global.Path.home, ".ymcode", folder)
           const sink = path.join(dir, "imports.log")
           const files = ["example.ts", "example_js.js", "late.ts"].map((name) => path.join(directory, name))
           const source = [
@@ -89,14 +89,14 @@ describe("plugin file hooks", () => {
     )
   }
 
-  test("loads hooks from .mimocode/hooks and picks up external edits without reload call", async () => {
+  test("loads hooks from .ymcode/hooks and picks up external edits without reload call", async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
-        await Bun.write(path.join(dir, ".mimocode", "hooks", "greet.ts"), hookSource("v1"))
-        await Bun.write(path.join(dir, "mimocode.json"), "{}")
+        await Bun.write(path.join(dir, ".ymcode", "hooks", "greet.ts"), hookSource("v1"))
+        await Bun.write(path.join(dir, "ymcode.json"), "{}")
       },
     })
-    const hookFile = path.join(tmp.path, ".mimocode", "hooks", "greet.ts")
+    const hookFile = path.join(tmp.path, ".ymcode", "hooks", "greet.ts")
 
     const out = await Instance.provide({
       directory: tmp.path,
@@ -122,8 +122,8 @@ describe("plugin file hooks", () => {
   test("detects newly added hook files", async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
-        await fs.promises.mkdir(path.join(dir, ".mimocode", "hooks"), { recursive: true })
-        await Bun.write(path.join(dir, "mimocode.json"), "{}")
+        await fs.promises.mkdir(path.join(dir, ".ymcode", "hooks"), { recursive: true })
+        await Bun.write(path.join(dir, "ymcode.json"), "{}")
       },
     })
 
@@ -134,7 +134,7 @@ describe("plugin file hooks", () => {
           const first = yield* triggerTransform()
           expect(first.system).toEqual([])
 
-          fs.writeFileSync(path.join(tmp.path, ".mimocode", "hooks", "late.ts"), hookSource("late"))
+          fs.writeFileSync(path.join(tmp.path, ".ymcode", "hooks", "late.ts"), hookSource("late"))
           yield* Effect.promise(() => Bun.sleep(1200))
 
           return yield* triggerTransform()
@@ -152,9 +152,9 @@ describe("plugin file hooks", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         const sink = path.join(dir, "events.log")
-        await Bun.write(path.join(dir, "mimocode.json"), "{}")
+        await Bun.write(path.join(dir, "ymcode.json"), "{}")
         await Bun.write(
-          path.join(dir, ".mimocode", "hooks", "listener.ts"),
+          path.join(dir, ".ymcode", "hooks", "listener.ts"),
           [
             "import fs from 'fs'",
             "export default {",

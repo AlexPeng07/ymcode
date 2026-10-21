@@ -158,9 +158,9 @@ function createThemeInstaller(
     const name = path.basename(src, path.extname(src))
     const source_dir = path.dirname(meta.source)
     const local_dir =
-      path.basename(source_dir) === ".mimocode"
+      path.basename(source_dir) === ".ymcode"
         ? path.join(source_dir, "themes")
-        : path.join(source_dir, ".mimocode", "themes")
+        : path.join(source_dir, ".ymcode", "themes")
     const dest_dir = meta.scope === "local" ? local_dir : path.join(Global.Path.config, "themes")
     const dest = path.join(dest_dir, `${name}.json`)
     const stat = await Filesystem.statAsync(src)
@@ -744,7 +744,7 @@ function defaultPluginOrigin(state: RuntimeState, spec: string): ConfigPlugin.Or
   return {
     spec,
     scope: "local",
-    source: state.api.state.path.config || path.join(state.directory, ".mimocode", "tui.json"),
+    source: state.api.state.path.config || path.join(state.directory, ".ymcode", "tui.json"),
   }
 }
 
@@ -990,8 +990,8 @@ async function load(input: { api: Api; config: TuiConfig.Info }) {
     await Instance.provide({
       directory: cwd,
       fn: async () => {
-        const records = Flag.MIMOCODE_PURE ? [] : (config.plugin_origins ?? [])
-        if (Flag.MIMOCODE_PURE && config.plugin_origins?.length) {
+        const records = Flag.YMCODE_PURE ? [] : (config.plugin_origins ?? [])
+        if (Flag.YMCODE_PURE && config.plugin_origins?.length) {
           log.info("skipping external tui plugins in pure mode", { count: config.plugin_origins.length })
         }
 
@@ -1012,10 +1012,10 @@ async function load(input: { api: Api; config: TuiConfig.Info }) {
         const ready = await resolveExternalPlugins(records)
         await addExternalPluginEntries(next, ready)
 
-        // File-based TUI plugins from .mimocode/tui/*.{ts,tsx}
+        // File-based TUI plugins from .ymcode/tui/*.{ts,tsx}
         const configDirs = [
           path.join(Global.Path.config, "tui"),
-          path.join(cwd, ".mimocode", "tui"),
+          path.join(cwd, ".ymcode", "tui"),
         ]
         const fileTuiOrigins: ConfigPlugin.Origin[] = []
         for (const dir of configDirs) {

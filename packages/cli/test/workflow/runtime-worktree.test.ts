@@ -48,7 +48,7 @@ describe("WorkflowRuntime worktree isolation", () => {
               matcher: { agentType: ['general'] },
               run: async input => { await appendFile(${JSON.stringify(observations)}, JSON.stringify({phase, mode: input.mode, sessionID: input.sessionID, actorID: input.actorID}) + '\\n') }
             }]));`)
-          const configPath = path.join(dir, "mimocode.json")
+          const configPath = path.join(dir, "ymcode.json")
           const cfg = JSON.parse(await fsp.readFile(configPath, "utf8"))
           await fsp.writeFile(configPath, JSON.stringify({ ...cfg, plugin: [pathToFileURL(hook).href] }))
         })
@@ -101,7 +101,7 @@ describe("WorkflowRuntime worktree isolation", () => {
         yield* llm.tool("write", { file_path: "port.rs", content: "// rust" })
         yield* llm.text("done")
         // A worktree is a fresh checkout of HEAD; uncommitted files (like the
-        // fixture's mimocode.json provider config) do NOT propagate. Commit it so
+        // fixture's ymcode.json provider config) do NOT propagate. Commit it so
         // the isolated agent's worktree Instance can resolve the test provider.
         yield* Effect.promise(() => $`git add -A && git commit -q -m wf-config`.cwd(dir).quiet().nothrow())
         const script = [

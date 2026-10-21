@@ -631,7 +631,7 @@ export const layer: Layer.Layer<
     ) => Effect.Effect<TryStartCheckpointWriterResult> = Effect.fn("SessionCheckpoint.tryStartCheckpointWriter")(function* (
       input: TryStartCheckpointWriterInput,
     ) {
-      if (Flag.MIMOCODE_DISABLE_CHECKPOINT) {
+      if (Flag.YMCODE_DISABLE_CHECKPOINT) {
         log.info("checkpointing disabled, skipping checkpoint", { sessionID: input.sessionID })
         return "skipped" as const
       }

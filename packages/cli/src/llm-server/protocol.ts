@@ -3,7 +3,7 @@ import type { FinishReason, LanguageModelUsage, ModelMessage } from "ai"
 
 /**
  * OpenAI Chat Completions wire protocol, and its translation to/from the AI SDK
- * shapes MiMoCode already speaks.
+ * shapes ymcode already speaks.
  *
  * Unknown fields are IGNORED rather than rejected. Real OpenAI client libraries
  * send `parallel_tool_calls`, `store`, `metadata`, and `service_tier`

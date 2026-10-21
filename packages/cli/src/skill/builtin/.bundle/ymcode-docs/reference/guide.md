@@ -1,18 +1,18 @@
-# MiMoCode Usage Guide
+# ymcode Usage Guide
 
 How-to for the features users most often ask about. For config keys see @config.md; for permissions see @permissions.md; for commands see @commands.md.
 
 ## Getting started & auth
 
 1. **Sign in** — `mimo account login <url>` runs a device flow: it prints a URL + code and opens your browser. `/connect` does the same from inside the TUI (e.g. to add OpenRouter). OAuth logins are available for Xiaomi MiMo, Codex (ChatGPT Pro/Plus), and xAI (Grok); Claude Code auth can be imported from `~/.claude/settings*.json`. Other account subcommands: `logout`, `switch`, `orgs`, `open`, `console`.
-2. **Pick a model** — set `"model": "provider/model"` in config, or switch live in the TUI model dialog. Provider API keys are auto-detected from environment variables (unless `MIMOCODE_MIMO_ONLY=1`).
+2. **Pick a model** — set `"model": "provider/model"` in config, or switch live in the TUI model dialog. Provider API keys are auto-detected from environment variables (unless `YMCODE_MIMO_ONLY=1`).
 3. **List what's available** — `mimo models`, `mimo providers`.
 
 For a custom base URL, API key, or OpenAI-/Anthropic-compatible model, read @providers.md before editing config; it covers protocol selection, adapter names, provider reuse, secret handling, and local verification.
 
 ## TUI rendering, lag & remote use
 
-**macOS default terminal** — MiMoCode does not support the built-in Terminal.app. For misaligned output, flicker, or other rendering problems, use the VS Code integrated terminal or install iTerm2:
+**macOS default terminal** — ymcode does not support the built-in Terminal.app. For misaligned output, flicker, or other rendering problems, use the VS Code integrated terminal or install iTerm2:
 
 ```bash
 brew install --cask iterm2
@@ -33,7 +33,7 @@ mimo attach http://127.0.0.1:4096
 
 **Decorative animation** — run `/vivid`, or configure the visual-mode option in `ctrl+p`, to switch between Vivid and Minimal visuals as needed. The separate animation override can stop high-frequency motion without changing the selected visual mode.
 
-## Memory: making MiMoCode remember
+## Memory: making ymcode remember
 
 Memory persists across sessions and is auto-injected on resume, so the agent doesn't relearn project context.
 
@@ -47,7 +47,7 @@ Tune memory behavior with `checkpoint.*`, `compaction.*`, and `memory.cc_index` 
 
 ## Custom slash commands
 
-Drop a markdown file at `.mimocode/command/<name>.md` (or `.mimocode/commands/`, `.claude/command(s)/` are also read). The frontmatter configures it; the body is the prompt template.
+Drop a markdown file at `.ymcode/command/<name>.md` (or `.ymcode/commands/`, `.claude/command(s)/` are also read). The frontmatter configures it; the body is the prompt template.
 
 ```markdown
 ---
@@ -67,7 +67,7 @@ Commands hot-reload on the next turn.
 
 ## Custom agents & modes (file-based system prompts)
 
-A "mode" is just a **primary agent** with its own system prompt. To give MiMoCode a custom mode (e.g. a `general` chat mode alongside the coding-focused `build`), drop a markdown file — no code, no server changes. The frontmatter is config; the **markdown body becomes the agent's system prompt**.
+A "mode" is just a **primary agent** with its own system prompt. To give ymcode a custom mode (e.g. a `general` chat mode alongside the coding-focused `build`), drop a markdown file — no code, no server changes. The frontmatter is config; the **markdown body becomes the agent's system prompt**.
 
 ```markdown
 ---
@@ -83,9 +83,9 @@ Where to put the file (all hot-reloaded on the next turn; `.claude/agent(s)` are
 
 | Path | Scope |
 |------|-------|
-| `.mimocode/agent/<name>.md` (or `agents/`) | project agent — most common |
-| `.mimocode/mode/<name>.md` (or `modes/`) | project mode — same as an agent forced to `mode: primary` |
-| `~/.config/mimocode/agent/<name>.md` | global agent, available in every project |
+| `.ymcode/agent/<name>.md` (or `agents/`) | project agent — most common |
+| `.ymcode/mode/<name>.md` (or `modes/`) | project mode — same as an agent forced to `mode: primary` |
+| `~/.config/ymcode/agent/<name>.md` | global agent, available in every project |
 
 Frontmatter fields (all optional except that the body should be non-empty):
 
@@ -145,7 +145,7 @@ The `notebook-edit` tool edits `.ipynb` cells directly (replace / insert / delet
 
 ## Scheduled prompts (cron) & loops
 
-**Cron** schedules a prompt to be injected into a session on a recurring or one-shot basis. It is driven by the `cron` tool (no `/cron` slash command); `MIMOCODE_EXPERIMENTAL_CRON` is **on by default** (kill switch: `MIMOCODE_DISABLE_CRON`).
+**Cron** schedules a prompt to be injected into a session on a recurring or one-shot basis. It is driven by the `cron` tool (no `/cron` slash command); `YMCODE_EXPERIMENTAL_CRON` is **on by default** (kill switch: `YMCODE_DISABLE_CRON`).
 
 The `cron` tool has six verbs:
 
@@ -159,13 +159,13 @@ The `cron` tool has six verbs:
 | `delete` (alias `cancel`) | Remove a job by `id` |
 
 - **Expressions are 5-field** (`minute hour dom month dow`) and evaluated in **UTC** — there is no timezone config.
-- **Durable** jobs persist to `<project>/.mimocode/scheduled_tasks.json` and survive restart; non-durable jobs live only for the session.
+- **Durable** jobs persist to `<project>/.ymcode/scheduled_tasks.json` and survive restart; non-durable jobs live only for the session.
 - When a job fires, the prompt is injected with an `[cron fire @ <ISO>]` prefix; the TUI shows a `🕒 cron fire` clock-row before the reply.
 
 **Loop** — `/loop [interval] <prompt>` (a built-in skill) is a friendly front end: it parses an interval (e.g. `30m`, `2h`), maps it to a recurring cron job, and also runs the prompt once immediately. Manage loops with `/loops` (lists jobs; `/loops cancel <id>` stops one). Loops auto-stop after a keepalive budget of missed turns or a 7-day max age.
 
 `/loop` (cadence) and `/goal` (stop condition) are complementary and independent: `/goal` decides *whether* an autonomous agent may stop; `/loop` decides *how often* it runs.
 
-## Extending MiMoCode
+## Extending ymcode
 
-To add reusable task instructions, use the `skill-creator` skill and save them under `.mimocode/skills/<name>/SKILL.md`. For additional tools, configure an MCP server or use the plugin API.
+To add reusable task instructions, use the `skill-creator` skill and save them under `.ymcode/skills/<name>/SKILL.md`. For additional tools, configure an MCP server or use the plugin API.

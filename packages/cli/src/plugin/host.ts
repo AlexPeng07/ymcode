@@ -28,7 +28,7 @@ export function provideSdk() {
   if (provided || !canServeSdk()) return
   provided = true
   Bun.plugin({
-    name: "mimocode-host-sdk",
+    name: "ymcode-host-sdk",
     setup(build) {
       for (const [id, exports] of Object.entries(modules)) {
         build.module(id, () => ({ exports, loader: "object" }))
@@ -38,13 +38,13 @@ export function provideSdk() {
 }
 
 // Without a host SDK (the Node build) or when asked explicitly, only plugins
-// shipped in MIMOCODE_CONFIG_DIR load; user plugins never load half-working.
+// shipped in YMCODE_CONFIG_DIR load; user plugins never load half-working.
 export function onlyConfigDir() {
-  return !canServeSdk() || Flag.MIMOCODE_ONLY_CONFIG_DIR_PLUGINS
+  return !canServeSdk() || Flag.YMCODE_ONLY_CONFIG_DIR_PLUGINS
 }
 
 function inConfigDir(file: string) {
-  const root = Flag.MIMOCODE_CONFIG_DIR
+  const root = Flag.YMCODE_CONFIG_DIR
   if (!root || !path.isAbsolute(file)) return false
   const rel = path.relative(Filesystem.resolve(root), Filesystem.resolve(file))
   // Across Windows drives path.relative returns an absolute path, not "..".

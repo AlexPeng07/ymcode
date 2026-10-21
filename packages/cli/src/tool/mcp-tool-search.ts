@@ -276,7 +276,7 @@ export function renderMcpServerReminder(
 }
 
 /**
- * Parses `MIMOCODE_MCP_TOOL_SEARCH`: `true`/`1` (always, the default), `auto`
+ * Parses `YMCODE_MCP_TOOL_SEARCH`: `true`/`1` (always, the default), `auto`
  * (defer once MCP schemas exceed 10% of the context window), `auto:N` (N%),
  * `false`/`0` (never).
  */

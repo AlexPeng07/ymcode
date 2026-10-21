@@ -1,3 +1,4 @@
+import "@/env/legacy-boot"
 import { cmd } from "@/cli/cmd/cmd"
 import { tui } from "./app"
 import { Rpc } from "@/util"
@@ -15,12 +16,12 @@ import type { EventSource } from "./context/sdk"
 import { win32DisableProcessedInput, win32InstallCtrlCGuard } from "./win32"
 import { writeHeapSnapshot } from "v8"
 import { TuiConfig } from "./config/tui"
-import { MIMOCODE_PROCESS_ROLE, MIMOCODE_RUN_ID, ensureRunID, sanitizedProcessEnv } from "@/util/mimo-process"
+import { YMCODE_PROCESS_ROLE, YMCODE_RUN_ID, ensureRunID, sanitizedProcessEnv } from "@/util/ymcode-process"
 import { checkTrust, markTrusted } from "@/project/workspace-trust"
 import { t } from "@/cli/i18n"
 
 declare global {
-  const MIMOCODE_WORKER_PATH: string
+  const YMCODE_WORKER_PATH: string
 }
 
 type RpcClient = ReturnType<typeof Rpc.client<typeof rpc>>
@@ -54,7 +55,7 @@ function createEventSource(client: RpcClient): EventSource {
 }
 
 async function target() {
-  if (typeof MIMOCODE_WORKER_PATH !== "undefined") return MIMOCODE_WORKER_PATH
+  if (typeof YMCODE_WORKER_PATH !== "undefined") return YMCODE_WORKER_PATH
   const dist = new URL("./cli/cmd/tui/worker.js", import.meta.url)
   if (await Filesystem.exists(fileURLToPath(dist))) return dist
   return new URL("./worker.ts", import.meta.url)
@@ -156,12 +157,12 @@ async function promptDangerousPermissions(): Promise<boolean> {
 
 export const TuiThreadCommand = cmd({
   command: "$0 [project]",
-  describe: "start mimocode tui",
+  describe: "start ymcode tui",
   builder: (yargs) =>
     withNetworkOptions(yargs)
       .positional("project", {
         type: "string",
-        describe: "path to start mimocode in",
+        describe: "path to start ymcode in",
       })
       .option("model", {
         type: "string",
@@ -260,12 +261,12 @@ export const TuiThreadCommand = cmd({
         // Propagate to the worker (which loads config) via the env it inherits
         // from sanitizedProcessEnv. Config injects an allow-all base under the
         // user's permission rules so denies still win.
-        process.env.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS = "1"
+        process.env.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS = "1"
       }
 
       const env = sanitizedProcessEnv({
-        [MIMOCODE_PROCESS_ROLE]: "worker",
-        [MIMOCODE_RUN_ID]: ensureRunID(),
+        [YMCODE_PROCESS_ROLE]: "worker",
+        [YMCODE_RUN_ID]: ensureRunID(),
       })
 
       const worker = new Worker(file, {

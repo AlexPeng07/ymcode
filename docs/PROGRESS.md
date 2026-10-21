@@ -10,3 +10,12 @@
 - 确认汉化基线：en 487 key、zh 全覆盖；14/162 个 TUI 文件接入 i18n，339 处 `t()`；70 个内置 `SKILL.md`、9,861 行；提示词/工具描述约 2,159 行。
 - 写入设计规格 `docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`，范围：全面改名 ymcode、instincts 记忆层、界面/技能/提示词全中文。
 - 待办：依赖安装与基线门禁；改名与迁移；instincts 实现；汉化；端到端验收。
+
+### 改名与迁移进度
+
+- workspace 包名改为 `@ymcode/*`；CLI 入口改为 `ymcode`；Bun 锁定 `1.3.14`。
+- 运行时路径改为 `~/.config/ymcode`、`~/.local/share/ymcode`、`~/.ymcode`；数据库 `ymcode.db`；配置 `ymcode.json(c)`。
+- 环境变量改为 `YMCODE_*`；新增 `MIMOCODE_*` → `YMCODE_*` 启动桥。
+- 新增 `ymcode migrate --dry-run` 与首次启动自动复制迁移；旧目录只复制不删除。
+- 移除失效的 `$schema` 自动注入；旧 `opencode.ai` / `mimo.xiaomi.com` schema 行会被安全删除，保留 JSONC 注释。
+- 验证：`bun run typecheck` 通过；memory 103 pass / 2 skip；shared 56 pass；config/launcher/migration 137 pass / 5 skip（Windows 跳过 Unix 归档测试）。

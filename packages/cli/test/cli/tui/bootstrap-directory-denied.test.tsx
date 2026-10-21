@@ -13,7 +13,7 @@ import { DIRECTORY_DENIED_CODE } from "../../../src/server/routes/instance/acces
 const DENIED = "/somewhere/outside/the/server/cwd"
 
 afterEach(() => {
-  delete process.env.MIMOCODE_FAST_BOOT
+  delete process.env.YMCODE_FAST_BOOT
 })
 
 async function wait(fn: () => boolean, timeout = 5000) {
@@ -45,7 +45,7 @@ async function mount(fetchDouble: typeof fetch) {
   // SyncProvider gates its children behind `ready` (status !== "loading"), which a
   // failing bootstrap never reaches — reuse the fast-boot escape hatch so the probe
   // mounts and can drive bootstrap directly.
-  process.env.MIMOCODE_FAST_BOOT = "1"
+  process.env.YMCODE_FAST_BOOT = "1"
   const exits: unknown[] = []
   let sync!: ReturnType<typeof useSync>
   let ready!: () => void

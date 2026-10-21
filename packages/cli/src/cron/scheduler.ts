@@ -121,7 +121,7 @@ export interface Interface {
   readonly tickOnce: () => Effect.Effect<void>
 }
 
-export class Scheduler extends Context.Service<Scheduler, Interface>()("@mimocode/Scheduler") {}
+export class Scheduler extends Context.Service<Scheduler, Interface>()("@ymcode/Scheduler") {}
 
 type Runtime = {
   opts: StartOpts

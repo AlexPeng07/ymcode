@@ -15,12 +15,12 @@ import { InstanceState } from "@/effect"
 const log = Log.create({ service: "cron-bridge" })
 
 /**
- * Reads MIMOCODE_DISABLE_CRON from the live environment so a runtime flip stops
- * already-running schedulers (per spec [S10]). MIMOCODE_EXPERIMENTAL_CRON, by
+ * Reads YMCODE_DISABLE_CRON from the live environment so a runtime flip stops
+ * already-running schedulers (per spec [S10]). YMCODE_EXPERIMENTAL_CRON, by
  * contrast, is read once at start() time.
  */
 const isCronDisabled = () => {
-  const v = process.env.MIMOCODE_DISABLE_CRON
+  const v = process.env.YMCODE_DISABLE_CRON
   if (!v) return false
   const s = v.trim().toLowerCase()
   // Whitespace-only env value treated as not set (matches !v above semantically).
@@ -31,7 +31,7 @@ export interface Interface {
   /**
    * Start the scheduler for one session. Wires onFire → injectScheduledPrompt,
    * onLoopEnded → log emission, and busy→idle status edges → keepalive sweep
-   * (spec [S8]). No-op when MIMOCODE_EXPERIMENTAL_CRON is unset.
+   * (spec [S8]). No-op when YMCODE_EXPERIMENTAL_CRON is unset.
    */
   readonly start: (
     sessionID: SessionID,
@@ -48,7 +48,7 @@ export interface Interface {
   readonly runKeepaliveSweep: () => Effect.Effect<void>
 }
 
-export class CronBridge extends Context.Service<CronBridge, Interface>()("@mimocode/CronBridge") {}
+export class CronBridge extends Context.Service<CronBridge, Interface>()("@ymcode/CronBridge") {}
 
 export const layer = Layer.effect(
   CronBridge,
@@ -84,8 +84,8 @@ export const layer = Layer.effect(
     // without TDZ risk.
     const runKeepaliveSweepFor = (handle: Handle) =>
       Effect.gen(function* () {
-        const budget = Flag.MIMOCODE_LOOP_KEEPALIVE_BUDGET
-        const delaySeconds = Flag.MIMOCODE_LOOP_KEEPALIVE_DELAY_S
+        const budget = Flag.YMCODE_LOOP_KEEPALIVE_BUDGET
+        const delaySeconds = Flag.YMCODE_LOOP_KEEPALIVE_DELAY_S
         // Snapshot then clear immediately so a concurrent re-arm during the
         // sweep itself is treated as next-turn data.
         const armedSnapshot = new Set(handle.armedThisTurn)
@@ -137,7 +137,7 @@ export const layer = Layer.effect(
       Effect.suspend(() => {
         let mounted: Handle | undefined
         return Effect.gen(function* () {
-          if (!Flag.MIMOCODE_EXPERIMENTAL_CRON) {
+          if (!Flag.YMCODE_EXPERIMENTAL_CRON) {
             yield* Effect.sync(() => log.info("cron disabled by flag — bridge inert", { sessionID }))
             return
           }

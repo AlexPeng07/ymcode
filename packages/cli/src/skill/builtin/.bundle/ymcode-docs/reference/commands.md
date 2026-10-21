@@ -1,4 +1,4 @@
-# MiMoCode Commands Reference
+# ymcode Commands Reference
 
 ## CLI (`mimo <command>`)
 
@@ -14,7 +14,7 @@ Invoked from the shell. `mimo` with no command opens the TUI.
 | `mimo providers` | List / manage providers |
 | `mimo account` (console) | Account / login console |
 | `mimo upgrade` | Update to the latest version |
-| `mimo uninstall` | Uninstall MiMoCode |
+| `mimo uninstall` | Uninstall ymcode |
 | `mimo serve` | Run the server |
 | `mimo llm-server issue`/`list`/`revoke` | Mint and manage tokens that let a task reach this instance's models over `/v1`; it starts nothing — see @capability-api.md |
 | `mimo stats` | Usage statistics |
@@ -36,7 +36,7 @@ For terminal compatibility, TUI rendering or lag, and local rendering over SSH w
 
 ## Slash commands (inside the TUI)
 
-Type `/` to see the commands available in the current context. You can also ask in chat, for example, “Which slash commands can I use?” or “How do I switch models?” MiMoCode will explain the relevant command without requiring you to remember its name.
+Type `/` to see the commands available in the current context. You can also ask in chat, for example, “Which slash commands can I use?” or “How do I switch models?” ymcode will explain the relevant command without requiring you to remember its name.
 
 Most client commands run only when the whole input is the command. `/btw <question>` and prompt commands that accept arguments are the exceptions.
 
@@ -68,7 +68,7 @@ Most client commands run only when the whole input is the command. `/btw <questi
 | `/light` | — | Switch to light mode |
 | `/help` | — | Open command help |
 | `/doc` | `/docs` | Open the user documentation |
-| `/exit` | `/quit`, `/q` | Exit MiMoCode |
+| `/exit` | `/quit`, `/q` | Exit ymcode |
 | `/language` | `/lang` | Switch the TUI language |
 
 ### Prompt commands

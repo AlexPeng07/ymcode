@@ -21,21 +21,21 @@ import { extractBuiltinBundle, OFFICIAL_SKILL_NAMES } from "./builtin/extract"
 const log = Log.create({ service: "skill" })
 // Scan order is load order: later roots win same-name collisions against earlier
 // non-bundled skills. Open-standard .agents sits last among brand roots;
-// .mimocode config dirs load after these.
+// .ymcode config dirs load after these.
 const EXTERNAL_DIRS = [".claude", ".codex", ".opencode", ".agents"]
 const EXTERNAL_SKILL_PATTERN = "skills/**/SKILL.md"
-const MIMOCODE_SKILL_PATTERN = "{skill,skills}/**/SKILL.md"
+const YMCODE_SKILL_PATTERN = "{skill,skills}/**/SKILL.md"
 const SKILL_PATTERN = "**/SKILL.md"
 const BUILTIN_SKILL_PATTERN = "skills/*/SKILL.md"
 
-// Brand roots opt in via MIMOCODE_ENABLE_*_SKILLS; .agents stays on unless
-// MIMOCODE_DISABLE_AGENTS_SKILLS is set.
+// Brand roots opt in via YMCODE_ENABLE_*_SKILLS; .agents stays on unless
+// YMCODE_DISABLE_AGENTS_SKILLS is set.
 const externalSkillDirs = () =>
   EXTERNAL_DIRS.filter((dir) => {
-    if (dir === ".agents") return !Flag.MIMOCODE_DISABLE_AGENTS_SKILLS
-    if (dir === ".claude") return Flag.MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS
-    if (dir === ".codex") return Flag.MIMOCODE_ENABLE_CODEX_SKILLS
-    if (dir === ".opencode") return Flag.MIMOCODE_ENABLE_OPENCODE_SKILLS
+    if (dir === ".agents") return !Flag.YMCODE_DISABLE_AGENTS_SKILLS
+    if (dir === ".claude") return Flag.YMCODE_ENABLE_CLAUDE_CODE_SKILLS
+    if (dir === ".codex") return Flag.YMCODE_ENABLE_CODEX_SKILLS
+    if (dir === ".opencode") return Flag.YMCODE_ENABLE_OPENCODE_SKILLS
     return true
   })
 
@@ -193,14 +193,14 @@ const discoverStableSkills = Effect.fnUntraced(function* (
   const bundledRoots: string[] = []
 
   // Extract builtin skills to disk first (user skills with same name override)
-  if (!Flag.MIMOCODE_DISABLE_BUILTIN_SKILLS) {
+  if (!Flag.YMCODE_DISABLE_BUILTIN_SKILLS) {
     const builtinSkillRoot = yield* extractBuiltinBundle(fsys).pipe(
       Effect.catch(() => Effect.succeed(undefined)),
     )
     if (builtinSkillRoot && (yield* fsys.isDir(builtinSkillRoot))) {
       bundledRoots.push(builtinSkillRoot)
       yield* scan(state, builtinSkillRoot, BUILTIN_SKILL_PATTERN, { scope: "builtin" })
-      if (Flag.MIMOCODE_DISABLE_OFFICIAL_SKILLS) {
+      if (Flag.YMCODE_DISABLE_OFFICIAL_SKILLS) {
         const skillsRoot = path.join(builtinSkillRoot, "skills")
         for (const name of OFFICIAL_SKILL_NAMES) {
           const prefix = path.join(skillsRoot, name) + path.sep
@@ -251,7 +251,7 @@ const discoverSkills = Effect.fnUntraced(function* (
 
   const configDirs = yield* config.directories()
   for (const dir of configDirs) {
-    yield* scan(state, dir, MIMOCODE_SKILL_PATTERN)
+    yield* scan(state, dir, YMCODE_SKILL_PATTERN)
   }
 
   const cfg = yield* config.get()

@@ -15,7 +15,7 @@ import { testEffect } from "../lib/effect"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 
 // The test process shares a single in-memory SQLite DB (test/preload sets
-// MIMOCODE_DB=:memory:), so other suites' SessionTable/PartTable rows are visible
+// YMCODE_DB=:memory:), so other suites' SessionTable/PartTable rows are visible
 // here. backfillAll() walks ALL sessions in the DB and would index those rows,
 // so wipe the relevant tables both before AND after each test.
 const wipe = () =>
@@ -290,7 +290,7 @@ test("background migration delays startup, rests after expensive work and cancel
 
 // R6/N1: 失败退避后**慢速续试**，不永久清空 job（否则「索引整理中」卡到下次进程启动）。
 test("index migration keeps slow-retrying after five failed attempts", () => {
-  process.env.MIMOCODE_SKIP_MIGRATIONS = "1"
+  process.env.YMCODE_SKIP_MIGRATIONS = "1"
   Database.close()
   const scheduled: { run: () => void; delay: number }[] = []
   const timeout = spyOn(globalThis, "setTimeout").mockImplementation(((run: () => void, delay: number) => {
@@ -326,7 +326,7 @@ test("index migration keeps slow-retrying after five failed attempts", () => {
     expect(attempts).toBe(7)
     expect(scheduled.length).toBe(afterQuick + 1)
   } finally {
-    delete process.env.MIMOCODE_SKIP_MIGRATIONS
+    delete process.env.YMCODE_SKIP_MIGRATIONS
     timeout.mockRestore()
   }
 })
@@ -403,7 +403,7 @@ for (const count of [0, 300]) {
         [process.execPath, fileURLToPath(new URL("./fixtures/backfill-restart.ts", import.meta.url))],
         {
           cwd: process.cwd(),
-          env: { ...process.env, MIMOCODE_DB: file, HISTORY_BATCH_LIMIT: String(limit) },
+          env: { ...process.env, YMCODE_DB: file, HISTORY_BATCH_LIMIT: String(limit) },
           stdout: "pipe",
           stderr: "pipe",
         },

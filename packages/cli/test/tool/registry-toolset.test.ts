@@ -211,10 +211,10 @@ describe("ToolRegistry.tools: toolset selection", () => {
   it.live.skip("masks multiedit for GPT models", () =>
     provideTmpdirInstance((dir) =>
       Effect.gen(function* () {
-        yield* Effect.promise(() => fs.mkdir(path.join(dir, ".mimocode/tool"), { recursive: true }))
+        yield* Effect.promise(() => fs.mkdir(path.join(dir, ".ymcode/tool"), { recursive: true }))
         yield* Effect.promise(() =>
           Bun.write(
-            path.join(dir, ".mimocode/tool/multiedit.ts"),
+            path.join(dir, ".ymcode/tool/multiedit.ts"),
             [
               "export default {",
               "  description: 'multi-edit files',",

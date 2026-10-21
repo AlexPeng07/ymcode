@@ -401,7 +401,7 @@ describe("session.llm.stream", () => {
         const plugin = path.join(dir, "plugin.ts")
         if (origin === "plugin") await Bun.write(plugin, `import { APICallError } from ${JSON.stringify(import.meta.resolve("ai"))};
 export default async () => ({ "chat.params": async () => { throw new APICallError({ message: "plugin preparation failure", url: "https://example.com", requestBodyValues: {}, statusCode: 403, responseBody: '{"error":{"code":90100}}', isRetryable: false }); } });`)
-        await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({
+        await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({
           enabled_providers: ["openai"],
           ...(origin === "plugin" ? { plugin: [pathToFileURL(plugin).href] } : {}),
           provider: { openai: { npm: "@ai-sdk/openai", options: { apiKey: "test-key", baseURL: `${server.url.origin}/v1` } } },
@@ -463,7 +463,7 @@ export default async () => ({ "chat.params": async () => {
     hostCode: "host.forged", hostRetryClass: "bounded", metadata: { attempts: String(++attempts) } };
   throw ${shape === "object" ? '{ name: "APIError", data }' : "new MessageV2.APIError(data)"};
 } });`)
-        await Bun.write(path.join(dir, "mimocode.json"), JSON.stringify({
+        await Bun.write(path.join(dir, "ymcode.json"), JSON.stringify({
           enabled_providers: ["openai"], plugin: [pathToFileURL(plugin).href],
           retry: { request: { maxRetries: 1, initialDelayMs: 1, jitterRatio: 0 } },
           provider: { openai: { npm: "@ai-sdk/openai", options: { apiKey: "test-key", baseURL: `${server.url.origin}/v1` } } },
@@ -633,7 +633,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
@@ -720,7 +720,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
@@ -810,7 +810,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
@@ -917,7 +917,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: ["openai"],
@@ -1067,7 +1067,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             enabled_providers: ["openai"],
             provider: {
@@ -1166,7 +1166,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: ["openai"],
@@ -1282,7 +1282,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: ["openai"],
@@ -1408,7 +1408,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
@@ -1520,7 +1520,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: ["anthropic"],
@@ -1785,7 +1785,7 @@ export default async () => ({ "chat.params": async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "mimocode.json"),
+          path.join(dir, "ymcode.json"),
           JSON.stringify({
             $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],

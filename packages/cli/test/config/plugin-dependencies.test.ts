@@ -39,7 +39,7 @@ for (const dependencies of [
       (dir) =>
         Effect.gen(function* () {
           yield* Effect.promise(async () => {
-            const local = path.join(dir, ".mimocode")
+            const local = path.join(dir, ".ymcode")
             await Bun.write(path.join(local, "plugins", "example.js"), "export default async () => ({})\n")
             await Bun.write(path.join(local, "tui.json"), JSON.stringify({ plugin: ["./plugins/example.js"] }))
             if (dependencies) await Bun.write(path.join(local, "package.json"), JSON.stringify({ dependencies }))
@@ -53,7 +53,7 @@ for (const dependencies of [
           expect(tui.plugin).toHaveLength(1)
 
           yield* Effect.promise(async () => {
-            const local = path.join(dir, ".mimocode")
+            const local = path.join(dir, ".ymcode")
             expect(await Bun.file(path.join(local, "package.json")).exists()).toBe(!!dependencies)
             if (dependencies) {
               expect(await Bun.file(path.join(local, "package.json")).json()).toEqual({ dependencies })

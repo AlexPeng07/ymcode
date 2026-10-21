@@ -13,7 +13,6 @@ import {
   binaryNameFor,
   releaseUrl,
   vendorBinaryPath,
-  DEFAULT_FDS_BASE,
   ensureBinary,
   stageWindowsRunCopy,
 } from "../../launcher.js"
@@ -25,18 +24,18 @@ describe("launcher targets", () => {
   })
 
   test.each([
-    [{ platform: "linux", arch: "arm64", avx2: false, musl: false }, "mimocode-linux-arm64"],
-    [{ platform: "linux", arch: "x64", avx2: true, musl: false }, "mimocode-linux-x64"],
-    [{ platform: "linux", arch: "x64", avx2: false, musl: false }, "mimocode-linux-x64-baseline"],
-    [{ platform: "linux", arch: "arm64", avx2: false, musl: true }, "mimocode-linux-arm64-musl"],
-    [{ platform: "linux", arch: "x64", avx2: true, musl: true }, "mimocode-linux-x64-musl"],
-    [{ platform: "linux", arch: "x64", avx2: false, musl: true }, "mimocode-linux-x64-baseline-musl"],
-    [{ platform: "darwin", arch: "arm64", avx2: true, musl: false }, "mimocode-darwin-arm64"],
-    [{ platform: "darwin", arch: "x64", avx2: true, musl: false }, "mimocode-darwin-x64"],
-    [{ platform: "darwin", arch: "x64", avx2: false, musl: false }, "mimocode-darwin-x64-baseline"],
-    [{ platform: "windows", arch: "arm64", avx2: true, musl: false }, "mimocode-windows-arm64"],
-    [{ platform: "windows", arch: "x64", avx2: true, musl: false }, "mimocode-windows-x64"],
-    [{ platform: "windows", arch: "x64", avx2: false, musl: false }, "mimocode-windows-x64-baseline"],
+    [{ platform: "linux", arch: "arm64", avx2: false, musl: false }, "ymcode-linux-arm64"],
+    [{ platform: "linux", arch: "x64", avx2: true, musl: false }, "ymcode-linux-x64"],
+    [{ platform: "linux", arch: "x64", avx2: false, musl: false }, "ymcode-linux-x64-baseline"],
+    [{ platform: "linux", arch: "arm64", avx2: false, musl: true }, "ymcode-linux-arm64-musl"],
+    [{ platform: "linux", arch: "x64", avx2: true, musl: true }, "ymcode-linux-x64-musl"],
+    [{ platform: "linux", arch: "x64", avx2: false, musl: true }, "ymcode-linux-x64-baseline-musl"],
+    [{ platform: "darwin", arch: "arm64", avx2: true, musl: false }, "ymcode-darwin-arm64"],
+    [{ platform: "darwin", arch: "x64", avx2: true, musl: false }, "ymcode-darwin-x64"],
+    [{ platform: "darwin", arch: "x64", avx2: false, musl: false }, "ymcode-darwin-x64-baseline"],
+    [{ platform: "windows", arch: "arm64", avx2: true, musl: false }, "ymcode-windows-arm64"],
+    [{ platform: "windows", arch: "x64", avx2: true, musl: false }, "ymcode-windows-x64"],
+    [{ platform: "windows", arch: "x64", avx2: false, musl: false }, "ymcode-windows-x64-baseline"],
   ])("detectTarget %o → %s", (options, expected) => {
     expect(detectTarget(options)).toBe(expected)
     expect(PLATFORMS).toContain(expected)
@@ -46,45 +45,43 @@ describe("launcher targets", () => {
     expect(() => detectTarget({ platform: "freebsd", arch: "x64" })).toThrow(/Unsupported platform/)
     expect(() => detectTarget({ platform: "linux", arch: "ia32" })).toThrow(/Unsupported architecture/)
     // arm64 never gets a baseline suffix even without AVX2
-    expect(detectTarget({ platform: "darwin", arch: "arm64", avx2: false, musl: false })).toBe("mimocode-darwin-arm64")
+    expect(detectTarget({ platform: "darwin", arch: "arm64", avx2: false, musl: false })).toBe("ymcode-darwin-arm64")
   })
 
   test("archive and binary names follow the release layout", () => {
-    expect(archiveNameFor("mimocode-linux-x64")).toBe("mimocode-linux-x64.tar.gz")
-    expect(archiveNameFor("mimocode-linux-x64-baseline-musl")).toBe("mimocode-linux-x64-baseline-musl.tar.gz")
-    expect(archiveNameFor("mimocode-darwin-arm64")).toBe("mimocode-darwin-arm64.zip")
-    expect(archiveNameFor("mimocode-windows-x64-baseline")).toBe("mimocode-windows-x64-baseline.zip")
-    expect(binaryNameFor("mimocode-linux-x64")).toBe("mimo")
-    expect(binaryNameFor("mimocode-windows-x64")).toBe("mimo.exe")
+    expect(archiveNameFor("ymcode-linux-x64")).toBe("ymcode-linux-x64.tar.gz")
+    expect(archiveNameFor("ymcode-linux-x64-baseline-musl")).toBe("ymcode-linux-x64-baseline-musl.tar.gz")
+    expect(archiveNameFor("ymcode-darwin-arm64")).toBe("ymcode-darwin-arm64.zip")
+    expect(archiveNameFor("ymcode-windows-x64-baseline")).toBe("ymcode-windows-x64-baseline.zip")
+    expect(binaryNameFor("ymcode-linux-x64")).toBe("ymcode")
+    expect(binaryNameFor("ymcode-windows-x64")).toBe("ymcode.exe")
   })
 
-  test("release URL pins the package version and honors MIMO_FDS_BASE", () => {
-    const previous = process.env.MIMO_FDS_BASE
+  test("release URL pins the package version and honors YMCODE_FDS_BASE", () => {
+    const previous = process.env.YMCODE_FDS_BASE
     try {
-      delete process.env.MIMO_FDS_BASE
-      expect(releaseUrl("1.2.3", "mimocode-linux-x64")).toBe(
-        `${DEFAULT_FDS_BASE}/releases/v1.2.3/mimocode-linux-x64.tar.gz`,
-      )
-      process.env.MIMO_FDS_BASE = "https://mirror.example/mimo/"
-      expect(releaseUrl("1.2.3", "mimocode-darwin-arm64")).toBe(
-        "https://mirror.example/mimo/releases/v1.2.3/mimocode-darwin-arm64.zip",
+      delete process.env.YMCODE_FDS_BASE
+      expect(() => releaseUrl("1.2.3", "ymcode-linux-x64")).toThrow(/YMCODE_FDS_BASE/)
+      process.env.YMCODE_FDS_BASE = "https://mirror.example/ymcode/"
+      expect(releaseUrl("1.2.3", "ymcode-darwin-arm64")).toBe(
+        "https://mirror.example/ymcode/releases/v1.2.3/ymcode-darwin-arm64.zip",
       )
     } finally {
-      if (previous === undefined) delete process.env.MIMO_FDS_BASE
-      else process.env.MIMO_FDS_BASE = previous
+      if (previous === undefined) delete process.env.YMCODE_FDS_BASE
+      else process.env.YMCODE_FDS_BASE = previous
     }
   })
 
   test("vendor path is package-local", async () => {
     await using tmp = await tmpdir()
-    const dest = vendorBinaryPath(tmp.path, "mimocode-windows-x64")
-    expect(dest).toBe(path.join(tmp.path, "vendor", "mimo.exe"))
+    const dest = vendorBinaryPath(tmp.path, "ymcode-windows-x64")
+    expect(dest).toBe(path.join(tmp.path, "vendor", "ymcode.exe"))
   })
 
   test("stageWindowsRunCopy is identity off-Windows (vendor stays the real file)", async () => {
     if (process.platform === "win32") return
     await using tmp = await tmpdir()
-    const source = path.join(tmp.path, "vendor", "mimo")
+    const source = path.join(tmp.path, "vendor", "ymcode")
     fs.mkdirSync(path.dirname(source), { recursive: true })
     fs.writeFileSync(source, "bin")
     expect(stageWindowsRunCopy(source, "9.9.9")).toBe(source)
@@ -93,18 +90,18 @@ describe("launcher targets", () => {
 })
 
 describe("ensureBinary", () => {
-  test("downloads, extracts, and caches a linux archive", async () => {
+  test.skipIf(process.platform === "win32")("downloads, extracts, and caches a linux archive", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
-    const target = "mimocode-linux-x64"
-    const binary = path.join(root, "vendor", "mimo")
+    const target = "ymcode-linux-x64"
+    const binary = path.join(root, "vendor", "ymcode")
 
     // Build a real tar.gz that looks like the release layout (binary at archive root).
     const work = path.join(root, "build")
     fs.mkdirSync(work, { recursive: true })
-    fs.writeFileSync(path.join(work, "mimo"), "#!/bin/sh\necho ok\n")
-    const archivePath = path.join(root, "mimocode-linux-x64.tar.gz")
-    const tar = Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "mimo"])
+    fs.writeFileSync(path.join(work, "ymcode"), "#!/bin/sh\necho ok\n")
+    const archivePath = path.join(root, "ymcode-linux-x64.tar.gz")
+    const tar = Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "ymcode"])
     expect(tar.exitCode).toBe(0)
 
     const server = Bun.serve({
@@ -154,15 +151,15 @@ describe("ensureBinary", () => {
     }
   })
 
-  test("prefers a published sha256 and rejects mismatches", async () => {
+  test.skipIf(process.platform === "win32")("prefers a published sha256 and rejects mismatches", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
-    const target = "mimocode-linux-x64"
+    const target = "ymcode-linux-x64"
     const work = path.join(root, "build")
     fs.mkdirSync(work, { recursive: true })
-    fs.writeFileSync(path.join(work, "mimo"), "binary-bytes")
+    fs.writeFileSync(path.join(work, "ymcode"), "binary-bytes")
     const archivePath = path.join(root, "a.tar.gz")
-    Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "mimo"])
+    Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "ymcode"])
     const bytes = fs.readFileSync(archivePath)
     const good = createHash("sha256").update(bytes).digest("hex")
 
@@ -200,14 +197,14 @@ describe("ensureBinary", () => {
     }
   })
 
-  test("checks the archive after an authenticated server releases the same endpoint", async () => {
+  test.skipIf(process.platform === "win32")("checks the archive after an authenticated server releases the same endpoint", async () => {
     await using tmp = await tmpdir()
-    const target = "mimocode-linux-x64"
+    const target = "ymcode-linux-x64"
     const work = path.join(tmp.path, "build")
     fs.mkdirSync(work)
-    fs.writeFileSync(path.join(work, "mimo"), "binary-bytes")
+    fs.writeFileSync(path.join(work, "ymcode"), "binary-bytes")
     const archivePath = path.join(tmp.path, "a.tar.gz")
-    expect(Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "mimo"]).exitCode).toBe(0)
+    expect(Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "ymcode"]).exitCode).toBe(0)
 
     const app = new Hono()
     app.use("*", basicAuth({ username: "test", password: "test-password" }))
@@ -245,15 +242,15 @@ describe("ensureBinary", () => {
     }
   })
 
-  test("skips checksum when the endpoint is missing or unhealthy (does not brick install)", async () => {
+  test.skipIf(process.platform === "win32")("skips checksum when the endpoint is missing or unhealthy (does not brick install)", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
-    const target = "mimocode-linux-x64"
+    const target = "ymcode-linux-x64"
     const work = path.join(root, "build")
     fs.mkdirSync(work, { recursive: true })
-    fs.writeFileSync(path.join(work, "mimo"), "binary-bytes")
+    fs.writeFileSync(path.join(work, "ymcode"), "binary-bytes")
     const archivePath = path.join(root, "a.tar.gz")
-    Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "mimo"])
+    Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, "ymcode"])
 
     for (const status of [404, 403, 500] as const) {
       const server = Bun.serve({

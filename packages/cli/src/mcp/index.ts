@@ -98,7 +98,7 @@ export const TURN_LIFECYCLE_NOTIFICATION_TIMEOUT = 1_000
 export const TURN_LIFECYCLE_STUCK_TIMEOUT = TURN_LIFECYCLE_NOTIFICATION_TIMEOUT
 
 /**
- * Capabilities MiMoCode declares in `initialize`. Exported so tests assert on the
+ * Capabilities ymcode declares in `initialize`. Exported so tests assert on the
  * SAME object the client is constructed with rather than a copy that could drift.
  */
 export const CLIENT_OPTIONS = {
@@ -525,7 +525,7 @@ export const layer = Layer.effect(
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner
     const auth = yield* McpAuth.Service
     const bus = yield* Bus.Service
-    const createClient = () => new ManagedClient({ name: "mimocode", version: InstallationVersion }, CLIENT_OPTIONS)
+    const createClient = () => new ManagedClient({ name: "ymcode", version: InstallationVersion }, CLIENT_OPTIONS)
 
     type Transport = ObservingStdioTransport | StreamableHTTPClientTransport | SSEClientTransport
 

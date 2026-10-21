@@ -55,7 +55,7 @@ export class ToolGate {
   private seq = 0
   private failed = false
   private readonly cancelled = new Set<string>()
-  private readonly cascade = !Flag.MIMOCODE_DISABLE_FAIL_CASCADE
+  private readonly cascade = !Flag.YMCODE_DISABLE_FAIL_CASCADE
 
   /**
    * Queue for admission. Resolves with a unique token (call ids may collide

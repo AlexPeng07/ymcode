@@ -1,8 +1,8 @@
 # Capability API — lending this instance's models
 
-Every MiMoCode server already serves an OpenAI-compatible surface over the models this
+Every ymcode server already serves an OpenAI-compatible surface over the models this
 project has configured, mounted at `/v1`. There is no separate LLM server to start and no
-daemon to manage: if a MiMoCode process is listening, the endpoints are there.
+daemon to manage: if a ymcode process is listening, the endpoints are there.
 
 The point is to stop handing real provider keys to things that only need "a model". A task,
 skill, or subprocess gets this instance's base URL plus a throwaway scoped token; the real
@@ -63,7 +63,7 @@ Run it in the same directory the server was launched from — a token is bound t
   absolute ceiling from issue; both accept `30m` / `12h` / `7d` / `none`.
 - `--json` prints `api_key`, `id`, `base_url`, `expires_at`, `models`, plus `renew_argv` /
   `renew_command` already resolved for this installation, so a consumer can recover from
-  expiry without knowing how MiMoCode was invoked. `base_url` is `null` when nothing is
+  expiry without knowing how ymcode was invoked. `base_url` is `null` when nothing is
   serving this directory.
 - Issuing repeatedly is normal: each call adds a token, so one consumer per token with its
   own scope, label and lifetime. `list` shows them all, `revoke <id>` removes one.
@@ -73,7 +73,7 @@ Run it in the same directory the server was launched from — a token is bound t
 
 Base path `<base_url>/v1`. Auth is `Authorization: Bearer <token>`; `x-api-key` and `api-key`
 are accepted too. These routes **always** authenticate with a minted token, independent of
-`MIMOCODE_SERVER_PASSWORD`.
+`YMCODE_SERVER_PASSWORD`.
 
 Model ids are always `providerID/modelID` — pass them through verbatim, never split.
 
@@ -96,4 +96,4 @@ so a stock OpenAI client works by changing `base_url` alone. Provider-native kno
 | 401 | `invalid_api_key` | Missing, invalid, or revoked — stop retrying |
 | 400 | — | The request asked for something unsupported |
 | 404 | `model_not_found` | No such model in this instance |
-| 502 | — | The upstream provider failed, not MiMoCode |
+| 502 | — | The upstream provider failed, not ymcode |

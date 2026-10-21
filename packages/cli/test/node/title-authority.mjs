@@ -95,14 +95,14 @@ for (const logging of ["0", "1"])
       XDG_DATA_HOME: join(dir, "data"),
       XDG_CACHE_HOME: join(dir, "cache"),
       XDG_STATE_HOME: join(dir, "state"),
-      MIMOCODE_TEST_MANAGED_CONFIG_DIR: join(dir, "managed"),
-      MIMOCODE_DB: join(dir, "engine.db"),
-      MIMOCODE_DISABLE_DEFAULT_PLUGINS: "true",
-      MIMOCODE_EXPERIMENTAL: "0",
-      MIMOCODE_EXPERIMENTAL_WORKSPACES: logging,
-      MIMOCODE_CONFIG_CONTENT: "{}",
-      MIMOCODE_CONFIG_DEFAULTS: "{}",
-      MIMOCODE_SERVER_PASSWORD: "",
+      YMCODE_TEST_MANAGED_CONFIG_DIR: join(dir, "managed"),
+      YMCODE_DB: join(dir, "engine.db"),
+      YMCODE_DISABLE_DEFAULT_PLUGINS: "true",
+      YMCODE_EXPERIMENTAL: "0",
+      YMCODE_EXPERIMENTAL_WORKSPACES: logging,
+      YMCODE_CONFIG_CONTENT: "{}",
+      YMCODE_CONFIG_DEFAULTS: "{}",
+      YMCODE_SERVER_PASSWORD: "",
     }
     async function request(path, body, method = "GET") {
       const script = `const {Server}=await import(${JSON.stringify(engine)}); const r=await Server.Default().app.request(${JSON.stringify(path)}, {method:${JSON.stringify(method)},headers:{'content-type':'application/json'},${body === undefined ? "" : `body:${JSON.stringify(JSON.stringify(body))}`} }); console.log('TITLE_RESULT:'+JSON.stringify({status:r.status,data:await r.json()})); process.exit(0);`
@@ -136,7 +136,7 @@ for (const logging of ["0", "1"])
       const same = await request(url, { title: winner.title, expectedRevision: 0 }, "PATCH")
       assert.equal(same.status, 409)
       assert.equal(same.data.data.current.titleRevision, 1)
-      const db = new DatabaseSync(env.MIMOCODE_DB)
+      const db = new DatabaseSync(env.YMCODE_DB)
       try {
         const titleEvents = db
           .prepare(

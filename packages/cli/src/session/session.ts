@@ -382,7 +382,7 @@ export const Event = {
 
 export function plan(input: { slug: string; time: { created: number } }) {
   const base = Instance.project.vcs
-    ? path.join(Instance.worktree, ".mimocode", "plans")
+    ? path.join(Instance.worktree, ".ymcode", "plans")
     : path.join(Global.Path.data, "plans")
   return path.join(base, [input.time.created, input.slug].join("-") + ".md")
 }
@@ -601,7 +601,7 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | 
         tools: "INHERIT",
       }).pipe(Effect.ignore)
 
-      if (!Flag.MIMOCODE_EXPERIMENTAL_WORKSPACES) {
+      if (!Flag.YMCODE_EXPERIMENTAL_WORKSPACES) {
         // This only exist for backwards compatibility. We should not be
         // manually publishing this event; it is a sync event now
         yield* bus.publish(Event.Updated, {
@@ -1105,7 +1105,7 @@ export function* list(input?: {
   if (input?.workspaceID) {
     conditions.push(eq(SessionTable.workspace_id, input.workspaceID))
   }
-  if (!Flag.MIMOCODE_EXPERIMENTAL_WORKSPACES) {
+  if (!Flag.YMCODE_EXPERIMENTAL_WORKSPACES) {
     if (input?.directory) {
       conditions.push(eq(SessionTable.directory, input.directory))
     }

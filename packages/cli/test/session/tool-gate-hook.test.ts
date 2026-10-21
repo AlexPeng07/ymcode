@@ -43,9 +43,9 @@ it.live(
         (dir) =>
           Effect.gen(function* () {
             yield* Effect.promise(async () => {
-              await fs.mkdir(path.join(dir, ".mimocode", "hooks"), { recursive: true })
+              await fs.mkdir(path.join(dir, ".ymcode", "hooks"), { recursive: true })
               await fs.writeFile(
-                path.join(dir, ".mimocode", "hooks", "redirect.ts"),
+                path.join(dir, ".ymcode", "hooks", "redirect.ts"),
                 `export default {
         "tool.execute.before": async (input, output) => {
           if (input.tool !== "write" || output.args.file_path !== "logical.txt") return

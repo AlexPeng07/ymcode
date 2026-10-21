@@ -2,9 +2,9 @@ import { describe, expect, test } from "bun:test"
 import path from "path"
 import { ConfigMarkdown } from "../../src/config"
 
-const root = path.resolve(import.meta.dir, "../../src/skill/builtin/.bundle/mimocode-docs")
+const root = path.resolve(import.meta.dir, "../../src/skill/builtin/.bundle/ymcode-docs")
 
-describe("mimocode-docs provider guidance", () => {
+describe("ymcode-docs provider guidance", () => {
   test("routes provider requests to the dedicated reference", async () => {
     const skill = await Bun.file(path.join(root, "SKILL.md")).text()
 
@@ -38,8 +38,8 @@ describe("mimocode-docs provider guidance", () => {
   test("documents the effective global config precedence", async () => {
     const providers = await Bun.file(path.join(root, "reference/providers.md")).text()
 
-    expect(providers).toContain("`config.json`, `mimocode.json`, then `mimocode.jsonc`; later files win")
-    expect(providers).toContain("create `mimocode.jsonc` when none exists")
+    expect(providers).toContain("`config.json`, `ymcode.json`, then `ymcode.jsonc`; later files win")
+    expect(providers).toContain("create `ymcode.jsonc` when none exists")
   })
 
   test("keeps a newly configured API model in TUI recents without clobbering state", async () => {
@@ -49,7 +49,7 @@ describe("mimocode-docs provider guidance", () => {
 
     expect(skill).toContain("put that exact `provider/model` at the front of the TUI recent-model state")
     expect(config).toContain("TUI recent/favorite models in `model.json`")
-    expect(providers).toContain("$MIMOCODE_HOME/state/model.json")
+    expect(providers).toContain("$YMCODE_HOME/state/model.json")
     expect(providers).toContain("Respect `XDG_STATE_HOME`")
     expect(providers).toContain("Preserve every top-level field, especially `favorite` and `variant`")
     expect(providers).toContain("remove any later entry with the same `providerID` and `modelID`")
@@ -66,7 +66,7 @@ describe("mimocode-docs provider guidance", () => {
   })
 })
 
-describe("mimocode-docs TUI troubleshooting", () => {
+describe("ymcode-docs TUI troubleshooting", () => {
   test("routes rendering issues to actionable terminal and SSH guidance", async () => {
     const skill = await ConfigMarkdown.parse(path.join(root, "SKILL.md"))
     const guide = await Bun.file(path.join(root, "reference/guide.md")).text()
@@ -94,7 +94,7 @@ describe("mimocode-docs TUI troubleshooting", () => {
  * `patterns: [server]`), and the page's own example uses the glob-map form, so
  * listing it as action-only contradicted the example two paragraphs below it.
  */
-describe("mimocode-docs permission arity", () => {
+describe("ymcode-docs permission arity", () => {
   test("classifies mcp_sampling as glob-keyed, not action-only", async () => {
     const permissions = await Bun.file(path.join(root, "reference/permissions.md")).text()
 

@@ -36,7 +36,7 @@ function makeCtx() {
 }
 
 // Project and outside targets live in SEPARATE fixture roots OUTSIDE the
-// mimocode worktree (`outsideGit`). The project is its OWN git repo so
+// ymcode worktree (`outsideGit`). The project is its OWN git repo so
 // Instance.worktree is that directory — not a shared ancestor like /tmp (which
 // is itself a git repo on some machines and would swallow every /tmp sibling).
 async function withProjectAndOutside<T>(

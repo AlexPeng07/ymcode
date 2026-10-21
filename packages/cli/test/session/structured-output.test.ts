@@ -20,14 +20,14 @@ for (const disabled of [false, true])
     () =>
       Effect.gen(function* () {
         const previous = {
-          cascade: process.env.MIMOCODE_DISABLE_FAIL_CASCADE,
+          cascade: process.env.YMCODE_DISABLE_FAIL_CASCADE,
         }
-        delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-        if (disabled) process.env.MIMOCODE_DISABLE_FAIL_CASCADE = "1"
+        delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+        if (disabled) process.env.YMCODE_DISABLE_FAIL_CASCADE = "1"
         yield* Effect.addFinalizer(() =>
           Effect.sync(() => {
-            if (previous.cascade == null) delete process.env.MIMOCODE_DISABLE_FAIL_CASCADE
-            else process.env.MIMOCODE_DISABLE_FAIL_CASCADE = previous.cascade
+            if (previous.cascade == null) delete process.env.YMCODE_DISABLE_FAIL_CASCADE
+            else process.env.YMCODE_DISABLE_FAIL_CASCADE = previous.cascade
           }),
         )
         const server = startScriptedLLMServer([

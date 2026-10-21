@@ -243,11 +243,11 @@ export const layer = Layer.effect(
         const { Server } = yield* Effect.promise(() => import("../server/server"))
 
         const client = createOpencodeClient({
-          baseUrl: "http://mimocode.internal",
+          baseUrl: "http://ymcode.internal",
           directory: ctx.directory,
-          headers: Flag.MIMOCODE_SERVER_PASSWORD
+          headers: Flag.YMCODE_SERVER_PASSWORD
             ? {
-                Authorization: `Basic ${Buffer.from(`${Flag.MIMOCODE_SERVER_USERNAME ?? "mimocode"}:${Flag.MIMOCODE_SERVER_PASSWORD}`).toString("base64")}`,
+                Authorization: `Basic ${Buffer.from(`${Flag.YMCODE_SERVER_USERNAME ?? "ymcode"}:${Flag.YMCODE_SERVER_PASSWORD}`).toString("base64")}`,
               }
             : undefined,
           fetch: async (...args) => (await Server.Default()).app.fetch(...args),
@@ -265,7 +265,7 @@ export const layer = Layer.effect(
           },
           get serverUrl(): URL {
             // Real URL after listen; placeholder origin has no conventional port hardcode.
-            return Server.url ?? new URL("http://mimocode.internal")
+            return Server.url ?? new URL("http://ymcode.internal")
           },
           // @ts-expect-error
           $: typeof Bun === "undefined" ? undefined : Bun.$,
@@ -286,8 +286,8 @@ export const layer = Layer.effect(
           if (init._tag === "Some") registerHook(hooks, hooksWithMeta, init.value, plugin.name || "internal")
         }
 
-        const plugins = Flag.MIMOCODE_PURE ? [] : (cfg.plugin_origins ?? [])
-        if (Flag.MIMOCODE_PURE && cfg.plugin_origins?.length) {
+        const plugins = Flag.YMCODE_PURE ? [] : (cfg.plugin_origins ?? [])
+        if (Flag.YMCODE_PURE && cfg.plugin_origins?.length) {
           log.info("skipping external plugins in pure mode", { count: cfg.plugin_origins.length })
         }
         const loaded = yield* Effect.promise(() =>
@@ -392,11 +392,11 @@ export const layer = Layer.effect(
         yield* config.get()
         // Exclude home-level file hooks from both initial discovery and reloads.
         const candidates = (yield* config.directories()).filter(
-          (dir) => path.resolve(dir) !== path.resolve(Global.Path.home, ".mimocode"),
+          (dir) => path.resolve(dir) !== path.resolve(Global.Path.home, ".ymcode"),
         )
         const dirs = PluginHost.filterDirectories(candidates)
         if (dirs.length < candidates.length) {
-          log.info("skipping file hook directories outside MIMOCODE_CONFIG_DIR", { count: candidates.length - dirs.length })
+          log.info("skipping file hook directories outside YMCODE_CONFIG_DIR", { count: candidates.length - dirs.length })
         }
         PluginHost.provideSdk()
 

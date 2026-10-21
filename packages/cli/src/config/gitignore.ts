@@ -1,7 +1,7 @@
 import { stat, writeFile } from "fs/promises"
 import { join } from "path"
 
-export const MIMOCODE_GITIGNORE_ENTRIES = [
+export const YMCODE_GITIGNORE_ENTRIES = [
   "node_modules",
   "package.json",
   "package-lock.json",
@@ -18,5 +18,5 @@ export async function ensureMimocodeGitignore(dir: string) {
     () => false,
   )
   if (exists) return
-  await writeFile(gitignorePath, MIMOCODE_GITIGNORE_ENTRIES.join("\n")).catch(() => {})
+  await writeFile(gitignorePath, YMCODE_GITIGNORE_ENTRIES.join("\n")).catch(() => {})
 }

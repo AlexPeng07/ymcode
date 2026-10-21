@@ -415,13 +415,13 @@ export function compressImage(
 }
 
 // Shrink an attachment the caller already knows is over
-// Flag.MIMOCODE_MAX_ATTACHMENT_SIZE (from stat or the base64 length, so the
+// Flag.YMCODE_MAX_ATTACHMENT_SIZE (from stat or the base64 length, so the
 // common under-limit case never pays for this). An image is recompressed to a
 // JPEG under the limit; anything that cannot be shrunk — undecodable image
 // formats, PDFs, audio, video — yields undefined and the caller drops it with
 // a notice.
 export function shrinkAttachment(mime: string, bytes: Buffer): { mime: string; base64: string } | undefined {
   if (!mime.startsWith("image/")) return undefined
-  const shrunk = compressImage(mime, bytes, Flag.MIMOCODE_MAX_ATTACHMENT_SIZE)
+  const shrunk = compressImage(mime, bytes, Flag.YMCODE_MAX_ATTACHMENT_SIZE)
   return shrunk ? { mime: shrunk.mediaType, base64: shrunk.data } : undefined
 }

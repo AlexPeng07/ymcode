@@ -204,7 +204,7 @@ export namespace PluginLoader {
     PluginHost.provideSdk()
     const items = PluginHost.filterOrigins(input.items)
     if (items.length < input.items.length) {
-      log.info("skipping plugins outside MIMOCODE_CONFIG_DIR", { kind: input.kind, count: input.items.length - items.length })
+      log.info("skipping plugins outside YMCODE_CONFIG_DIR", { kind: input.kind, count: input.items.length - items.length })
     }
     const candidates = items.map((origin) => ({ origin, plan: plan(origin.spec) }))
     const list: Array<Promise<R | undefined>> = []

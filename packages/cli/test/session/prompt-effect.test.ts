@@ -168,30 +168,30 @@ function withSh<A, E, R>(fx: () => Effect.Effect<A, E, R>) {
 /** Scoped opt-out of MCP lazy loading, for tests exercising directly exposed MCP tools. */
 const directMcpTools = Effect.acquireRelease(
   Effect.sync(() => {
-    const previous = process.env.MIMOCODE_MCP_TOOL_SEARCH
-    process.env.MIMOCODE_MCP_TOOL_SEARCH = "false"
+    const previous = process.env.YMCODE_MCP_TOOL_SEARCH
+    process.env.YMCODE_MCP_TOOL_SEARCH = "false"
     return previous
   }),
   (previous) =>
     Effect.sync(() => {
-      if (previous === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-      else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous
+      if (previous === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+      else process.env.YMCODE_MCP_TOOL_SEARCH = previous
     }),
 )
 
 function dynamicSystemPrompt<A, E, R>(value: string | undefined, fx: () => Effect.Effect<A, E, R>) {
   return Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previous = process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
-      if (value === undefined) delete process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
-      else process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = value
+      const previous = process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+      if (value === undefined) delete process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+      else process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = value
       return previous
     }),
     () => fx(),
     (previous) =>
       Effect.sync(() => {
-        if (previous === undefined) delete process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
-        else process.env.MIMOCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = previous
+        if (previous === undefined) delete process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+        else process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = previous
       }),
   )
 }
@@ -782,8 +782,8 @@ it.live("[TP-R1-01][TP-R4-02][TP-R7-01] uncommitted-hint dirty USER turn produce
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       try {
@@ -822,8 +822,8 @@ it.live("[TP-R1-01][TP-R4-02][TP-R7-01] uncommitted-hint dirty USER turn produce
         const settled = yield* statusSvc.get(chat.id)
         expect(settled.type).toBe("idle")
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
       }
     }),
     { git: true, config: providerCfg },
@@ -844,8 +844,8 @@ it.live("[TP-R4-02] uncommitted-hint cancel hook turn then dirty USER turn re-hi
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       const countHints = Effect.fn("test.countUhHints")(function* (sessionID: SessionID) {
@@ -894,8 +894,8 @@ it.live("[TP-R4-02] uncommitted-hint cancel hook turn then dirty USER turn re-hi
         // 1 (first inject) + 1 (second dirty user turn) = 2
         expect(yield* countHints(chat.id)).toBe(2)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
       }
     }),
     { git: true, config: providerCfg },
@@ -914,8 +914,8 @@ it.live("[TP-R3-01][TP-R4-01][TP-R7-01] uncommitted-hint disabled USER turn does
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: false } },
       })
       try {
@@ -938,8 +938,8 @@ it.live("[TP-R3-01][TP-R4-01][TP-R7-01] uncommitted-hint disabled USER turn does
         )
         expect(hints).toHaveLength(0)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
       }
     }),
     { git: true, config: providerCfg },
@@ -957,8 +957,8 @@ it.live("[TP-R4-01][TP-R7-01] uncommitted-hint enabled + hook-source turn does n
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       try {
@@ -981,8 +981,8 @@ it.live("[TP-R4-01][TP-R7-01] uncommitted-hint enabled + hook-source turn does n
         )
         expect(hints).toHaveLength(0)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
       }
     }),
     { git: true, config: providerCfg },
@@ -1075,7 +1075,7 @@ it.live("[TP-R4-01] machine command with protocol file part + provenance is acce
       yield* Effect.promise(async () => {
         const { mkdirSync, writeFileSync } = await import("node:fs")
         const { join } = await import("node:path")
-        const cmdDir = join(dir, ".mimocode", "command")
+        const cmdDir = join(dir, ".ymcode", "command")
         mkdirSync(cmdDir, { recursive: true })
         writeFileSync(
           join(cmdDir, "auto-cmd.md"),
@@ -1126,8 +1126,8 @@ it.live("[TP-R4-01] uncommitted-hint cancel during first git probe produces no l
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       let reached: (() => void) | undefined
@@ -1171,8 +1171,8 @@ it.live("[TP-R4-01] uncommitted-hint cancel during first git probe produces no l
         expect(hints).toHaveLength(0)
         expect((yield* llm.inputs).length).toBe(inputsAtProbe)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintGitProbeBarrier.onReached = undefined
         hintGitProbeBarrier.wait = undefined
         releaseGit?.()
@@ -1194,8 +1194,8 @@ it.live("[TP-R4-01] uncommitted-hint main cancel after child runLoop still kills
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       let reached: (() => void) | undefined
@@ -1253,8 +1253,8 @@ it.live("[TP-R4-01] uncommitted-hint main cancel after child runLoop still kills
         )
         expect(hints).toHaveLength(0)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintClaimBarrier.onReached = undefined
         hintClaimBarrier.wait = undefined
         hintFirePostBarrier.onReached = undefined
@@ -1281,8 +1281,8 @@ it.live("[TP-R4-01][TP-R7-01] uncommitted-hint busy claim does not inject and do
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       try {
@@ -1329,8 +1329,8 @@ it.live("[TP-R4-01][TP-R7-01] uncommitted-hint busy claim does not inject and do
           ),
         ).toHaveLength(0)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintClaimBarrier.onReached = undefined
         hintClaimBarrier.wait = undefined
       }
@@ -1350,8 +1350,8 @@ it.live("[TP-R4-01] uncommitted-hint cancel-only invalidates pending follow-up b
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       let reached: (() => void) | undefined
@@ -1403,8 +1403,8 @@ it.live("[TP-R4-01] uncommitted-hint cancel-only invalidates pending follow-up b
         const inputsAfter = (yield* llm.inputs).length
         expect(inputsAfter).toBe(inputsAtBarrier)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintClaimBarrier.onReached = undefined
         hintClaimBarrier.wait = undefined
         releaseA?.()
@@ -1426,8 +1426,8 @@ it.live("[TP-R4-01] uncommitted-hint supersession after barrier drops stale A by
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       let reached: (() => void) | undefined
@@ -1486,8 +1486,8 @@ it.live("[TP-R4-01] uncommitted-hint supersession after barrier drops stale A by
           expect(hint.info.model.variant).toBe("high")
         }
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintClaimBarrier.onReached = undefined
         hintClaimBarrier.wait = undefined
         releaseA?.()
@@ -1509,8 +1509,8 @@ it.live("[TP-R4-01] uncommitted-hint delete during wait produces no late hint me
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       let reached: (() => void) | undefined
@@ -1562,8 +1562,8 @@ it.live("[TP-R4-01] uncommitted-hint delete during wait produces no late hint me
           expect(String(msgExit.cause)).toContain("NotFoundError")
         }
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         hintClaimBarrier.onReached = undefined
         hintClaimBarrier.wait = undefined
         releaseA?.()
@@ -1585,8 +1585,8 @@ it.live("[TP-R7-01] uncommitted-hint decision logs land in a WARN-level sink", (
         writeFileSync(join(dir, "dirty.txt"), "x")
         return true
       })
-      const prev = process.env.MIMOCODE_CONFIG_CONTENT
-      process.env.MIMOCODE_CONFIG_CONTENT = JSON.stringify({
+      const prev = process.env.YMCODE_CONFIG_CONTENT
+      process.env.YMCODE_CONFIG_CONTENT = JSON.stringify({
         experimental: { uncommitted_hint: { enabled: true } },
       })
       const prevLogPath = Global.Path.log
@@ -1627,8 +1627,8 @@ it.live("[TP-R7-01] uncommitted-hint decision logs land in a WARN-level sink", (
         // Isolation check (R017): path still points at the WARN dir until finally restores it.
         expect(Global.Path.log).toBe(warnLogDir)
       } finally {
-        if (prev === undefined) delete process.env.MIMOCODE_CONFIG_CONTENT
-        else process.env.MIMOCODE_CONFIG_CONTENT = prev
+        if (prev === undefined) delete process.env.YMCODE_CONFIG_CONTENT
+        else process.env.YMCODE_CONFIG_CONTENT = prev
         // Restore shared test-process log sink including LEVEL (R017: omit ≠ reset).
         yield* Effect.promise(async () => {
           const { rm } = await import("node:fs/promises")
@@ -3742,10 +3742,10 @@ reminderMcpIt.live("MCP reminders list each callable name once", () =>
 reminderMcpIt.live(
   "MCP auto mode can re-evaluate without an announcement or call and leaves user input unchanged",
   () => {
-    const previous = process.env.MIMOCODE_MCP_TOOL_SEARCH
+    const previous = process.env.YMCODE_MCP_TOOL_SEARCH
     return provideTmpdirServer(
       Effect.fnUntraced(function* ({ llm }) {
-        process.env.MIMOCODE_MCP_TOOL_SEARCH = "auto:100"
+        process.env.YMCODE_MCP_TOOL_SEARCH = "auto:100"
         const { session, requests } = yield* reminderSession(llm, [
           { configured: false, servers: [] },
           connectedReadiness,
@@ -3763,8 +3763,8 @@ reminderMcpIt.live(
     ).pipe(
       Effect.ensuring(
         Effect.sync(() => {
-          if (previous === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-          else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous
+          if (previous === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+          else process.env.YMCODE_MCP_TOOL_SEARCH = previous
         }),
       ),
     )
@@ -3772,10 +3772,10 @@ reminderMcpIt.live(
 )
 
 reminderMcpIt.live("MCP auto deferral recognizes legacy announcement metadata", () => {
-  const previous = process.env.MIMOCODE_MCP_TOOL_SEARCH
+  const previous = process.env.YMCODE_MCP_TOOL_SEARCH
   return provideTmpdirServer(
     Effect.fnUntraced(function* ({ llm }) {
-      process.env.MIMOCODE_MCP_TOOL_SEARCH = "auto:100"
+      process.env.YMCODE_MCP_TOOL_SEARCH = "auto:100"
       reminderReadiness = connectedReadiness
       const prompt = yield* SessionPrompt.Service
       const sessions = yield* Session.Service
@@ -3806,8 +3806,8 @@ reminderMcpIt.live("MCP auto deferral recognizes legacy announcement metadata", 
   ).pipe(
     Effect.ensuring(
       Effect.sync(() => {
-        if (previous === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-        else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous
+        if (previous === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+        else process.env.YMCODE_MCP_TOOL_SEARCH = previous
       }),
     ),
   )
@@ -3930,11 +3930,11 @@ flappingMcpIt.live("defers a mid-turn MCP arrival to the next turn instead of re
 )
 
 flappingMcpIt.live("keeps auto mode deferred when MCP tools first arrive under the threshold", () => {
-  const previous = process.env.MIMOCODE_MCP_TOOL_SEARCH
+  const previous = process.env.YMCODE_MCP_TOOL_SEARCH
   return provideTmpdirServer(
     Effect.fnUntraced(function* ({ llm }) {
       const requests = yield* flappingSession(llm, (turn) => {
-        process.env.MIMOCODE_MCP_TOOL_SEARCH = "auto:100"
+        process.env.YMCODE_MCP_TOOL_SEARCH = "auto:100"
         flappingConnected = () => turn !== 0
       })
       const tools = requests.map((request) => JSON.stringify(request.tools))
@@ -3948,8 +3948,8 @@ flappingMcpIt.live("keeps auto mode deferred when MCP tools first arrive under t
   ).pipe(
     Effect.ensuring(
       Effect.sync(() => {
-        if (previous === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-        else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous
+        if (previous === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+        else process.env.YMCODE_MCP_TOOL_SEARCH = previous
       }),
     ),
     Effect.ensuring(resetFlapping),
@@ -3957,11 +3957,11 @@ flappingMcpIt.live("keeps auto mode deferred when MCP tools first arrive under t
 })
 
 flappingMcpIt.live("keeps auto mode deferred after the MCP schemas drop back under the threshold", () => {
-  const previous = process.env.MIMOCODE_MCP_TOOL_SEARCH
+  const previous = process.env.YMCODE_MCP_TOOL_SEARCH
   return provideTmpdirServer(
     Effect.fnUntraced(function* ({ llm }) {
       const requests = yield* flappingSession(llm, (turn) => {
-        process.env.MIMOCODE_MCP_TOOL_SEARCH = turn === 0 ? "auto:0" : "auto:100"
+        process.env.YMCODE_MCP_TOOL_SEARCH = turn === 0 ? "auto:0" : "auto:100"
       })
       const tools = requests.map((request) => JSON.stringify(request.tools))
       expect(tools[0]).toContain("mcp_tool_search")
@@ -3973,8 +3973,8 @@ flappingMcpIt.live("keeps auto mode deferred after the MCP schemas drop back und
   ).pipe(
     Effect.ensuring(
       Effect.sync(() => {
-        if (previous === undefined) delete process.env.MIMOCODE_MCP_TOOL_SEARCH
-        else process.env.MIMOCODE_MCP_TOOL_SEARCH = previous
+        if (previous === undefined) delete process.env.YMCODE_MCP_TOOL_SEARCH
+        else process.env.YMCODE_MCP_TOOL_SEARCH = previous
       }),
     ),
     Effect.ensuring(resetFlapping),

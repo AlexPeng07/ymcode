@@ -27,7 +27,7 @@ function mimeToModality(mime: string): Modality | undefined {
   return undefined
 }
 
-export const OUTPUT_TOKEN_MAX = Flag.MIMOCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX || 32_000
+export const OUTPUT_TOKEN_MAX = Flag.YMCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX || 32_000
 export const LARGE_MODEL_OUTPUT_TOKEN_MAX = 128_000
 
 export function usesLargeModelDefaults(model: { id: string; providerID: string; api: { id: string } }) {
@@ -657,7 +657,7 @@ function normalizeContentArray(msgs: ModelMessage[]): ModelMessage[] {
 // branch as signed reasoning. Compatible endpoints may intentionally accept it;
 // the official Anthropic API can still reject an unverifiable signature.
 function forceAnthropicReasoningContent(msgs: ModelMessage[], model: Provider.Model): ModelMessage[] {
-  if (!Flag.MIMOCODE_FORCE_ANTHROPIC_REASONING_CONTENT) return msgs
+  if (!Flag.YMCODE_FORCE_ANTHROPIC_REASONING_CONTENT) return msgs
   if (!["@ai-sdk/anthropic", "@ai-sdk/google-vertex/anthropic"].includes(model.api.npm)) return msgs
 
   return msgs.map((msg) => {
@@ -870,7 +870,7 @@ function imageWithinCaps(mime: string, bytes: Buffer, maxSize: number, maxDimens
 //
 // The caps are provider-aware: Anthropic/Claude routes get the ~5 MB byte limit
 // and 2000 px longest-edge limit; other providers remain untouched unless the
-// explicit Flag.MIMOCODE_MAX_PROMPT_IMAGE_SIZE byte override is set.
+// explicit Flag.YMCODE_MAX_PROMPT_IMAGE_SIZE byte override is set.
 //
 // For the capped providers the size cap runs by default (no flag needed) because a
 // single >5 MB image in history otherwise 400s on every subsequent request and
@@ -878,8 +878,8 @@ function imageWithinCaps(mime: string, bytes: Buffer, maxSize: number, maxDimens
 // compressing it in transform, which runs immediately before send, self-heals such
 // "poison" history (including images already sitting in history / tool_result).
 function limitImages(msgs: ModelMessage[], model: Provider.Model): ModelMessage[] {
-  const maxImages = Flag.MIMOCODE_MAX_PROMPT_IMAGES
-  const maxSize = Flag.MIMOCODE_MAX_PROMPT_IMAGE_SIZE ?? providerImageCap(model)
+  const maxImages = Flag.YMCODE_MAX_PROMPT_IMAGES
+  const maxSize = Flag.YMCODE_MAX_PROMPT_IMAGE_SIZE ?? providerImageCap(model)
   const maxDimension = providerImageDimensionCap(model)
 
   // The provider content shape for tool-result output values is untyped in the

@@ -41,7 +41,7 @@ describe("Filesystem.contains", () => {
   // On POSIX these pairs already yield ".." from host relative(); the assertion
   // still documents the contract and locks the predicate if anyone runs win32.
   test("blocks cross-drive and cross-share paths", () => {
-    expect(Filesystem.contains("C:\\mimocode\\config", "D:\\plugins\\evil")).toBe(false)
+    expect(Filesystem.contains("C:\\ymcode\\config", "D:\\plugins\\evil")).toBe(false)
     expect(Filesystem.contains("\\\\server\\share\\root", "\\\\other\\share\\file")).toBe(false)
   })
 })
@@ -157,8 +157,8 @@ describe("Instance.containsPath", () => {
     await Instance.provide({
       directory: subdir,
       fn: () => {
-        // .mimocode at worktree root, but we're running from packages/lib
-        expect(Instance.containsPath(path.join(tmp.path, ".mimocode", "state"))).toBe(true)
+        // .ymcode at worktree root, but we're running from packages/lib
+        expect(Instance.containsPath(path.join(tmp.path, ".ymcode", "state"))).toBe(true)
         // sibling package should also be accessible
         expect(Instance.containsPath(path.join(tmp.path, "packages", "other", "file.ts"))).toBe(true)
         // worktree root itself

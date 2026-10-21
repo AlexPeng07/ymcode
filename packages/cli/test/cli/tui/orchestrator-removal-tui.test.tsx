@@ -109,11 +109,11 @@ function historyMessage(id: string, sessionID: string) {
 function requestDirectory(request: Request) {
   // Real SDK client (packages/sdk/src/v2/client.ts): GET/HEAD rewrite the
   // directory into the query string; every other method keeps it on the
-  // x-mimocode-directory header, URI-encoded. Reading only the query therefore
+  // x-ymcode-directory header, URI-encoded. Reading only the query therefore
   // misses every POST.
   const url = new URL(request.url)
   if (request.method === "GET" || request.method === "HEAD") return url.searchParams.get("directory") ?? undefined
-  const header = request.headers.get("x-mimocode-directory")
+  const header = request.headers.get("x-ymcode-directory")
   if (header == null) return undefined
   return decodeURIComponent(header)
 }
@@ -184,7 +184,7 @@ function createEvents() {
   } as never
 }
 
-const tuiConfig = { theme: "mimocode", keybind: {} } as never
+const tuiConfig = { theme: "ymcode", keybind: {} } as never
 
 function Providers(props: {
   args?: Record<string, unknown>
@@ -402,7 +402,7 @@ describe("orchestrator removal TUI receipt (production paths)", () => {
       expect(submitPosts[0]!.path).toContain("ses_existing_root")
       expect(JSON.stringify(submitPosts[0]!.body)).toContain(SUBMIT)
       // Real SDK directory + request directory stay on the launch dir.
-      // POST directory is the x-mimocode-directory header — no `?? DIR` fallback.
+      // POST directory is the x-ymcode-directory header — no `?? DIR` fallback.
       expect(h.sdk.directory).toBe(DIR)
       expect(submitPosts[0]!.directory).toBe(DIR)
       expect(http.posts.filter((p) => p.method === "POST" && p.path === "/session").length).toBe(0)

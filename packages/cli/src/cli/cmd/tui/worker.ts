@@ -1,3 +1,4 @@
+import "@/env/legacy-boot"
 import { Installation } from "@/installation"
 import { Server } from "@/server/server"
 import { Log } from "@/util"
@@ -12,7 +13,7 @@ import { writeHeapSnapshot } from "node:v8"
 import { Heap } from "@/cli/heap"
 import { AppRuntime } from "@/effect/app-runtime"
 import { SessionCheckpoint } from "@/session/checkpoint"
-import { ensureProcessMetadata } from "@/util/mimo-process"
+import { ensureProcessMetadata } from "@/util/ymcode-process"
 
 import { ModelsDev } from "@/provider/models"
 import { watchModelsCatalogReload } from "@/provider/models-catalog-reload"
@@ -151,8 +152,8 @@ export const rpc = {
 Rpc.listen(rpc)
 
 function getAuthorizationHeader(): string | undefined {
-  const password = Flag.MIMOCODE_SERVER_PASSWORD
+  const password = Flag.YMCODE_SERVER_PASSWORD
   if (!password) return undefined
-  const username = Flag.MIMOCODE_SERVER_USERNAME ?? "mimocode"
+  const username = Flag.YMCODE_SERVER_USERNAME ?? "ymcode"
   return `Basic ${btoa(`${username}:${password}`)}`
 }

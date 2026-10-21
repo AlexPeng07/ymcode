@@ -27,7 +27,7 @@ import { zod, ZodOverride } from "@/util/effect-zod"
 import { ConfigAgent } from "./agent"
 import { ConfigCommand } from "./command"
 import { ConfigFormatter } from "./formatter"
-import { MIMOCODE_GITIGNORE_ENTRIES } from "./gitignore"
+import { YMCODE_GITIGNORE_ENTRIES } from "./gitignore"
 import { ConfigLayout } from "./layout"
 import { ConfigLSP } from "./lsp"
 import { ConfigManaged } from "./managed"
@@ -35,6 +35,7 @@ import { ConfigMCP } from "./mcp"
 import { ConfigModelID } from "./model-id"
 import { ConfigParse } from "./parse"
 import { ConfigPaths } from "./paths"
+import { stripLegacySchema } from "../util/strip-legacy-schema"
 import { ConfigPermission } from "./permission"
 import { ConfigPlugin } from "./plugin"
 import { ConfigProvider } from "./provider"
@@ -67,7 +68,7 @@ function normalizeLoadedConfig(data: unknown, source: string) {
   delete copy.theme
   delete copy.keybinds
   delete copy.tui
-  log.warn("tui keys in mimocode config are deprecated; move them to tui.json", { path: source })
+  log.warn("tui keys in ymcode config are deprecated; move them to tui.json", { path: source })
   return copy
 }
 
@@ -110,7 +111,7 @@ const InfoSchema = Schema.Struct({
     description: "Token lifetime defaults for the temporary local LLM server (mimo llm-server)",
   }),
   command: Schema.optional(Schema.Record(Schema.String, ConfigCommand.Info)).annotate({
-    description: "Command configuration, see https://mimo.xiaomi.com/mimocode/commands",
+    description: "Command configuration, see https://mimo.xiaomi.com/ymcode/commands",
   }),
   skills: Schema.optional(ConfigSkills.Info).annotate({ description: "Additional skill folder paths" }),
   watcher: Schema.optional(
@@ -199,7 +200,7 @@ const InfoSchema = Schema.Struct({
       }),
       [Schema.Record(Schema.String, AgentRef)],
     ),
-  ).annotate({ description: "Agent configuration, see https://mimo.xiaomi.com/mimocode/agents" }),
+  ).annotate({ description: "Agent configuration, see https://mimo.xiaomi.com/ymcode/agents" }),
   provider: Schema.optional(Schema.Record(Schema.String, ConfigProvider.Info)).annotate({
     description: "Custom provider configurations and model overrides",
   }),
@@ -340,7 +341,7 @@ const InfoSchema = Schema.Struct({
       }),
       cc_index: Schema.optional(Schema.Boolean).annotate({
         description:
-          "Index Claude Code memory (~/.claude/projects/<slug>/memory) and expose under scope='cc'. Default: false. Note: when enabled, every mimocode agent (build/explore/subagents) can search these memories via the builtin `memory` tool — including CC's `type: user` (your role/preferences) and `type: feedback` (your guidance) categories. CC originally writes them for future CC sessions; flipping this on widens the consumer set to mimocode agents on the same machine. Leave disabled (default) if you don't want personal context recallable from a prompt-injection-vulnerable agent.",
+          "Index Claude Code memory (~/.claude/projects/<slug>/memory) and expose under scope='cc'. Default: false. Note: when enabled, every ymcode agent (build/explore/subagents) can search these memories via the builtin `memory` tool — including CC's `type: user` (your role/preferences) and `type: feedback` (your guidance) categories. CC originally writes them for future CC sessions; flipping this on widens the consumer set to ymcode agents on the same machine. Leave disabled (default) if you don't want personal context recallable from a prompt-injection-vulnerable agent.",
       }),
     }),
   ),
@@ -526,7 +527,7 @@ export interface Interface {
 export class Service extends Context.Service<Service, Interface>()("@opencode/Config") {}
 
 function globalConfigFile() {
-  const candidates = ["mimocode.jsonc", "mimocode.json", "config.json"].map((file) =>
+  const candidates = ["ymcode.jsonc", "ymcode.json", "config.json"].map((file) =>
     path.join(Global.Path.config, file),
   )
   for (const file of candidates) {
@@ -599,14 +600,13 @@ export const layer = Layer.effect(
       if (!("path" in options) || options.modelsOnly) return data
 
       yield* Effect.promise(() => resolveLoadedPlugins(data, options.path))
-      if (!data.$schema || data.$schema === "https://opencode.ai/config.json") {
-        data.$schema = "https://mimo.xiaomi.com/mimocode/config.json"
-        const edits = modify(text, ["$schema"], "https://mimo.xiaomi.com/mimocode/config.json", {
-          formattingOptions: { insertSpaces: true, tabSize: 2 },
-          isArrayInsertion: false,
-        })
-        if (edits.length) {
-          const updated = applyEdits(text, edits)
+      if (
+        data.$schema === "https://opencode.ai/config.json" ||
+        data.$schema?.startsWith("https://mimo.xiaomi.com/")
+      ) {
+        delete data.$schema
+        const updated = stripLegacySchema(text)
+        if (updated !== undefined) {
           yield* fs.writeFileString(options.path, updated).pipe(Effect.catch(() => Effect.void))
         }
       }
@@ -624,8 +624,8 @@ export const layer = Layer.effect(
       let result: Info = pipe(
         {},
         mergeDeep(yield* loadFile(path.join(Global.Path.config, "config.json"), modelsOnly)),
-        mergeDeep(yield* loadFile(path.join(Global.Path.config, "mimocode.json"), modelsOnly)),
-        mergeDeep(yield* loadFile(path.join(Global.Path.config, "mimocode.jsonc"), modelsOnly)),
+        mergeDeep(yield* loadFile(path.join(Global.Path.config, "ymcode.json"), modelsOnly)),
+        mergeDeep(yield* loadFile(path.join(Global.Path.config, "ymcode.jsonc"), modelsOnly)),
       )
 
       if (modelsOnly) return result
@@ -636,7 +636,6 @@ export const layer = Layer.effect(
             .then(async (mod) => {
               const { provider, model, ...rest } = mod.default
               if (provider && model) result.model = `${provider}/${model}`
-              result["$schema"] = "https://mimo.xiaomi.com/mimocode/config.json"
               result = mergeDeep(result, rest)
               await fsNode.writeFile(path.join(Global.Path.config, "config.json"), JSON.stringify(result, null, 2))
               await fsNode.unlink(legacy)
@@ -646,13 +645,13 @@ export const layer = Layer.effect(
       }
 
       // Seed a starter config when no global config file exists yet
-      const globalConfigFile = path.join(Global.Path.config, "mimocode.jsonc")
+      const globalConfigFile = path.join(Global.Path.config, "ymcode.jsonc")
       if (
         !existsSync(path.join(Global.Path.config, "config.json")) &&
-        !existsSync(path.join(Global.Path.config, "mimocode.json")) &&
+        !existsSync(path.join(Global.Path.config, "ymcode.json")) &&
         !existsSync(globalConfigFile)
       ) {
-        const starter = '{\n  "$schema": "https://mimo.xiaomi.com/mimocode/config.json"\n}\n'
+        const starter = "{}\n"
         yield* fs.writeFileString(globalConfigFile, starter).pipe(Effect.catch(() => Effect.void))
       }
 
@@ -680,7 +679,7 @@ export const layer = Layer.effect(
         yield* fs
           .writeFileString(
             gitignore,
-            MIMOCODE_GITIGNORE_ENTRIES.join("\n"),
+            YMCODE_GITIGNORE_ENTRIES.join("\n"),
           )
           .pipe(
             Effect.catchIf(
@@ -701,7 +700,7 @@ export const layer = Layer.effect(
 
         const pluginScopeForSource = Effect.fnUntraced(function* (source: string) {
           if (source.startsWith("http://") || source.startsWith("https://")) return "global"
-          if (source === "MIMOCODE_CONFIG_CONTENT") return "local"
+          if (source === "YMCODE_CONFIG_CONTENT") return "local"
           if (yield* InstanceRef.use((ctx) => Effect.succeed(Instance.containsPath(source, ctx)))) return "local"
           return "global"
         })
@@ -797,7 +796,6 @@ export const layer = Layer.effect(
             }
             const wellknown = (yield* Effect.promise(() => response.json())) as { config?: Record<string, unknown> }
             const remoteConfig = wellknown.config ?? {}
-            if (!remoteConfig.$schema) remoteConfig.$schema = "https://mimo.xiaomi.com/mimocode/config.json"
             const source = `${url}/.well-known/opencode`
             const next = yield* loadConfig(JSON.stringify(remoteConfig), {
               dir: path.dirname(source),
@@ -811,13 +809,13 @@ export const layer = Layer.effect(
         const global = yield* (modelsOnly ? loadGlobal(true) : getGlobal())
         yield* merge(Global.Path.config, global, "global")
 
-        if (Flag.MIMOCODE_CONFIG) {
-          yield* merge(Flag.MIMOCODE_CONFIG, yield* loadFile(Flag.MIMOCODE_CONFIG, modelsOnly))
-          log.debug("loaded custom config", { path: Flag.MIMOCODE_CONFIG })
+        if (Flag.YMCODE_CONFIG) {
+          yield* merge(Flag.YMCODE_CONFIG, yield* loadFile(Flag.YMCODE_CONFIG, modelsOnly))
+          log.debug("loaded custom config", { path: Flag.YMCODE_CONFIG })
         }
 
-        if (!Flag.MIMOCODE_DISABLE_PROJECT_CONFIG) {
-          for (const file of yield* ConfigPaths.files("mimocode", ctx.directory, ctx.worktree).pipe(Effect.orDie)) {
+        if (!Flag.YMCODE_DISABLE_PROJECT_CONFIG) {
+          for (const file of yield* ConfigPaths.files("ymcode", ctx.directory, ctx.worktree).pipe(Effect.orDie)) {
             yield* merge(file, yield* loadFile(file, modelsOnly), "local")
           }
         }
@@ -828,18 +826,18 @@ export const layer = Layer.effect(
 
         const directories = yield* ConfigPaths.directories(ctx.directory, ctx.worktree)
 
-        if (Flag.MIMOCODE_CONFIG_DIR) {
-          log.debug("loading config from MIMOCODE_CONFIG_DIR", { path: Flag.MIMOCODE_CONFIG_DIR })
+        if (Flag.YMCODE_CONFIG_DIR) {
+          log.debug("loading config from YMCODE_CONFIG_DIR", { path: Flag.YMCODE_CONFIG_DIR })
         }
 
-        // Load Claude Code commands first so .mimocode commands override on name collision.
+        // Load Claude Code commands first so .ymcode commands override on name collision.
         for (const dir of modelsOnly ? [] : yield* ConfigPaths.claudeCommandDirectories(ctx.directory, ctx.worktree)) {
           result.command = mergeDeep(result.command ?? {}, yield* Effect.promise(() => ConfigCommand.load(dir)))
         }
 
         for (const dir of directories) {
-          if (dir.endsWith(".mimocode") || dir === Flag.MIMOCODE_CONFIG_DIR) {
-            for (const file of ["mimocode.json", "mimocode.jsonc"]) {
+          if (dir.endsWith(".ymcode") || dir.endsWith(".mimocode") || dir === Flag.YMCODE_CONFIG_DIR) {
+            for (const file of ["mimocode.json", "mimocode.jsonc", "ymcode.json", "ymcode.jsonc"]) {
               const source = path.join(dir, file)
               log.debug(`loading config from ${source}`)
               yield* merge(source, yield* loadFile(source, modelsOnly))
@@ -855,20 +853,20 @@ export const layer = Layer.effect(
           result.command = mergeDeep(result.command ?? {}, yield* Effect.promise(() => ConfigCommand.load(dir)))
           result.agent = mergeDeep(result.agent ?? {}, yield* Effect.promise(() => ConfigAgent.load(dir)))
           result.agent = mergeDeep(result.agent ?? {}, yield* Effect.promise(() => ConfigAgent.loadMode(dir)))
-          // Auto-discovered plugins under `.mimocode/plugin(s)` are already local files, so ConfigPlugin.load
+          // Auto-discovered plugins under `.ymcode/plugin(s)` are already local files, so ConfigPlugin.load
           // returns normalized Specs and we only need to attach origin metadata here.
           const list = yield* Effect.promise(() => ConfigPlugin.load(dir))
           yield* mergePluginOrigins(dir, list)
         }
 
-        if (process.env.MIMOCODE_CONFIG_CONTENT) {
-          const source = "MIMOCODE_CONFIG_CONTENT"
-          const next = yield* loadConfig(process.env.MIMOCODE_CONFIG_CONTENT, {
+        if (process.env.YMCODE_CONFIG_CONTENT) {
+          const source = "YMCODE_CONFIG_CONTENT"
+          const next = yield* loadConfig(process.env.YMCODE_CONFIG_CONTENT, {
             dir: ctx.directory,
             source,
           })
           yield* merge(source, next, "local")
-          log.debug("loaded custom config from MIMOCODE_CONFIG_CONTENT")
+          log.debug("loaded custom config from YMCODE_CONFIG_CONTENT")
         }
 
         const activeAccount = Option.getOrUndefined(
@@ -884,8 +882,8 @@ export const layer = Layer.effect(
               { concurrency: 2 },
             )
             if (Option.isSome(tokenOpt)) {
-              process.env["MIMOCODE_CONSOLE_TOKEN"] = tokenOpt.value
-              yield* env.set("MIMOCODE_CONSOLE_TOKEN", tokenOpt.value)
+              process.env["YMCODE_CONSOLE_TOKEN"] = tokenOpt.value
+              yield* env.set("YMCODE_CONSOLE_TOKEN", tokenOpt.value)
             }
 
             if (Option.isSome(configOpt)) {
@@ -912,7 +910,7 @@ export const layer = Layer.effect(
 
         const managedDir = ConfigManaged.managedConfigDir()
         if (existsSync(managedDir)) {
-          for (const file of ["mimocode.json", "mimocode.jsonc"]) {
+          for (const file of ["ymcode.json", "ymcode.jsonc"]) {
             const source = path.join(managedDir, file)
             yield* merge(source, yield* loadFile(source, modelsOnly), "global")
           }
@@ -929,7 +927,7 @@ export const layer = Layer.effect(
           mergeMcpOrigins(managed.source, next, "opencode")
         }
 
-        if (!modelsOnly && !Flag.MIMOCODE_DISABLE_CLAUDE_CODE_MCP) {
+        if (!modelsOnly && !Flag.YMCODE_DISABLE_CLAUDE_CODE_MCP) {
           yield* mergeClaudeMcp(path.join(Global.Path.home, ".claude.json"))
           yield* mergeClaudeMcp(path.join(ctx.directory, ".claude.json"))
         }
@@ -943,15 +941,15 @@ export const layer = Layer.effect(
           })
         }
 
-        if (Flag.MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS) {
+        if (Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS) {
           // Allow-all base, merged UNDER user config so an explicit deny still
           // wins. Matches `mimo run --dangerously-skip-permissions`: auto-approve
           // everything not explicitly denied.
           result.permission = mergeDeep({ "*": "allow" } as ConfigPermission.Info, result.permission ?? {})
         }
 
-        if (Flag.MIMOCODE_PERMISSION) {
-          result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.MIMOCODE_PERMISSION))
+        if (Flag.YMCODE_PERMISSION) {
+          result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.YMCODE_PERMISSION))
         }
 
         if (result.tools) {
@@ -973,10 +971,10 @@ export const layer = Layer.effect(
           result.share = "auto"
         }
 
-        if (Flag.MIMOCODE_DISABLE_AUTOCOMPACT) {
+        if (Flag.YMCODE_DISABLE_AUTOCOMPACT) {
           result.compaction = { ...result.compaction, auto: false }
         }
-        if (Flag.MIMOCODE_DISABLE_PRUNE) {
+        if (Flag.YMCODE_DISABLE_PRUNE) {
           result.compaction = { ...result.compaction, prune: false }
         }
 
@@ -986,8 +984,8 @@ export const layer = Layer.effect(
         if (result.model_groups?.lite === undefined && result.small_model !== undefined) {
           result.model_groups = { ...result.model_groups, lite: result.small_model }
         }
-        if (process.env.MIMOCODE_CONFIG_DEFAULTS) {
-          const defaults = yield* loadConfig(process.env.MIMOCODE_CONFIG_DEFAULTS, { dir: ctx.directory, source: "MIMOCODE_CONFIG_DEFAULTS" })
+        if (process.env.YMCODE_CONFIG_DEFAULTS) {
+          const defaults = yield* loadConfig(process.env.YMCODE_CONFIG_DEFAULTS, { dir: ctx.directory, source: "YMCODE_CONFIG_DEFAULTS" })
           result = mergeConfigConcatArrays(defaults, result)
         }
         return {

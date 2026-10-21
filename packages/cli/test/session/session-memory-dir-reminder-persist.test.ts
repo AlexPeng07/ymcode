@@ -79,7 +79,7 @@ describe("session.prompt memory paths reminder", () => {
           init: async (dir) => {
             await Bun.write(path.join(dir, "readme.md"), "hi\n")
             await Bun.write(
-              path.join(dir, "mimocode.json"),
+              path.join(dir, "ymcode.json"),
               JSON.stringify({
                 $schema: "https://opencode.ai/config.json",
                 model: "alibaba/qwen-plus",

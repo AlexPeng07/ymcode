@@ -127,7 +127,7 @@ for (const permission of ["computer", "bash_delete"]) {
       try {
         await app.mockInput.pressKeys(action.keys)
         await app.renderOnce()
-        expect(app.captureCharFrame()).not.toContain("until MiMoCode is restarted")
+        expect(app.captureCharFrame()).not.toContain("until ymcode is restarted")
         await waitFor(() => replies.length > 0)
         expect(replies).toEqual([{
           method: "POST",
@@ -164,7 +164,7 @@ for (const permission of ["bash", "edit"]) {
       expect(app.captureCharFrame()).toContain("Allow always")
       await app.mockInput.pressKeys(["ARROW_RIGHT", "RETURN"])
       await app.renderOnce()
-      expect(app.captureCharFrame()).toContain("until MiMoCode is restarted")
+      expect(app.captureCharFrame()).toContain("until ymcode is restarted")
       expect(replies).toEqual([])
       app.mockInput.pressEnter()
       await app.renderOnce()
@@ -188,12 +188,12 @@ for (const stage of ["selected", "confirmation"]) {
         app.mockInput.pressArrow("right")
         if (stage === "confirmation") app.mockInput.pressEnter()
         await app.renderOnce()
-        if (stage === "confirmation") expect(app.captureCharFrame()).toContain("until MiMoCode is restarted")
+        if (stage === "confirmation") expect(app.captureCharFrame()).toContain("until ymcode is restarted")
         setRequest(request("computer"))
         await app.renderOnce()
         expect(app.captureCharFrame()).toContain("Tool: computer")
         expect(app.captureCharFrame()).not.toContain("Allow always")
-        expect(app.captureCharFrame()).not.toContain("until MiMoCode is restarted")
+        expect(app.captureCharFrame()).not.toContain("until ymcode is restarted")
         expect(replies).toEqual([])
         if (reply === "reject") app.mockInput.pressArrow("right")
         app.mockInput.pressEnter()

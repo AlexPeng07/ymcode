@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test"
 import { isGPTModel, mcpToolSearchMode, usesGPTToolset } from "../../src/tool/gpt"
 
-const codexMode = process.env.MIMOCODE_CODEX_MODE
+const codexMode = process.env.YMCODE_CODEX_MODE
 
 beforeEach(() => {
-  delete process.env.MIMOCODE_CODEX_MODE
+  delete process.env.YMCODE_CODEX_MODE
 })
 
 afterEach(() => {
-  if (codexMode === undefined) delete process.env.MIMOCODE_CODEX_MODE
-  else process.env.MIMOCODE_CODEX_MODE = codexMode
+  if (codexMode === undefined) delete process.env.YMCODE_CODEX_MODE
+  else process.env.YMCODE_CODEX_MODE = codexMode
 })
 
 describe("isGPTModel", () => {
@@ -43,13 +43,13 @@ describe("mcpToolSearchMode", () => {
   })
 
   test("always defers for every model when process Codex mode is enabled", () => {
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     expect(mcpToolSearchMode(never, undefined, "claude-opus-4-6")).toEqual(always)
     expect(mcpToolSearchMode(auto, undefined, "mimo-v2.6")).toEqual(always)
   })
 
   test("does not force deferral for GPT models when process Codex mode is disabled", () => {
-    process.env.MIMOCODE_CODEX_MODE = "false"
+    process.env.YMCODE_CODEX_MODE = "false"
     expect(mcpToolSearchMode(auto, undefined, "gpt-5.2")).toEqual(auto)
     expect(mcpToolSearchMode(auto, "codex", "claude-opus-4-6")).toEqual(auto)
   })
@@ -58,7 +58,7 @@ describe("mcpToolSearchMode", () => {
     expect(mcpToolSearchMode(auto, "codex", "claude-opus-4-6")).toEqual(always)
     expect(mcpToolSearchMode(auto, "auto", "gpt-5.2")).toEqual(always)
     expect(mcpToolSearchMode(auto, "auto", "claude-opus-4-6")).toEqual(auto)
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     expect(mcpToolSearchMode(auto, "auto", "mimo-v2.6")).toEqual(always)
     expect(mcpToolSearchMode(auto, "default", "mimo-v2.6")).toEqual(auto)
     expect(mcpToolSearchMode(auto, "default", "gpt-5.2")).toEqual(always)
@@ -78,14 +78,14 @@ describe("usesGPTToolset", () => {
 
   test("uses the GPT toolset for every non-GPT model in process Codex mode", () => {
     expect(usesGPTToolset("claude-opus-4-6")).toBe(false)
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     expect(usesGPTToolset("claude-opus-4-6")).toBe(true)
     expect(usesGPTToolset("mimo-v2.6")).toBe(true)
     expect(usesGPTToolset("mimo-v2.6-ptc")).toBe(true)
   })
 
   test("uses the default toolset for GPT models when process Codex mode is disabled", () => {
-    process.env.MIMOCODE_CODEX_MODE = "false"
+    process.env.YMCODE_CODEX_MODE = "false"
     expect(usesGPTToolset("gpt-5.2")).toBe(false)
     expect(usesGPTToolset("deployment-primary", undefined, "gpt-5.2", "gpt")).toBe(false)
     expect(usesGPTToolset("claude-opus-4-6", "codex")).toBe(false)
@@ -100,7 +100,7 @@ describe("usesGPTToolset", () => {
     expect(usesGPTToolset("gpt-5.2", "auto")).toBe(true)
     expect(usesGPTToolset("mimo-v2.6-ptc", "auto")).toBe(false)
     expect(usesGPTToolset("claude-opus-4-6", "auto")).toBe(false)
-    process.env.MIMOCODE_CODEX_MODE = "true"
+    process.env.YMCODE_CODEX_MODE = "true"
     expect(usesGPTToolset("claude-opus-4-6", "auto")).toBe(true)
     expect(usesGPTToolset("mimo-v2.6", "auto")).toBe(true)
     expect(usesGPTToolset("mimo-v2.6-ptc", "auto")).toBe(true)

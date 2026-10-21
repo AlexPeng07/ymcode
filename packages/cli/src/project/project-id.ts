@@ -43,7 +43,7 @@ export function resolveProjectId(workingDir: string): ProjectID {
   const mainGit = resolveMainGitDir(workingDir)
 
   if (mainGit) {
-    const idFile = path.join(mainGit, "mimocode-project-id")
+    const idFile = path.join(mainGit, "ymcode-project-id")
     const cached = readFileTrimmedOrNull(idFile)
     if (cached) return ProjectID.make(cached)
     const newId = crypto.randomUUID()
@@ -51,7 +51,7 @@ export function resolveProjectId(workingDir: string): ProjectID {
     return ProjectID.make(newId)
   }
 
-  const localFile = path.join(workingDir, ".mimocode-project-id")
+  const localFile = path.join(workingDir, ".ymcode-project-id")
   const cached = readFileTrimmedOrNull(localFile)
   if (cached) return ProjectID.make(cached)
   const newId = crypto.randomUUID()

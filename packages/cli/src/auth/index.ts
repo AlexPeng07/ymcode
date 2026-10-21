@@ -4,16 +4,16 @@ import { zod } from "@/util/effect-zod"
 import { Global } from "../global"
 import { AppFileSystem } from "@ymcode/shared/filesystem"
 
-export const OAUTH_DUMMY_KEY = "mimocode-oauth-dummy-key"
+export const OAUTH_DUMMY_KEY = "ymcode-oauth-dummy-key"
 
 const file = path.join(Global.Path.data, "auth.json")
 
 /**
  * Credentials supplied by an embedding host (the desktop app runs the engine in-process).
  *
- * Kept in memory on purpose: the previous channel was `MIMOCODE_AUTH_CONTENT`, and anything in
+ * Kept in memory on purpose: the previous channel was `YMCODE_AUTH_CONTENT`, and anything in
  * the environment is readable by every child the engine spawns — the bash tool alone turns
- * `echo $MIMOCODE_AUTH_CONTENT` into a credential dump, and a sibling can still read
+ * `echo $YMCODE_AUTH_CONTENT` into a credential dump, and a sibling can still read
  * `/proc/<pid>/environ` even after the child's own env is scrubbed. A module-level value has no
  * such surface. The env var is still honored so workspace children keep working (they receive it
  * explicitly), but hosts should prefer `inject`.
@@ -73,7 +73,7 @@ export const layer = Layer.effect(
     const decode = Schema.decodeUnknownOption(Info)
 
     const all = Effect.fn("Auth.all")(function* () {
-      const raw = injected ?? process.env.MIMOCODE_AUTH_CONTENT
+      const raw = injected ?? process.env.YMCODE_AUTH_CONTENT
       if (raw) {
         try {
           return JSON.parse(raw)

@@ -921,12 +921,12 @@ describe("InboxController admission and claim acceptance without child execution
           // Match the Desktop harness-context-overflow e2e: checkpoint disabled so
           // provider overflow degrades to compaction (summary + replay) rather
           // than rebuild-from-checkpoint.
-          const previousDisable = process.env.MIMOCODE_DISABLE_CHECKPOINT
-          process.env.MIMOCODE_DISABLE_CHECKPOINT = "1"
+          const previousDisable = process.env.YMCODE_DISABLE_CHECKPOINT
+          process.env.YMCODE_DISABLE_CHECKPOINT = "1"
           yield* Effect.addFinalizer(() =>
             Effect.sync(() => {
-              if (previousDisable === undefined) delete process.env.MIMOCODE_DISABLE_CHECKPOINT
-              else process.env.MIMOCODE_DISABLE_CHECKPOINT = previousDisable
+              if (previousDisable === undefined) delete process.env.YMCODE_DISABLE_CHECKPOINT
+              else process.env.YMCODE_DISABLE_CHECKPOINT = previousDisable
             }),
           )
           const { session, sessions, prompt } = yield* setup("A overflow replay continue")

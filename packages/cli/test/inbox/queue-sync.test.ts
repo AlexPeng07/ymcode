@@ -20,14 +20,14 @@ import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 
-const originalFlag = Flag.MIMOCODE_EXPERIMENTAL_WORKSPACES
+const originalFlag = Flag.YMCODE_EXPERIMENTAL_WORKSPACES
 const originalScheduler = schedulerRef.current
 beforeEach(() => {
-  Flag.MIMOCODE_EXPERIMENTAL_WORKSPACES = true
+  Flag.YMCODE_EXPERIMENTAL_WORKSPACES = true
   schedulerRef.current = undefined
 })
 afterEach(async () => {
-  Flag.MIMOCODE_EXPERIMENTAL_WORKSPACES = originalFlag
+  Flag.YMCODE_EXPERIMENTAL_WORKSPACES = originalFlag
   schedulerRef.current = originalScheduler
   await Instance.disposeAll()
 })

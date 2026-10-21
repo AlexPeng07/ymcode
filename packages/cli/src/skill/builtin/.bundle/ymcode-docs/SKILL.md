@@ -1,21 +1,21 @@
 ---
-name: mimocode-docs
-description: "Use whenever the user asks about MiMoCode itself: features, TUI or CLI commands, keybindings, terminal compatibility, rendering glitches, TUI lag, SSH or remote rendering, agent modes (build / plan) and how to switch between them, configuration, file locations, providers, models, authentication, or custom OpenAI-compatible or Anthropic-compatible API endpoints. Especially trigger when a prompt supplies or asks to configure a base URL/baseURL, API key/apiKey, model name or ID, provider, Anthropic Messages API, or global/project mimocode.json/jsonc, or when the user asks how to enter or leave plan mode. Also trigger when a skill, task, subprocess, or external client needs to borrow this instance's models — the OpenAI-compatible /v1 chat endpoints every MiMoCode server serves, `mimo llm-server` task tokens, or how to expose a listening port for them. Use this skill to inspect existing config safely, make minimal changes, and verify them without guessing schema fields or model capabilities."
+name: ymcode-docs
+description: "Use whenever the user asks about ymcode itself: features, TUI or CLI commands, keybindings, terminal compatibility, rendering glitches, TUI lag, SSH or remote rendering, agent modes (build / plan) and how to switch between them, configuration, file locations, providers, models, authentication, or custom OpenAI-compatible or Anthropic-compatible API endpoints. Especially trigger when a prompt supplies or asks to configure a base URL/baseURL, API key/apiKey, model name or ID, provider, Anthropic Messages API, or global/project ymcode.json/jsonc, or when the user asks how to enter or leave plan mode. Also trigger when a skill, task, subprocess, or external client needs to borrow this instance's models — the OpenAI-compatible /v1 chat endpoints every ymcode server serves, `mimo llm-server` task tokens, or how to expose a listening port for them. Use this skill to inspect existing config safely, make minimal changes, and verify them without guessing schema fields or model capabilities."
 ---
 
-# MiMoCode
+# ymcode
 
-You are MiMoCode. This skill lets you explain your own features, tell users how to use them, and help configure yourself. When a user asks "what can you do", "how do I set X", "where does Y live", or "how does Z work", answer from here — don't guess.
+You are ymcode. This skill lets you explain your own features, tell users how to use them, and help configure yourself. When a user asks "what can you do", "how do I set X", "where does Y live", or "how does Z work", answer from here — don't guess.
 
 ## Identity
 
-MiMoCode (CLI binary `mimo`) is an agentic coding tool with a terminal UI, built as a fork of OpenCode. Beyond OpenCode's core (multi-provider, TUI, LSP, MCP, plugins) it adds: persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose-next end-to-end delivery, Dynamic Workflows, and self-improvement via dream/distill.
+ymcode (CLI binary `mimo`) is an agentic coding tool with a terminal UI, built as a fork of OpenCode. Beyond OpenCode's core (multi-provider, TUI, LSP, MCP, plugins) it adds: persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose-next end-to-end delivery, Dynamic Workflows, and self-improvement via dream/distill.
 
 ## Feature Map
 
 | Feature | What it is | How to reach it |
 |---------|-----------|-----------------|
-| **Agents / modes** | `build` (default, full tools), `plan` (read-only analysis), plus custom modes you define. Build and Plan can switch at any time; other custom or special modes lock once the first message is sent. Only the user enters a mode — no tool lets the agent switch into plan, and the agent does not raise plan mode unasked; from inside plan the agent can call `plan_exit` to ask for approval and hand the plan back to build | `Tab` cycles primary agents, or pick one in the agent dialog; add your own via `.mimocode/agent/<name>.md` (see @reference/guide.md) |
+| **Agents / modes** | `build` (default, full tools), `plan` (read-only analysis), plus custom modes you define. Build and Plan can switch at any time; other custom or special modes lock once the first message is sent. Only the user enters a mode — no tool lets the agent switch into plan, and the agent does not raise plan mode unasked; from inside plan the agent can call `plan_exit` to ask for approval and hand the plan back to build | `Tab` cycles primary agents, or pick one in the agent dialog; add your own via `.ymcode/agent/<name>.md` (see @reference/guide.md) |
 | **Subagents** | Primary agent spawns `general`/`explore` helpers, parallel + background, with lifecycle/cancel | automatic; `actor` tooling |
 | **Persistent memory** | Markdown-backed memory with indexed search across `MEMORY.md`, `checkpoint.md`, `notes.md`, and `tasks/<id>/progress.md` | auto-injected on resume |
 | **Context management** | Auto-checkpoints, context reconstruction near limit, budgeted injection | automatic; tune via `checkpoint`/`compaction` config |
@@ -27,8 +27,8 @@ MiMoCode (CLI binary `mimo`) is an agentic coding tool with a terminal UI, built
 | **Dream** | Consolidates recent traces into project memory | `/dream` |
 | **Distill** | Packages repeated manual workflows into skills/subagents/commands | `/distill` |
 | **Scheduled prompts** | Cron/loop: inject a prompt on a schedule or repeating loop (UTC, 5-field) | `cron` tool · `/loop` · `/loops` |
-| **Dynamic Workflow** | JS scripts that orchestrate many subagents deterministically (fan-out, pipelines, nesting); built-ins include `deep-research`, `fact-check`, and `research-experiment` | `.mimocode/workflows/*.js` + `workflow` tool |
-| **Custom skills** | Add reusable task instructions under `.mimocode/skills/` | see the `skill-creator` skill |
+| **Dynamic Workflow** | JS scripts that orchestrate many subagents deterministically (fan-out, pipelines, nesting); built-ins include `deep-research`, `fact-check`, and `research-experiment` | `.ymcode/workflows/*.js` + `workflow` tool |
+| **Custom skills** | Add reusable task instructions under `.ymcode/skills/` | see the `skill-creator` skill |
 | **Skill discovery** | `/skill-name` slash invocation (2+ in one message auto-load with an orchestration plan); `skill_search` tool matches by exact name/alias + BM25 and auto-loads high-confidence hits; some builtins (`claude-code`, `codex`) only appear when their CLI is installed | `/` autocomplete · automatic |
 | **MCP** | Local & remote Model Context Protocol servers | `mcp` config + `mimo mcp` |
 | **Capability API** | Every session already serves this project's chat models over OpenAI-compatible `/v1` on a loopback port, so a skill or subprocess borrows a model instead of a provider key | `mimo llm-server issue` mints a scoped token and prints the base URL (see @reference/capability-api.md) |
@@ -36,14 +36,14 @@ MiMoCode (CLI binary `mimo`) is an agentic coding tool with a terminal UI, built
 ## Configuration Basics
 
 Config file (JSON or JSONC), discovered by walking up from cwd:
-- **Project**: `.mimocode/mimocode.json` (or `.jsonc`)
-- **Global**: `~/.config/mimocode/mimocode.jsonc` (preferred for new files) or `mimocode.json`
+- **Project**: `.ymcode/ymcode.json` (or `.jsonc`)
+- **Global**: `~/.config/ymcode/ymcode.jsonc` (preferred for new files) or `ymcode.json`
 
-Add `"$schema": "https://mimo.xiaomi.com/mimocode/config.json"` for editor validation. All top-level keys are optional; project config merges over global.
+Add `"$schema": "https://mimo.xiaomi.com/ymcode/config.json"` for editor validation. All top-level keys are optional; project config merges over global.
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "provider/model",
   "permission": { "external_directory": { "/tmp/**": "allow" } }
 }
@@ -65,7 +65,7 @@ Read only the reference needed for the request, but read it before changing file
 
 ## How-To Guide
 
-For task-oriented walkthroughs — signing in & choosing a model, troubleshooting TUI rendering or lag, using MiMoCode over SSH, making memory remember project rules, writing custom slash commands, remapping keybinds, adding MCP servers, scheduling prompts (cron/loop), and using compose-next end-to-end delivery — see @reference/guide.md. For authoring and running **Dynamic Workflow** scripts (the in-script API, where to save `.js` workflow files, and the `workflow` tool) see @reference/workflows.md.
+For task-oriented walkthroughs — signing in & choosing a model, troubleshooting TUI rendering or lag, using ymcode over SSH, making memory remember project rules, writing custom slash commands, remapping keybinds, adding MCP servers, scheduling prompts (cron/loop), and using compose-next end-to-end delivery — see @reference/guide.md. For authoring and running **Dynamic Workflow** scripts (the in-script API, where to save `.js` workflow files, and the `workflow` tool) see @reference/workflows.md.
 
 **Built-in workflows** (runnable by name via the `workflow` tool, no file needed):
 - **`deep-research`** — comprehensive research report generator (brief → plan → parallel research → reflect → write → cold review). Pass `args: { dir, question, today, depth?, context? }`. Convergent/resumable.
@@ -74,7 +74,7 @@ For task-oriented walkthroughs — signing in & choosing a model, troubleshootin
 
 ## Where Things Live On Disk
 
-Base dirs follow `MIMOCODE_HOME` (if set, absolute) else XDG. Data typically lives at `~/.local/share/mimocode/` (memory, logs, extracted builtin skills), config at `~/.config/mimocode/`, cache at `~/.cache/mimocode/`. See @reference/config.md for the full layout and env vars.
+Base dirs follow `YMCODE_HOME` (if set, absolute) else XDG. Data typically lives at `~/.local/share/ymcode/` (memory, logs, extracted builtin skills), config at `~/.config/ymcode/`, cache at `~/.cache/ymcode/`. See @reference/config.md for the full layout and env vars.
 
 ## Commands
 

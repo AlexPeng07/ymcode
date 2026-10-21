@@ -38,7 +38,7 @@ describe("session turn recovery routes", () => {
     await using tmp = await tmpdir({ git: true })
     const stub = startScriptedLLMServer([{ lines: textStopResponse("route recovered answer") }])
     try {
-    await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+    await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
       enabled_providers: ["alibaba"],
       provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
       agent: { build: { model: "alibaba/qwen-plus" } },
@@ -286,7 +286,7 @@ for (const variant of ["text", "tools", "pending", "provider", "protected", "del
     await using tmp = await tmpdir({ git: true })
     const stub = startScriptedLLMServer([{ lines: textStopResponse("recovered trimmed answer") }])
     try {
-      await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+      await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
         enabled_providers: ["alibaba"],
         provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
         agent: { build: { model: "alibaba/qwen-plus" } },
@@ -410,7 +410,7 @@ for (const mode of ["success", "host-reject", "commit-reject", "changed-during-h
       modelCall(input, call) { scopes.push(input); return call() },
     })
     try {
-      await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+      await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
         enabled_providers: ["alibaba"],
         provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
         agent: { build: { model: "alibaba/qwen-plus" } },
@@ -623,7 +623,7 @@ describe("empty stop recovery matrix", () => {
           await using tmp = await tmpdir({ git: true })
           const stub = startScriptedLLMServer([{ lines: textStopResponse("recovered answer") }])
           try {
-            await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+            await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
               enabled_providers: ["alibaba"],
               provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
               agent: { build: { model: "alibaba/qwen-plus" } },
@@ -840,7 +840,7 @@ describe("trailing user recovery target", () => {
     const release = Promise.withResolvers<void>()
     const stub = startScriptedLLMServer([{ lines: textStopResponse("bodyless recovery"), beforeReply: () => release.promise }])
     try {
-    await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+    await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
       enabled_providers: ["alibaba"],
       provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
       agent: { build: { model: "alibaba/qwen-plus" } },
@@ -928,7 +928,7 @@ describe("trailing user recovery target", () => {
     await using tmp = await tmpdir({ git: true })
     const stub = startScriptedLLMServer([{ lines: textStopResponse("explicit user recovery") }])
     try {
-    await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+    await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
       enabled_providers: ["alibaba"],
       provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
       agent: { build: { model: "alibaba/qwen-plus" } },
@@ -1149,7 +1149,7 @@ async function exactResumeCase(
   const reached = Promise.withResolvers<void>()
   const released = Promise.withResolvers<void>()
   try {
-    await Bun.write(`${tmp.path}/mimocode.json`, JSON.stringify({
+    await Bun.write(`${tmp.path}/ymcode.json`, JSON.stringify({
       enabled_providers: ["alibaba"],
       provider: { alibaba: { options: { apiKey: "test-key", baseURL: `${stub.origin}/v1` } } },
       agent: { build: { model: "alibaba/qwen-plus" } },

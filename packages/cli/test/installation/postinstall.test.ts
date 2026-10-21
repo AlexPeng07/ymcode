@@ -46,13 +46,13 @@ describe("postinstall", () => {
     const result = await waitPostinstall(
       runPostinstall(dir, {
         MIMO_FDS_BASE: "http://127.0.0.1:9",
-        MIMOCODE_BIN_PATH: "",
+        YMCODE_BIN_PATH: "",
       }),
     )
 
     expect(result.exitCode).toBe(0)
     const stdout = result.stdout.toString()
-    expect(stdout).toContain("Recommended: install MiMoCode natively for a better")
+    expect(stdout).toContain("Recommended: install ymcode natively for a better")
     expect(stdout).toContain(os.platform() === "win32" ? "    irm" : "    curl")
   })
 
@@ -64,7 +64,7 @@ describe("postinstall", () => {
     const result = await waitPostinstall(
       runPostinstall(dir, {
         MIMO_FDS_BASE: "http://127.0.0.1:9",
-        MIMOCODE_BIN_PATH: "",
+        YMCODE_BIN_PATH: "",
       }),
     )
 
@@ -106,7 +106,7 @@ describe("postinstall", () => {
       const result = await waitPostinstall(
         runPostinstall(dir, {
           MIMO_FDS_BASE: `http://127.0.0.1:${server.port}`,
-          MIMOCODE_BIN_PATH: "",
+          YMCODE_BIN_PATH: "",
         }),
       )
       expect(result.exitCode).toBe(0)
@@ -118,7 +118,7 @@ describe("postinstall", () => {
     }
   })
 
-  test("skips download when MIMOCODE_BIN_PATH is set", async () => {
+  test("skips download when YMCODE_BIN_PATH is set", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stagePackage(dir)
@@ -126,13 +126,13 @@ describe("postinstall", () => {
     const result = await waitPostinstall(
       runPostinstall(dir, {
         MIMO_FDS_BASE: "http://127.0.0.1:9",
-        MIMOCODE_BIN_PATH: "/nonexistent/escape-hatch",
+        YMCODE_BIN_PATH: "/nonexistent/escape-hatch",
       }),
     )
 
     expect(result.exitCode).toBe(0)
     expect(fs.existsSync(path.join(dir, "vendor"))).toBe(false)
-    expect(result.stdout).toContain("Recommended: install MiMoCode natively")
+    expect(result.stdout).toContain("Recommended: install ymcode natively")
   })
 })
 
@@ -140,5 +140,5 @@ function launcherTarget() {
   // Mirror detectTarget naming for the current host (x64/arm64 only in CI).
   const platform = os.platform() === "win32" ? "windows" : os.platform() === "darwin" ? "darwin" : "linux"
   const arch = os.arch() === "x64" || os.arch() === "arm64" ? os.arch() : "x64"
-  return `mimocode-${platform}-${arch}`
+  return `ymcode-${platform}-${arch}`
 }

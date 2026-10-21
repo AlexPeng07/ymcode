@@ -29,9 +29,9 @@ import { testEffect } from "../lib/effect"
 // injection seam. Runtime ownership and the bridge's real onFire callback are
 // covered by cron-bridge.integration.test.ts.
 
-const originalCronFlag = Flag.MIMOCODE_EXPERIMENTAL_CRON
+const originalCronFlag = Flag.YMCODE_EXPERIMENTAL_CRON
 afterEach(async () => {
-  ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = originalCronFlag
+  ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = originalCronFlag
   await Instance.disposeAll()
 })
 
@@ -97,8 +97,8 @@ beforeEach(() => {
   captured.value = []
   clearAllLoopStates()
   removeSessionCronTasks(getSessionCronTasks().map((t) => t.id))
-  delete process.env.MIMOCODE_DISABLE_CRON
-  ;(Flag as { MIMOCODE_EXPERIMENTAL_CRON: boolean }).MIMOCODE_EXPERIMENTAL_CRON = true
+  delete process.env.YMCODE_DISABLE_CRON
+  ;(Flag as { YMCODE_EXPERIMENTAL_CRON: boolean }).YMCODE_EXPERIMENTAL_CRON = true
 })
 
 const sid = SessionID.make("ses_e2e_test")

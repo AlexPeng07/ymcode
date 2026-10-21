@@ -13,7 +13,7 @@ const BOOT = () => fileURLToPath(new URL("./fixtures/boot-client.ts", import.met
 async function boot(file: string) {
   const child = Bun.spawn([process.execPath, BOOT()], {
     cwd: process.cwd(),
-    env: { ...process.env, MIMOCODE_DB: file },
+    env: { ...process.env, YMCODE_DB: file },
     stdout: "pipe",
     stderr: "pipe",
   })
@@ -27,7 +27,7 @@ async function boot(file: string) {
 
 test("Client() boots after journal loses 20261011 while kind exists", async () => {
   const dir = mkdtempSync(join(tmpdir(), "mimo-kind-e2e-"))
-  const file = join(dir, "mimocode.db")
+  const file = join(dir, "ymcode.db")
 
   // 1) Clean boot: full migrate + ensure.
   const first = await boot(file)

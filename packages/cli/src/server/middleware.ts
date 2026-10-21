@@ -55,7 +55,7 @@ function presentsToken(...headers: (string | undefined)[]) {
 
 export const AuthMiddleware: MiddlewareHandler = (c, next) => {
   if (c.req.method === "OPTIONS") return next()
-  const password = Flag.MIMOCODE_SERVER_PASSWORD
+  const password = Flag.YMCODE_SERVER_PASSWORD
   if (!password) return next()
 
   // PTY websocket connect with a ticket skips basic auth; the handler validates the ticket.
@@ -71,7 +71,7 @@ export const AuthMiddleware: MiddlewareHandler = (c, next) => {
     return next()
   }
 
-  const username = Flag.MIMOCODE_SERVER_USERNAME ?? "mimocode"
+  const username = Flag.YMCODE_SERVER_USERNAME ?? "ymcode"
 
   return basicAuth({ username, password })(c, next)
 }

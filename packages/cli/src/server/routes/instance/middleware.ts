@@ -11,7 +11,7 @@ import { DIRECTORY_DENIED_CODE } from "./access"
 
 export function InstanceMiddleware(workspaceID?: WorkspaceID): MiddlewareHandler {
   return async (c, next) => {
-    const raw = c.req.query("directory") || c.req.header("x-mimocode-directory") || process.cwd()
+    const raw = c.req.query("directory") || c.req.header("x-ymcode-directory") || process.cwd()
     const directory = AppFileSystem.resolve(
       (() => {
         try {
@@ -27,7 +27,7 @@ export function InstanceMiddleware(workspaceID?: WorkspaceID): MiddlewareHandler
     // check off it would trade one wall for another: `/v1` bypasses basic auth by
     // design, so a token holder could then aim `?directory=` at any project on the
     // machine. An operator who sets the password themselves keeps the old freedom.
-    if (!Flag.MIMOCODE_SERVER_PASSWORD_SUPPLIED) {
+    if (!Flag.YMCODE_SERVER_PASSWORD_SUPPLIED) {
       const cwd = Filesystem.resolve(process.cwd())
       if (!Filesystem.contains(cwd, directory)) {
         // Keep the 403 and the prose message; add a stable `code` so a client can

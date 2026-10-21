@@ -87,7 +87,7 @@ describe("sandbox non-deterministic mode", () => {
 
 const runtime = ManagedRuntime.make(Layer.mergeAll(Truncate.defaultLayer, Agent.defaultLayer))
 
-const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "mimocode-test-toolscript-"))
+const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-test-toolscript-"))
 const tmp = path.join(tmpRoot, "project")
 await fs.mkdir(tmp)
 afterAll(async () => {

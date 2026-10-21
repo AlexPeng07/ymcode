@@ -5,23 +5,23 @@ import path from "path"
 import { pathToFileURL } from "url"
 import { tmpdir } from "../fixture/fixture"
 
-const disableDefault = process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS
-process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS = "1"
+const disableDefault = process.env.YMCODE_DISABLE_DEFAULT_PLUGINS
+process.env.YMCODE_DISABLE_DEFAULT_PLUGINS = "1"
 
 const { Plugin } = await import("../../src/plugin/index")
 const { Instance } = await import("../../src/project/instance")
 const { PluginHost } = await import("../../src/plugin/host")
 
 afterAll(() => {
-  if (disableDefault === undefined) delete process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS
-  else process.env.MIMOCODE_DISABLE_DEFAULT_PLUGINS = disableDefault
+  if (disableDefault === undefined) delete process.env.YMCODE_DISABLE_DEFAULT_PLUGINS
+  else process.env.YMCODE_DISABLE_DEFAULT_PLUGINS = disableDefault
 })
 
 afterEach(async () => {
   await Instance.disposeAll()
 })
 
-const ENV = ["MIMOCODE_ONLY_CONFIG_DIR_PLUGINS", "MIMOCODE_CONFIG_DIR"] as const
+const ENV = ["YMCODE_ONLY_CONFIG_DIR_PLUGINS", "YMCODE_CONFIG_DIR"] as const
 
 async function withEnv<T>(env: Partial<Record<(typeof ENV)[number], string>>, fn: () => Promise<T>) {
   const prev = Object.fromEntries(ENV.map((key) => [key, process.env[key]]))
@@ -73,12 +73,12 @@ describe("plugin host SDK", () => {
   test("serves @ymcode/plugin to a plugin directory without node_modules", async () => {
     await using tmp = await tmpdir({
       outsideGit: true,
-      init: (dir) => Bun.write(path.join(dir, ".mimocode", "plugins", "example.ts"), toolPlugin("example_tool")),
+      init: (dir) => Bun.write(path.join(dir, ".ymcode", "plugins", "example.ts"), toolPlugin("example_tool")),
     })
 
     const result = await withEnv({}, () => load(tmp.path))
     expect(result.tools).toContain("example_tool")
-    expect(await Bun.file(path.join(tmp.path, ".mimocode", "node_modules")).exists()).toBe(false)
+    expect(await Bun.file(path.join(tmp.path, ".ymcode", "node_modules")).exists()).toBe(false)
   })
 
   test("serves the @ymcode/plugin/tool subpath", async () => {
@@ -86,7 +86,7 @@ describe("plugin host SDK", () => {
       outsideGit: true,
       init: (dir) =>
         Bun.write(
-          path.join(dir, ".mimocode", "plugins", "example.ts"),
+          path.join(dir, ".ymcode", "plugins", "example.ts"),
           toolPlugin("subpath_tool").replace('"@ymcode/plugin"', '"@ymcode/plugin/tool"'),
         ),
     })
@@ -99,13 +99,13 @@ describe("plugin host SDK", () => {
     await using tmp = await tmpdir({
       outsideGit: true,
       init: async (dir) => {
-        const fake = path.join(dir, ".mimocode", "node_modules", "@mimo-ai", "plugin")
+        const fake = path.join(dir, ".ymcode", "node_modules", "@mimo-ai", "plugin")
         await Bun.write(
           path.join(fake, "package.json"),
           JSON.stringify({ name: "@ymcode/plugin", type: "module", exports: { ".": "./index.js" } }),
         )
         await Bun.write(path.join(fake, "index.js"), 'export const tool = "fake"\n')
-        await Bun.write(path.join(dir, ".mimocode", "plugins", "example.ts"), toolPlugin("example_tool"))
+        await Bun.write(path.join(dir, ".ymcode", "plugins", "example.ts"), toolPlugin("example_tool"))
       },
     })
 
@@ -118,7 +118,7 @@ describe("plugin host SDK", () => {
       outsideGit: true,
       init: (dir) =>
         Bun.write(
-          path.join(dir, ".mimocode", "hooks", "example.ts"),
+          path.join(dir, ".ymcode", "hooks", "example.ts"),
           [
             'import { tool } from "@ymcode/plugin"',
             "export default {",
@@ -146,12 +146,12 @@ describe("config-dir-only plugin policy", () => {
         const hostPlugin = path.join(host, "host-plugin.ts")
         await Bun.write(hostPlugin, toolPlugin("host_tool"))
         await Bun.write(
-          path.join(host, "mimocode.json"),
+          path.join(host, "ymcode.json"),
           JSON.stringify({ plugin: [pathToFileURL(hostPlugin).href] }),
         )
-        await Bun.write(path.join(project, ".mimocode", "plugins", "project.ts"), toolPlugin("project_tool"))
+        await Bun.write(path.join(project, ".ymcode", "plugins", "project.ts"), toolPlugin("project_tool"))
         await Bun.write(
-          path.join(project, ".mimocode", "hooks", "project.ts"),
+          path.join(project, ".ymcode", "hooks", "project.ts"),
           'export default { "experimental.chat.system.transform": async (_i, o) => { o.system.push("project-hook") } }\n',
         )
         await fs.mkdir(path.join(host, "hooks"), { recursive: true })
@@ -166,15 +166,15 @@ describe("config-dir-only plugin policy", () => {
 
   test("loads everything when the policy is off", async () => {
     await using tmp = await setup()
-    const result = await withEnv({ MIMOCODE_CONFIG_DIR: tmp.extra.host }, () => load(tmp.extra.project))
+    const result = await withEnv({ YMCODE_CONFIG_DIR: tmp.extra.host }, () => load(tmp.extra.project))
     expect(result.tools).toEqual(expect.arrayContaining(["host_tool", "project_tool"]))
     expect(result.system).toEqual(expect.arrayContaining(["host-hook", "project-hook"]))
   })
 
-  test("loads only MIMOCODE_CONFIG_DIR plugins and hooks when the policy is on", async () => {
+  test("loads only YMCODE_CONFIG_DIR plugins and hooks when the policy is on", async () => {
     await using tmp = await setup()
     const result = await withEnv(
-      { MIMOCODE_ONLY_CONFIG_DIR_PLUGINS: "1", MIMOCODE_CONFIG_DIR: tmp.extra.host },
+      { YMCODE_ONLY_CONFIG_DIR_PLUGINS: "1", YMCODE_CONFIG_DIR: tmp.extra.host },
       () => load(tmp.extra.project),
     )
     expect(result.tools).toContain("host_tool")
@@ -183,16 +183,16 @@ describe("config-dir-only plugin policy", () => {
     expect(result.system).not.toContain("project-hook")
   })
 
-  test("loads no external plugins when the policy is on without MIMOCODE_CONFIG_DIR", async () => {
+  test("loads no external plugins when the policy is on without YMCODE_CONFIG_DIR", async () => {
     await using tmp = await setup()
-    const result = await withEnv({ MIMOCODE_ONLY_CONFIG_DIR_PLUGINS: "1" }, () => load(tmp.extra.project))
+    const result = await withEnv({ YMCODE_ONLY_CONFIG_DIR_PLUGINS: "1" }, () => load(tmp.extra.project))
     expect(result.tools).not.toContain("project_tool")
     expect(result.system).not.toContain("project-hook")
   })
 })
 
 describe("PluginHost.filterOrigins", () => {
-  test("keeps only path sources inside MIMOCODE_CONFIG_DIR, resolving symlinks", async () => {
+  test("keeps only path sources inside YMCODE_CONFIG_DIR, resolving symlinks", async () => {
     await using tmp = await tmpdir({
       outsideGit: true,
       init: async (dir) => {
@@ -204,16 +204,16 @@ describe("PluginHost.filterOrigins", () => {
       },
     })
     const origin = (source: string) => ({ spec: "file:///tmp/example/plugin.ts", source, scope: "local" as const })
-    const inside = origin(path.join(tmp.extra.host, "mimocode.json"))
+    const inside = origin(path.join(tmp.extra.host, "ymcode.json"))
     const kept = await withEnv(
-      { MIMOCODE_ONLY_CONFIG_DIR_PLUGINS: "1", MIMOCODE_CONFIG_DIR: path.join(tmp.path, "host-link") },
+      { YMCODE_ONLY_CONFIG_DIR_PLUGINS: "1", YMCODE_CONFIG_DIR: path.join(tmp.path, "host-link") },
       async () =>
         PluginHost.filterOrigins([
           inside,
           origin(tmp.extra.host),
-          origin(path.join(tmp.path, "host-config-other", "mimocode.json")),
-          origin(path.join(tmp.path, "project", ".mimocode")),
-          origin("MIMOCODE_CONFIG_CONTENT"),
+          origin(path.join(tmp.path, "host-config-other", "ymcode.json")),
+          origin(path.join(tmp.path, "project", ".ymcode")),
+          origin("YMCODE_CONFIG_CONTENT"),
           origin("https://example.com/api/config"),
         ]),
     )

@@ -15,7 +15,7 @@ import * as CrossSpawnSpawner from "../../../src/effect/cross-spawn-spawner"
 const it = testEffect(Layer.mergeAll(Question.defaultLayer, MCP.defaultLayer, CrossSpawnSpawner.defaultLayer))
 function fixture() {
   return Effect.gen(function* () {
-    const client = new ManagedClient({ name: "mimocode", version: "test" }, MCP.CLIENT_OPTIONS)
+    const client = new ManagedClient({ name: "ymcode", version: "test" }, MCP.CLIENT_OPTIONS)
     const server = new Server({ name: "recorder", version: "test" }, { capabilities: { tools: {} } })
     const [a, b] = InMemoryTransport.createLinkedPair()
     McpElicitation.serve("recorder", client, yield* EffectBridge.make())
