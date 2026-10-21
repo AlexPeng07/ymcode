@@ -19,7 +19,7 @@ import type {
   ProviderAuthMethod,
   SessionRecoveryResponse,
   VcsInfo,
-} from "@mimo-ai/sdk/v2"
+} from "@ymcode/sdk/v2"
 import { createStore, produce, reconcile } from "solid-js/store"
 import {
   shouldClearRecoveryActiveOnError,
@@ -29,7 +29,7 @@ import { mergeSessionTitle } from "../util/session-title"
 import { useProject } from "@tui/context/project"
 import { useEvent } from "@tui/context/event"
 import { useSDK } from "@tui/context/sdk"
-import { Binary } from "@mimo-ai/shared/util/binary"
+import { Binary } from "@ymcode/shared/util/binary"
 import { createSimpleContext } from "./helper"
 import type { Snapshot } from "@/snapshot"
 import { useExit } from "./exit"

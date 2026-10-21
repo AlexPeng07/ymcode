@@ -10,7 +10,7 @@ commits: f0293bf8..8c1b5b14
 
 ## Report
 
-**What was built** — Removed `turbo` (it only orchestrated a single empty `typecheck` task). Root typecheck is `bun run --workspaces --if-present --parallel typecheck && tsgo --noEmit -p tsconfig.scripts.json`. Upgraded the native compiler pin to `@typescript/native-preview@7.0.0-dev.20260707.2` (bin `tsgo`; the previous pin was 2025-12). `typescript@5.8.2` remains the JS Compiler API for `tool-script.ts` / one AST test and the `tsc` used by plugin/sdk emit. Folded `packages/script` into `script/meta.ts` and dropped the `@mimo-ai/script` workspace package. Added `tsconfig.scripts.json` plus thin `script/tsconfig.json` wrappers so IDEs resolve tooling scripts; root `tsconfig.json` is a `files: []` solution stub so it no longer claims every `.ts` file.
+**What was built** — Removed `turbo` (it only orchestrated a single empty `typecheck` task). Root typecheck is `bun run --workspaces --if-present --parallel typecheck && tsgo --noEmit -p tsconfig.scripts.json`. Upgraded the native compiler pin to `@typescript/native-preview@7.0.0-dev.20260707.2` (bin `tsgo`; the previous pin was 2025-12). `typescript@5.8.2` remains the JS Compiler API for `tool-script.ts` / one AST test and the `tsc` used by plugin/sdk emit. Folded `packages/script` into `script/meta.ts` and dropped the `@ymcode/script` workspace package. Added `tsconfig.scripts.json` plus thin `script/tsconfig.json` wrappers so IDEs resolve tooling scripts; root `tsconfig.json` is a `files: []` solution stub so it no longer claims every `.ts` file.
 
 **Final layout (delivered)** — `tsgo` = typecheck; `typescript@5.8.2` = JS API + plugin/sdk `tsc` emit. No `turbo`, no `@typescript/native` alias, no `overrides.typescript`. A TS7-as-`tsc` dual-package experiment was tried and **reverted**: npm/bun cannot rename another package's `bin`, so `typescript@7` + `@typescript/typescript6` still collide on `tsc`. `@effect/language-service diagnostics` works again with stock `typescript` (it has `tsserverlibrary`).
 
@@ -26,7 +26,7 @@ commits: f0293bf8..8c1b5b14
 
 2. **typecheck compiler is a stale preview.** Scripts run `tsgo --noEmit` from `@typescript/native-preview@7.0.0-dev.20251207.1` (2025-12 nightly). TypeScript 7.0.2 is GA on npm as `typescript` with binary `tsc` (native Go port). The repo still pins `typescript@5.8.2` for the JS Compiler API (`tool-script.ts` uses `transpileModule`).
 
-3. **`packages/script` is not a real package.** It is a 1-file metadata helper (`Script.channel/version/preview/release`) consumed only by release/build/publish tooling. It should live under `script/`, not as `@mimo-ai/script` workspace package.
+3. **`packages/script` is not a real package.** It is a 1-file metadata helper (`Script.channel/version/preview/release`) consumed only by release/build/publish tooling. It should live under `script/`, not as `@ymcode/script` workspace package.
 
 4. **Script paths are missing from typecheck and the editor.** `plugin`/`sdk/js` `include: ["src"]` skips `script/`. `packages/script` has no `typecheck` script. Root `script/` is not in any typecheck project. Opening these files shows red `Bun` / `process` because the nearest tsconfig either omits bun types (`types: []` on opencode) or never claims the file (plugin/sdk `include: src`).
 
@@ -43,7 +43,7 @@ commits: f0293bf8..8c1b5b14
 
 **Bun 1.3.14 contracts (verified):**
 - `bun run --workspaces <script>` runs in workspace packages only (not root) and **errors** if any package lacks the script.
-- `--if-present` skips packages without the script (`@mimo-ai/script` has none today).
+- `--if-present` skips packages without the script (`@ymcode/script` has none today).
 - `--filter` only matches packages that **have** the script (so `--filter '*'` is also safe).
 - `--parallel` gives Foreman-style output and is fine for independent package typechecks.
 - Do **not** use `bun install` (lockfile mutation); keep `bun ci`.
@@ -143,11 +143,11 @@ Not imported from runtime `src/` / `test/`. Build/release only.
 - Path fixes after the move (`import.meta.dir` is now `script/`):
   - root package.json → `../package.json`
   - opencode package.json → `../packages/cli/package.json`
-- Replace `import { Script } from "@mimo-ai/script"` with relative imports:
+- Replace `import { Script } from "@ymcode/script"` with relative imports:
   - `script/*.ts` → `./meta.ts`
   - `packages/*/script/*.ts` and `packages/sdk/js/script/*.ts` → `../../../script/meta.ts` / `../../../../script/meta.ts`
 - Delete `packages/script/` workspace package.
-- Remove `@mimo-ai/script` from root `dependencies` and `packages/cli` `dependencies`/`devDependencies`.
+- Remove `@ymcode/script` from root `dependencies` and `packages/cli` `dependencies`/`devDependencies`.
 - `semver` stays available from root `devDependencies`.
 
 ### D4. One scripts typecheck project + editor configs
@@ -204,6 +204,6 @@ No wrapper under `packages/cli/script/` — nearest config must remain `packages
 
 - [x] T1: Remove turbo and switch root typecheck to `bun run --workspaces --if-present --parallel` — acceptance: `turbo` gone from package.json/lockfile, `bun typecheck` invokes workspace typechecks in parallel, no `turbo.json` (covers: S2-D1)
 - [x] T2: Migrate compiler packages to `typescript@6` + `@typescript/native@7`, drop `@typescript/native-preview`, rename `tsgo` scripts to `tsc` — acceptance: `node_modules/.bin/tsc --version` is 7.x, `require("typescript").transpileModule` is a function, every package `typecheck` is `tsc --noEmit` and passes (covers: S2-D2; depends: T1)
-- [x] T3: Move `packages/script` to `script/meta.ts`, retarget all `@mimo-ai/script` imports, delete the workspace package — acceptance: no `@mimo-ai/script` references, `script/meta.ts` exports `Script`, release/build scripts still resolve version/channel/preview/release (covers: S2-D3)
+- [x] T3: Move `packages/script` to `script/meta.ts`, retarget all `@ymcode/script` imports, delete the workspace package — acceptance: no `@ymcode/script` references, `script/meta.ts` exports `Script`, release/build scripts still resolve version/channel/preview/release (covers: S2-D3)
 - [x] T4: Add `tsconfig.scripts.json` + thin editor tsconfigs, set opencode `types: ["bun"]`, fix script type errors, wire scripts typecheck into root `typecheck` — acceptance: `tsc --noEmit -p tsconfig.scripts.json` passes, root `bun typecheck` includes scripts project, editor configs cover `script/`, `plugin/script`, `sdk/js/script`, opencode script files no longer red on `Bun`/`process` (covers: S2-D4; depends: T3)
 - [x] T5: Update README typecheck commands and verify end-to-end — acceptance: docs say `bun typecheck`, full root typecheck green, plugin/sdk `tsc` emit still works (covers: S2-D5; depends: T2, T4)

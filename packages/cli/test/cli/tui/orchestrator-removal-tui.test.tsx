@@ -30,7 +30,7 @@ import { buildTipKeys } from "../../../src/cli/cmd/tui/feature-plugins/home/tips
 import { TuiPluginRuntime } from "../../../src/cli/cmd/tui/plugin"
 import { setupSlots } from "../../../src/cli/cmd/tui/plugin/slots"
 import { renderActorNotification } from "../../../src/inbox/render"
-import type { Part, UserMessage as UserMessageT } from "@mimo-ai/sdk/v2"
+import type { Part, UserMessage as UserMessageT } from "@ymcode/sdk/v2"
 import type { ThinkingMode } from "../../../src/cli/cmd/tui/context/thinking"
 
 // C6 Path A: production App / UserMessageView. -s is NOT pre-routed; App must

@@ -6,8 +6,8 @@
       "name": "opencode",
       "dependencies": {
         "@aws-sdk/client-s3": "3.933.0",
-        "@mimo-ai/plugin": "workspace:*",
-        "@mimo-ai/sdk": "workspace:*",
+        "@ymcode/plugin": "workspace:*",
+        "@ymcode/sdk": "workspace:*",
         "heap-snapshot-toolkit": "1.1.3",
         "typescript": "catalog:",
       },
@@ -25,10 +25,10 @@
       },
     },
     "packages/cli": {
-      "name": "@mimo-ai/cli",
+      "name": "@ymcode/cli",
       "version": "0.1.15",
       "bin": {
-        "mimo": "./mimo.js",
+        "ymcode": "./ymcode.js",
       },
       "dependencies": {
         "@actions/core": "1.11.1",
@@ -65,8 +65,6 @@
         "@hono/zod-validator": "catalog:",
         "@jitl/quickjs-singlefile-mjs-release-sync": "0.32.0",
         "@lydell/node-pty": "catalog:",
-        "@mimo-ai/plugin": "workspace:*",
-        "@mimo-ai/sdk": "workspace:*",
         "@modelcontextprotocol/sdk": "1.27.1",
         "@npmcli/arborist": "9.4.0",
         "@npmcli/config": "10.8.1",
@@ -87,6 +85,8 @@
         "@solid-primitives/i18n": "2.2.1",
         "@solid-primitives/scheduled": "1.5.2",
         "@standard-schema/spec": "1.0.0",
+        "@ymcode/plugin": "workspace:*",
+        "@ymcode/sdk": "workspace:*",
         "@zip.js/zip.js": "2.7.62",
         "ai": "catalog:",
         "ai-gateway-provider": "3.1.2",
@@ -143,7 +143,6 @@
       "devDependencies": {
         "@babel/core": "7.28.4",
         "@effect/language-service": "0.84.2",
-        "@mimo-ai/shared": "workspace:*",
         "@octokit/webhooks-types": "7.6.1",
         "@parcel/watcher-darwin-arm64": "2.5.1",
         "@parcel/watcher-darwin-x64": "2.5.1",
@@ -168,6 +167,7 @@
         "@types/which": "3.0.4",
         "@types/yargs": "17.0.33",
         "@typescript/native-preview": "catalog:",
+        "@ymcode/shared": "workspace:*",
         "drizzle-orm": "catalog:",
         "typescript": "catalog:",
         "vscode-languageserver-types": "3.17.5",
@@ -176,10 +176,10 @@
       },
     },
     "packages/plugin": {
-      "name": "@mimo-ai/plugin",
+      "name": "@ymcode/plugin",
       "version": "0.1.15",
       "dependencies": {
-        "@mimo-ai/sdk": "workspace:*",
+        "@ymcode/sdk": "workspace:*",
         "effect": "catalog:",
         "zod": "catalog:",
       },
@@ -201,7 +201,7 @@
       ],
     },
     "packages/sdk": {
-      "name": "@mimo-ai/sdk",
+      "name": "@ymcode/sdk",
       "version": "0.1.15",
       "dependencies": {
         "cross-spawn": "catalog:",
@@ -216,11 +216,8 @@
       },
     },
     "packages/shared": {
-      "name": "@mimo-ai/shared",
+      "name": "@ymcode/shared",
       "version": "0.1.15",
-      "bin": {
-        "opencode": "./bin/opencode",
-      },
       "dependencies": {
         "@effect/platform-node": "catalog:",
         "@npmcli/arborist": "catalog:",
@@ -711,14 +708,6 @@
 
     "@lydell/node-pty-win32-x64": ["@lydell/node-pty-win32-x64@1.2.0-beta.10", "", { "os": "win32", "cpu": "x64" }, "sha512-ExFgWrzyldNAMi45U9PLIOu+g/RatP+f0c/dZxaooifME6yLW32BoHveH26/TtoAjZyJrc2iL0u48pgnR1fzmg=="],
 
-    "@mimo-ai/cli": ["@mimo-ai/cli@workspace:packages/cli"],
-
-    "@mimo-ai/plugin": ["@mimo-ai/plugin@workspace:packages/plugin"],
-
-    "@mimo-ai/sdk": ["@mimo-ai/sdk@workspace:packages/sdk"],
-
-    "@mimo-ai/shared": ["@mimo-ai/shared@workspace:packages/shared"],
-
     "@mixmark-io/domino": ["@mixmark-io/domino@2.2.0", "", {}, "sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw=="],
 
     "@modelcontextprotocol/sdk": ["@modelcontextprotocol/sdk@1.27.1", "", { "dependencies": { "@hono/node-server": "^1.19.9", "ajv": "^8.17.1", "ajv-formats": "^3.0.1", "content-type": "^1.0.5", "cors": "^2.8.5", "cross-spawn": "^7.0.5", "eventsource": "^3.0.2", "eventsource-parser": "^3.0.0", "express": "^5.2.1", "express-rate-limit": "^8.2.1", "hono": "^4.11.4", "jose": "^6.1.3", "json-schema-typed": "^8.0.2", "pkce-challenge": "^5.0.0", "raw-body": "^3.0.0", "zod": "^3.25 || ^4.0", "zod-to-json-schema": "^3.25.1" }, "peerDependencies": { "@cfworker/json-schema": "^4.1.1" }, "optionalPeers": ["@cfworker/json-schema"] }, "sha512-sr6GbP+4edBwFndLbM60gf07z0FQ79gaExpnsjMGePXqFcSSb7t6iscpjk9DhFhwd+mTEQrzNafGP8/iGGFYaA=="],
@@ -1188,6 +1177,14 @@
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
 
     "@webgpu/types": ["@webgpu/types@0.1.70", "", {}, "sha512-LFiNHHKMvmAEvwVew3JLJmTdShhbdwRFSImUshGhE2mGE8ybQzIo63l5uRp+YKnNx+8Qno8Kf6gN+DKMreIJCA=="],
+
+    "@ymcode/cli": ["@ymcode/cli@workspace:packages/cli"],
+
+    "@ymcode/plugin": ["@ymcode/plugin@workspace:packages/plugin"],
+
+    "@ymcode/sdk": ["@ymcode/sdk@workspace:packages/sdk"],
+
+    "@ymcode/shared": ["@ymcode/shared@workspace:packages/shared"],
 
     "@zip.js/zip.js": ["@zip.js/zip.js@2.7.62", "", {}, "sha512-OaLvZ8j4gCkLn048ypkZu29KX30r8/OfFF2w4Jo5WXFr+J04J+lzJ5TKZBVgFXhlvSkqNFQdfnY1Q8TMTCyBVA=="],
 
@@ -2565,10 +2562,6 @@
 
     "@jimp/types/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
-    "@mimo-ai/shared/minimatch": ["minimatch@10.2.5", "", { "dependencies": { "brace-expansion": "^5.0.5" } }, "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg=="],
-
-    "@mimo-ai/shared/semver": ["semver@7.7.4", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA=="],
-
     "@modelcontextprotocol/sdk/hono": ["hono@4.12.23", "", {}, "sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA=="],
 
     "@modelcontextprotocol/sdk/zod-to-json-schema": ["zod-to-json-schema@3.25.2", "", { "peerDependencies": { "zod": "^3.25.28 || ^4" } }, "sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA=="],
@@ -2620,6 +2613,10 @@
     "@pierre/diffs/diff": ["diff@8.0.3", "", {}, "sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ=="],
 
     "@tufjs/models/minimatch": ["minimatch@10.2.5", "", { "dependencies": { "brace-expansion": "^5.0.5" } }, "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg=="],
+
+    "@ymcode/shared/minimatch": ["minimatch@10.2.5", "", { "dependencies": { "brace-expansion": "^5.0.5" } }, "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg=="],
+
+    "@ymcode/shared/semver": ["semver@7.7.4", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA=="],
 
     "ai-gateway-provider/@ai-sdk/amazon-bedrock": ["@ai-sdk/amazon-bedrock@4.0.96", "", { "dependencies": { "@ai-sdk/anthropic": "3.0.71", "@ai-sdk/provider": "3.0.8", "@ai-sdk/provider-utils": "4.0.23", "@smithy/eventstream-codec": "^4.0.1", "@smithy/util-utf8": "^4.0.0", "aws4fetch": "^1.0.20" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-Mc4Ias2jRMD1jOB6xWtKNPdhECeuCZyIlbr9EAGfBnyBt++sS13ziZh9qv9TdyMCAZJ7xoQcpbchoRJcKwPdpA=="],
 

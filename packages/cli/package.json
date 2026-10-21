@@ -1,7 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "version": "0.1.15",
-  "name": "@mimo-ai/cli",
+  "name": "@ymcode/cli",
+  "description": "ymcode CLI",
+  "keywords": ["ymcode", "ai", "coding-assistant", "cli"],
+  "author": "ymcode contributors",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -19,7 +22,7 @@
     "dev:temporary": "bun run --conditions=browser ./src/temporary.ts"
   },
   "bin": {
-    "mimo": "./mimo.js"
+    "ymcode": "./ymcode.js"
   },
   "exports": {
     "./*": "./src/*.ts"
@@ -50,7 +53,7 @@
     "@babel/core": "7.28.4",
     "@effect/language-service": "0.84.2",
     "@octokit/webhooks-types": "7.6.1",
-    "@mimo-ai/shared": "workspace:*",
+    "@ymcode/shared": "workspace:*",
     "@parcel/watcher-darwin-arm64": "2.5.1",
     "@parcel/watcher-darwin-x64": "2.5.1",
     "@parcel/watcher-linux-arm64-glibc": "2.5.1",
@@ -115,8 +118,8 @@
     "@hono/zod-validator": "catalog:",
     "@jitl/quickjs-singlefile-mjs-release-sync": "0.32.0",
     "@lydell/node-pty": "catalog:",
-    "@mimo-ai/plugin": "workspace:*",
-    "@mimo-ai/sdk": "workspace:*",
+    "@ymcode/plugin": "workspace:*",
+    "@ymcode/sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "1.27.1",
     "@npmcli/arborist": "9.4.0",
     "@npmcli/config": "10.8.1",

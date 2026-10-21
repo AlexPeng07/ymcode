@@ -61,7 +61,7 @@ async function load(dir: string) {
 
 function toolPlugin(name: string) {
   return [
-    'import { tool } from "@mimo-ai/plugin"',
+    'import { tool } from "@ymcode/plugin"',
     "export default async () => ({",
     `  tool: { ${name}: tool({ description: "example", args: { value: tool.schema.string() }, execute: async () => "ok" }) },`,
     "})",
@@ -70,7 +70,7 @@ function toolPlugin(name: string) {
 }
 
 describe("plugin host SDK", () => {
-  test("serves @mimo-ai/plugin to a plugin directory without node_modules", async () => {
+  test("serves @ymcode/plugin to a plugin directory without node_modules", async () => {
     await using tmp = await tmpdir({
       outsideGit: true,
       init: (dir) => Bun.write(path.join(dir, ".mimocode", "plugins", "example.ts"), toolPlugin("example_tool")),
@@ -81,13 +81,13 @@ describe("plugin host SDK", () => {
     expect(await Bun.file(path.join(tmp.path, ".mimocode", "node_modules")).exists()).toBe(false)
   })
 
-  test("serves the @mimo-ai/plugin/tool subpath", async () => {
+  test("serves the @ymcode/plugin/tool subpath", async () => {
     await using tmp = await tmpdir({
       outsideGit: true,
       init: (dir) =>
         Bun.write(
           path.join(dir, ".mimocode", "plugins", "example.ts"),
-          toolPlugin("subpath_tool").replace('"@mimo-ai/plugin"', '"@mimo-ai/plugin/tool"'),
+          toolPlugin("subpath_tool").replace('"@ymcode/plugin"', '"@ymcode/plugin/tool"'),
         ),
     })
 
@@ -102,7 +102,7 @@ describe("plugin host SDK", () => {
         const fake = path.join(dir, ".mimocode", "node_modules", "@mimo-ai", "plugin")
         await Bun.write(
           path.join(fake, "package.json"),
-          JSON.stringify({ name: "@mimo-ai/plugin", type: "module", exports: { ".": "./index.js" } }),
+          JSON.stringify({ name: "@ymcode/plugin", type: "module", exports: { ".": "./index.js" } }),
         )
         await Bun.write(path.join(fake, "index.js"), 'export const tool = "fake"\n')
         await Bun.write(path.join(dir, ".mimocode", "plugins", "example.ts"), toolPlugin("example_tool"))
@@ -113,14 +113,14 @@ describe("plugin host SDK", () => {
     expect(result.tools).toContain("example_tool")
   })
 
-  test("serves @mimo-ai/plugin to file hooks", async () => {
+  test("serves @ymcode/plugin to file hooks", async () => {
     await using tmp = await tmpdir({
       outsideGit: true,
       init: (dir) =>
         Bun.write(
           path.join(dir, ".mimocode", "hooks", "example.ts"),
           [
-            'import { tool } from "@mimo-ai/plugin"',
+            'import { tool } from "@ymcode/plugin"',
             "export default {",
             '  "experimental.chat.system.transform": async (_input, output) => {',
             "    output.system.push(`hook:${typeof tool.schema.string}`)",

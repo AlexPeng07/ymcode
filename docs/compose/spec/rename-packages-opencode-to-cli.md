@@ -10,7 +10,7 @@ commits: 327f5b63..afec3965
 
 ## Report
 
-**What was built** — The core package directory is now `packages/cli`, matching the published `@mimo-ai/cli` name. Every literal `packages/opencode` path reference was rewritten: root scripts and typecheck project refs, CI `working-directory`/artifact paths, `bun.lock` workspace tokens, install/release helpers, in-package comments and prompt templates, test fixtures and snapshots, the drive-mimo skill, living docs, and all historical `docs/compose/spec/*.md`. Semantic product identifiers (provider ids, external-import source `opencode`, root package name, shared bin key, upstream GitHub URLs, shipped migration SQL) were left untouched. There is no compatibility shim.
+**What was built** — The core package directory is now `packages/cli`, matching the published `@ymcode/cli` name. Every literal `packages/opencode` path reference was rewritten: root scripts and typecheck project refs, CI `working-directory`/artifact paths, `bun.lock` workspace tokens, install/release helpers, in-package comments and prompt templates, test fixtures and snapshots, the drive-mimo skill, living docs, and all historical `docs/compose/spec/*.md`. Semantic product identifiers (provider ids, external-import source `opencode`, root package name, shared bin key, upstream GitHub URLs, shipped migration SQL) were left untouched. There is no compatibility shim.
 
 AGENTS.md was also slimmed in the same change: `## Core Focus` is gone (tree is CLI-only after recent PRs), and Testing/Type Checking no longer teach how to run checks — only how to write tests (avoid mocks; test real implementation). CONTRIBUTING keeps its human-facing "Checks before you push" commands. Prompt templates no longer cite the deleted AGENTS how-to-run rules.
 
@@ -32,7 +32,7 @@ Independent review: all 6 acceptance criteria met; no critical findings. Non-cri
 
 ## [S1] Problem
 
-The core package already publishes as `@mimo-ai/cli`, but its directory was still
+The core package already publishes as `@ymcode/cli`, but its directory was still
 `packages/opencode` (a historical leftover). That mismatch showed up in every
 developer path: AGENTS/CONTRIBUTING examples, CI `working-directory`, root
 scripts (`dev` / `build:local` / `postinstall` / release), typecheck project
@@ -45,7 +45,7 @@ directory.
 
 **Rename.** `git mv packages/opencode packages/cli`. Workspace globs
 (`packages/*`, `packages/sdk/js`) pick up the new directory without
-`package.json` workspaces edits. The published npm name stays `@mimo-ai/cli`.
+`package.json` workspaces edits. The published npm name stays `@ymcode/cli`.
 The root monorepo `name` stays `opencode`.
 
 **Path-string contract.** Replace the literal path token `packages/opencode`
@@ -69,7 +69,7 @@ and every historical `docs/compose/spec/*.md` (user decision: rewrite to
 
 **Do not change** (semantic product / protocol identifiers, not directory paths):
 
-- npm / workspace package name `@mimo-ai/cli`, `@mimo-ai/plugin`, `@mimo-ai/shared`, `@mimo-ai/sdk`
+- npm / workspace package name `@ymcode/cli`, `@ymcode/plugin`, `@ymcode/shared`, `@ymcode/sdk`
 - root package `"name": "opencode"`
 - provider ids, external-import sources, MCP origin strings, observability
   `serviceName`, CLI `$0`, brew/scoop/choco formula names, GitHub URLs
@@ -79,7 +79,7 @@ and every historical `docs/compose/spec/*.md` (user decision: rewrite to
   directory moves; do not edit shipped `migration.sql`)
 
 **Lockfile.** Bun records workspace package paths in `bun.lock`
-(`"packages/opencode"` and `"@mimo-ai/cli": ["@mimo-ai/cli@workspace:packages/opencode"]`).
+(`"packages/opencode"` and `"@ymcode/cli": ["@ymcode/cli@workspace:packages/opencode"]`).
 After `git mv`, update those path tokens, then run `bun ci` to confirm the
 lockfile still installs frozen.
 
@@ -104,7 +104,7 @@ this rename.
 
 ## Tasks
 
-- [x] T1: `git mv packages/opencode packages/cli` and fix `bun.lock` workspace paths — acceptance: directory is `packages/cli`; `bun ci` installs with frozen lockfile; `@mimo-ai/cli` still resolves as workspace (covers: S2)
+- [x] T1: `git mv packages/opencode packages/cli` and fix `bun.lock` workspace paths — acceptance: directory is `packages/cli`; `bun ci` installs with frozen lockfile; `@ymcode/cli` still resolves as workspace (covers: S2)
 - [x] T2: Update root scripts/config/CI/build helper paths — acceptance: `package.json`, `tsconfig*.json`, `local-install.sh`, `script/*`, `.github/workflows/test.yml` all reference `packages/cli` and none reference `packages/opencode` (covers: S2; depends: T1)
 - [x] T3: Update in-package path comments, prompt templates, tests, snapshot, SDK comment — acceptance: `rg packages/opencode packages/` is empty except semantic product identifiers; touched path tests still pass (covers: S2; depends: T1)
 - [x] T4: Update living docs and historical compose specs — acceptance: `rg packages/opencode` across repo is empty outside intentional non-directory identifiers; AGENTS/CONTRIBUTING examples use `packages/cli`; AGENTS.md drops Core Focus / how-to-run test-typecheck notes (covers: S2; depends: T1)

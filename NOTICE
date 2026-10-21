@@ -1,0 +1,22 @@
+ymcode
+======
+
+ymcode is a personal harness derived from MiMo-Code.
+
+Upstream:
+- MiMo-Code: https://github.com/XiaomiMiMo/MiMo-Code
+- Baseline commit: 88673c41732fcd57bf46abe485b547c00ba78221 (2026-10-21)
+- Copyright (c) 2026 MiMo Code, Xiaomi Corporation
+
+MiMo-Code is derived from opencode:
+- opencode: https://github.com/anomalyco/opencode
+- Copyright (c) 2025 opencode
+
+Both upstream projects are licensed under the MIT License. The full license
+text is retained in LICENSE. This project keeps the upstream copyright notices
+and adds its own modifications on top.
+
+Third-party names, model names, provider names and trademarks referenced by
+this project remain the property of their respective owners. References to
+Xiaomi MiMo models or providers are compatibility/configuration references,
+not a claim of affiliation.

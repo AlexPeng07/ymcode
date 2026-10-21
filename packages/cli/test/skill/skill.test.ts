@@ -1,6 +1,6 @@
 import { describe, expect, spyOn } from "bun:test"
 import { Cause, Effect, Exit, Fiber, Layer, Scope } from "effect"
-import { Glob } from "@mimo-ai/shared/util/glob"
+import { Glob } from "@ymcode/shared/util/glob"
 import { Instance } from "../../src/project/instance"
 import { Skill } from "../../src/skill"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"

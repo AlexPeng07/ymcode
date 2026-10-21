@@ -6,8 +6,8 @@ import path from "node:path"
 import { Installation } from "../installation"
 import { Flag } from "../flag/flag"
 import { lazy } from "@/util/lazy"
-import { Flock } from "@mimo-ai/shared/util/flock"
-import { Hash } from "@mimo-ai/shared/util/hash"
+import { Flock } from "@ymcode/shared/util/flock"
+import { Hash } from "@ymcode/shared/util/hash"
 import { createCatalog } from "./models-catalog"
 
 const log = Log.create({ service: "models.dev" })

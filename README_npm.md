@@ -16,7 +16,7 @@ MiMo Auto is built in as a free-for-limited-time channel, so you can start with 
 
 ## Quick Start
 
-npm is in limited support. Prefer the native installer over `npm install -g @mimo-ai/cli`:
+npm is in limited support. Prefer the native installer over `npm install -g @ymcode/cli`:
 
 ```bash
 # One-line install (macOS / Linux)

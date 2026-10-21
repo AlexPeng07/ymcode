@@ -1,17 +1,17 @@
 import path from "path"
-import * as sdk from "@mimo-ai/plugin"
-import * as sdkTool from "@mimo-ai/plugin/tool"
-import * as sdkTui from "@mimo-ai/plugin/tui"
+import * as sdk from "@ymcode/plugin"
+import * as sdkTool from "@ymcode/plugin/tool"
+import * as sdkTui from "@ymcode/plugin/tui"
 import type { ConfigPlugin } from "@/config/plugin"
 import { Flag } from "@/flag/flag"
 import * as Filesystem from "@/util/filesystem"
 
-export const SDK_SPECIFIERS = ["@mimo-ai/plugin", "@mimo-ai/plugin/*"]
+export const SDK_SPECIFIERS = ["@ymcode/plugin", "@ymcode/plugin/*"]
 
 const modules: Record<string, Record<string, unknown>> = {
-  "@mimo-ai/plugin": sdk,
-  "@mimo-ai/plugin/tool": sdkTool,
-  "@mimo-ai/plugin/tui": sdkTui,
+  "@ymcode/plugin": sdk,
+  "@ymcode/plugin/tool": sdkTool,
+  "@ymcode/plugin/tui": sdkTui,
 }
 
 let provided = false

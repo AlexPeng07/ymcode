@@ -10,7 +10,7 @@ commits: 4a5e2140..de9d65c5
 
 ## Report
 
-**What was built** — Config and TUI config loading no longer npm-install `@mimo-ai/plugin` into config directories, and plugin loading no longer waits on those installs (`PluginSdkNpmVersion`, `waitForDependencies` and the loader's `wait` retry are gone). On Bun, `PluginHost.provideSdk()` (`packages/cli/src/plugin/host.ts`) registers `@mimo-ai/plugin`, `/tool` and `/tui` as host-provided virtual modules at the start of `PluginLoader.loadExternal` and before file hooks load; the host copy wins over any plugin-local `node_modules`, and the file-hook `Bun.build` marks the SDK external so hooks share it too.
+**What was built** — Config and TUI config loading no longer npm-install `@ymcode/plugin` into config directories, and plugin loading no longer waits on those installs (`PluginSdkNpmVersion`, `waitForDependencies` and the loader's `wait` retry are gone). On Bun, `PluginHost.provideSdk()` (`packages/cli/src/plugin/host.ts`) registers `@ymcode/plugin`, `/tool` and `/tui` as host-provided virtual modules at the start of `PluginLoader.loadExternal` and before file hooks load; the host copy wins over any plugin-local `node_modules`, and the file-hook `Bun.build` marks the SDK external so hooks share it too.
 
 When the runtime cannot serve the SDK (the Node build used by Desktop) or `MIMOCODE_ONLY_CONFIG_DIR_PLUGINS` is set, only plugins whose source lies inside `MIMOCODE_CONFIG_DIR` load, and file hooks are discovered only there. Desktop's own plugin keeps loading; user plugins from other config directories do not load at all.
 
@@ -25,7 +25,7 @@ When the runtime cannot serve the SDK (the Node build used by Desktop) or `MIMOC
 
 ## [S1] Problem
 
-On every startup the engine and the TUI run an npm install of `@mimo-ai/plugin` into every config directory (`~/.config/mimocode`, each `.mimocode` up the tree, `~/.mimocode`, `MIMOCODE_CONFIG_DIR`). Plugin loading waits for all of those installs with no timeout whenever any plugin exists. The install touches the network and writes `package.json`, `package-lock.json` and `node_modules` into user directories without asking. It can pin a version that does not exist on npm, and it gives each directory its own copy of the SDK and its own `zod`. This supersedes the version-resolution patch in `plugin-sdk-npm-version.md`.
+On every startup the engine and the TUI run an npm install of `@ymcode/plugin` into every config directory (`~/.config/mimocode`, each `.mimocode` up the tree, `~/.mimocode`, `MIMOCODE_CONFIG_DIR`). Plugin loading waits for all of those installs with no timeout whenever any plugin exists. The install touches the network and writes `package.json`, `package-lock.json` and `node_modules` into user directories without asking. It can pin a version that does not exist on npm, and it gives each directory its own copy of the SDK and its own `zod`. This supersedes the version-resolution patch in `plugin-sdk-npm-version.md`.
 
 The Node build (used only by MiMo Desktop) has the same coupling. Desktop pre-writes npm short-circuit files so the wait returns immediately. Directory plugins written by users are only half supported there: they load, but a plugin that imports the SDK fails to resolve. On top of that, user plugins can collide with Desktop's own tools.
 
@@ -39,11 +39,11 @@ When an external plugin fails to import because a module is missing, the load er
 
 ### [S2.2] Host-provided SDK on Bun
 
-`packages/cli/src/plugin/host.ts` exports `PluginHost.provideSdk()`. On the Bun runtime it registers a `Bun.plugin` that serves `@mimo-ai/plugin`, `@mimo-ai/plugin/tool` and `@mimo-ai/plugin/tui` from the host's bundled SDK as `loader: "object"` modules. The call is idempotent. It is a no-op when `Bun.plugin` is not a function.
+`packages/cli/src/plugin/host.ts` exports `PluginHost.provideSdk()`. On the Bun runtime it registers a `Bun.plugin` that serves `@ymcode/plugin`, `@ymcode/plugin/tool` and `@ymcode/plugin/tui` from the host's bundled SDK as `loader: "object"` modules. The call is idempotent. It is a no-op when `Bun.plugin` is not a function.
 
-The host module wins over any `node_modules/@mimo-ai/plugin` next to the plugin, so plugins share the host's `tool()` and `zod`. Plugin authors install the package only for types.
+The host module wins over any `node_modules/@ymcode/plugin` next to the plugin, so plugins share the host's `tool()` and `zod`. Plugin authors install the package only for types.
 
-`provideSdk()` runs before any external plugin import: at the start of `PluginLoader.loadExternal` (the single entry for server plugins, TUI plugins, TUI file plugins and plugins added from the TUI) and before file hooks load. File hooks are bundled with `Bun.build`, which does not see runtime plugins, so that bundle marks `@mimo-ai/plugin` and `@mimo-ai/plugin/*` as external. The runtime import then resolves to the host module.
+`provideSdk()` runs before any external plugin import: at the start of `PluginLoader.loadExternal` (the single entry for server plugins, TUI plugins, TUI file plugins and plugins added from the TUI) and before file hooks load. File hooks are bundled with `Bun.build`, which does not see runtime plugins, so that bundle marks `@ymcode/plugin` and `@ymcode/plugin/*` as external. The runtime import then resolves to the host module.
 
 ### [S2.3] Config-dir-only plugin policy
 
@@ -60,11 +60,11 @@ On the Node build, Desktop's own plugin is declared in `MIMOCODE_CONFIG_DIR/mimo
 
 ### [S2.4] Testing
 
-- A plugin in a temp directory with no `node_modules` imports `tool` from `@mimo-ai/plugin` and registers a tool.
-- With a fake `node_modules/@mimo-ai/plugin` next to the plugin, the plugin receives the host module.
-- A file hook with a value import from `@mimo-ai/plugin` loads with no `node_modules`.
+- A plugin in a temp directory with no `node_modules` imports `tool` from `@ymcode/plugin` and registers a tool.
+- With a fake `node_modules/@ymcode/plugin` next to the plugin, the plugin receives the host module.
+- A file hook with a value import from `@ymcode/plugin` loads with no `node_modules`.
 - With `MIMOCODE_ONLY_CONFIG_DIR_PLUGINS=1`, a plugin declared in `MIMOCODE_CONFIG_DIR` loads and a project-local plugin does not. With the flag set and `MIMOCODE_CONFIG_DIR` unset, no external plugin loads.
-- Config loading leaves no `package-lock.json` or `node_modules/@mimo-ai/plugin` behind (existing `plugin-dependencies` tests).
+- Config loading leaves no `package-lock.json` or `node_modules/@ymcode/plugin` behind (existing `plugin-dependencies` tests).
 
 ## [S3] Out of Scope
 

@@ -2,8 +2,8 @@ import { expect } from "bun:test"
 import path from "node:path"
 import { Effect, Layer } from "effect"
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
-import { AppFileSystem } from "@mimo-ai/shared/filesystem"
-import { EffectFlock } from "@mimo-ai/shared/util/effect-flock"
+import { AppFileSystem } from "@ymcode/shared/filesystem"
+import { EffectFlock } from "@ymcode/shared/util/effect-flock"
 import { Config } from "../../src/config"
 import { Auth } from "../../src/auth"
 import { Account } from "../../src/account/account"
@@ -31,7 +31,7 @@ const it = testEffect(
 
 for (const dependencies of [
   undefined,
-  { "@mimo-ai/plugin": "0.0.0-unpublished" },
+  { "@ymcode/plugin": "0.0.0-unpublished" },
   { "@example/dependency": "1.0.0" },
 ]) {
   it.live(`loads plugin configuration without installing ${JSON.stringify(dependencies) ?? "any dependencies"}`, () =>

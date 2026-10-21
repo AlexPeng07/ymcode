@@ -9,7 +9,7 @@ import type * as Tool from "./tool"
 import { Instance } from "../project/instance"
 import { ProjectID } from "../project/schema"
 import { assertMemoryWriteAllowed, assertAgentWriteSandbox } from "./memory-path-guard"
-import { AppFileSystem } from "@mimo-ai/shared/filesystem"
+import { AppFileSystem } from "@ymcode/shared/filesystem"
 
 type Kind = "file" | "directory"
 

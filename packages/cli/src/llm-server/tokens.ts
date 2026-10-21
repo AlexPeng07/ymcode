@@ -1,8 +1,8 @@
 import path from "path"
 import fs from "fs/promises"
 import { createHash, timingSafeEqual } from "node:crypto"
-import { Hash } from "@mimo-ai/shared/util/hash"
-import { Flock } from "@mimo-ai/shared/util/flock"
+import { Hash } from "@ymcode/shared/util/hash"
+import { Flock } from "@ymcode/shared/util/flock"
 import { Global } from "@/global"
 import { Filesystem, Log } from "@/util"
 

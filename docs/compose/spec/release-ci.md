@@ -10,9 +10,9 @@ commits: f98dcd1c..b8704179
 
 ## Report
 
-> Later: `npm-fds-launcher` retired npm platform packages — npm now publishes SDK/plugin + the `@mimo-ai/cli` launcher only; platform binaries are FDS/GitHub archives.
+> Later: `npm-fds-launcher` retired npm platform packages — npm now publishes SDK/plugin + the `@ymcode/cli` launcher only; platform binaries are FDS/GitHub archives.
 
-**What was built** — Pushing a `vX.Y.Z` tag on a main commit runs `.github/workflows/release.yml`: verify (tag on main, four package versions equal the tag), the existing typecheck/lint/test workflows via `workflow_call`, a macOS build of 12 archives and 15 npm tarballs, then a publish job in environment `release` that ships npm SDK/plugin → GitHub Release (generated notes, archives only) → FDS archives then `releases/latest` → npm platform packages and `@mimo-ai/cli`, followed by a non-blocking mirror sync. npm publishes through trusted publishing (OIDC) with no stored token. Every publish stage skips work that already landed, so "Re-run failed jobs" resumes a release.
+**What was built** — Pushing a `vX.Y.Z` tag on a main commit runs `.github/workflows/release.yml`: verify (tag on main, four package versions equal the tag), the existing typecheck/lint/test workflows via `workflow_call`, a macOS build of 12 archives and 15 npm tarballs, then a publish job in environment `release` that ships npm SDK/plugin → GitHub Release (generated notes, archives only) → FDS archives then `releases/latest` → npm platform packages and `@ymcode/cli`, followed by a non-blocking mirror sync. npm publishes through trusted publishing (OIDC) with no stored token. Every publish stage skips work that already landed, so "Re-run failed jobs" resumes a release.
 
 `script/release.ts` replaces the old release, version and publish scripts (root and per-package). `packages/cli/script/build.ts` only builds, with `--archive` for release archives; `MIMOCODE_RELEASE` is gone. The shared setup-bun action now pins Bun from `packageManager` and installs with `bun ci`. CONTRIBUTING documents the procedure and the npm trusted-publisher setup.
 
@@ -36,7 +36,7 @@ Not run: a real tag-triggered release, OIDC publication, FDS upload. These need 
 
 ## [S1] Problem
 
-Releases run from a maintainer machine through `bun run release`: `script/version.ts` drafts a GitHub Release, `packages/cli/script/build.ts` builds and uploads to GitHub and FDS, and `script/publish.ts` rewrites every package.json, runs a non-frozen install, regenerates the SDK, and publishes 15 npm packages with a long-lived npm token. The process depends on one machine's credentials and state, mixes building with publishing, and publishes `@mimo-ai/plugin` last, after the binary is already downloadable — a fresh binary resolving `@mimo-ai/plugin@<its version>` can hit a version npm does not have yet.
+Releases run from a maintainer machine through `bun run release`: `script/version.ts` drafts a GitHub Release, `packages/cli/script/build.ts` builds and uploads to GitHub and FDS, and `script/publish.ts` rewrites every package.json, runs a non-frozen install, regenerates the SDK, and publishes 15 npm packages with a long-lived npm token. The process depends on one machine's credentials and state, mixes building with publishing, and publishes `@ymcode/plugin` last, after the binary is already downloadable — a fresh binary resolving `@ymcode/plugin@<its version>` can hit a version npm does not have yet.
 
 The goal is a CI-only release path that lands before v0.1.16, so later work (retiring npm platform packages around v0.2) only edits CI lists.
 
@@ -65,10 +65,10 @@ flowchart LR
 2. **checks**: the existing typecheck, lint and test workflows gain a `workflow_call` trigger and run against the tag commit.
 3. **build** (`macos-latest`, matching how past releases were produced: darwin binaries ad-hoc signed by the native toolchain): `bun script/release.ts build` re-runs verify, builds all 12 targets via `packages/cli/script/build.ts --archive`, compiles SDK/plugin from committed sources with `tsc` (never the SDK generator), packs 15 npm tarballs, writes `dist/release/{archives,npm}/`, then asserts the checkout has no tracked or untracked changes. The directory is uploaded as one Actions artifact.
 4. **publish** (ubuntu, environment `release`, `contents: write`, `id-token: write`): downloads the artifact and runs stages in order. Each stage is idempotent so "re-run failed jobs" resumes safely:
-   - `npm libs` — `@mimo-ai/sdk`, then `@mimo-ai/plugin`. Publishing these first removes the window where a downloadable binary references an unpublished plugin version.
+   - `npm libs` — `@ymcode/sdk`, then `@ymcode/plugin`. Publishing these first removes the window where a downloadable binary references an unpublished plugin version.
    - `github` — create release `vX.Y.Z` with `--verify-tag --generate-notes` and only the 12 archives. If a draft exists (earlier partial attempt) upload with `--clobber` and publish it; if a published release exists, skip.
    - `fds` — upload the 12 archives to `releases/vX.Y.Z/`, then write `releases/latest` last.
-   - `npm cli` — 12 platform packages, then the `@mimo-ai/cli` wrapper.
+   - `npm cli` — 12 platform packages, then the `@ymcode/cli` wrapper.
    - `script/sync-registry.ts` mirror sync with `continue-on-error`.
 
 ### npm publication

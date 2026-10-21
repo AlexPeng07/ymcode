@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, spyOn, test } from "bun:test"
 import { Cause, Deferred, Effect, Exit, Fiber } from "effect"
-import { createOpencodeClient } from "@mimo-ai/sdk/v2"
+import { createOpencodeClient } from "@ymcode/sdk/v2"
 import { AppRuntime } from "../../src/effect/app-runtime"
 import { Instance } from "../../src/project/instance"
 import { Server } from "../../src/server/server"

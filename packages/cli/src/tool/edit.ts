@@ -18,7 +18,7 @@ import { Instance } from "../project/instance"
 import { SessionCwd } from "./session-cwd"
 import { Snapshot } from "@/snapshot"
 import { assertWriteAllowed, askEditUnlessMemory } from "./external-directory"
-import { AppFileSystem } from "@mimo-ai/shared/filesystem"
+import { AppFileSystem } from "@ymcode/shared/filesystem"
 import { Flag } from "@/flag/flag"
 
 function normalizeLineEndings(text: string): string {

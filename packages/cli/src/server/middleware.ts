@@ -1,6 +1,6 @@
 import { Provider } from "../provider"
 import { InstanceBusyError } from "@/project/instance"
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import { NotFoundError } from "../storage"
 import { Session } from "../session"
 import type { ContentfulStatusCode } from "hono/utils/http-status"

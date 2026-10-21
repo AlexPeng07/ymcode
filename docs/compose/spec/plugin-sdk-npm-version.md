@@ -10,7 +10,7 @@ commits: 4b1dfe2fa68bd6cf4d086244617ccac4146fc43a..aca33f1fd83637c83c26bc837d65b
 
 ## Report
 
-**What was built** — Config/TUI background installs of `@mimo-ai/plugin` no longer pin the package to the engine install identity. A pure resolver `pluginSdkNpmVersion(version, local)` in `installation/version.ts` decides the npm version: local installs and non-semver identities (`desktop-<hash>`, other non-npm strings) omit the version so npm resolves latest; only a valid semver identity (release and prerelease forms) pins that exact string. Both install sites (`config/config.ts`, `tui/config/tui.ts`) consume the runtime binding `PluginSdkNpmVersion`. `InstallationVersion` / `InstallationLocal` remain the install identity for skill extraction, User-Agent, upgrade, and other consumers.
+**What was built** — Config/TUI background installs of `@ymcode/plugin` no longer pin the package to the engine install identity. A pure resolver `pluginSdkNpmVersion(version, local)` in `installation/version.ts` decides the npm version: local installs and non-semver identities (`desktop-<hash>`, other non-npm strings) omit the version so npm resolves latest; only a valid semver identity (release and prerelease forms) pins that exact string. Both install sites (`config/config.ts`, `tui/config/tui.ts`) consume the runtime binding `PluginSdkNpmVersion`. `InstallationVersion` / `InstallationLocal` remain the install identity for skill extraction, User-Agent, upgrade, and other consumers.
 
 **Verification** — From `packages/cli` on the feature worktree: `bun typecheck` PASS (`tsgo --no-emit` clean); `bun test test/installation/plugin-sdk-npm-version.test.ts` PASS (3 pass / 0 fail); `bun test test/installation/` PASS (22 pass / 0 fail). Grep confirms no remaining `InstallationLocal ? undefined : InstallationVersion` in package source. Independent review passed spec compliance, correctness, and codebase consistency with no critical findings.
 
@@ -22,9 +22,9 @@ commits: 4b1dfe2fa68bd6cf4d086244617ccac4146fc43a..aca33f1fd83637c83c26bc837d65b
 
 ## [S1] Problem
 
-Config load installs `@mimo-ai/plugin` into each config directory so user plugins can import the SDK. The install request currently pins the package version to `InstallationVersion` whenever `InstallationLocal` is false.
+Config load installs `@ymcode/plugin` into each config directory so user plugins can import the SDK. The install request currently pins the package version to `InstallationVersion` whenever `InstallationLocal` is false.
 
-`InstallationVersion` is an **install identity**, not an npm dist-tag. Official CLI releases use a published semver and match npm versions. Embedding hosts (MiMo Desktop) deliberately inject `MIMOCODE_VERSION=desktop-<pin hash>` with `MIMOCODE_CHANNEL=latest` so builtin skill / compose extraction paths advance with the pin. That identity never exists on npm, so config load requests `@mimo-ai/plugin@desktop-<hash>`, npm resolution fails, and the engine only logs `background dependency install failed`. User plugins that import `@mimo-ai/plugin` from a config directory then fail to resolve at runtime.
+`InstallationVersion` is an **install identity**, not an npm dist-tag. Official CLI releases use a published semver and match npm versions. Embedding hosts (MiMo Desktop) deliberately inject `MIMOCODE_VERSION=desktop-<pin hash>` with `MIMOCODE_CHANNEL=latest` so builtin skill / compose extraction paths advance with the pin. That identity never exists on npm, so config load requests `@ymcode/plugin@desktop-<hash>`, npm resolution fails, and the engine only logs `background dependency install failed`. User plugins that import `@ymcode/plugin` from a config directory then fail to resolve at runtime.
 
 ## [S2] Design
 
@@ -67,5 +67,5 @@ Error behavior is unchanged: install failure still logs a warning and does not b
 ## Tasks
 
 - [x] T1: Add `pluginSdkNpmVersion` pure helper + `PluginSdkNpmVersion` binding in `installation/version.ts` — acceptance: local → undefined; valid semver non-local → same string; non-semver non-local (desktop-hash) → undefined; covered by unit tests (covers: S2)
-- [x] T2: Point `config.ts` and `tui.ts` `@mimo-ai/plugin` install sites at `PluginSdkNpmVersion` — acceptance: neither site passes `InstallationLocal ? undefined : InstallationVersion` anymore; no leftover unused imports (covers: S2; depends: T1)
+- [x] T2: Point `config.ts` and `tui.ts` `@ymcode/plugin` install sites at `PluginSdkNpmVersion` — acceptance: neither site passes `InstallationLocal ? undefined : InstallationVersion` anymore; no leftover unused imports (covers: S2; depends: T1)
 - [x] T3: Run package typecheck + targeted unit tests — acceptance: `bun typecheck` and the new plugin-sdk-npm-version tests pass from `packages/cli` (covers: S2; depends: T2)

@@ -78,7 +78,7 @@ describe("packLibrary", () => {
       const pkg = JSON.parse(await $`tar -xOzf ${file} package/package.json`.quiet().text())
       const entries = (await $`tar -tzf ${file}`.quiet().text()).split("\n")
 
-      expect(pkg.name).toBe(`@mimo-ai/${name}`)
+      expect(pkg.name).toBe(`@ymcode/${name}`)
       expect(pkg.exports["."]).toEqual({ types: "./dist/index.d.ts", import: "./dist/index.js" })
       expect(JSON.stringify(pkg.dependencies)).not.toMatch(/workspace:|catalog:/)
       expect(entries).toContain("package/README.md")
@@ -114,16 +114,16 @@ describe("assertTarballs", () => {
 
   test("lists every missing tarball", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "release-tarballs-"))
-    await writeTarball(dir, "@mimo-ai/sdk", "1.2.3", { name: "@mimo-ai/sdk", version: "1.2.3" })
-    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("@mimo-ai/plugin: missing")
-    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("@mimo-ai/cli: missing")
+    await writeTarball(dir, "@ymcode/sdk", "1.2.3", { name: "@ymcode/sdk", version: "1.2.3" })
+    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("@ymcode/plugin: missing")
+    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("@ymcode/cli: missing")
     await rm(dir, { recursive: true, force: true })
   })
 
   test("rejects tarball metadata that does not match the release version", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "release-tarballs-"))
     for (const name of npmPackages) await writeTarball(dir, name, "1.2.3", { name, version: "1.2.2" })
-    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("expected @mimo-ai/sdk@1.2.3")
+    await expect(assertTarballs("1.2.3", dir)).rejects.toThrow("expected @ymcode/sdk@1.2.3")
     await rm(dir, { recursive: true, force: true })
   })
 })

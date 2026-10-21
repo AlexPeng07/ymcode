@@ -33,7 +33,7 @@ await import("./generate.ts")
 import { Script } from "../../../script/meta.ts"
 import pkg from "../package.json"
 
-const BINARY_PREFIX = "mimocode"
+const BINARY_PREFIX = "ymcode"
 
 // Load migrations from migration directories
 const migrationDirs = (
@@ -261,7 +261,7 @@ for (const item of targets) {
 
   await $`rm -rf ./dist/${name}/bin/tui`
   // Platform targets are binaries + FDS/GitHub archives only. npm gets the
-  // thin @mimo-ai/cli launcher, not per-platform packages.
+  // thin @ymcode/cli launcher, not per-platform packages.
   binaries[name] = Script.version
 }
 

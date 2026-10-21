@@ -1,6 +1,6 @@
 import { expect } from "bun:test"
 import { Effect, Fiber, Layer } from "effect"
-import { AppFileSystem } from "@mimo-ai/shared/filesystem"
+import { AppFileSystem } from "@ymcode/shared/filesystem"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { Bus } from "../../src/bus"
 import * as BashInteractive from "../../src/tool/bash-interactive"

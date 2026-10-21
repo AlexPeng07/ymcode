@@ -3,7 +3,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { isDeepStrictEqual } from "node:util"
 import { APICallError, RetryError } from "ai"
-import { HOST_RETRY_CLASSES } from "@mimo-ai/shared/util/error"
+import { HOST_RETRY_CLASSES } from "@ymcode/shared/util/error"
 import { isRetryableNetworkError, summarizeCause } from "@/provider/error"
 
 export const RETRY_CLASSES = HOST_RETRY_CLASSES

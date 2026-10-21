@@ -54,7 +54,7 @@ Expected: 全绿。若基线有失败，记录失败文件与原因，先修复�
 - Modify: `packages/sdk/package.json`
 - Modify: `packages/shared/package.json`
 - Rename: `packages/cli/mimo.js` → `packages/cli/ymcode.js`
-- Modify: 所有 `@mimo-ai/*` 导入
+- Modify: 所有 `@ymcode/*` 导入
 - Modify: `bun.lock`（由 `bun install` 生成）
 
 **Interfaces:**
@@ -94,7 +94,7 @@ git grep -l '@mimo-ai/' -- ':!bun.lock' | xargs perl -pi -e 's/\@mimo-ai\//\@ymc
 
 Run: `bun install`
 Run: `bun run typecheck`
-Expected: 通过；`bun.lock` 中出现 `@ymcode/*`，不再有 `@mimo-ai/*` workspace 条目。
+Expected: 通过；`bun.lock` 中出现 `@ymcode/*`，不再有 `@ymcode/*` workspace 条目。
 
 - [ ] **Step 4: 提交**
 

@@ -1,21 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@mimo-ai/plugin",
+  "name": "@ymcode/plugin",
   "version": "0.1.15",
-  "description": "Plugin SDK for extending MiMoCode",
-  "keywords": ["mimo", "mimocode", "ai", "plugin", "coding-assistant"],
+  "description": "Plugin SDK for extending ymcode",
+  "keywords": ["ymcode", "ai", "plugin", "coding-assistant"],
   "type": "module",
   "license": "MIT",
-  "author": "Xiaomi MiMo Team",
-  "homepage": "https://mimo.xiaomi.com/coder",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/XiaomiMiMo/MiMo-Code.git",
-    "directory": "packages/plugin"
-  },
-  "bugs": {
-    "url": "https://github.com/XiaomiMiMo/MiMo-Code/issues"
-  },
+  "author": "ymcode contributors",
   "publishConfig": {
     "access": "public"
   },
@@ -32,7 +23,7 @@
     "dist"
   ],
   "dependencies": {
-    "@mimo-ai/sdk": "workspace:*",
+    "@ymcode/sdk": "workspace:*",
     "effect": "catalog:",
     "zod": "catalog:"
   },

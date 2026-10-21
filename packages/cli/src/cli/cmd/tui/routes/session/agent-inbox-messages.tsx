@@ -1,6 +1,6 @@
 import { createMemo, For, Show } from "solid-js"
 import type { RGBA } from "@opentui/core"
-import type { Part } from "@mimo-ai/sdk/v2"
+import type { Part } from "@ymcode/sdk/v2"
 import { parseAgentInboxPart } from "@/inbox/render"
 import { UserMessageBubble } from "./user-message-bubble"
 

@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import { testRender } from "@opentui/solid"
-import type { GlobalEvent } from "@mimo-ai/sdk/v2"
+import type { GlobalEvent } from "@ymcode/sdk/v2"
 import { onMount } from "solid-js"
 import { ArgsProvider } from "../../../src/cli/cmd/tui/context/args"
 import { ExitProvider } from "../../../src/cli/cmd/tui/context/exit"

@@ -15,7 +15,7 @@ function stageLauncher(dir: string) {
   fs.writeFileSync(
     path.join(dir, "package.json"),
     JSON.stringify({
-      name: "@mimo-ai/cli",
+      name: "@ymcode/cli",
       version: "9.9.9",
       type: "module",
       bin: { mimo: "./mimo.js" },

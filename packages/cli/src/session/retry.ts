@@ -1,4 +1,4 @@
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import { Cause, Clock, Duration, Effect, Schedule } from "effect"
 import { hostRetryClass, isSafetyTerminal, retryConstraint, type RetryClass } from "@/error/host-registry"
 import { MessageV2 } from "./message-v2"

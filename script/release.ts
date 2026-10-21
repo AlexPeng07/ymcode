@@ -35,10 +35,10 @@ const archive = (name: string) => `${name}.${name.includes("linux") ? "tar.gz" :
 const tarball = (name: string, version: string) => `${name.slice(1).replace("/", "-")}-${version}.tgz`
 
 const npmGroups = {
-  libs: ["@mimo-ai/sdk", "@mimo-ai/plugin"],
+  libs: ["@ymcode/sdk", "@ymcode/plugin"],
   // Platform binaries ship on FDS/GitHub only. npm stays limited support:
   // just the launcher wrapper (plus the two libraries above).
-  cli: ["@mimo-ai/cli"],
+  cli: ["@ymcode/cli"],
 }
 
 export const npmPackages = [...npmGroups.libs, ...npmGroups.cli]
@@ -144,7 +144,7 @@ async function packCli(version: string, dest: string) {
     path.join(stage, "package.json"),
     JSON.stringify(
       {
-        name: "@mimo-ai/cli",
+        name: "@ymcode/cli",
         version,
         type: "module",
         // Extensionless-free ESM entry (mimo.js) still wants a modern Node for fetch/AbortSignal.timeout.
@@ -163,7 +163,7 @@ async function packCli(version: string, dest: string) {
       2,
     ) + "\n",
   )
-  await pack(stage, "@mimo-ai/cli", version, dest)
+  await pack(stage, "@ymcode/cli", version, dest)
   await rm(path.join(out, "stage"), { recursive: true, force: true })
 }
 

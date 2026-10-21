@@ -1,7 +1,7 @@
 import { PNG } from "pngjs"
 import jpeg from "jpeg-js"
 import z from "zod"
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import { sniffAttachmentMime } from "@/util/media"
 import { Flag } from "@/flag/flag"
 import type * as Provider from "./provider"

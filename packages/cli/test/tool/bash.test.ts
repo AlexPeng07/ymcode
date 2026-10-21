@@ -15,7 +15,7 @@ import { Agent } from "../../src/agent/agent"
 import { Truncate } from "../../src/tool"
 import { SessionID, MessageID } from "../../src/session/schema"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
-import { AppFileSystem } from "@mimo-ai/shared/filesystem"
+import { AppFileSystem } from "@ymcode/shared/filesystem"
 import { Plugin } from "../../src/plugin"
 import { Git } from "../../src/git"
 

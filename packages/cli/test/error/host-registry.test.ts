@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from "bun:test"
 import { APICallError, LoadAPIKeyError, RetryError } from "ai"
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import { ModelID, ProviderID } from "../../src/provider/schema"
 import { tmpdir, provideTmpdirInstance } from "../fixture/fixture"
 import { Effect, Layer } from "effect"

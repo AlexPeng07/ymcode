@@ -3,24 +3,24 @@ import { Script } from "./meta.ts"
 
 const PACKAGES = [
   // Published every release — keep mirrors current for new installs.
-  "@mimo-ai/sdk",
-  "@mimo-ai/plugin",
-  "@mimo-ai/cli",
+  "@ymcode/sdk",
+  "@ymcode/plugin",
+  "@ymcode/cli",
   // Legacy platform packages (no longer published; keep syncing existing versions
   // so mirrors stay complete for old installs). New releases only update the list
   // above.
-  "@mimo-ai/mimocode-darwin-arm64",
-  "@mimo-ai/mimocode-darwin-x64",
-  "@mimo-ai/mimocode-darwin-x64-baseline",
-  "@mimo-ai/mimocode-linux-arm64",
-  "@mimo-ai/mimocode-linux-arm64-musl",
-  "@mimo-ai/mimocode-linux-x64",
-  "@mimo-ai/mimocode-linux-x64-baseline",
-  "@mimo-ai/mimocode-linux-x64-musl",
-  "@mimo-ai/mimocode-linux-x64-baseline-musl",
-  "@mimo-ai/mimocode-windows-arm64",
-  "@mimo-ai/mimocode-windows-x64",
-  "@mimo-ai/mimocode-windows-x64-baseline",
+  "@ymcode/mimocode-darwin-arm64",
+  "@ymcode/mimocode-darwin-x64",
+  "@ymcode/mimocode-darwin-x64-baseline",
+  "@ymcode/mimocode-linux-arm64",
+  "@ymcode/mimocode-linux-arm64-musl",
+  "@ymcode/mimocode-linux-x64",
+  "@ymcode/mimocode-linux-x64-baseline",
+  "@ymcode/mimocode-linux-x64-musl",
+  "@ymcode/mimocode-linux-x64-baseline-musl",
+  "@ymcode/mimocode-windows-arm64",
+  "@ymcode/mimocode-windows-x64",
+  "@ymcode/mimocode-windows-x64-baseline",
 ]
 
 const REGISTRIES = {

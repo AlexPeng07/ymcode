@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url"
 import { BusEvent } from "@/bus/bus-event"
 import { SessionID, MessageID, PartID } from "./schema"
 import z from "zod"
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import {
   APICallError,
   convertToModelMessages,

@@ -1,5 +1,5 @@
 import { describe, expect, test, afterEach } from "bun:test"
-import { NamedError } from "@mimo-ai/shared/util/error"
+import { NamedError } from "@ymcode/shared/util/error"
 import { APICallError, RetryError, generateText } from "ai"
 import { setTimeout as sleep } from "node:timers/promises"
 import { Clock, Effect, Exit, Fiber, Schedule, Schema } from "effect"
