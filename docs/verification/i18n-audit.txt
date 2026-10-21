@@ -1,0 +1,222 @@
+packages/cli/src/cli/cmd/tui/component\bg-pulse.tsx:96: m.right || y
+packages/cli/src/cli/cmd/tui/component\dialog-go-upsell.tsx:101: Subscribe to
+packages/cli/src/cli/cmd/tui/component\dialog-go-upsell.tsx:105: for reliable access to the
+packages/cli/src/cli/cmd/tui/component\dialog-go-upsell.tsx:107: best open-source models, starting at $5/month.
+packages/cli/src/cli/cmd/tui/component\dialog-mcp.tsx:14: ⋯ Loading
+packages/cli/src/cli/cmd/tui/component\dialog-mcp.tsx:17: ✓ Enabled
+packages/cli/src/cli/cmd/tui/component\dialog-mcp.tsx:19: ○ Disabled
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:63: Select auth method
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:157: Connect a provider
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:290: Waiting for authorization...
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:314: Authorization code
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:334: Invalid code
+packages/cli/src/cli/cmd/tui/component\dialog-provider.tsx:356: API key
+packages/cli/src/cli/cmd/tui/component\dialog-session-delete-failed.tsx:11: boolean | void | Promise
+packages/cli/src/cli/cmd/tui/component\dialog-session-delete-failed.tsx:12: boolean | void | Promise
+packages/cli/src/cli/cmd/tui/component\dialog-session-rename.tsx:125: Rename Session
+packages/cli/src/cli/cmd/tui/component\dialog-skill.tsx:40: Search skills...
+packages/cli/src/cli/cmd/tui/component\dialog-status.tsx:102: No MCP Servers
+packages/cli/src/cli/cmd/tui/component\dialog-status.tsx:131: Pending approval
+packages/cli/src/cli/cmd/tui/component\dialog-status.tsx:132: Disabled in configuration
+packages/cli/src/cli/cmd/tui/component\dialog-status.tsx:172: No Formatters
+packages/cli/src/cli/cmd/tui/component\dialog-status.tsx:194: No Plugins
+packages/cli/src/cli/cmd/tui/component\dialog-workflows.tsx:31: (a.runID
+packages/cli/src/cli/cmd/tui/component\dialog-workspace-create.tsx:22: , sync: ReturnType
+packages/cli/src/cli/cmd/tui/component\dialog-workspace-create.tsx:64: = 500 && result.response.status
+packages/cli/src/cli/cmd/tui/component\dialog-workspace-create.tsx:189: x.json() as Promise
+packages/cli/src/cli/cmd/tui/component\dialog-workspace-unavailable.tsx:8: boolean | void | Promise
+packages/cli/src/cli/cmd/tui/component\error-component.tsx:75: Successfully copied
+packages/cli/src/cli/cmd/tui/component\error-component.tsx:78: A fatal error occurred!
+packages/cli/src/cli/cmd/tui/component\error-component.tsx:80: Reset TUI
+packages/cli/src/cli/cmd/tui/component\logo.tsx:619: t - item.at
+packages/cli/src/cli/cmd/tui/component\plugin-route-missing.tsx:10: go home
+packages/cli/src/cli/cmd/tui/component\prompt\autocomplete.tsx:681: No matching items
+packages/cli/src/cli/cmd/tui/component\prompt\index.tsx:1786: «never-ask»
+packages/cli/src/cli/cmd/tui/component\prompt\index.tsx:1941: (click to expand)
+packages/cli/src/cli/cmd/tui/component\prompt\index.tsx:1998: exit shell mode
+packages/cli/src/cli/cmd/tui/component\starry-background.tsx:195: = 0 && elapsed
+packages/cli/src/cli/cmd/tui/component\starry-background.tsx:214: = gridW || cy
+packages/cli/src/cli/cmd/tui/component\starry-background.tsx:242: = gridW || cy
+packages/cli/src/cli/cmd/tui/component\workflow-tree.tsx:78: open ↗
+packages/cli/src/cli/cmd/tui/component\workflow-tree.tsx:137: open ↗
+packages/cli/src/cli/cmd/tui/component\workflow-tree.tsx:153: (no activity yet)
+packages/cli/src/cli/cmd/tui/config\tui-schema.ts:7: [key, z.string().optional()])) as Record
+packages/cli/src/cli/cmd/tui/context\event.ts:34: (type: T, handler: (event: Extract
+packages/cli/src/cli/cmd/tui/context\sync.tsx:845: (request: Promise
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\files.tsx:19: Modified Files
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\footer.tsx:45: Getting started
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\footer.tsx:51: ymcode includes free models so you can start immediately.
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\footer.tsx:56: Connect provider
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\mcp.tsx:66: Pending approval
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\mcp.tsx:68: Needs auth
+packages/cli/src/cli/cmd/tui/feature-plugins\sidebar\mcp.tsx:69: Needs client ID
+packages/cli/src/cli/cmd/tui/feature-plugins\system\plugins.tsx:55: Install plugin
+packages/cli/src/cli/cmd/tui/feature-plugins\system\plugins.tsx:56: npm package name
+packages/cli/src/cli/cmd/tui/feature-plugins\system\plugins.tsx:61: scope:
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:71: , name: string, params?: Record
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:105: (item: TuiDialogSelectOption
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:105: ): SelectOption
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:112: (item: SelectOption
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:112: ): TuiDialogSelectOption
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:123: (cb?: (item: TuiDialogSelectOption
+packages/cli/src/cli/cmd/tui/plugin\api.tsx:273: (props: TuiSlotProps
+packages/cli/src/cli/cmd/tui/plugin\runtime.ts:110: unknown, ms: number): Promise
+packages/cli/src/cli/cmd/tui/plugin\runtime.ts:599: readV1Plugin(loaded.mod as Record
+packages/cli/src/cli/cmd/tui/plugin\slots.tsx:7: (props: TuiSlotProps
+packages/cli/src/cli/cmd/tui/plugin\slots.tsx:8: = SolidPlugin
+packages/cli/src/cli/cmd/tui/plugin\slots.tsx:14: (plugin: HostSlotPlugin
+packages/cli/src/cli/cmd/tui/plugin\slots.tsx:18: (_props: TuiSlotProps
+packages/cli/src/cli/cmd/tui/routes\session\dialog-fork-from-timeline.tsx:75: Fork session
+packages/cli/src/cli/cmd/tui/routes\session\dialog-message.tsx:30: Message Actions
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1069: msg.role === "assistant" && (!revertID || msg.id
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1662: 🕒 cron fire
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1704: checkpoint off
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1910: · interrupted
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1934: ↻ /recover
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:1943: ⎘ copy
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:2584: Click to expand
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:2600: Click to collapse
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:3013: - Error
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:3286: Click to collapse
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:3749: Click to collapse
+packages/cli/src/cli/cmd/tui/routes\session\index.tsx:3780: # Questions
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:104: No diff provided
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:248: Always allow
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:256: This will allow the following patterns until ymcode is restarted
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:511: This keeps the session running despite repeated failures.
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:542: Permission required
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:555: Permission required
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:598: dimensions().width
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:625: Reject permission
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:628: Tell ymcode what to do differently
+packages/cli/src/cli/cmd/tui/routes\session\permission.tsx:685: dimensions().width
+packages/cli/src/cli/cmd/tui/routes\session\question.tsx:242: = 1 && digit
+packages/cli/src/cli/cmd/tui/routes\session\question.tsx:410: Type your own answer
+packages/cli/src/cli/cmd/tui/ui\dialog-select.tsx:61: (props: DialogSelectProps
+packages/cli/src/cli/cmd/tui/ui\spinner.ts:129: 0 && directionalDistance
+packages/cli/src/cli/cmd/tui/ui\spinner.ts:315: 0 && dd
+packages/cli/src/cli/cmd/tui/ui\spinner.ts:325: = 0 && index
+packages/cli/src/cli/cmd/tui/ui\spinner.ts:333: = 0 && index
+packages/cli/src/cli/cmd/tui/util\signal.ts:4: (value: T, ms: number): [Accessor
+packages/cli/src/cli/cmd/tui/util\signal.ts:4: , Scheduled
+packages/cli/src/cli/cmd/tui/util\signal.ts:9: , enabled: Accessor
+packages/cli/src/cli/cmd/tui/util\voice.ts:22: ; models: Record
+packages/cli/src/cli/cmd\cmd.ts:5: (input: CommandModule
+packages/cli/src/cli/cmd\github.ts:1394: , retries = 1, delayMs = 5000): Promise
+packages/cli/src/cli/cmd\github.ts:1491: ", ...comments, "
+packages/cli/src/cli/cmd\github.ts:1635: ", ...comments, "
+packages/cli/src/cli/cmd\github.ts:1636: ", ...files, "
+packages/cli/src/cli/cmd\github.ts:1637: ", ...reviewData, "
+packages/cli/src/cli/cmd\mcp.ts:156: (OAuth)
+packages/cli/src/cli/cmd\mcp.ts:170: \n
+packages/cli/src/cli/cmd\mcp.ts:174: \n
+packages/cli/src/cli/cmd\mcp.ts:398: tokens + client
+packages/cli/src/cli/cmd\mcp.ts:400: client registration
+packages/cli/src/cli/cmd\mcp.ts:445: {}
+packages/cli/src/cli/cmd\mcp.ts:785: = 200 && response.status
+packages/cli/src/cli/cmd\run.ts:55: (part: ToolPart): ToolProps
+packages/cli/src/cli/cmd\tui\component\bg-pulse.tsx:96: m.right || y
+packages/cli/src/cli/cmd\tui\component\dialog-go-upsell.tsx:101: Subscribe to
+packages/cli/src/cli/cmd\tui\component\dialog-go-upsell.tsx:105: for reliable access to the
+packages/cli/src/cli/cmd\tui\component\dialog-go-upsell.tsx:107: best open-source models, starting at $5/month.
+packages/cli/src/cli/cmd\tui\component\dialog-mcp.tsx:14: ⋯ Loading
+packages/cli/src/cli/cmd\tui\component\dialog-mcp.tsx:17: ✓ Enabled
+packages/cli/src/cli/cmd\tui\component\dialog-mcp.tsx:19: ○ Disabled
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:63: Select auth method
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:157: Connect a provider
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:290: Waiting for authorization...
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:314: Authorization code
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:334: Invalid code
+packages/cli/src/cli/cmd\tui\component\dialog-provider.tsx:356: API key
+packages/cli/src/cli/cmd\tui\component\dialog-session-delete-failed.tsx:11: boolean | void | Promise
+packages/cli/src/cli/cmd\tui\component\dialog-session-delete-failed.tsx:12: boolean | void | Promise
+packages/cli/src/cli/cmd\tui\component\dialog-session-rename.tsx:125: Rename Session
+packages/cli/src/cli/cmd\tui\component\dialog-skill.tsx:40: Search skills...
+packages/cli/src/cli/cmd\tui\component\dialog-status.tsx:102: No MCP Servers
+packages/cli/src/cli/cmd\tui\component\dialog-status.tsx:131: Pending approval
+packages/cli/src/cli/cmd\tui\component\dialog-status.tsx:132: Disabled in configuration
+packages/cli/src/cli/cmd\tui\component\dialog-status.tsx:172: No Formatters
+packages/cli/src/cli/cmd\tui\component\dialog-status.tsx:194: No Plugins
+packages/cli/src/cli/cmd\tui\component\dialog-workflows.tsx:31: (a.runID
+packages/cli/src/cli/cmd\tui\component\dialog-workspace-create.tsx:22: , sync: ReturnType
+packages/cli/src/cli/cmd\tui\component\dialog-workspace-create.tsx:64: = 500 && result.response.status
+packages/cli/src/cli/cmd\tui\component\dialog-workspace-create.tsx:189: x.json() as Promise
+packages/cli/src/cli/cmd\tui\component\dialog-workspace-unavailable.tsx:8: boolean | void | Promise
+packages/cli/src/cli/cmd\tui\component\error-component.tsx:75: Successfully copied
+packages/cli/src/cli/cmd\tui\component\error-component.tsx:78: A fatal error occurred!
+packages/cli/src/cli/cmd\tui\component\error-component.tsx:80: Reset TUI
+packages/cli/src/cli/cmd\tui\component\logo.tsx:619: t - item.at
+packages/cli/src/cli/cmd\tui\component\plugin-route-missing.tsx:10: go home
+packages/cli/src/cli/cmd\tui\component\prompt\autocomplete.tsx:681: No matching items
+packages/cli/src/cli/cmd\tui\component\prompt\index.tsx:1786: «never-ask»
+packages/cli/src/cli/cmd\tui\component\prompt\index.tsx:1941: (click to expand)
+packages/cli/src/cli/cmd\tui\component\prompt\index.tsx:1998: exit shell mode
+packages/cli/src/cli/cmd\tui\component\starry-background.tsx:195: = 0 && elapsed
+packages/cli/src/cli/cmd\tui\component\starry-background.tsx:214: = gridW || cy
+packages/cli/src/cli/cmd\tui\component\starry-background.tsx:242: = gridW || cy
+packages/cli/src/cli/cmd\tui\component\workflow-tree.tsx:78: open ↗
+packages/cli/src/cli/cmd\tui\component\workflow-tree.tsx:137: open ↗
+packages/cli/src/cli/cmd\tui\component\workflow-tree.tsx:153: (no activity yet)
+packages/cli/src/cli/cmd\tui\config\tui-schema.ts:7: [key, z.string().optional()])) as Record
+packages/cli/src/cli/cmd\tui\context\event.ts:34: (type: T, handler: (event: Extract
+packages/cli/src/cli/cmd\tui\context\sync.tsx:845: (request: Promise
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\files.tsx:19: Modified Files
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\footer.tsx:45: Getting started
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\footer.tsx:51: ymcode includes free models so you can start immediately.
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\footer.tsx:56: Connect provider
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\mcp.tsx:66: Pending approval
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\mcp.tsx:68: Needs auth
+packages/cli/src/cli/cmd\tui\feature-plugins\sidebar\mcp.tsx:69: Needs client ID
+packages/cli/src/cli/cmd\tui\feature-plugins\system\plugins.tsx:55: Install plugin
+packages/cli/src/cli/cmd\tui\feature-plugins\system\plugins.tsx:56: npm package name
+packages/cli/src/cli/cmd\tui\feature-plugins\system\plugins.tsx:61: scope:
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:71: , name: string, params?: Record
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:105: (item: TuiDialogSelectOption
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:105: ): SelectOption
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:112: (item: SelectOption
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:112: ): TuiDialogSelectOption
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:123: (cb?: (item: TuiDialogSelectOption
+packages/cli/src/cli/cmd\tui\plugin\api.tsx:273: (props: TuiSlotProps
+packages/cli/src/cli/cmd\tui\plugin\runtime.ts:110: unknown, ms: number): Promise
+packages/cli/src/cli/cmd\tui\plugin\runtime.ts:599: readV1Plugin(loaded.mod as Record
+packages/cli/src/cli/cmd\tui\plugin\slots.tsx:7: (props: TuiSlotProps
+packages/cli/src/cli/cmd\tui\plugin\slots.tsx:8: = SolidPlugin
+packages/cli/src/cli/cmd\tui\plugin\slots.tsx:14: (plugin: HostSlotPlugin
+packages/cli/src/cli/cmd\tui\plugin\slots.tsx:18: (_props: TuiSlotProps
+packages/cli/src/cli/cmd\tui\routes\session\dialog-fork-from-timeline.tsx:75: Fork session
+packages/cli/src/cli/cmd\tui\routes\session\dialog-message.tsx:30: Message Actions
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1069: msg.role === "assistant" && (!revertID || msg.id
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1662: 🕒 cron fire
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1704: checkpoint off
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1910: · interrupted
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1934: ↻ /recover
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:1943: ⎘ copy
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:2584: Click to expand
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:2600: Click to collapse
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:3013: - Error
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:3286: Click to collapse
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:3749: Click to collapse
+packages/cli/src/cli/cmd\tui\routes\session\index.tsx:3780: # Questions
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:104: No diff provided
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:248: Always allow
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:256: This will allow the following patterns until ymcode is restarted
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:511: This keeps the session running despite repeated failures.
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:542: Permission required
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:555: Permission required
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:598: dimensions().width
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:625: Reject permission
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:628: Tell ymcode what to do differently
+packages/cli/src/cli/cmd\tui\routes\session\permission.tsx:685: dimensions().width
+packages/cli/src/cli/cmd\tui\routes\session\question.tsx:242: = 1 && digit
+packages/cli/src/cli/cmd\tui\routes\session\question.tsx:410: Type your own answer
+packages/cli/src/cli/cmd\tui\ui\dialog-select.tsx:61: (props: DialogSelectProps
+packages/cli/src/cli/cmd\tui\ui\spinner.ts:129: 0 && directionalDistance
+packages/cli/src/cli/cmd\tui\ui\spinner.ts:315: 0 && dd
+packages/cli/src/cli/cmd\tui\ui\spinner.ts:325: = 0 && index
+packages/cli/src/cli/cmd\tui\ui\spinner.ts:333: = 0 && index
+packages/cli/src/cli/cmd\tui\util\signal.ts:4: (value: T, ms: number): [Accessor
+packages/cli/src/cli/cmd\tui\util\signal.ts:4: , Scheduled
+packages/cli/src/cli/cmd\tui\util\signal.ts:9: , enabled: Accessor
+packages/cli/src/cli/cmd\tui\util\voice.ts:22: ; models: Record
+packages/cli/src/cli/effect\prompt.ts:11: (opts: Parameters
+packages/cli/src/cli/network.ts:41: (yargs: Argv
