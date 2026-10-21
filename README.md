@@ -29,6 +29,12 @@ Windows x64 产物：
 packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe
 ```
 
+如果构建机无法访问 `models.dev`，可在 `packages/cli` 下复用本地模型快照并跳过依赖重装：
+
+```bash
+MODELS_DEV_API_JSON=/path/to/models.json bun run script/build.ts --single --skip-install
+```
+
 ## 运行
 
 ```bash

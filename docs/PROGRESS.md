@@ -29,3 +29,19 @@
 - `llm.ts` 注入 active instincts（默认预算 1200 token）；`/dream` 增加 review 阶段。
 - 验证：typecheck 通过；instinct 相关 67 pass；checkpoint 回归 22 pass；`ymcode instinct --help` / `review` 冒烟通过。
 - 未验证：observer 的真实 LLM 抽取（需要隔离的 provider 凭据）；将在最终验收时明确记录。
+
+### 最终构建与验收（2026-10-21）
+
+- 最终二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`，`--version` 输出 `local`。
+- 构建：`models.dev` 不可达时使用本地快照 `MODELS_DEV_API_JSON=.scratch/ymcode-models.json` + `--skip-install` 成功；脚本自带 `--version` 冒烟通过。
+- instincts 端到端（隔离 `YMCODE_HOME`）：
+  - `instinct list` 读到 candidate：`ins_abc12345 candidate 0.90 提交前必须跑 typecheck`
+  - `instinct promote` 输出 `active; appended=true`，`MEMORY.md ## Rules` 写入规则与来源/置信度/日期。
+  - `instinct list --status active` 命中；`instinct forget` 无 `--yes` 拒绝；`instinct review` 输出 `promoted=none; decayed=0`。
+- 迁移端到端：旧 `mimocode.json`/`mimocode.db`/memory 复制到新目录，数据库改名为 `ymcode.db`，旧目录保留，`.migrated-from-mimocode` 写入。
+- 门禁：`check:brand`、`check:i18n`（717 en / 742 zh / 24 skill descriptions）、`check:skills`（70 files）、`check:prompts`（54 files）、`typecheck` 全部通过；定向回归 301 pass / 9 skip / 0 fail。
+- 已知未验证/未完成：
+  - observer 的真实 LLM 抽取未跑（需要隔离 provider 凭据）。
+  - TUI 视觉验收未做（无终端截图通道）；核心界面通过 i18n 字典与组件测试验证。
+  - Windows 下部分 plugin/TUI 测试因临时目录 EBUSY 清理失败（非功能失败）；已加清理重试与 Windows skip，仍有个别上游测试受文件锁影响。
+  - 顶层 CLI `--help` 仍有部分英文子命令/选项描述；核心 TUI、技能、提示词、instinct/mcp CLI 已中文化。
