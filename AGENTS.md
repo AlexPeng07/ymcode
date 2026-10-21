@@ -1,5 +1,9 @@
 # ymcode
 
+## Handoff memory
+
+Before changing code, read `memory/MEMORY.md`. It indexes the project state, architecture, build/verification evidence, and next steps. Runtime memory lives under `~/.local/share/ymcode/memory/` — do not confuse the two.
+
 ## Conventions
 
 - Use ymcode Compose skills when available, otherwise use superpowers skill if installed.

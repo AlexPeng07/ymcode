@@ -81,6 +81,10 @@ bun run check:prompts
 
 本仓库是独立历史，不自动合并上游。上游只读副本位于 `_upstream_mimo/`（gitignore），同步流程与改名边界见 [UPSTREAM.md](UPSTREAM.md)。上游英文 README 快照保存在 `docs/upstream/`。
 
+## 交接记忆
+
+`memory/` 保存本次构建的上下文、架构、验证证据和下一步。下一个 harness 先读 `memory/MEMORY.md`；可直接使用 `memory/continue-prompt.md` 作为续作提示词。运行时记忆在 `~/.local/share/ymcode/memory/`，两者不要混淆。
+
 ## 开发说明
 
 - 测试：`bun test`（TUI 测试默认使用英文 locale，避免断言依赖系统语言；生产环境按系统语言自动选择）。
