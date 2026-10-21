@@ -427,7 +427,7 @@ export function Prompt(props: PromptProps) {
   function promptModelWarning() {
     toast.show({
       variant: "warning",
-      message: "Connect a provider to send prompts",
+      message: t("tui.prompt.error.no_provider"),
       duration: 3000,
     })
     if (sync.data.provider.length === 0) {
@@ -1107,6 +1107,7 @@ export function Prompt(props: PromptProps) {
                     sync,
                     project,
                     toast,
+                    t,
                     workspaceID: nextWorkspaceID,
                     sessionID: props.sessionID!,
                   })
@@ -1130,7 +1131,7 @@ export function Prompt(props: PromptProps) {
         console.log("Creating a session failed:", res.error)
 
         toast.show({
-          message: "Creating a session failed. Open console for more details.",
+          message: t("tui.prompt.error.create_session"),
           variant: "error",
         })
 
@@ -1202,13 +1203,13 @@ export function Prompt(props: PromptProps) {
               })
               .then((res) => {
                 if (!active()) return
-                return DialogAlert.show(dialog, "/btw", res.data?.answer ?? "(no answer)")
+                return DialogAlert.show(dialog, "/btw", res.data?.answer ?? t("tui.session.ask.no_answer"))
               })
               .catch((err) => {
                 if (!active()) return
                 dialog.clear()
                 toast.show({
-                  message: err instanceof Error ? err.message : "Failed to ask side question",
+                  message: err instanceof Error ? err.message : t("tui.session.ask.failed"),
                   variant: "error",
                 })
               }),
@@ -1253,7 +1254,7 @@ export function Prompt(props: PromptProps) {
         })
         .catch((err) => {
           toast.show({
-            message: err instanceof Error ? err.message : "Failed to send message",
+            message: err instanceof Error ? err.message : t("tui.prompt.error.send_failed"),
             variant: "error",
           })
         })
@@ -1344,7 +1345,7 @@ export function Prompt(props: PromptProps) {
         if (mime === "image/svg+xml") {
           const content = await Filesystem.readText(filepath).catch(() => {})
           if (content) {
-            pasteText(content, `[SVG: ${filename ?? "image"}]`)
+            pasteText(content, t("tui.prompt.attachment.svg", { name: filename ?? t("tui.prompt.attachment.image_name") }))
             return
           }
         }
@@ -1372,7 +1373,7 @@ export function Prompt(props: PromptProps) {
 
     const lineCount = (pastedContent.match(/\n/g)?.length ?? 0) + 1
     if ((lineCount >= 3 || pastedContent.length > 150) && !sync.data.config.experimental?.disable_paste_summary) {
-      pasteText(pastedContent, `[Pasted ~${lineCount} lines]`)
+      pasteText(pastedContent, t("tui.prompt.attachment.pasted", { count: lineCount }))
       return
     }
 
@@ -1453,7 +1454,9 @@ export function Prompt(props: PromptProps) {
     const extmarkStart = currentOffset
     const pdf = file.mime === "application/pdf"
     const name = file.filename || file.mime
-    const virtualText = pdf ? `[PDF: ${name}]` : `[Image: ${name}]`
+    const virtualText = pdf
+      ? t("tui.prompt.attachment.pdf", { name })
+      : t("tui.prompt.attachment.image", { name })
     const extmarkEnd = extmarkStart + virtualText.length
     const textToInsert = virtualText + " "
 
@@ -1754,7 +1757,7 @@ export function Prompt(props: PromptProps) {
                   {(agent) => (
                     <>
                       <text fg={fadeColor(highlight(), agentMetaAlpha())}>
-                        {store.mode === "shell" ? "Shell" : Locale.titlecase(agent().name)}
+                        {store.mode === "shell" ? t("tui.prompt.mode.shell") : Locale.titlecase(agent().name)}
                       </text>
                       <Show when={store.mode === "normal"}>
                         <box flexDirection="row" gap={1}>
@@ -1795,7 +1798,7 @@ export function Prompt(props: PromptProps) {
                   <Switch>
                     <Match when={voiceState() === "idle"}>
                       <text fg={theme.textMuted} selectable={false} {...voicePress.props}>
-                        {"[ 🎙  Voice ]"}
+                        {t("tui.prompt.voice.button")}
                       </text>
                     </Match>
                     <Match when={voiceState() === "listening"}>
@@ -1886,7 +1889,7 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return
                       if (r.message.includes("exceeded your current quota") && r.message.includes("gemini"))
-                        return "gemini is way too hot right now"
+                        return t("tui.prompt.retry.gemini_hot")
                       if (r.message.length > 80) return r.message.slice(0, 80) + "..."
                       return r.message
                     })
@@ -1910,7 +1913,7 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return
                       if (isTruncated()) {
-                        void DialogAlert.show(dialog, "Retry Error", r.message)
+                        void DialogAlert.show(dialog, t("tui.prompt.retry.error_title"), r.message)
                       }
                     }
 
@@ -1923,12 +1926,17 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       return r ? SessionRetry.isRateLimitMessage(r.message) : false
                     })
-                    const label = createMemo(() => (isRateLimit() ? "Rate limited" : message()))
+                    const label = createMemo(() => (isRateLimit() ? t("tui.session.error.rate_limited") : message()))
                     const statusText = createMemo(() => {
                       const r = retry()
                       if (!r) return ""
                       const duration = formatDuration(seconds())
-                      return `attempt #${r.attempt}${duration ? ` · retrying in ${duration}` : " · retrying"}`
+                      return (
+                        t("tui.prompt.retry.attempt", { attempt: r.attempt }) +
+                        (duration
+                          ? t("tui.prompt.retry.retrying_in", { duration })
+                          : t("tui.prompt.retry.retrying"))
+                      )
                     })
 
                     return (
@@ -1938,7 +1946,7 @@ export function Prompt(props: PromptProps) {
                             {label()}
                           </text>
                           <Show when={isTruncated()}>
-                            <text fg={theme.textMuted}>(click to expand)</text>
+                            <text fg={theme.textMuted}>{t("tui.prompt.retry.expand")}</text>
                           </Show>
                           <text fg={theme.textMuted}>{statusText()}</text>
                         </box>
@@ -1950,7 +1958,7 @@ export function Prompt(props: PromptProps) {
               <text fg={store.interrupt > 0 ? theme.primary : theme.text}>
                 esc{" "}
                 <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
-                  {store.interrupt > 0 ? "again to interrupt" : "interrupt"}
+                  {store.interrupt > 0 ? t("tui.prompt.interrupt.again") : t("tui.prompt.interrupt.label")}
                 </span>
               </text>
             </box>
@@ -1995,7 +2003,7 @@ export function Prompt(props: PromptProps) {
                 <Match when={store.mode === "shell"}>
                   <box flexGrow={1} flexDirection="row" justifyContent="flex-end">
                     <text fg={theme.text}>
-                      esc <span style={{ fg: theme.textMuted }}>exit shell mode</span>
+                      esc <span style={{ fg: theme.textMuted }}>{t("tui.prompt.hint.exit_shell")}</span>
                     </text>
                   </box>
                 </Match>

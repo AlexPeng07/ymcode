@@ -1113,7 +1113,7 @@ describe("WorkflowRuntime structure tree", () => {
         // turn can fire in between and would otherwise steal a queued reply —
         // the later agent would see the mock's empty-queue auto-reply "ok".
         const isSubagent = (hit: { body: Record<string, unknown> }) =>
-          JSON.stringify(hit.body).includes("full-capability general-purpose subagent")
+          JSON.stringify(hit.body).includes("全能通用子代理")
         yield* llm.textMatch(isSubagent, "done")
         yield* llm.textMatch(isSubagent, "done")
         const script = [

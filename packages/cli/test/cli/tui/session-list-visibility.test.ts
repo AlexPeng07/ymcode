@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, setDefaultTimeout } from "bun:test"
 import { Effect, Layer } from "effect"
+import { fileURLToPath } from "url"
 
 setDefaultTimeout(30_000)
 
@@ -43,7 +44,7 @@ const env = Layer.mergeAll(
 
 const it = testEffect(env)
 
-const DIALOG = new URL("../../../src/cli/cmd/tui/component/dialog-session-list.tsx", import.meta.url).pathname
+const DIALOG = fileURLToPath(new URL("../../../src/cli/cmd/tui/component/dialog-session-list.tsx", import.meta.url))
 
 /**
  * The populations the Sessions dialog has to tell apart, as the user actually

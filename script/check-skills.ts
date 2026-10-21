@@ -16,11 +16,19 @@ function frontmatter(text: string): { name?: string; description?: string; body:
   return { name, description, body: match[2] }
 }
 
+// The brand sweep intentionally rewrites command names inside examples
+// (`mimo mcp add` -> `ymcode mcp add`). Normalize those two legacy command
+// words before comparing code, so the translation check only catches
+// accidental code drift, not the deliberate rename.
+function normalizeBrand(text: string): string {
+  return text.replace(/\b(?:mimo|opencode)\b/g, "ymcode")
+}
+
 function fences(text: string): string[] {
-  return [...text.matchAll(/```[\s\S]*?```/g)].map((match) => match[0])
+  return [...text.matchAll(/```[\s\S]*?```/g)].map((match) => normalizeBrand(match[0]))
 }
 function inline(text: string): string[] {
-  return [...text.matchAll(/`[^`\n]+`/g)].map((match) => match[0]).sort()
+  return [...text.matchAll(/`[^`\n]+`/g)].map((match) => normalizeBrand(match[0])).sort()
 }
 function urls(text: string): string[] {
   return [...text.matchAll(/https?:\/\/[^\s)>"']+/g)].map((match) => match[0]).sort()

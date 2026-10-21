@@ -100,7 +100,7 @@ export const rpc = {
       serverPromise = Server.listen(input ?? { port: 0, hostname: "127.0.0.1" })
     }
     // Server.listen publishes cwd into the llm-server address registry and
-    // unpublishes on stop, so `mimo llm-server issue` can resolve base_url.
+    // unpublishes on stop, so `ymcode llm-server issue` can resolve base_url.
     server = await serverPromise
     return { url: server.url.toString() }
   },

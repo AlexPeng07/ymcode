@@ -5,6 +5,7 @@ import { createSignal, onCleanup } from "solid-js"
 import { useSDK } from "../context/sdk"
 import { useToast } from "../ui/toast"
 import { useTheme } from "../context/theme"
+import { useLanguage } from "../context/language"
 import { titleReadback, unchangedTitle } from "../util/session-title"
 
 interface DialogSessionRenameProps {
@@ -18,6 +19,7 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
   const sdk = useSDK()
   const toast = useToast()
   const { theme } = useTheme()
+  const { t } = useLanguage()
   // Capture the edit base once; incoming AI/SSE never changes this draft.
   const currentSession = sync.session.get(sessionID)
   const initial = currentSession && { title: currentSession.title, titleRevision: currentSession.titleRevision }
@@ -35,8 +37,8 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
       toast.show({
         variant: "warning",
         message: busy()
-          ? "Save result is not confirmed. Read the session before retrying."
-          : "Title draft was not saved.",
+          ? t("tui.session.rename.toast.unconfirmed")
+          : t("tui.session.rename.toast.not_saved"),
       })
   })
 
@@ -49,11 +51,11 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
     }
     const title = Array.from(value.trim()).slice(0, 80).join("")
     if (!title) {
-      setMessage("Enter a nonempty title (up to 80 characters).")
+      setMessage(t("tui.session.rename.msg.empty"))
       return
     }
     if (revision() === undefined) {
-      setMessage("No confirmed engine session. Reload before renaming.")
+      setMessage(t("tui.session.rename.msg.no_engine"))
       return
     }
     draft = value
@@ -69,7 +71,7 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
       if (!response.data || !sync.session.get(sessionID)) throw new Error("Session no longer available")
       sync.session.apply(response.data)
       saved = true
-      toast.show({ variant: "success", message: "Title saved." })
+      toast.show({ variant: "success", message: t("tui.session.rename.toast.saved") })
       dialog.clear()
     } catch (error) {
       const rejectedConflict =
@@ -89,15 +91,13 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
           response.data.titleRevision === current.titleRevision &&
           (response.data.title !== current.title || response.data.titleSource !== current.titleSource)
         ) {
-          setMessage(
-            "The server returned conflicting titles for one revision. Save is not confirmed; your draft is retained.",
-          )
+          setMessage(t("tui.session.rename.msg.conflict_titles"))
           return
         }
         const outcome = titleReadback(revision(), title, current, rejectedConflict)
         if (outcome === "saved") {
           saved = true
-          toast.show({ variant: "success", message: "The session is currently saved with this title." })
+          toast.show({ variant: "success", message: t("tui.session.rename.toast.already_saved") })
           dialog.clear()
           return
         }
@@ -106,14 +106,12 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
         setRevision(current.titleRevision)
         setMessage(
           conflict
-            ? `Conflict. Saved title: ${current.title}\nYour draft is retained below. Press Enter to explicitly save your title instead.`
-            : "Save was not confirmed. Your draft is retained; press Enter to retry.",
+            ? t("tui.session.rename.msg.conflict", { value: current.title })
+            : t("tui.session.rename.msg.not_confirmed"),
         )
       } catch {
         if (active)
-          setMessage(
-            "Save could not be confirmed or the session was deleted. Your draft is retained; reload before retrying.",
-          )
+          setMessage(t("tui.session.rename.msg.unconfirmed_or_deleted"))
       }
     } finally {
       if (active) setBusy(false)
@@ -122,10 +120,10 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
 
   return (
     <DialogPrompt
-      title="Rename Session"
+      title={t("tui.session.rename.title")}
       value={initial?.title}
       busy={busy()}
-      busyText="Saving title…"
+      busyText={t("tui.session.rename.busy")}
       description={() => <text fg={theme.textMuted}>{message()}</text>}
       onChange={(value) => {
         draft = value

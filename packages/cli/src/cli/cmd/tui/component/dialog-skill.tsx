@@ -29,7 +29,7 @@ export function DialogSkill(props: DialogSkillProps) {
       title: skill.name.padEnd(maxWidth),
       description: skillDescription(lang.t, skill.name, skill.description, skill.bundled)?.replace(/\s+/g, " ").trim(),
       value: skill.name,
-      category: "Skills",
+      category: lang.t("tui.skills.category"),
       onSelect: () => {
         props.onSelect(skill.name)
         dialog.clear()
@@ -37,5 +37,11 @@ export function DialogSkill(props: DialogSkillProps) {
     }))
   })
 
-  return <DialogSelect title="Skills" placeholder="Search skills..." options={options()} />
+  return (
+    <DialogSelect
+      title={lang.t("tui.skills.title")}
+      placeholder={lang.t("tui.skills.placeholder")}
+      options={options()}
+    />
+  )
 }

@@ -22,17 +22,17 @@ ymcode serve --port 4096           # headless, same endpoints
 
 两种方式都要从项目目录启动：实例目录就是进程的 cwd，命名其外目录的请求会以 403 拒绝。
 
-每个提供服务的进程会在 `<state>/llm-server/<sha1 of the resolved directory>/server-<pid>.json` 公布自己——每个进程一个文件，读取时按该 pid 是否仍存活过滤。这就是 `mimo llm-server issue` 能打印 base URL 的方式。被派生的子进程应当由派生方**告知**其端点，而不是从该目录里自己挑一个。
+每个提供服务的进程会在 `<state>/llm-server/<sha1 of the resolved directory>/server-<pid>.json` 公布自己——每个进程一个文件，读取时按该 pid 是否仍存活过滤。这就是 `ymcode llm-server issue` 能打印 base URL 的方式。被派生的子进程应当由派生方**告知**其端点，而不是从该目录里自己挑一个。
 
 ## 签发 token
 
-`mimo llm-server` 只签发和管理凭据；它不启动任何东西。
+`ymcode llm-server` 只签发和管理凭据；它不启动任何东西。
 
 ```bash
-mimo llm-server issue --json --label my-skill
-mimo llm-server issue --model anthropic/claude-haiku-4-5 --ttl 12h
-mimo llm-server list [--json]
-mimo llm-server revoke <id> | --all
+ymcode llm-server issue --json --label my-skill
+ymcode llm-server issue --model anthropic/claude-haiku-4-5 --ttl 12h
+ymcode llm-server list [--json]
+ymcode llm-server revoke <id> | --all
 ```
 
 在与服务器启动时相同的目录中运行它——token 绑定到目录（不绑定其他任何东西：不绑定会话、不绑定 pid、不绑定端口）。

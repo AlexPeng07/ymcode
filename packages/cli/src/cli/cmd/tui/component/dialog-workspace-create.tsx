@@ -10,11 +10,23 @@ import { errorData, errorMessage } from "@/util/error"
 import * as Log from "@/util/log"
 import { useSDK } from "../context/sdk"
 import { useToast } from "../ui/toast"
+import { useLanguage } from "@tui/context/language"
+import { dict as en } from "@tui/i18n/en"
 
 type Adaptor = {
   type: string
   name: string
   description: string
+}
+
+type Translate = (key: string, params?: Record<string, string | number | boolean>) => string
+
+// These helpers can run outside a component owner, so `t` is passed in. The
+// fallback keeps English for callers that do not pass a translator.
+const fallbackTranslate: Translate = (key, params) => {
+  const text = en[key] ?? key
+  if (!params) return text
+  return text.replace(/\{\{(\w+)\}\}/g, (_, name: string) => String(params[name] ?? ""))
 }
 
 const log = Log.Default.clone().tag("service", "tui-workspace")
@@ -35,7 +47,9 @@ export async function openWorkspaceSession(input: {
   sync: ReturnType<typeof useSync>
   toast: ReturnType<typeof useToast>
   workspaceID: string
+  t?: Translate
 }) {
+  const t = input.t ?? fallbackTranslate
   const client = scoped(input.sdk, input.sync, input.workspaceID)
   log.info("workspace session create requested", {
     workspaceID: input.workspaceID,
@@ -51,7 +65,7 @@ export async function openWorkspaceSession(input: {
     })
     if (!result) {
       input.toast.show({
-        message: "Failed to create workspace session",
+        message: t("tui.workspace.create.failed_session"),
         variant: "error",
       })
       return
@@ -75,7 +89,7 @@ export async function openWorkspaceSession(input: {
         status: result.response?.status,
       })
       input.toast.show({
-        message: "Failed to create workspace session",
+        message: t("tui.workspace.create.failed_session"),
         variant: "error",
       })
       return
@@ -103,7 +117,9 @@ export async function restoreWorkspaceSession(input: {
   workspaceID: string
   sessionID: string
   done?: () => void
+  t?: Translate
 }) {
+  const t = input.t ?? fallbackTranslate
   log.info("session restore requested", {
     workspaceID: input.workspaceID,
     sessionID: input.sessionID,
@@ -126,7 +142,9 @@ export async function restoreWorkspaceSession(input: {
       error: result?.error ? errorData(result.error) : undefined,
     })
     input.toast.show({
-      message: `Failed to restore session: ${errorMessage(result?.error ?? "no response")}`,
+      message: t("tui.workspace.restore.failed", {
+        error: errorMessage(result?.error ?? t("tui.workspace.restore.no_response")),
+      }),
       variant: "error",
     })
     return
@@ -161,7 +179,7 @@ export async function restoreWorkspaceSession(input: {
   })
 
   input.toast.show({
-    message: "Session restored into the new workspace",
+    message: t("tui.workspace.restore.success"),
     variant: "success",
   })
   input.done?.()

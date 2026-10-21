@@ -11,7 +11,7 @@ const log = Log.create({ service: "llm-server.tokens" })
 /**
  * Persistent registry of the temporary tokens this project's LLM server accepts.
  *
- * Persistence is not a convenience here, it is what makes a `mimo llm-server
+ * Persistence is not a convenience here, it is what makes a `ymcode llm-server
  * issue` subcommand possible at all: the process that MINTS a token is not the
  * process that VALIDATES it, so the two have to meet somewhere outside memory.
  *

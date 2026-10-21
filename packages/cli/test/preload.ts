@@ -15,6 +15,9 @@ await fs.mkdir(dir, { recursive: true })
 const fixtureRoot = path.join(process.cwd(), ".ymcode-test-fixtures-" + process.pid)
 await fs.mkdir(fixtureRoot, { recursive: true })
 process.env["YMCODE_TEST_TMPDIR_ROOT"] = fixtureRoot
+// Keep the TUI test suite deterministic: existing assertions are written
+// against the English dictionary, while production still auto-detects zh-CN.
+process.env["YMCODE_LOCALE"] = "en"
 afterAll(async () => {
   const { Database } = await import("../src/storage")
   Database.close()

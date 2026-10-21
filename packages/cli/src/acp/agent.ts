@@ -496,9 +496,9 @@ export class Agent implements ACPAgent {
     log.info("initialize", { protocolVersion: params.protocolVersion })
 
     const authMethod: AuthMethod = {
-      description: "Run `opencode auth login` in the terminal",
-      name: "Login with opencode",
-      id: "opencode-login",
+      description: "在终端运行 `ymcode auth login`",
+      name: "使用 ymcode 登录",
+      id: "ymcode-login",
     }
 
     // If client supports terminal-auth capability, use that instead.

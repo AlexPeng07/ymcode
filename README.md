@@ -1,562 +1,82 @@
-<h1 align="center">ymcode</h1>
+# ymcode
 
-<p align="center">
-  <img src="assets/readme/ymcode-banner.png" alt="ymcode" width="700">
-</p>
+ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://github.com/XiaomiMiMo/MiMo-Code)（进一步源自 [opencode](https://github.com/anomalyco/opencode)）改造。目标不是重写引擎，而是在现有 checkpoint / memory / dream / distill 闭环上补一层可审计的**直觉规则（instincts）**，并把界面与内置内容汉化。
 
-<p align="center"><strong>ymcode: Where Models and Agents Co-Evolve</strong></p>
+- 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21，MIT）
+- 归属与许可：见 [NOTICE](NOTICE)、[LICENSE](LICENSE)、[UPSTREAM.md](UPSTREAM.md)
 
-<p align="center">
-  <a href="README.zh.md">中文</a> | English
-</p>
+## 特性
 
-<p align="center">
-  <a href="https://mimo.xiaomi.com/coder">Website</a> | <a href="https://mimo.xiaomi.com/en/blog/mimo-code-long-horizon">Blog</a>
-</p>
+- **记忆体系**：沿用 `MEMORY.md`、`checkpoint.md`、`notes.md`、任务 progress、SQLite FTS5、`/dream`、`/distill`。
+- **直觉规则**：带证据、置信度、状态（candidate / active / retired）的 instincts；支持晋升、降级、衰减、按预算注入。
+- **全中文内容**：核心 TUI、内置技能正文、agent 提示词、工具描述与用户可见错误为中文；代码标识符、内部日志、命令、路径保持英文。
+- **数据迁移**：首次启动把旧 mimocode 配置、记忆与数据库复制到 ymcode 目录，旧目录不删除。
+- **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
 
----
+## 构建
 
-ymcode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.
-
-<p align="center"><strong>MiMo Desktop</strong>: <a href="https://mimo-ai.xiaomimimo.com/desktop/invite/">Download the international edition</a></p>
-
-## Xiaomi MiMo Desktop
-
-<p align="center"><img src="assets/readme/mimo-desktop-en.jpg" alt="Xiaomi MiMo Desktop English interface: starting a new task" width="900"></p>
-
-Xiaomi MiMo Desktop is built for real-world work: one conversation can handle office work, design, coding, and multimodal creation, while multiple conversations can divide work and collaborate. The desktop app is powered by **ymcode as its core engine**, bringing its terminal-native intelligence to desktop workflows.
-
-- **Smart orchestration**: evaluates task type and cost, then dynamically selects models, frameworks, and tools; complex tasks can run across multiple agents in parallel.
-- **Continuous iteration**: drag in files in multiple formats, create PPTs, webpages, 3D assets, and apps, preview and operate on results in-session, edit selected regions precisely, and roll back versions.
-- **Controlled long-task cost**: routes between standard and flagship models, edits only the required regions, and supports up to 99% same-session and 95% cross-session cache hit rates.
-- **Browser control**: opens webpages, retrieves information, fills forms, and checks key interactions after generating webpages.
-- **Computer control (international version only)**: reads the screen and operates mouse and keyboard across apps; Record & Replay lets you reuse recorded workflows with natural language.
-
-Powered by the new **MiMo-V2.6-Pro** and **MiMo-V2.6-Flash** models.
-
-ymcode supports connecting to any mainstream LLM provider API.
-
----
-
-## Quick Start
+需要 Bun `1.3.14`（仓库已锁定版本）。
 
 ```bash
-# One-line install (macOS / Linux)
-curl -fsSL https://mimo.xiaomi.com/install | bash
-
-# One-line install (Windows PowerShell)
-powershell -ep Bypass -c "irm https://mimo.xiaomi.com/install.ps1 | iex"
-
-# Run
-mimo
+bun ci
+bun run typecheck
+bun run --cwd packages/cli build:local
 ```
 
-The first launch guides you through configuration automatically. Supported options:
-- **Xiaomi MiMo Platform** — OAuth login
-- **Codex (ChatGPT Pro/Plus)** — OpenAI OAuth login
-- **Import from Claude Code** — migrate existing authentication in one step
-- **Provider list** — connect catalog providers by API key, or OAuth where supported (e.g. xAI/Grok)
-- **Custom Provider** — add any OpenAI-compatible API in the TUI
+Windows x64 产物：
 
-<details>
-<summary><strong>WSL: clipboard issues</strong></summary>
-
-If you encounter garbled text when copying on WSL, install `xsel`:
-```bash
-sudo apt install xsel
+```text
+packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe
 ```
-</details>
 
-<details>
-<summary><strong>macOS: rendering issues in the default terminal</strong></summary>
-
-ymcode does not support the built-in macOS Terminal (Terminal.app). If the interface is misaligned, flickers, or has other rendering issues, use [iTerm2](https://iterm2.com/) or the VS Code integrated terminal instead:
+## 运行
 
 ```bash
-brew install --cask iterm2
+ymcode                 # 启动 TUI
+ymcode run "..."       # 非交互执行
+ymcode serve           # headless server
+ymcode instinct list   # 查看直觉规则
+ymcode migrate --dry-run
 ```
-</details>
 
-<details>
-<summary><strong>TUI lag and visual animation issues</strong></summary>
+隔离测试时设置 `YMCODE_HOME=/tmp/example`。强制界面语言可用 `YMCODE_LOCALE=zh` 或 `YMCODE_LOCALE=en`。
 
-If the TUI lags when run directly over SSH, render it locally and run only the ymcode server on the remote host. Start the server from the remote project directory:
+## 目录
+
+- 配置：`~/.config/ymcode`
+- 数据与记忆：`~/.local/share/ymcode`（数据库 `ymcode.db`，记忆在 `memory/`）
+- 项目级配置：`.ymcode/`（只读回退 `.mimocode/`）
+- 旧安装目录：`~/.mimocode`（迁移时复制到 `~/.ymcode`，不删除）
+
+## 记忆与 instincts
+
+- 项目记忆：`memory/projects/<project_id>/MEMORY.md`
+- 直觉规则：`memory/projects/<project_id>/instincts/*.md`，索引 `INSTINCTS.md`
+- 捕获：checkpoint 成功后由 `instinct-observer` 子代理节流生成候选；只写候选，不晋升。
+- 晋升：`ymcode instinct promote <id>`（需达到置信度与证据阈值）或 `/instinct`；`/dream` 会执行 review。
+- 注入：只有 `active` 规则进入上下文（默认 1200 token 预算）；候选通过 `memory` 工具检索。
+- 配置：`instincts.enabled`、`capture`、`promote_threshold`、`min_evidence`、`decay_days`、`inject_token_budget`、`observe_interval_minutes`。
+
+## 汉化门禁
 
 ```bash
-# Remote host
-ymcode serve --port 4096
-
-# Local host: create the SSH port forward
-ssh -N -L 4096:127.0.0.1:4096 user@remote-host
-
-# Local host: connect from another terminal
-ymcode attach http://127.0.0.1:4096
+bun run check:brand
+bun run check:i18n
+bun run check:skills
+bun run check:prompts
 ```
 
-If decorative animation is causing the lag, run `/vivid`, or configure **Vivid visuals** in the `ctrl+p` command palette, to switch between Vivid and Minimal visuals as needed.
+- `check:brand`：第一方旧品牌 token 扫描（外部 Xiaomi MiMo 模型、opencode 上游与第三方品牌在允许清单内）。
+- `check:i18n`：en/zh 字典对齐、空值、内置技能描述。
+- `check:skills`：70 个内置 `SKILL.md` 的代码围栏、行内代码、URL 与中文正文。
+- `check:prompts`：提示词的代码围栏、受保护路径/工具名与中文正文。
 
-</details>
+## 上游同步
 
-<details>
-<summary><strong>Windows: garbled CJK (Chinese/Japanese/Korean) output in the shell</strong></summary>
+本仓库是独立历史，不自动合并上游。上游只读副本位于 `_upstream_mimo/`（gitignore），同步流程与改名边界见 [UPSTREAM.md](UPSTREAM.md)。上游英文 README 快照保存在 `docs/upstream/`。
 
-On Windows with a non-UTF-8 system locale (e.g. zh-CN, whose active code page is 936/GBK),
-command output containing CJK characters may appear garbled (mojibake). ymcode forces
-UTF-8 output for spawned PowerShell/cmd subprocesses. If you still encounter garbled output
-in cases this does not yet cover, enable Windows' system-wide UTF-8 support:
+## 开发说明
 
-**Settings → Time & language → Language & region → Administrative language settings →
-Change system locale → check "Beta: Use Unicode UTF-8 for worldwide language support" →
-reboot.**
-
-This switches the active code page (ACP) to UTF-8 (65001) for all programs, so subprocesses
-no longer inherit the legacy code page. Note it is a system-wide Beta toggle and may cause
-some older non-Unicode programs to display incorrectly, so treat it as a workaround.
-</details>
-
----
-
-## MiMo Ecosystem
-
-Beyond ymcode, Xiaomi MiMo models also work in other agents and coding tools like Cursor, Cline, and Zed.
-
-**[awesome-mimo-agent](https://github.com/XiaomiMiMo/awesome-mimo-agent)** collects setup guides for using MiMo in those tools — worth a look if you want to try MiMo elsewhere. Contributions welcome: open a PR to add your own setup.
-
----
-
-## Core Features
-
-### Multiple Agents
-
-| Agent | Description |
-|--------|------|
-| **build** | Default. Full tool permissions for development |
-| **plan** | Read-only analysis mode for code exploration and solution design |
-
-Press `Tab` to switch between primary agents. Build and Plan can switch at any time; other custom or special modes lock once the first message is sent.
-
-### Persistent Memory
-
-Cross-session memory powered by SQLite FTS5 full-text search:
-
-- **Project memory** (`MEMORY.md`) — persistent project knowledge, rules, and architecture decisions
-- **Session checkpoint** (`checkpoint.md`) — structured state snapshots maintained automatically by the checkpoint-writer subagent
-- **Scratch notes** (`notes.md`) — temporary note area for agents
-- **Task progress** (`tasks/<id>/progress.md`) — per-task logs
-
-Memory is injected automatically when a session resumes, so the agent does not need to relearn project context.
-
-### Intelligent Context Management
-
-- **Automatic checkpoints** — decides when to save session state based on the model context window
-- **Context reconstruction** — when context approaches the limit, rebuilds it from the latest checkpoint, project memory, task progress, and retained recent messages so the agent can continue the current task
-- **Budgeted injection** — uses a token budget to control how much checkpoint, memory, and notes content enters context, with importance ranking
-- **Adjustable compaction point** — `/context-limit` (or `compaction.max_context`) makes a model compact earlier than its own window, per model
-
-<details>
-<summary><strong>Compacting earlier than the model window (<code>/context-limit</code>)</strong></summary>
-
-Compaction normally fires just below the model's context window. Run `/context-limit` to
-pick a smaller working budget for the current model — `200K` / `300K` / `500K` / `1M` or a
-custom value — stored per model as `compaction.max_context`:
-
-```jsonc
-{
-  "compaction": {
-    "max_context": {
-      "openai/gpt-5.6": "272K", // token count, "300K", "1M", or "50%" of the window
-      "anthropic/*": "300K" // wildcards allowed, longest pattern wins
-    }
-  }
-}
-```
-
-The value is always clamped to what the provider actually accepts, so it can only lower the
-compaction point, never raise it. `0` restores the model's own window.
-
-Why you might want it:
-
-- **Cost tiers.** OpenAI prices GPT-5.6 prompts above 272K input at 2x input and 1.5x output
-  for the whole request.
-- **The advertised window is not always what you get.** The same model can have a different
-  usable window depending on how you reach it — a ChatGPT/Codex subscription, a direct API
-  key, or a reseller such as OpenRouter — so a catalog figure of 1M does not mean your route
-  serves 1M.
-- **Quality and latency.** Very long contexts are slower and, past a point, not better.
-
-`ymcode models <provider>` prints, per model, the window ymcode resolved and the token count
-where it will compact. The prompt footer uses that same number as its denominator
-(`33.0K/260K↓ (13%)` — the `↓` means a budget is in force), and `/status` breaks it down.
-
-</details>
-
-### Task Tracking
-
-A tree-shaped task system (`T1`, `T1.1`, `T1.2`, …) that integrates automatically with the checkpoint system, so task progress is preserved when sessions resume.
-
-### Subagent System
-
-The primary agent can create subagents on demand. Subagents share the current session context and can work in parallel, with lifecycle tracking, cancellation, and background execution.
-
-### Goal / Stop Condition
-
-The `/goal` command sets a stopping condition for a session. When the agent tries to stop, an independent judge model evaluates the conversation to decide whether the condition is truly satisfied — preventing premature "optimistic stops" during autonomous work.
-
-### Compose Mode
-
-Use the **`/compose-next`** skill to run an end-to-end feature delivery loop: a single self-contained contract covering grill → workspace → spec → implement → verify → review → finalize → finish, with feature documents at `docs/compose/spec/<feature>.md` under the workspace root. Do not combine it with plan mode.
-
-### Workflows
-
-Workflows are deterministic JavaScript scripts that orchestrate multiple agents in a sandboxed runtime. Unlike agent conversations, workflows encode fixed phase sequences with bounded retries and automatic parallelization — fire-and-forget execution with no user interaction required.
-
-ymcode ships with three built-in workflows:
-
-| Workflow | Phases | Description |
-|----------|--------|-------------|
-| `deep-research` | Brief → Plan → Research → Reflect → Write → Review | Multi-source deep research report generator. Plans independent research angles, runs parallel sub-agents to collect cited findings, reflects on gaps, writes a single coherent Markdown report, then cold-reviews citations. Convergent: resumable via file checkpoints. |
-| `fact-check` | Plan → Search → Extract → Group → Crosscheck → Report | Adversarial fact verification. Runs parallel web searches, extracts checkable facts, groups duplicates, then cross-checks each with a 3-juror adversarial vote. Best for precise claims ("Is X true?"). |
-| `research-experiment` | Baseline → Loop → Audit → Report | Autonomous optimization loop for a mechanically verifiable metric. Establishes a baseline, iterates through hypothesize → implement → evaluate → keep/revert, audits for metric gaming, and produces a reproducible result log. Requires a fixed-budget evaluation command and an explicit editable-file scope. |
-
-**Custom workflows:** Place a `.js` file in `.ymcode/workflows/` or `.claude/workflows/` to define your own, or override a built-in by using the same name.
-
-### Builtin Skills
-
-Skills are reusable instruction sets that teach agents how to handle specific tasks (e.g. generating PDFs, writing academic papers, searching arXiv). For a new task, ymcode searches available skills by exact name, localized alias, and BM25 relevance. High-confidence matches are loaded automatically; uncertain matches are ranked for the agent to assess. In the TUI, type `/` to browse the autocomplete list or invoke a skill directly with `/<skill-name>` — mentioning two or more skills in a single message auto-loads them and injects a multi-skill orchestration plan.
-
-ymcode bundles the following builtin skills:
-
-| Skill | Description |
-|-------|-------------|
-| `arxiv` | Search, read, cite, and analyze arXiv papers |
-| `claude-code` | Delegate coding, testing, review, and Git tasks to the Claude Code CLI |
-| `codex` | Run and troubleshoot the Codex CLI in headless automation, CI, containers, and remote environments |
-| `compose-next` | Spec→ship feature delivery orchestration — clarify, spec, implement, verify, review, finish |
-| `data-analytics` | Analyze product and business data through reusable workflows for data quality, KPIs, dashboards, reports, notebooks, and market sizing |
-| `deep-research` | Produce cited, multi-source research reports with parallel subagents and built-in web tools |
-| `docx-official` | Produce, read, and transform Word (.docx) files |
-| `html-to-video-pipeline` | HTML-to-MP4 rendering via headless browser + ffmpeg |
-| `learn-everything` | Turn documents, URLs, or topics into adaptive courses with exercises, feedback, and progress tracking |
-| `loop` | Schedule recurring prompts on a fixed cadence |
-| `ymcode-docs` | Self-documenting reference for ymcode features, commands, providers, and configuration |
-| `modern-python-toolchain` | Set up modern Python projects with uv, Ruff, and Pyright |
-| `pdf-official` | Produce, read, fill, and transform PDF files |
-| `pptx-official` | Author and manipulate PowerPoint (.pptx) decks |
-| `product-design` | Explore, audit, implement, and QA product and UX designs through focused workflows |
-| `research-paper-writing` | Write and polish academic papers (ML/CV/NLP style) |
-| `sales` | Support sales research, meeting preparation, account prioritization, deal strategy, forecasting, and CRM workflows |
-| `skill-creator` | Interactive guide for creating and improving agent skills |
-| `super-research` | Run long-horizon, auditable research, experiments, benchmarks, diagnostics, reproductions, and citation checks |
-| `xlsx-official` | Build, clean, and transform spreadsheets (.xlsx/.csv) |
-
-`claude-code` and `codex` are exposed only when the `claude` and `codex` executables, respectively, are installed. Other skills may still require task-specific tools described in their instructions.
-
-**Overriding a builtin skill:** Create a skill with the same `name` under the project (`.ymcode/skills/<name>/SKILL.md`) or personal (for example `~/.config/ymcode/skills/<name>/SKILL.md`) ymcode skills directory. Open-standard `.agents/skills/` in the project and `~/.agents/skills/` are compatible discovery roots. User skills discovered later in the scan order override builtins with the same name.
-
-<details>
-<summary><strong>Configuring skills via environment variables</strong></summary>
-
-| Variable | Effect |
-|----------|--------|
-| `YMCODE_DISABLE_BUILTIN_SKILLS=true` | Disable all builtin skills |
-| `YMCODE_DISABLE_OFFICIAL_SKILLS=true` | Disable only the office/media skills: `docx-official`, `pdf-official`, `pptx-official`, `xlsx-official`, `html-to-video-pipeline` |
-| `YMCODE_DISABLE_SLASH_SKILLS=true` | Hide skills from TUI `/` autocomplete without disabling them |
-
-**External skill roots** (default surface is `.ymcode` + open-standard `.agents`):
-
-| Env | Default | Effect |
-| --- | --- | --- |
-| `YMCODE_DISABLE_AGENTS_SKILLS=true` | unset = on | Turn off `~/.agents/skills` and project `.agents/skills` |
-| `YMCODE_ENABLE_CLAUDE_CODE_SKILLS=true` | unset = off | Opt in `.claude/skills` |
-| `YMCODE_ENABLE_CODEX_SKILLS=true` | unset = off | Opt in `.codex/skills` (user skills only; Codex `skills/.system` is never loaded) |
-| `YMCODE_ENABLE_OPENCODE_SKILLS=true` | unset = off | Opt in `.opencode/skills` |
-
-External scans never match dotted path segments under `skills/`.
-
-`YMCODE_DISABLE_BUILTIN_SKILLS` and `YMCODE_DISABLE_OFFICIAL_SKILLS` remove the corresponding skills from the agent's available skill list entirely — they will not appear in context and cannot be invoked. `YMCODE_DISABLE_SLASH_SKILLS` affects only TUI autocomplete; the skills remain available to agents.
-
-</details>
-
-### Voice Input
-
-Real-time streaming voice input powered by TenVAD and MiMo ASR. Activate with `/voice`, then speak — audio is segmented by pauses and transcribed incrementally into the input. Available for MiMo logged-in users. Requires `sox` (`brew install sox` on macOS, other platforms similar).
-
-<details>
-<summary><strong>WSLg audio setup</strong></summary>
-
-```bash
-sudo apt install -y sox pulseaudio libasound2-plugins
-export PULSE_SERVER=unix:/mnt/wslg/PulseServer
-```
-</details>
-
-<details>
-<summary><strong>SSH remote audio (Mac → remote host)</strong></summary>
-
-```bash
-# Mac (local)
-brew install pulseaudio
-pulseaudio --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1" --exit-idle-time=-1 --daemonize
-# Add to ~/.ssh/config: RemoteForward 4713 127.0.0.1:4713
-
-# Remote host
-apt install -y pulseaudio pulseaudio-utils sox
-export PULSE_SERVER=tcp:127.0.0.1:4713
-# Verify: pactl info
-```
-</details>
-
-<details>
-<summary><strong>Non-MiMo voice providers (OpenRouter, internal API, etc.)</strong></summary>
-
-Voice input can route through other OpenAI-compatible providers via the `voice` config field. The ASR model (`mimo-v2.5-asr`) is only available on MiMo's platform; voice control mode (`mimo-v2.6-flash`) is available on OpenRouter and compatible relay platforms.
-
-**OpenRouter (voice control only):**
-
-Use `/connect` to sign in to OpenRouter, then add to your config:
-```jsonc
-{
-  "voice": {
-    "control_model": "openrouter/xiaomi/mimo-v2.6-flash"
-  }
-}
-```
-
-**Internal / self-hosted relay (both ASR and voice control):**
-```jsonc
-{
-  "provider": {
-    "internal": {
-      "options": {
-        "baseURL": "https://your-api-gateway.example.com/v1",
-        "apiKey": "sk-..."
-      },
-      "models": {
-        "xiaomi/mimo-v2.5-asr": { "name": "MiMo-V2.5-ASR" },
-        "xiaomi/mimo-v2.6-flash": { "name": "MiMo-V2.6-Flash" }
-      }
-    }
-  },
-  "voice": {
-    "asr_model": "internal/xiaomi/mimo-v2.5-asr",
-    "control_model": "internal/xiaomi/mimo-v2.6-flash"
-  }
-}
-```
-
-Custom providers must register at least one model in their `models` field to be recognized. The model names in `voice.*_model` are sent directly to the API — they don't need to match the registered model keys exactly.
-
-> **Note:** Models registered under a custom provider will appear in the model selection list. Don't use ASR-only models (e.g. `mimo-v2.5-asr`) as your primary coding model.
-
-</details>
-
-### Dream & Distill
-
-- **`/dream`** — scans recent session traces, extracts persistent knowledge into project memory, and removes outdated entries
-- **`/distill`** — discovers repeated manual workflows in recent work and packages high-confidence candidates into reusable skills, subagents, or commands
-
----
-
-## Configuration
-
-ymcode uses JSON/JSONC config files with published JSON Schemas for autocompletion and validation.
-
-### File Locations
-
-| File | Project-level | Global |
-|------|--------------|--------|
-| Main config | `.ymcode/ymcode.jsonc` (also `.json`) | `~/.config/ymcode/ymcode.jsonc` (also `.json`) |
-| TUI config | `.ymcode/tui.json` | `~/.config/ymcode/tui.json` |
-| Auth credentials | — | `~/.local/share/ymcode/auth.json` |
-
-> On Windows, XDG paths fall under `%LOCALAPPDATA%\ymcode\`. You can override all paths with `YMCODE_HOME`.
-
-### JSON Schemas
-
-ymcode auto-injects a `$schema` field when it first loads your config, so your editor gets completions and validation out of the box:
-
-| Config | Schema URL |
-|--------|-----------|
-| `ymcode.jsonc` / `ymcode.json` | `https://mimo.xiaomi.com/ymcode/config.json` |
-| `tui.json` | `https://mimo.xiaomi.com/ymcode/tui.json` |
-
-<details>
-<summary><strong>VS Code / Cursor: trust the schema domain</strong></summary>
-
-Add to your `settings.json` so the editor can download schemas for autocompletion:
-
-```json
-{
-  "json.schemaDownload.trustedDomains": {
-    "https://mimo.xiaomi.com/": true
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Data directories</strong></summary>
-
-Beyond config files, ymcode stores runtime data under XDG paths (or `$YMCODE_HOME`):
-
-| Directory | Default (Linux) | Contents |
-|-----------|----------------|----------|
-| data | `~/.local/share/ymcode/` | SQLite database, auth credentials (`auth.json`), memory, logs |
-| state | `~/.local/state/ymcode/` | TUI preferences (`kv.json`), recent models (`model.json`) |
-| cache | `~/.cache/ymcode/` | Language servers, cached model catalog, skills |
-
-To remove stored credentials, delete `auth.json` from the data directory. On macOS, XDG data defaults to `~/Library/Application Support/ymcode/`.
-
-</details>
-
-### Custom OpenAI-Compatible Endpoints
-
-If your provider is not in the built-in model catalog, configure it directly with its base URL, API key, and model ID:
-
-```jsonc
-{
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
-  "model": "custom/MODEL_NAME",
-  "provider": {
-    "custom": {
-      "name": "Custom",
-      "npm": "@ai-sdk/openai-compatible",
-      "only_configured_models": true,
-      "models": {
-        "MODEL_NAME": {
-          "name": "MODEL_NAME"
-        }
-      },
-      "options": {
-        "baseURL": "BASE_URL",
-        "apiKey": "API_KEY"
-      }
-    }
-  }
-}
-```
-
-- Use the exact keys `baseURL` and `apiKey`.
-- Preserve the base URL and model ID exactly as supplied. ymcode does not require a known provider and you should not add or remove `/v1` unless the endpoint requires it.
-- The key under `models` is the upstream model ID. Model IDs containing `/` are supported because only the first `/` in `model` separates the provider ID from the model ID.
-- Replace `custom` with another unused lowercase provider ID if needed, and use the same ID in the top-level `model` value.
-- `@ai-sdk/openai-compatible` is for OpenAI-compatible APIs. Services using a different wire protocol require their provider-specific adapter.
-
-Put user-wide settings in `~/.config/ymcode/ymcode.jsonc` (or `ymcode.json` in the same directory), or project-only settings in `.ymcode/ymcode.jsonc` (or `.json`), and merge them with any existing configuration. Because `apiKey` is stored as plaintext, keep the file readable only by your user and never commit it. Run `ymcode models` or use the TUI model picker to verify the configured model.
-
-To declare which input modalities a custom model supports (image, audio, video, PDF), run `/modalities` in the TUI — a multi-select dialog that persists the setting to config without hand-editing.
-
-### Key Options
-
-- Provider and model selection
-- Agent permissions and custom agents
-- Checkpoint and memory behavior
-- MCP server connections
-- Keybindings and theme
-
-Max Mode (parallel best-of-N reasoning with judge selection) can be enabled via `experimental.maxMode` in the config.
-
-<details>
-<summary><strong>Allowing the system temp directory (<code>/tmp</code>)</strong></summary>
-
-By default, reading or writing files outside the project working directory triggers an
-`external_directory` permission prompt — including the system temp directory. This is
-intentional: ymcode does not silently widen permissions, so you stay in control of what
-the model can touch outside your project.
-
-The temp directory comes up often because most models reach for it as scratch space (e.g.
-a quick script, a throwaway data file). If you trust your environment and would rather not
-be prompted each time, you can opt in by allowing it in your config:
-
-```json title=".ymcode/ymcode.json"
-{
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
-  "permission": {
-    "external_directory": {
-      "/tmp/**": "allow"
-    }
-  }
-}
-```
-
-**This setting has known risks — use it at your own risk.** The temp directory is
-world-writable and shared with every other process and user on the machine. Auto-allowing
-it means the model can read and write there without confirmation, which widens your exposure
-to predictable temp-path / symlink tricks (e.g. another process pre-creating `/tmp/foo` as a
-symlink to a sensitive file). For that reason it is only recommended for single-user,
-controlled environments or inside a container. Keep the allowlist as narrow as possible.
-
-</details>
-
-<details>
-<summary><strong>Skipping permission prompts (<code>--dangerously-skip-permissions</code>)</strong></summary>
-
-For trusted, disposable environments (containers, sandboxes, CI) you can auto-approve
-everything the agent does instead of confirming each action:
-
-```bash
-# TUI — prompts once for an explicit confirmation on startup
-mimo --dangerously-skip-permissions
-
-# Headless
-ymcode run --dangerously-skip-permissions "your prompt"
-
-# Or via environment variable (any surface)
-YMCODE_DANGEROUSLY_SKIP_PERMISSIONS=1 mimo
-```
-
-This injects an **allow-all base underneath your config**, so a tool with no rule
-auto-approves — but any explicit rule you wrote still wins (the last matching rule wins,
-and your rules sit after the injected `*`). A `deny` still blocks; note that a leftover
-`ask` rule also still prompts, and a top-level `"*": "ask"` makes the flag a no-op. In the
-TUI it shows a red warning and requires you to accept the risk before it takes effect (the
-prompt is skipped when there is no TTY, so in CI it activates with no confirmation).
-
-**This is dangerous.** With permissions bypassed, a malicious prompt, file, or plugin can
-run arbitrary shell commands and read, modify, or exfiltrate your data without any
-confirmation. Only use it where you fully trust the workspace.
-
-For a lighter-weight option, the `/skip-permissions` command toggles auto-allow at runtime
-inside the TUI: `deny` rules still block, and forced-ask operations (e.g. destructive bash)
-auto-reject after 60 seconds with feedback the model can act on instead of hanging.
-
-</details>
-
----
-
-## Development
-
-```bash
-bun ci                   # Install dependencies (= bun install --frozen-lockfile)
-bun run dev              # Run in development mode
-bun run typecheck          # Type check
-```
-
----
-
-## Relationship to OpenCode
-
-ymcode is built as a fork of [OpenCode](https://github.com/anomalyco/opencode). It keeps all core OpenCode capabilities (multiple providers, TUI, LSP, MCP, plugins) and adds persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose-next end-to-end delivery, Dynamic Workflows, and self-improvement via dream/distill.
-
----
-
-## Community
-
-Scan the QR code to join the community group chat:
-
-<p align="center">
-  <img src="assets/readme/community-qrcode-1.jpg" alt="Community group chat QR code 1" width="240">
-  &nbsp;&nbsp;
-  <img src="assets/readme/community-qrcode-2.jpg" alt="Community group chat QR code 2" width="240">
-</p>
-
----
-
-## License
-
-Source code is licensed under the [MIT License](./LICENSE).
-
-Use of ymcode is also subject to the [Use Restrictions](./USE_RESTRICTIONS.md).
-Use of Xiaomi MiMo-hosted services is subject to the [MiMo Terms of Service](https://platform.xiaomimimo.com/docs/terms/user-agreement).
-Use of the MiMo name, logo, and trademarks is subject to the MiMo Trademark Policy.
+- 测试：`bun test`（TUI 测试默认使用英文 locale，避免断言依赖系统语言；生产环境按系统语言自动选择）。
+- 已发布的 `packages/cli/migration/*/migration.sql` 不再修改；新 schema 变更使用新迁移目录。
+- 所有用户可见文案中文；代码注释、内部日志、协议字段保持英文。

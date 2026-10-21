@@ -624,7 +624,7 @@ function isTitleRequest(body: unknown): boolean {
   // phrase here makes title generation fall through to pull() and steal a
   // queued reply from whichever test is running — e.g. WorkflowRuntime
   // structure tree sees ["done", "ok"] instead of ["done", "done"].
-  return JSON.stringify(body).includes("You are a title generator")
+  return JSON.stringify(body).includes("你是一个标题生成器")
 }
 
 namespace TestLLMServer {

@@ -152,7 +152,7 @@ export const layer = Layer.effect(
           build: {
             name: "build",
             color: "#fb8147",
-            description: "Executes tools based on configured permissions.",
+            description: "根据配置的权限执行工具。",
             options: {},
             permission: Permission.merge(
               defaults,
@@ -191,7 +191,7 @@ export const layer = Layer.effect(
           plan: {
             name: "plan",
             color: "#c7e2a8",
-            description: "Plan mode. Disallows all edit tools.",
+            description: "计划模式。禁止所有编辑工具。",
             options: {},
             permission: Permission.merge(
               defaults,
@@ -230,7 +230,7 @@ export const layer = Layer.effect(
             name: "general",
             color: "#aac4e1",
             description:
-              "Full-capability general-purpose subagent for autonomous read/write work, including investigation, implementation, debugging, testing, and multi-step delivery. It inherits the parent's available tool surface and can complete a delegated task end to end.",
+              "全能通用子代理，可自主读取、写入、调查、实现、调试、测试并端到端交付；继承父智能体可用工具面。",
             permission: Permission.merge(defaults, user),
             options: {},
             mode: "subagent",
@@ -261,7 +261,7 @@ export const layer = Layer.effect(
               }),
               user,
             ),
-            description: `Fast agent specialized for exploring codebases. Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?"). When calling this agent, specify the desired thoroughness level: "quick" for basic searches, "medium" for moderate exploration, or "very thorough" for comprehensive analysis across multiple locations and naming conventions.`,
+            description: `快速探索代码库的专家。用于按模式查找文件（如 "src/components/**/*.tsx"）、搜索关键词（如 "API endpoints"）或回答代码库问题（如 "API endpoints 如何工作？"）。调用时指定彻底程度："quick" 表示基础搜索，"medium" 表示适度探索，"very thorough" 表示跨多个位置和命名约定的全面分析。`,
             prompt: PROMPT_EXPLORE,
             options: {},
             mode: "subagent",

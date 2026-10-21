@@ -17,7 +17,7 @@ function isTaggedError(error: unknown, tag: string): boolean {
 export function FormatError(input: unknown) {
   // MCPFailed: { name: string }
   if (NamedError.hasName(input, "MCPFailed")) {
-    return `MCP server "${(input as ErrorLike).data?.name}" failed. Note, opencode does not support MCP authentication yet.`
+    return `MCP 服务器 "${(input as ErrorLike).data?.name}" 启动失败。注意，opencode 尚不支持 MCP 认证。`
   }
 
   // AccountServiceError, AccountTransportError: TaggedErrorClass
@@ -30,28 +30,28 @@ export function FormatError(input: unknown) {
     const data = (input as ErrorLike).data
     const suggestions: string[] = Array.isArray(data?.suggestions) ? data.suggestions : []
     return [
-      `Model not found: ${data?.providerID}/${data?.modelID}`,
-      ...(suggestions.length ? ["Did you mean: " + suggestions.join(", ")] : []),
-      `Try: \`ymcode models\` to list available models`,
-      `Or check your config (ymcode.json) provider/model names`,
+      `未找到模型: ${data?.providerID}/${data?.modelID}`,
+      ...(suggestions.length ? ["您是不是想找: " + suggestions.join(", ")] : []),
+      `可运行: \`ymcode models\` 列出可用模型`,
+      `或检查配置（ymcode.json）中的 provider/model 名称`,
     ].join("\n")
   }
 
   // ProviderInitError: { providerID: string }
   if (NamedError.hasName(input, "ProviderInitError")) {
-    return `Failed to initialize provider "${(input as ErrorLike).data?.providerID}". Check credentials and configuration.`
+    return `提供方 "${(input as ErrorLike).data?.providerID}" 初始化失败。请检查凭据和配置。`
   }
 
   // ConfigJsonError: { path: string, message?: string }
   if (NamedError.hasName(input, "ConfigJsonError")) {
     const data = (input as ErrorLike).data
-    return `Config file at ${data?.path} is not valid JSON(C)` + (data?.message ? `: ${data.message}` : "")
+    return `配置文件 ${data?.path} 不是有效的 JSON(C)` + (data?.message ? `: ${data.message}` : "")
   }
 
   // ConfigDirectoryTypoError: { dir: string, path: string, suggestion: string }
   if (NamedError.hasName(input, "ConfigDirectoryTypoError")) {
     const data = (input as ErrorLike).data
-    return `Directory "${data?.dir}" in ${data?.path} is not valid. Rename the directory to "${data?.suggestion}" or remove it. This is a common typo.`
+    return `目录 "${data?.dir}"（位于 ${data?.path}）无效。请将该目录重命名为 "${data?.suggestion}" 或删除它。这是一个常见的拼写错误。`
   }
 
   // ConfigFrontmatterError: { message: string }
@@ -66,7 +66,7 @@ export function FormatError(input: unknown) {
     const message = data?.message
     const issues: Array<{ message: string; path: string[] }> = Array.isArray(data?.issues) ? data.issues : []
     return [
-      `Configuration is invalid${path && path !== "config" ? ` at ${path}` : ""}` + (message ? `: ${message}` : ""),
+      `配置无效${path && path !== "config" ? `（位于 ${path}）` : ""}` + (message ? `: ${message}` : ""),
       ...issues.map((issue) => "↳ " + issue.message + " " + issue.path.join(".")),
     ].join("\n")
   }

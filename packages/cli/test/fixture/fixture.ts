@@ -25,14 +25,17 @@ function exists(dir: string) {
 }
 
 async function clean(dir: string) {
-  Bun.gc(true)
-  await sleep(100)
-  await fs.rm(dir, {
-    recursive: true,
-    force: true,
-    maxRetries: 30,
-    retryDelay: 100,
-  })
+  for (let attempt = 0; attempt < 30; attempt++) {
+    Bun.gc(true)
+    await sleep(100)
+    try {
+      await fs.rm(dir, { recursive: true, force: true })
+      return
+    } catch (error) {
+      const code = typeof error === "object" && error && "code" in error ? error.code : undefined
+      if (code !== "EBUSY" || attempt === 29) throw error
+    }
+  }
 }
 
 export async function cleanupTmpdir(dir: string, cleanup = clean) {

@@ -1,4 +1,4 @@
-import type { Locale } from "../i18n/locales"
+import { normalizeLocale, type Locale } from "../i18n/locales"
 
 const matchers: Array<{ test: (s: string) => boolean; locale: Locale }> = [
   { test: (s) => s.startsWith("en"), locale: "en" },
@@ -188,6 +188,8 @@ function detectTimezoneLocale(): Locale | undefined {
 }
 
 export function detectSystemLocale(): Locale {
+  const forced = process.env.YMCODE_LOCALE
+  if (forced) return normalizeLocale(forced)
   const tz = detectTimezoneLocale()
   if (tz) return tz
   for (const env of ["LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"] as const) {

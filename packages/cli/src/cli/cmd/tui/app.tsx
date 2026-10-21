@@ -883,7 +883,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
         aliases: ["docs"],
       },
       onSelect: () => {
-        open("https://mimo.xiaomi.com/coder/docs").catch(() => {})
+        open("README.md").catch(() => {})
         dialog.clear()
       },
       category: "system",

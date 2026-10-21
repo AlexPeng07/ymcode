@@ -23,7 +23,7 @@ export const ServeCommand = cmd({
     }
 
     // Server.listen publishes this process into the llm-server address registry
-    // (cwd) and unpublishes on stop, so `mimo llm-server issue` can resolve base_url.
+    // (cwd) and unpublishes on stop, so `ymcode llm-server issue` can resolve base_url.
     const server = await Server.listen(opts)
     console.log(`ymcode server listening on http://${server.hostname}:${server.port}`)
 

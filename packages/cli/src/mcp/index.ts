@@ -637,8 +637,8 @@ export const layer = Layer.effect(
                 lastStatus = { status: "needs_auth" as const }
                 return bus
                   .publish(TuiEvent.ToastShow, {
-                    title: "MCP Authentication Required",
-                    message: `Server "${key}" requires authentication. Run: opencode mcp auth ${key}`,
+                    title: "需要 MCP 认证",
+                    message: `服务器 "${key}" 需要认证。请运行: ymcode mcp auth ${key}`,
                     variant: "warning",
                     duration: 8000,
                   })

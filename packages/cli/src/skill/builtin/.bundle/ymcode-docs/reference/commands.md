@@ -16,7 +16,7 @@
 | `ymcode upgrade` | 更新到最新版本 |
 | `ymcode uninstall` | 卸载 ymcode |
 | `ymcode serve` | 运行服务器 |
-| `mimo llm-server issue`/`list`/`revoke` | 签发与管理 token，让任务能通过 `/v1` 访问本实例的模型；它不启动任何东西——见 @capability-api.md |
+| `ymcode llm-server issue`/`list`/`revoke` | 签发与管理 token，让任务能通过 `/v1` 访问本实例的模型；它不启动任何东西——见 @capability-api.md |
 | `mimo stats` | 使用统计 |
 | `mimo export` / `ymcode import` | 导出 / 导入会话 |
 | `mimo session` | 管理会话 |

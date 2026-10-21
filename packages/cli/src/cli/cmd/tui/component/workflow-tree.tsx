@@ -4,10 +4,13 @@ import { For, Show, createSignal } from "solid-js"
 import type { WorkflowNode } from "@tui/context/sync"
 import { SplitBorder } from "@tui/component/border"
 import { Spinner } from "@tui/component/spinner"
+import { useLanguage } from "@tui/context/language"
 
 type AgentNode = Extract<WorkflowNode, { type: "agent" }>
 type WfNode = Extract<WorkflowNode, { type: "workflow" }>
 type PhaseNode = Extract<WorkflowNode, { type: "phase" }>
+
+type Translate = (key: string, params?: Record<string, string | number | boolean>) => string
 
 function glyph(status: string) {
   if (status === "succeeded" || status === "completed") return "✓"
@@ -17,12 +20,12 @@ function glyph(status: string) {
 
 // One-line meta tag for an agent call's parameters: model · tools · schema ·
 // isolated · duration. Empty parts are dropped.
-function agentMeta(n: AgentNode) {
+function agentMeta(n: AgentNode, t: Translate) {
   const parts: string[] = []
   if (n.model) parts.push(n.model)
-  if (n.tools && n.tools.length) parts.push(`${n.tools.length} tools`)
+  if (n.tools && n.tools.length) parts.push(t("tui.workflow.tools", { count: n.tools.length }))
   if (n.schema) parts.push("schema")
-  if (n.isolation) parts.push("isolated")
+  if (n.isolation) parts.push(t("tui.workflow.isolated"))
   if (n.durationMs !== undefined) parts.push(`${(n.durationMs / 1000).toFixed(1)}s`)
   return parts.join(" · ")
 }
@@ -37,6 +40,7 @@ function AgentCard(props: {
   liveActivity?: (actorID: string, sessionID?: string) => string | undefined
 }) {
   const { theme } = useTheme()
+  const t = useLanguage().t
   const [hover, setHover] = createSignal(false)
   const n = () => props.node
   const running = () => n().status === "running"
@@ -70,12 +74,12 @@ function AgentCard(props: {
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
           {n().label ?? n().agentType}
         </text>
-        <Show when={agentMeta(n())}>
-          <text fg={theme.textMuted}>{agentMeta(n())}</text>
+        <Show when={agentMeta(n(), t)}>
+          <text fg={theme.textMuted}>{agentMeta(n(), t)}</text>
         </Show>
         <box flexGrow={1} />
         <Show when={clickable()}>
-          <text fg={hover() ? theme.text : theme.markdownLink}>open ↗</text>
+          <text fg={hover() ? theme.text : theme.markdownLink}>{t("tui.session.workflow.open")}</text>
         </Show>
       </box>
 
@@ -107,6 +111,7 @@ function AgentCard(props: {
 
 function WorkflowCard(props: { node: WfNode; onOpenChild?: (childRunID: string) => void }) {
   const { theme } = useTheme()
+  const t = useLanguage().t
   const [hover, setHover] = createSignal(false)
   const spine = () =>
     props.node.status === "completed"
@@ -132,9 +137,9 @@ function WorkflowCard(props: { node: WfNode; onOpenChild?: (childRunID: string) 
         <text fg={theme.accent} attributes={TextAttributes.BOLD}>
           ⧉ {props.node.name}
         </text>
-        <text fg={theme.textMuted}>sub-workflow · {props.node.status}</text>
+        <text fg={theme.textMuted}>{t("tui.workflow.sub")} · {props.node.status}</text>
         <box flexGrow={1} />
-        <text fg={hover() ? theme.text : theme.markdownLink}>open ↗</text>
+        <text fg={hover() ? theme.text : theme.markdownLink}>{t("tui.session.workflow.open")}</text>
       </box>
     </box>
   )
@@ -147,10 +152,11 @@ export function WorkflowTree(props: {
   liveActivity?: (actorID: string, sessionID?: string) => string | undefined
 }) {
   const { theme } = useTheme()
+  const t = useLanguage().t
   return (
     <box flexDirection="column">
       <Show when={props.nodes.length === 0}>
-        <text fg={theme.textMuted}>(no activity yet)</text>
+        <text fg={theme.textMuted}>{t("tui.workflow.empty")}</text>
       </Show>
       <For each={props.nodes}>
         {(node) => (

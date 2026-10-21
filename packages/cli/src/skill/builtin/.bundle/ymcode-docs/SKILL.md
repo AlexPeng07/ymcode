@@ -1,6 +1,6 @@
 ---
 name: ymcode-docs
-description: "当用户询问 ymcode 自身时使用：功能、TUI 或 CLI 命令、快捷键、终端兼容性、渲染异常、TUI 卡顿、SSH 或远程渲染、智能体模式（build / plan）及切换方式、配置、文件位置、提供方、模型、认证，或自定义的 OpenAI 兼容 / Anthropic 兼容 API 端点。提示词给出或要求配置 base URL/baseURL、API key/apiKey、模型名或 ID、provider、Anthropic Messages API，或全局/项目级 ymcode.json/jsonc 时尤其应触发；用户询问如何进入或退出 plan 模式时也应触发。当技能、任务、子进程或外部客户端需要借用本实例的模型时同样触发——每个 ymcode 服务器都提供的 OpenAI 兼容 /v1 聊天端点、`mimo llm-server` 任务 token，或如何为它们暴露监听端口。用本技能安全地查看现有配置、做最小改动并在不猜 schema 字段或模型能力的前提下验证。 | ymcode features, CLI/TUI commands, config, providers, models, auth, capability API."
+description: "当用户询问 ymcode 自身时使用：功能、TUI 或 CLI 命令、快捷键、终端兼容性、渲染异常、TUI 卡顿、SSH 或远程渲染、智能体模式（build / plan）及切换方式、配置、文件位置、提供方、模型、认证，或自定义的 OpenAI 兼容 / Anthropic 兼容 API 端点。提示词给出或要求配置 base URL/baseURL、API key/apiKey、模型名或 ID、provider、Anthropic Messages API，或全局/项目级 ymcode.json/jsonc 时尤其应触发；用户询问如何进入或退出 plan 模式时也应触发。当技能、任务、子进程或外部客户端需要借用本实例的模型时同样触发——每个 ymcode 服务器都提供的 OpenAI 兼容 /v1 聊天端点、`ymcode llm-server` 任务 token，或如何为它们暴露监听端口。用本技能安全地查看现有配置、做最小改动并在不猜 schema 字段或模型能力的前提下验证。 | ymcode features, CLI/TUI commands, config, providers, models, auth, capability API."
 ---
 
 # ymcode
@@ -31,7 +31,7 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 | **自定义技能** | 在 `.ymcode/skills/` 下添加可复用的任务指令 | 见 `skill-creator` 技能 |
 | **技能发现** | `/skill-name` 斜杠调用（一条消息中出现 2 个及以上会自动加载并给出编排计划）；`skill_search` 工具按精确名称/别名 + BM25 匹配并自动加载高置信命中；部分内置技能（`claude-code`、`codex`）仅在其 CLI 已安装时出现 | `/` 自动补全 · 自动 |
 | **MCP** | 本地与远程 Model Context Protocol 服务器 | `mcp` 配置 + `mimo mcp` |
-| **Capability API** | 每个会话已在回环端口上以 OpenAI 兼容的 `/v1` 提供本项目的聊天模型，因此技能或子进程可以借用模型而不必持有提供方密钥 | `mimo llm-server issue` 签发限定范围的 token 并打印 base URL（见 @reference/capability-api.md） |
+| **Capability API** | 每个会话已在回环端口上以 OpenAI 兼容的 `/v1` 提供本项目的聊天模型，因此技能或子进程可以借用模型而不必持有提供方密钥 | `ymcode llm-server issue` 签发限定范围的 token 并打印 base URL（见 @reference/capability-api.md） |
 
 ## 配置基础
 
@@ -60,7 +60,7 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 - CLI 与斜杠命令：@reference/commands.md
 - 权限规则：@reference/permissions.md
 - MCP 客户端采样（服务器借用你的模型、音频转写）：@reference/mcp-sampling.md
-- 把本实例的聊天模型借给技能、任务或子进程——OpenAI 兼容的 `/v1` 端点及访问它们的 `mimo llm-server` token：@reference/capability-api.md
+- 把本实例的聊天模型借给技能、任务或子进程——OpenAI 兼容的 `/v1` 端点及访问它们的 `ymcode llm-server` token：@reference/capability-api.md
 - Dynamic Workflow：@reference/workflows.md
 
 ## 操作指南

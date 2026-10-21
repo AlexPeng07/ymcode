@@ -106,7 +106,7 @@ export async function listen(opts: {
   childEnv?: NodeJS.ProcessEnv
   /**
    * Advertise this listener in the llm-server address registry so
-   * `mimo llm-server issue` can resolve `base_url`. Defaults to true.
+   * `ymcode llm-server issue` can resolve `base_url`. Defaults to true.
    * Embedders that only need an in-process app can pass false.
    */
   advertise?: boolean

@@ -108,10 +108,10 @@ const InfoSchema = Schema.Struct({
     description: "Server configuration for ymcode serve and web commands",
   }),
   llmServer: Schema.optional(ConfigLLMServer.LLMServer).annotate({
-    description: "Token lifetime defaults for the temporary local LLM server (mimo llm-server)",
+    description: "Token lifetime defaults for the temporary local LLM server (ymcode llm-server)",
   }),
   command: Schema.optional(Schema.Record(Schema.String, ConfigCommand.Info)).annotate({
-    description: "Command configuration, see https://mimo.xiaomi.com/ymcode/commands",
+    description: "Command configuration; see the repository documentation.",
   }),
   skills: Schema.optional(ConfigSkills.Info).annotate({ description: "Additional skill folder paths" }),
   watcher: Schema.optional(
@@ -200,7 +200,7 @@ const InfoSchema = Schema.Struct({
       }),
       [Schema.Record(Schema.String, AgentRef)],
     ),
-  ).annotate({ description: "Agent configuration, see https://mimo.xiaomi.com/ymcode/agents" }),
+  ).annotate({ description: "Agent configuration; see the repository documentation." }),
   provider: Schema.optional(Schema.Record(Schema.String, ConfigProvider.Info)).annotate({
     description: "Custom provider configurations and model overrides",
   }),

@@ -1,11 +1,13 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@ymcode/plugin/tui"
 import { createMemo, For, Match, Show, Switch, createSignal } from "solid-js"
+import { useLanguage } from "@tui/context/language"
 
 const id = "internal:sidebar-mcp"
 
 function View(props: { api: TuiPluginApi }) {
   const [open, setOpen] = createSignal(true)
   const theme = () => props.api.theme.current
+  const t = useLanguage().t
   const list = createMemo(() => props.api.state.mcp())
   const on = createMemo(() => list().filter((item) => item.status === "connected").length)
   const bad = createMemo(
@@ -38,7 +40,8 @@ function View(props: { api: TuiPluginApi }) {
             <Show when={!open()}>
               <span style={{ fg: theme().textMuted }}>
                 {" "}
-                ({on()} active{bad() > 0 ? `, ${bad()} error${bad() > 1 ? "s" : ""}` : ""})
+                ({t("tui.sidebar.mcp.active", { count: on() })}
+                {bad() > 0 ? `, ${t("tui.sidebar.mcp.errors", { count: bad() })}` : ""})
               </span>
             </Show>
           </text>
@@ -59,14 +62,16 @@ function View(props: { api: TuiPluginApi }) {
                   {item.name}{" "}
                   <span style={{ fg: theme().textMuted }}>
                     <Switch fallback={item.status}>
-                      <Match when={item.status === "connected"}>Connected</Match>
+                      <Match when={item.status === "connected"}>{t("tui.sidebar.mcp.connected")}</Match>
                       <Match when={item.status === "failed"}>
                         <i>{item.error}</i>
                       </Match>
-                      <Match when={(item.status as string) === "pending"}>Pending approval</Match>
-                      <Match when={item.status === "disabled"}>Disabled</Match>
-                      <Match when={item.status === "needs_auth"}>Needs auth</Match>
-                      <Match when={item.status === "needs_client_registration"}>Needs client ID</Match>
+                      <Match when={(item.status as string) === "pending"}>{t("tui.sidebar.mcp.pending")}</Match>
+                      <Match when={item.status === "disabled"}>{t("tui.sidebar.mcp.disabled")}</Match>
+                      <Match when={item.status === "needs_auth"}>{t("tui.sidebar.mcp.needs_auth")}</Match>
+                      <Match when={item.status === "needs_client_registration"}>
+                        {t("tui.sidebar.mcp.needs_client_id")}
+                      </Match>
                     </Switch>
                   </span>
                 </text>
