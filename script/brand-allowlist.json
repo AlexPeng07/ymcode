@@ -1,0 +1,20 @@
+[
+  { "path": "NOTICE", "reason": "upstream attribution" },
+  { "path": "UPSTREAM.md", "reason": "upstream attribution and sync instructions" },
+  { "path": "LICENSE", "reason": "upstream copyright notice" },
+  { "path": "docs/superpowers/specs", "reason": "design doc records the rename mapping" },
+  { "path": "docs/superpowers/plans", "reason": "implementation plans record the rename mapping" },
+  { "path": "docs/PROGRESS.md", "reason": "append-only historical progress log" },
+  { "path": "packages/cli/src/env/legacy.ts", "reason": "legacy MIMOCODE_* environment compatibility" },
+  { "path": "packages/cli/src/installation/migrate.ts", "reason": "legacy mimocode data migration" },
+  { "path": "packages/cli/src/cli/cmd/migrate.ts", "reason": "migration command description" },
+  { "path": "packages/cli/test/installation/migrate.test.ts", "reason": "migration fixtures" },
+  { "path": "packages/cli/src/config/paths.ts", "reason": "legacy .mimocode project config fallback" },
+  { "path": "packages/cli/src/config/config.ts", "reason": "legacy mimocode.json filename fallback" },
+  { "path": "packages/cli/test/config/config.test.ts", "reason": "legacy schema cleanup tests" },
+  { "path": "packages/cli/test/config/tui.test.ts", "reason": "legacy schema cleanup tests" },
+  { "path": "packages/cli/src/cli/cmd/uninstall.ts", "reason": "legacy install detection" },
+  { "path": "packages/cli/src/cli/cmd/tui/component/dialog-model.tsx", "reason": "external Xiaomi MiMo model family reference" },
+  { "path": "packages/cli/test/provider/transform.test.ts", "reason": "external Xiaomi MiMo provider/model fixtures" },
+  { "path": "packages/cli/test/session/llm-system-prompt.test.ts", "reason": "upstream issue URL attribution" }
+]

@@ -277,7 +277,7 @@ export const RunCommand = cmd({
       })
       .option("attach", {
         type: "string",
-        describe: "attach to a running ymcode server (use the URL printed by `mimo serve`)",
+        describe: "attach to a running ymcode server (use the URL printed by `ymcode serve`)",
       })
       .option("password", {
         alias: ["p"],

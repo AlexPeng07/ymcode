@@ -45,7 +45,7 @@
 | `@mimo-ai/shared` | `@ymcode/shared` | 同上 |
 | 根 `package.json` 的 `name: "opencode"` | `"ymcode"` | 根 workspace 包名；删除指向上游的 `repository` 字段，等有自有远端再补 |
 | `mimo` 命令 | `ymcode` | `bin`、安装/卸载、测试、文档 |
-| `mimo.js` | `ymcode.js` | CLI 入口 |
+| `ymcode.js` | `ymcode.js` | CLI 入口 |
 | `mimo`（无前缀的路径/目录） | `ymcode` | `.ymcode`、`~/.ymcode`、`ymcode-worktrees` |
 | `mimocode.db` | `ymcode.db` | 数据库文件名 |
 | `mimocode.json(c)` | `ymcode.json(c)` | 配置文件 |

@@ -1,10 +1,10 @@
-<h1 align="center">MiMoCode</h1>
+<h1 align="center">ymcode</h1>
 
 <p align="center">
-  <img src="assets/readme/mimocode-banner.png" alt="MiMoCode" width="700">
+  <img src="assets/readme/ymcode-banner.png" alt="ymcode" width="700">
 </p>
 
-<p align="center"><strong>MiMo Code: Where Models and Agents Co-Evolve</strong></p>
+<p align="center"><strong>ymcode: Where Models and Agents Co-Evolve</strong></p>
 
 <p align="center">
   <a href="README.zh.md">中文</a> | English
@@ -16,7 +16,7 @@
 
 ---
 
-MiMoCode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.
+ymcode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.
 
 <p align="center"><strong>MiMo Desktop</strong>: <a href="https://mimo-ai.xiaomimimo.com/desktop/invite/">Download the international edition</a></p>
 
@@ -24,7 +24,7 @@ MiMoCode is a terminal-native AI coding assistant. It can read and write code, r
 
 <p align="center"><img src="assets/readme/mimo-desktop-en.jpg" alt="Xiaomi MiMo Desktop English interface: starting a new task" width="900"></p>
 
-Xiaomi MiMo Desktop is built for real-world work: one conversation can handle office work, design, coding, and multimodal creation, while multiple conversations can divide work and collaborate. The desktop app is powered by **MiMo Code as its core engine**, bringing its terminal-native intelligence to desktop workflows.
+Xiaomi MiMo Desktop is built for real-world work: one conversation can handle office work, design, coding, and multimodal creation, while multiple conversations can divide work and collaborate. The desktop app is powered by **ymcode as its core engine**, bringing its terminal-native intelligence to desktop workflows.
 
 - **Smart orchestration**: evaluates task type and cost, then dynamically selects models, frameworks, and tools; complex tasks can run across multiple agents in parallel.
 - **Continuous iteration**: drag in files in multiple formats, create PPTs, webpages, 3D assets, and apps, preview and operate on results in-session, edit selected regions precisely, and roll back versions.
@@ -34,7 +34,7 @@ Xiaomi MiMo Desktop is built for real-world work: one conversation can handle of
 
 Powered by the new **MiMo-V2.6-Pro** and **MiMo-V2.6-Flash** models.
 
-MiMoCode supports connecting to any mainstream LLM provider API.
+ymcode supports connecting to any mainstream LLM provider API.
 
 ---
 
@@ -70,7 +70,7 @@ sudo apt install xsel
 <details>
 <summary><strong>macOS: rendering issues in the default terminal</strong></summary>
 
-MiMoCode does not support the built-in macOS Terminal (Terminal.app). If the interface is misaligned, flickers, or has other rendering issues, use [iTerm2](https://iterm2.com/) or the VS Code integrated terminal instead:
+ymcode does not support the built-in macOS Terminal (Terminal.app). If the interface is misaligned, flickers, or has other rendering issues, use [iTerm2](https://iterm2.com/) or the VS Code integrated terminal instead:
 
 ```bash
 brew install --cask iterm2
@@ -80,17 +80,17 @@ brew install --cask iterm2
 <details>
 <summary><strong>TUI lag and visual animation issues</strong></summary>
 
-If the TUI lags when run directly over SSH, render it locally and run only the MiMoCode server on the remote host. Start the server from the remote project directory:
+If the TUI lags when run directly over SSH, render it locally and run only the ymcode server on the remote host. Start the server from the remote project directory:
 
 ```bash
 # Remote host
-mimo serve --port 4096
+ymcode serve --port 4096
 
 # Local host: create the SSH port forward
 ssh -N -L 4096:127.0.0.1:4096 user@remote-host
 
 # Local host: connect from another terminal
-mimo attach http://127.0.0.1:4096
+ymcode attach http://127.0.0.1:4096
 ```
 
 If decorative animation is causing the lag, run `/vivid`, or configure **Vivid visuals** in the `ctrl+p` command palette, to switch between Vivid and Minimal visuals as needed.
@@ -101,7 +101,7 @@ If decorative animation is causing the lag, run `/vivid`, or configure **Vivid v
 <summary><strong>Windows: garbled CJK (Chinese/Japanese/Korean) output in the shell</strong></summary>
 
 On Windows with a non-UTF-8 system locale (e.g. zh-CN, whose active code page is 936/GBK),
-command output containing CJK characters may appear garbled (mojibake). MiMoCode forces
+command output containing CJK characters may appear garbled (mojibake). ymcode forces
 UTF-8 output for spawned PowerShell/cmd subprocesses. If you still encounter garbled output
 in cases this does not yet cover, enable Windows' system-wide UTF-8 support:
 
@@ -118,7 +118,7 @@ some older non-Unicode programs to display incorrectly, so treat it as a workaro
 
 ## MiMo Ecosystem
 
-Beyond MiMoCode, Xiaomi MiMo models also work in other agents and coding tools like Cursor, Cline, and Zed.
+Beyond ymcode, Xiaomi MiMo models also work in other agents and coding tools like Cursor, Cline, and Zed.
 
 **[awesome-mimo-agent](https://github.com/XiaomiMiMo/awesome-mimo-agent)** collects setup guides for using MiMo in those tools — worth a look if you want to try MiMo elsewhere. Contributions welcome: open a PR to add your own setup.
 
@@ -184,7 +184,7 @@ Why you might want it:
   serves 1M.
 - **Quality and latency.** Very long contexts are slower and, past a point, not better.
 
-`mimo models <provider>` prints, per model, the window MiMoCode resolved and the token count
+`ymcode models <provider>` prints, per model, the window ymcode resolved and the token count
 where it will compact. The prompt footer uses that same number as its denominator
 (`33.0K/260K↓ (13%)` — the `↓` means a budget is in force), and `/status` breaks it down.
 
@@ -210,7 +210,7 @@ Use the **`/compose-next`** skill to run an end-to-end feature delivery loop: a 
 
 Workflows are deterministic JavaScript scripts that orchestrate multiple agents in a sandboxed runtime. Unlike agent conversations, workflows encode fixed phase sequences with bounded retries and automatic parallelization — fire-and-forget execution with no user interaction required.
 
-MiMoCode ships with three built-in workflows:
+ymcode ships with three built-in workflows:
 
 | Workflow | Phases | Description |
 |----------|--------|-------------|
@@ -218,13 +218,13 @@ MiMoCode ships with three built-in workflows:
 | `fact-check` | Plan → Search → Extract → Group → Crosscheck → Report | Adversarial fact verification. Runs parallel web searches, extracts checkable facts, groups duplicates, then cross-checks each with a 3-juror adversarial vote. Best for precise claims ("Is X true?"). |
 | `research-experiment` | Baseline → Loop → Audit → Report | Autonomous optimization loop for a mechanically verifiable metric. Establishes a baseline, iterates through hypothesize → implement → evaluate → keep/revert, audits for metric gaming, and produces a reproducible result log. Requires a fixed-budget evaluation command and an explicit editable-file scope. |
 
-**Custom workflows:** Place a `.js` file in `.mimocode/workflows/` or `.claude/workflows/` to define your own, or override a built-in by using the same name.
+**Custom workflows:** Place a `.js` file in `.ymcode/workflows/` or `.claude/workflows/` to define your own, or override a built-in by using the same name.
 
 ### Builtin Skills
 
-Skills are reusable instruction sets that teach agents how to handle specific tasks (e.g. generating PDFs, writing academic papers, searching arXiv). For a new task, MiMoCode searches available skills by exact name, localized alias, and BM25 relevance. High-confidence matches are loaded automatically; uncertain matches are ranked for the agent to assess. In the TUI, type `/` to browse the autocomplete list or invoke a skill directly with `/<skill-name>` — mentioning two or more skills in a single message auto-loads them and injects a multi-skill orchestration plan.
+Skills are reusable instruction sets that teach agents how to handle specific tasks (e.g. generating PDFs, writing academic papers, searching arXiv). For a new task, ymcode searches available skills by exact name, localized alias, and BM25 relevance. High-confidence matches are loaded automatically; uncertain matches are ranked for the agent to assess. In the TUI, type `/` to browse the autocomplete list or invoke a skill directly with `/<skill-name>` — mentioning two or more skills in a single message auto-loads them and injects a multi-skill orchestration plan.
 
-MiMoCode bundles the following builtin skills:
+ymcode bundles the following builtin skills:
 
 | Skill | Description |
 |-------|-------------|
@@ -238,7 +238,7 @@ MiMoCode bundles the following builtin skills:
 | `html-to-video-pipeline` | HTML-to-MP4 rendering via headless browser + ffmpeg |
 | `learn-everything` | Turn documents, URLs, or topics into adaptive courses with exercises, feedback, and progress tracking |
 | `loop` | Schedule recurring prompts on a fixed cadence |
-| `mimocode-docs` | Self-documenting reference for MiMoCode features, commands, providers, and configuration |
+| `ymcode-docs` | Self-documenting reference for ymcode features, commands, providers, and configuration |
 | `modern-python-toolchain` | Set up modern Python projects with uv, Ruff, and Pyright |
 | `pdf-official` | Produce, read, fill, and transform PDF files |
 | `pptx-official` | Author and manipulate PowerPoint (.pptx) decks |
@@ -251,29 +251,29 @@ MiMoCode bundles the following builtin skills:
 
 `claude-code` and `codex` are exposed only when the `claude` and `codex` executables, respectively, are installed. Other skills may still require task-specific tools described in their instructions.
 
-**Overriding a builtin skill:** Create a skill with the same `name` under the project (`.mimocode/skills/<name>/SKILL.md`) or personal (for example `~/.config/mimocode/skills/<name>/SKILL.md`) MiMoCode skills directory. Open-standard `.agents/skills/` in the project and `~/.agents/skills/` are compatible discovery roots. User skills discovered later in the scan order override builtins with the same name.
+**Overriding a builtin skill:** Create a skill with the same `name` under the project (`.ymcode/skills/<name>/SKILL.md`) or personal (for example `~/.config/ymcode/skills/<name>/SKILL.md`) ymcode skills directory. Open-standard `.agents/skills/` in the project and `~/.agents/skills/` are compatible discovery roots. User skills discovered later in the scan order override builtins with the same name.
 
 <details>
 <summary><strong>Configuring skills via environment variables</strong></summary>
 
 | Variable | Effect |
 |----------|--------|
-| `MIMOCODE_DISABLE_BUILTIN_SKILLS=true` | Disable all builtin skills |
-| `MIMOCODE_DISABLE_OFFICIAL_SKILLS=true` | Disable only the office/media skills: `docx-official`, `pdf-official`, `pptx-official`, `xlsx-official`, `html-to-video-pipeline` |
-| `MIMOCODE_DISABLE_SLASH_SKILLS=true` | Hide skills from TUI `/` autocomplete without disabling them |
+| `YMCODE_DISABLE_BUILTIN_SKILLS=true` | Disable all builtin skills |
+| `YMCODE_DISABLE_OFFICIAL_SKILLS=true` | Disable only the office/media skills: `docx-official`, `pdf-official`, `pptx-official`, `xlsx-official`, `html-to-video-pipeline` |
+| `YMCODE_DISABLE_SLASH_SKILLS=true` | Hide skills from TUI `/` autocomplete without disabling them |
 
-**External skill roots** (default surface is `.mimocode` + open-standard `.agents`):
+**External skill roots** (default surface is `.ymcode` + open-standard `.agents`):
 
 | Env | Default | Effect |
 | --- | --- | --- |
-| `MIMOCODE_DISABLE_AGENTS_SKILLS=true` | unset = on | Turn off `~/.agents/skills` and project `.agents/skills` |
-| `MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS=true` | unset = off | Opt in `.claude/skills` |
-| `MIMOCODE_ENABLE_CODEX_SKILLS=true` | unset = off | Opt in `.codex/skills` (user skills only; Codex `skills/.system` is never loaded) |
-| `MIMOCODE_ENABLE_OPENCODE_SKILLS=true` | unset = off | Opt in `.opencode/skills` |
+| `YMCODE_DISABLE_AGENTS_SKILLS=true` | unset = on | Turn off `~/.agents/skills` and project `.agents/skills` |
+| `YMCODE_ENABLE_CLAUDE_CODE_SKILLS=true` | unset = off | Opt in `.claude/skills` |
+| `YMCODE_ENABLE_CODEX_SKILLS=true` | unset = off | Opt in `.codex/skills` (user skills only; Codex `skills/.system` is never loaded) |
+| `YMCODE_ENABLE_OPENCODE_SKILLS=true` | unset = off | Opt in `.opencode/skills` |
 
 External scans never match dotted path segments under `skills/`.
 
-`MIMOCODE_DISABLE_BUILTIN_SKILLS` and `MIMOCODE_DISABLE_OFFICIAL_SKILLS` remove the corresponding skills from the agent's available skill list entirely — they will not appear in context and cannot be invoked. `MIMOCODE_DISABLE_SLASH_SKILLS` affects only TUI autocomplete; the skills remain available to agents.
+`YMCODE_DISABLE_BUILTIN_SKILLS` and `YMCODE_DISABLE_OFFICIAL_SKILLS` remove the corresponding skills from the agent's available skill list entirely — they will not appear in context and cannot be invoked. `YMCODE_DISABLE_SLASH_SKILLS` affects only TUI autocomplete; the skills remain available to agents.
 
 </details>
 
@@ -359,26 +359,26 @@ Custom providers must register at least one model in their `models` field to be 
 
 ## Configuration
 
-MiMoCode uses JSON/JSONC config files with published JSON Schemas for autocompletion and validation.
+ymcode uses JSON/JSONC config files with published JSON Schemas for autocompletion and validation.
 
 ### File Locations
 
 | File | Project-level | Global |
 |------|--------------|--------|
-| Main config | `.mimocode/mimocode.jsonc` (also `.json`) | `~/.config/mimocode/mimocode.jsonc` (also `.json`) |
-| TUI config | `.mimocode/tui.json` | `~/.config/mimocode/tui.json` |
-| Auth credentials | — | `~/.local/share/mimocode/auth.json` |
+| Main config | `.ymcode/ymcode.jsonc` (also `.json`) | `~/.config/ymcode/ymcode.jsonc` (also `.json`) |
+| TUI config | `.ymcode/tui.json` | `~/.config/ymcode/tui.json` |
+| Auth credentials | — | `~/.local/share/ymcode/auth.json` |
 
-> On Windows, XDG paths fall under `%LOCALAPPDATA%\mimocode\`. You can override all paths with `MIMOCODE_HOME`.
+> On Windows, XDG paths fall under `%LOCALAPPDATA%\ymcode\`. You can override all paths with `YMCODE_HOME`.
 
 ### JSON Schemas
 
-MiMoCode auto-injects a `$schema` field when it first loads your config, so your editor gets completions and validation out of the box:
+ymcode auto-injects a `$schema` field when it first loads your config, so your editor gets completions and validation out of the box:
 
 | Config | Schema URL |
 |--------|-----------|
-| `mimocode.jsonc` / `mimocode.json` | `https://mimo.xiaomi.com/mimocode/config.json` |
-| `tui.json` | `https://mimo.xiaomi.com/mimocode/tui.json` |
+| `ymcode.jsonc` / `ymcode.json` | `https://mimo.xiaomi.com/ymcode/config.json` |
+| `tui.json` | `https://mimo.xiaomi.com/ymcode/tui.json` |
 
 <details>
 <summary><strong>VS Code / Cursor: trust the schema domain</strong></summary>
@@ -398,15 +398,15 @@ Add to your `settings.json` so the editor can download schemas for autocompletio
 <details>
 <summary><strong>Data directories</strong></summary>
 
-Beyond config files, MiMoCode stores runtime data under XDG paths (or `$MIMOCODE_HOME`):
+Beyond config files, ymcode stores runtime data under XDG paths (or `$YMCODE_HOME`):
 
 | Directory | Default (Linux) | Contents |
 |-----------|----------------|----------|
-| data | `~/.local/share/mimocode/` | SQLite database, auth credentials (`auth.json`), memory, logs |
-| state | `~/.local/state/mimocode/` | TUI preferences (`kv.json`), recent models (`model.json`) |
-| cache | `~/.cache/mimocode/` | Language servers, cached model catalog, skills |
+| data | `~/.local/share/ymcode/` | SQLite database, auth credentials (`auth.json`), memory, logs |
+| state | `~/.local/state/ymcode/` | TUI preferences (`kv.json`), recent models (`model.json`) |
+| cache | `~/.cache/ymcode/` | Language servers, cached model catalog, skills |
 
-To remove stored credentials, delete `auth.json` from the data directory. On macOS, XDG data defaults to `~/Library/Application Support/mimocode/`.
+To remove stored credentials, delete `auth.json` from the data directory. On macOS, XDG data defaults to `~/Library/Application Support/ymcode/`.
 
 </details>
 
@@ -416,7 +416,7 @@ If your provider is not in the built-in model catalog, configure it directly wit
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "custom/MODEL_NAME",
   "provider": {
     "custom": {
@@ -438,12 +438,12 @@ If your provider is not in the built-in model catalog, configure it directly wit
 ```
 
 - Use the exact keys `baseURL` and `apiKey`.
-- Preserve the base URL and model ID exactly as supplied. MiMoCode does not require a known provider and you should not add or remove `/v1` unless the endpoint requires it.
+- Preserve the base URL and model ID exactly as supplied. ymcode does not require a known provider and you should not add or remove `/v1` unless the endpoint requires it.
 - The key under `models` is the upstream model ID. Model IDs containing `/` are supported because only the first `/` in `model` separates the provider ID from the model ID.
 - Replace `custom` with another unused lowercase provider ID if needed, and use the same ID in the top-level `model` value.
 - `@ai-sdk/openai-compatible` is for OpenAI-compatible APIs. Services using a different wire protocol require their provider-specific adapter.
 
-Put user-wide settings in `~/.config/mimocode/mimocode.jsonc` (or `mimocode.json` in the same directory), or project-only settings in `.mimocode/mimocode.jsonc` (or `.json`), and merge them with any existing configuration. Because `apiKey` is stored as plaintext, keep the file readable only by your user and never commit it. Run `mimo models` or use the TUI model picker to verify the configured model.
+Put user-wide settings in `~/.config/ymcode/ymcode.jsonc` (or `ymcode.json` in the same directory), or project-only settings in `.ymcode/ymcode.jsonc` (or `.json`), and merge them with any existing configuration. Because `apiKey` is stored as plaintext, keep the file readable only by your user and never commit it. Run `ymcode models` or use the TUI model picker to verify the configured model.
 
 To declare which input modalities a custom model supports (image, audio, video, PDF), run `/modalities` in the TUI — a multi-select dialog that persists the setting to config without hand-editing.
 
@@ -462,16 +462,16 @@ Max Mode (parallel best-of-N reasoning with judge selection) can be enabled via 
 
 By default, reading or writing files outside the project working directory triggers an
 `external_directory` permission prompt — including the system temp directory. This is
-intentional: MiMoCode does not silently widen permissions, so you stay in control of what
+intentional: ymcode does not silently widen permissions, so you stay in control of what
 the model can touch outside your project.
 
 The temp directory comes up often because most models reach for it as scratch space (e.g.
 a quick script, a throwaway data file). If you trust your environment and would rather not
 be prompted each time, you can opt in by allowing it in your config:
 
-```json title=".mimocode/mimocode.json"
+```json title=".ymcode/ymcode.json"
 {
-  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "permission": {
     "external_directory": {
       "/tmp/**": "allow"
@@ -500,10 +500,10 @@ everything the agent does instead of confirming each action:
 mimo --dangerously-skip-permissions
 
 # Headless
-mimo run --dangerously-skip-permissions "your prompt"
+ymcode run --dangerously-skip-permissions "your prompt"
 
 # Or via environment variable (any surface)
-MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS=1 mimo
+YMCODE_DANGEROUSLY_SKIP_PERMISSIONS=1 mimo
 ```
 
 This injects an **allow-all base underneath your config**, so a tool with no rule
@@ -537,7 +537,7 @@ bun run typecheck          # Type check
 
 ## Relationship to OpenCode
 
-MiMoCode is built as a fork of [OpenCode](https://github.com/anomalyco/opencode). It keeps all core OpenCode capabilities (multiple providers, TUI, LSP, MCP, plugins) and adds persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose-next end-to-end delivery, Dynamic Workflows, and self-improvement via dream/distill.
+ymcode is built as a fork of [OpenCode](https://github.com/anomalyco/opencode). It keeps all core OpenCode capabilities (multiple providers, TUI, LSP, MCP, plugins) and adds persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose-next end-to-end delivery, Dynamic Workflows, and self-improvement via dream/distill.
 
 ---
 
@@ -557,6 +557,6 @@ Scan the QR code to join the community group chat:
 
 Source code is licensed under the [MIT License](./LICENSE).
 
-Use of MiMoCode is also subject to the [Use Restrictions](./USE_RESTRICTIONS.md).
+Use of ymcode is also subject to the [Use Restrictions](./USE_RESTRICTIONS.md).
 Use of Xiaomi MiMo-hosted services is subject to the [MiMo Terms of Service](https://platform.xiaomimimo.com/docs/terms/user-agreement).
 Use of the MiMo name, logo, and trademarks is subject to the MiMo Trademark Policy.

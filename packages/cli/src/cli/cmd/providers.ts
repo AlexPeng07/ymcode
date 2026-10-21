@@ -642,7 +642,7 @@ export const ProvidersWhoamiCommand = cmd({
       }),
     )
     if (!info) {
-      prompts.log.error("Not logged in. Run `mimo auth login` to log in.")
+      prompts.log.error("Not logged in. Run `ymcode auth login` to log in.")
       return
     }
     if (info.type === "api" && info.metadata) {

@@ -5,12 +5,12 @@ import path from "path"
 
 import * as launcher from "../../launcher.js"
 
-const BIN_PATH = path.join(import.meta.dirname, "../../mimo.js")
+const BIN_PATH = path.join(import.meta.dirname, "../../ymcode.js")
 const LAUNCHER_PATH = path.join(import.meta.dirname, "../../launcher.js")
 
 function stageLauncher(dir: string) {
   fs.mkdirSync(dir, { recursive: true })
-  fs.copyFileSync(BIN_PATH, path.join(dir, "mimo.js"))
+  fs.copyFileSync(BIN_PATH, path.join(dir, "ymcode.js"))
   fs.copyFileSync(LAUNCHER_PATH, path.join(dir, "launcher.js"))
   fs.writeFileSync(
     path.join(dir, "package.json"),
@@ -18,14 +18,14 @@ function stageLauncher(dir: string) {
       name: "@ymcode/cli",
       version: "9.9.9",
       type: "module",
-      bin: { mimo: "./mimo.js" },
+      bin: { ymcode: "./ymcode.js" },
     }),
   )
 }
 
 function runMimo(dir: string, args: string[], env: Record<string, string> = {}) {
   // Async spawn: a Bun.serve stub in this process must stay free to answer HTTP.
-  return Bun.spawn(["node", path.join(dir, "mimo.js"), ...args], {
+  return Bun.spawn(["node", path.join(dir, "ymcode.js"), ...args], {
     cwd: dir,
     env: { ...process.env, ...env },
     stdout: "pipe",
@@ -42,37 +42,37 @@ async function waitMimo(proc: ReturnType<typeof runMimo>) {
   return { exitCode, stdout, stderr }
 }
 
-describe("bin/mimo launcher", () => {
-  test("forwards argv and exit code to YMCODE_BIN_PATH without network", async () => {
+describe("bin/ymcode launcher", () => {
+  test.skipIf(process.platform === "win32")("forwards argv and exit code to YMCODE_BIN_PATH without network", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
 
-    const sh = path.join(dir, "fake-mimo")
+    const sh = path.join(dir, "fake-ymcode")
     fs.writeFileSync(sh, `#!/bin/sh\necho "argv:$*"\nexit 0\n`)
     fs.chmodSync(sh, 0o755)
     const result = await waitMimo(
       runMimo(dir, ["--version", "hello"], {
         YMCODE_BIN_PATH: sh,
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toContain("argv:--version hello")
 
-    const failSh = path.join(dir, "fake-mimo-fail")
+    const failSh = path.join(dir, "fake-ymcode-fail")
     fs.writeFileSync(failSh, `#!/bin/sh\nexit 7\n`)
     fs.chmodSync(failSh, 0o755)
     const failed = await waitMimo(
       runMimo(dir, [], {
         YMCODE_BIN_PATH: failSh,
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(failed.exitCode).toBe(7)
   })
 
-  test("runs package-local vendor binary without downloading", async () => {
+  test.skipIf(process.platform === "win32")("runs package-local vendor binary without downloading", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
@@ -91,14 +91,14 @@ describe("bin/mimo launcher", () => {
     const result = await waitMimo(
       runMimo(dir, ["hello"], {
         YMCODE_BIN_PATH: "",
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toContain("vendor-run:hello")
   })
 
-  test("downloads from FDS on first run when vendor is missing", async () => {
+  test.skipIf(process.platform === "win32")("downloads from FDS on first run when vendor is missing", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
@@ -128,7 +128,7 @@ describe("bin/mimo launcher", () => {
       const result = await waitMimo(
         runMimo(dir, ["hi"], {
           YMCODE_BIN_PATH: "",
-          MIMO_FDS_BASE: `http://127.0.0.1:${server.port}`,
+          YMCODE_FDS_BASE: `http://127.0.0.1:${server.port}`,
         }),
       )
       expect(fs.existsSync(path.join(dir, "vendor", binaryName))).toBe(true)
@@ -150,16 +150,12 @@ describe("bin/mimo launcher", () => {
     const result = await waitMimo(
       runMimo(dir, [], {
         YMCODE_BIN_PATH: "",
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(1)
     const combined = result.stdout + result.stderr
     expect(combined).toMatch(/Failed to install ymcode binary/i)
-    if (process.platform === "win32") {
-      expect(combined).toContain("irm https://mimo.xiaomi.com/install.ps1 | iex")
-    } else {
-      expect(combined).toContain("curl -fsSL https://mimo.xiaomi.com/install | bash")
-    }
+    expect(combined).toContain("bun run --cwd packages/cli build:local")
   })
 })

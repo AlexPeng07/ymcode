@@ -14,7 +14,7 @@ commits: f98dcd1c..b8704179
 
 **What was built** — Pushing a `vX.Y.Z` tag on a main commit runs `.github/workflows/release.yml`: verify (tag on main, four package versions equal the tag), the existing typecheck/lint/test workflows via `workflow_call`, a macOS build of 12 archives and 15 npm tarballs, then a publish job in environment `release` that ships npm SDK/plugin → GitHub Release (generated notes, archives only) → FDS archives then `releases/latest` → npm platform packages and `@ymcode/cli`, followed by a non-blocking mirror sync. npm publishes through trusted publishing (OIDC) with no stored token. Every publish stage skips work that already landed, so "Re-run failed jobs" resumes a release.
 
-`script/release.ts` replaces the old release, version and publish scripts (root and per-package). `packages/cli/script/build.ts` only builds, with `--archive` for release archives; `MIMOCODE_RELEASE` is gone. The shared setup-bun action now pins Bun from `packageManager` and installs with `bun ci`. CONTRIBUTING documents the procedure and the npm trusted-publisher setup.
+`script/release.ts` replaces the old release, version and publish scripts (root and per-package). `packages/cli/script/build.ts` only builds, with `--archive` for release archives; `YMCODE_RELEASE` is gone. The shared setup-bun action now pins Bun from `packageManager` and installs with `bun ci`. CONTRIBUTING documents the procedure and the npm trusted-publisher setup.
 
 **Verification**
 
@@ -22,7 +22,7 @@ commits: f98dcd1c..b8704179
 - actionlint 1.7.12 over all workflows — PASS (also after the review fix).
 - `bun test script/release.test.ts` — PASS, 7 tests / 23 expects (version format, verify against real git fixtures, real SDK/plugin packing).
 - oxlint on the new files — 0 errors; 3 `await-thenable` warnings on `await expect(...).rejects`, the pattern used elsewhere in the repo.
-- Full `MIMOCODE_VERSION=v0.1.15 bun script/release.ts build` in a throwaway clone with HEAD tagged — PASS: 12 archives and 15 tarballs, checkout clean afterwards; sdk/plugin/cli/platform `package.json` fields match the published 0.1.15 on npm; darwin-arm64 binary is ad-hoc signed like v0.1.15 and prints `0.1.15`.
+- Full `YMCODE_VERSION=v0.1.15 bun script/release.ts build` in a throwaway clone with HEAD tagged — PASS: 12 archives and 15 tarballs, checkout clean afterwards; sdk/plugin/cli/platform `package.json` fields match the published 0.1.15 on npm; darwin-arm64 binary is ad-hoc signed like v0.1.15 and prints `0.1.15`.
 - Independent review — spec compliance met for T1–T5, no critical findings. Adopted: `release` environment gate, CONTRIBUTING notes on manual start from the tag and one release at a time. Accepted as-is: `npm view` network errors fall through to a failing publish (retry resolves), an already-published GitHub Release is skipped without asset checks, the mirror-sync log prints the `v` prefix.
 
 Not run: a real tag-triggered release, OIDC publication, FDS upload. These need the trusted publishers configured on npmjs.com first.
@@ -73,7 +73,7 @@ flowchart LR
 
 ### npm publication
 
-- Trusted Publishing (OIDC) only: no `NPM_TOKEN` secret. Each of the 15 packages must have a trusted publisher configured on npmjs.com for repository `XiaomiMiMo/MiMo-Code`, workflow `release.yml`, environment `release`; `bun script/release.ts trust` registers it for every published package with `npm trust github` (npm ≥ 11.19, run once by an owner in a 2FA login session — tokens cannot change package settings). npm CLI ≥ 11.5.1 is required; the job installs `npm@11` and the script asserts the version.
+- Trusted Publishing (OIDC) only: no `NPM_TOKEN` secret. Each of the 15 packages must have a trusted publisher configured on npmjs.com for repository `XiaomiMiMo/ymcode`, workflow `release.yml`, environment `release`; `bun script/release.ts trust` registers it for every published package with `npm trust github` (npm ≥ 11.19, run once by an owner in a 2FA login session — tokens cannot change package settings). npm CLI ≥ 11.5.1 is required; the job installs `npm@11` and the script asserts the version.
 - Every tarball publishes with `--access public --tag latest`. A package whose exact version already exists on the registry is skipped, which makes reruns safe.
 - Pack rules: `bun pm pack` resolves `workspace:*` / `catalog:`; the script temporarily rewrites SDK/plugin `exports` from `./src/*.ts` to `./dist/*.{js,d.ts}`, copies `README_npm.md` and `LICENSE`, and restores the original files afterwards. After packing, the tarball's `package.json` must have the expected name/version, no `workspace:`/`catalog:` specifiers, and every export target present in the tarball.
 
@@ -88,8 +88,8 @@ flowchart LR
 
 ### Script surface
 
-- `script/release.ts <verify|build|github|fds|npm libs|npm cli>` replaces `script/release.ts`, `script/version.ts`, `script/publish.ts` and `packages/{cli,sdk,plugin}/script/publish.ts`. Version comes from `MIMOCODE_VERSION`. `script/fds-upload.ts` and `script/sync-registry.ts` stay.
-- `packages/cli/script/build.ts` no longer uploads anything; `--archive` produces the archives. `MIMOCODE_RELEASE` and `Script.release` are removed.
+- `script/release.ts <verify|build|github|fds|npm libs|npm cli>` replaces `script/release.ts`, `script/version.ts`, `script/publish.ts` and `packages/{cli,sdk,plugin}/script/publish.ts`. Version comes from `YMCODE_VERSION`. `script/fds-upload.ts` and `script/sync-registry.ts` stay.
+- `packages/cli/script/build.ts` no longer uploads anything; `--archive` produces the archives. `YMCODE_RELEASE` and `Script.release` are removed.
 - `.github/actions/setup-bun` pins Bun via `bun-version-file: package.json` (build.ts refuses any other Bun) and installs with `bun ci`.
 
 ### Failure handling
@@ -106,7 +106,7 @@ A failed stage stops the job; later channels are not touched. Fix the cause (cre
 ## Tasks
 
 - [x] T1: Rewrite `script/release.ts` with verify/build/github/fds/npm stages and delete the replaced scripts — acceptance: `bun script/release.ts verify` rejects a non-tag/mismatched version; old entry points are gone and nothing references them (covers: S2)
-- [x] T2: Strip uploads from `packages/cli/script/build.ts`, add `--archive`, drop `MIMOCODE_RELEASE` — acceptance: host `--single --archive` build produces the archive and touches no remote (covers: S2)
+- [x] T2: Strip uploads from `packages/cli/script/build.ts`, add `--archive`, drop `YMCODE_RELEASE` — acceptance: host `--single --archive` build produces the archive and touches no remote (covers: S2)
 - [x] T3: Pack SDK/plugin from committed sources with a regression test — acceptance: test packs both into a temp dir; tarball exports resolve to files inside the tarball and no `workspace:`/`catalog:` specifiers remain; checkout is clean afterwards (covers: S2; depends: T1)
 - [x] T4: Add `release.yml`, `workflow_call` on check workflows, pinned/frozen setup-bun — acceptance: actionlint passes; job graph and permissions match S2 (covers: S2; depends: T1)
 - [x] T5: Update CONTRIBUTING with the release procedure and trusted-publisher setup — acceptance: doc describes bump PR → tag push → rerun path and lists secrets (covers: S2; depends: T4)

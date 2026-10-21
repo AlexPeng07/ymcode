@@ -51,7 +51,7 @@ identity, or anti-loop rules — those belong in the engine.
    `experimental.uncommitted_hint.enabled`  
    - Effective on only when `enabled === true`.  
    - Missing key / non-true / **malformed live JSON** → off (no git probe required; malformed live must not revive cached on).  
-   - Live `MIMOCODE_CONFIG_CONTENT` with an explicit key (including `false`) wins for `enabled`.  
+   - Live `YMCODE_CONFIG_CONTENT` with an explicit key (including `false`) wins for `enabled`.  
    - Live env present, JSON valid, key absent → cached/file config still applies.  
    - Hosts (Desktop Lab) always write explicit `true`/`false`, never delete the key.  
    - **No** `max_consecutive`. **No** session-once hard cap.
@@ -110,7 +110,7 @@ identity, or anti-loop rules — those belong in the engine.
    Synthetic parts do not enter host chat bubbles (host-side parse concern).
    **Internal automation** calling `prompt()` must pass explicit `source:"hook"`
    or `"spawn"` **and**, when parts include non-text (attachments), machine
-   `provenance` (e.g. `{ machine: "mimocode-github" }`) so the entry gate allows
+   `provenance` (e.g. `{ machine: "ymcode-github" }`) so the entry gate allows
    the request. Hosts omitting source are trusted as user-facing.
 
 ### Module boundary

@@ -10,11 +10,11 @@ commits: 4a5e2140..0cbe0b50
 
 ## Report
 
-**What was built** — The legacy Compose surface is gone. The `compose` primary agent, the built-in `compose` workflow, and the fourteen `compose:*` skills with their extract/bundle pipeline are deleted, along with `ConfigCompose`, `MIMOCODE_DISABLE_COMPOSE_SKILLS`, the Compose prompt injection (`session/prompt/compose.txt`), and every TUI Compose special case. Historical sessions keep working: unknown stored `info.agent` names (including `compose`) fall back to the default agent (`build`) through `Agent.resolveStoredAgent` on message-read paths only — explicit live `Agent.get` still errors. `promoteComposeProtocolFirst` stays so legacy Compose synthetic protocol parts still order correctly on reopen.
+**What was built** — The legacy Compose surface is gone. The `compose` primary agent, the built-in `compose` workflow, and the fourteen `compose:*` skills with their extract/bundle pipeline are deleted, along with `ConfigCompose`, `YMCODE_DISABLE_COMPOSE_SKILLS`, the Compose prompt injection (`session/prompt/compose.txt`), and every TUI Compose special case. Historical sessions keep working: unknown stored `info.agent` names (including `compose`) fall back to the default agent (`build`) through `Agent.resolveStoredAgent` on message-read paths only — explicit live `Agent.get` still errors. `promoteComposeProtocolFirst` stays so legacy Compose synthetic protocol parts still order correctly on reopen.
 
-Homepage tips now rotate `tui.tips.compose_next` as a normal weighted tip. Copy names **`compose-next`** in every language and describes the capability positively (「澄清需求、规格、实现与评审」 / "clarify, spec, implement, review", aligned with mimo-desktop `composeDesc`) — never "instead of Compose". `tui.skill.compose-next.slash` / `.description` follow the same naming. Docs surface (README×3, mimocode-docs skill, drive-mimo, SDK config types) describes compose-next as the orchestration entry with no legacy path.
+Homepage tips now rotate `tui.tips.compose_next` as a normal weighted tip. Copy names **`compose-next`** in every language and describes the capability positively (「澄清需求、规格、实现与评审」 / "clarify, spec, implement, review", aligned with mimo-desktop `composeDesc`) — never "instead of Compose". `tui.skill.compose-next.slash` / `.description` follow the same naming. Docs surface (README×3, ymcode-docs skill, drive-mimo, SDK config types) describes compose-next as the orchestration entry with no legacy path.
 
-**Verification** — `bun run typecheck` PASS (all workspaces). From `packages/cli`: `bun test test/agent test/permission test/workflow/builtin.test.ts test/cli/cmd/tui/tips-view.test.ts test/skill/search.test.ts test/skill/bundle-discovery.test.ts test/skill/skill-description.test.ts test/session/prompt.test.ts` → 334 pass / 0 fail. `test/skill/skill.test.ts` and `test/workflow/runtime.test.ts` fail identically on `main` in this local environment (`~/.codex/skills/compose-next` leaks via `MIMOCODE_ENABLE_CODEX_SKILLS`; `SyncEvent` projectors) — PRE-EXISTING, remote main is green. Independent review: spec compliance + consistency pass; one critical test-integrity bug (misnamed `plan_exit` assertion) and two minors (`resolveStoredAgent` cast, unused `agentName` on `pickDisplayKey`) fixed and re-verified.
+**Verification** — `bun run typecheck` PASS (all workspaces). From `packages/cli`: `bun test test/agent test/permission test/workflow/builtin.test.ts test/cli/cmd/tui/tips-view.test.ts test/skill/search.test.ts test/skill/bundle-discovery.test.ts test/skill/skill-description.test.ts test/session/prompt.test.ts` → 334 pass / 0 fail. `test/skill/skill.test.ts` and `test/workflow/runtime.test.ts` fail identically on `main` in this local environment (`~/.codex/skills/compose-next` leaks via `YMCODE_ENABLE_CODEX_SKILLS`; `SyncEvent` projectors) — PRE-EXISTING, remote main is green. Independent review: spec compliance + consistency pass; one critical test-integrity bug (misnamed `plan_exit` assertion) and two minors (`resolveStoredAgent` cast, unused `agentName` on `pickDisplayKey`) fixed and re-verified.
 
 **Journey log** —
 1. Tips copy direction came from mimo-desktop `composeDesc` / skill brief after the user rejected "instead of Compose" framing and showed the 编排模式 menu card; name stays `compose-next` in all languages, never translated to 「编排模式」.
@@ -45,7 +45,7 @@ Homepage tips now rotate `tui.tips.compose_next` as a normal weighted tip. Copy 
 - Delete `packages/cli/src/skill/compose/` entirely (`.bundle/` fourteen skills, `bundle.macro.ts`, `extract.ts`, licenses that only serve that bundle).
 - Remove `extractComposeBundle` usage and the `scope: "compose"` scan from `packages/cli/src/skill/index.ts`.
 - Remove `isComposeSkill` filtering from `packages/cli/src/skill/search.ts` and the `compose:` localized-alias exclusion.
-- Remove `MIMOCODE_DISABLE_COMPOSE_SKILLS` from `packages/cli/src/flag/flag.ts` and test env fixtures.
+- Remove `YMCODE_DISABLE_COMPOSE_SKILLS` from `packages/cli/src/flag/flag.ts` and test env fixtures.
 - Remove all `tui.skill.compose:*` i18n keys (description + slash) from every locale.
 
 ### S2.4 Delete Compose config
@@ -82,7 +82,7 @@ Rewrite every user-facing mention of the Compose agent / Compose workflow / `com
 | --- | --- |
 | `README.md` / `README.zh.md` | Agents table drops `compose`; Compose Mode section becomes a direct `/compose-next` usage intro (end-to-end delivery, no Fable/Sol tier framing, no "must use build", end with "do not combine with plan mode"); workflow table drops the `compose` row; mode-lock wording becomes "Build and Plan switch anytime; other modes lock after the first message" |
 | `README_npm.md` | Feature bullets: agents list and Compose Mode / Workflows rows |
-| `mimocode-docs` skill (`SKILL.md`, `reference/guide.md`, `reference/workflows.md`, `reference/commands.md`, `reference/config.md`) | Same retirement: no compose agent path, no compose workflow, no `compose` config row, no `MIMOCODE_DISABLE_COMPOSE_SKILLS`; compose-next described as end-to-end delivery entry without model-tier definitions |
+| `ymcode-docs` skill (`SKILL.md`, `reference/guide.md`, `reference/workflows.md`, `reference/commands.md`, `reference/config.md`) | Same retirement: no compose agent path, no compose workflow, no `compose` config row, no `YMCODE_DISABLE_COMPOSE_SKILLS`; compose-next described as end-to-end delivery entry without model-tier definitions |
 | `docs/compose/spec/*` historical feature docs | Do not rewrite history |
 | `.agents/skills/drive-mimo/SKILL.md` | Drop `--agent compose` row if present |
 
@@ -91,16 +91,16 @@ Rewrite every user-facing mention of the Compose agent / Compose workflow / `com
 - Renaming `docs/compose/spec/` or changing compose-next's phase contract.
 - Desktop (mimo-desktop) UI changes.
 - Removing `promoteComposeProtocolFirst` or migrating historical message rows.
-- Workflow runtime, other built-in workflows, or user `.mimocode/workflows/`.
+- Workflow runtime, other built-in workflows, or user `.ymcode/workflows/`.
 - Plan agent / plan mode.
 
 ## Tasks
 
 - [x] T1: Remove Compose agent + TUI mode special cases + `compose.txt` prompt injection — acceptance: `Agent.list()` has no `compose`; build/plan no longer carry `compose:*` rules; TUI has no compose branch; `bun test packages/cli/test/agent` passes (covers: S2.1; S2.6)
 - [x] T2: Remove Compose workflow builtin + `workflow.ts` docs-dir special case — acceptance: `BuiltinWorkflow` has no `compose` entry; `bun test packages/cli/test/workflow` passes (covers: S2.2)
-- [x] T3: Delete `skill/compose/` bundle + extraction/search/alias/flag hooks — acceptance: no `compose:*` skills load; `MIMOCODE_DISABLE_COMPOSE_SKILLS` gone; `bun test packages/cli/test/skill` passes (covers: S2.3)
+- [x] T3: Delete `skill/compose/` bundle + extraction/search/alias/flag hooks — acceptance: no `compose:*` skills load; `YMCODE_DISABLE_COMPOSE_SKILLS` gone; `bun test packages/cli/test/skill` passes (covers: S2.3)
 - [x] T4: Delete `ConfigCompose` and `config.compose` field — acceptance: config schema has no `compose` key; typecheck clean (covers: S2.4)
 - [x] T5: Tips carousel + i18n copy — acceptance: `compose_next` is in `buildTipKeys`; `pickDisplayKey` has no compose lock; copy names `compose-next` and reads as capability in all 7 locales; `bun test packages/cli/test/cli/cmd/tui/tips-view.test.ts` passes (covers: S2.5)
 - [x] T6: Historical unknown-agent fallback on message-read paths — acceptance: a session whose `info.agent` is `compose` (or any unknown name) resumes on the default agent without `Agent not found`; explicit missing agent on a live request still errors; focused test covers both (covers: S2.6; depends: T1)
-- [x] T7: Docs surface (README×3 + mimocode-docs) — acceptance: `rg -i 'compose agent|compose workflow|compose:\*|Compose mode'` on those files is clean of retired meanings; compose-next described positively as orchestration (covers: S2.7; depends: T1–T5)
+- [x] T7: Docs surface (README×3 + ymcode-docs) — acceptance: `rg -i 'compose agent|compose workflow|compose:\*|Compose mode'` on those files is clean of retired meanings; compose-next described positively as orchestration (covers: S2.7; depends: T1–T5)
 - [x] T8: Full verification + review — acceptance: `bun test packages/cli`, `bun typecheck`, targeted suite green; independent reviewer signs off (covers: S2; depends: T1–T7)

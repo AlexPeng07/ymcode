@@ -257,7 +257,7 @@ export async function ensureBinary(options = {}) {
   const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "ymcode-fetch-"))
   const archivePath = path.join(tmpDir, archiveName)
   try {
-    log(`Downloading mimo ${version} (${target}) from FDS…`)
+    log(`Downloading ymcode ${version} (${target})…`)
     await downloadTo(url, archivePath)
     await verifySha256(archivePath, url)
     await extractBinary(archivePath, target, partial)

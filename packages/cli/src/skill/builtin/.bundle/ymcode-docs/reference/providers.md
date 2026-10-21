@@ -138,7 +138,7 @@ Read the existing JSON object first. Preserve every top-level field, especially 
 
 The snippet illustrates the shape; it is not permission to reset existing fields. If the file does not exist, create it with the new `recent` entry plus empty `favorite` and `variant` values. If it contains malformed JSON, do not overwrite it silently: preserve or back it up before repairing it. Never put the API key, base URL, display name, or combined `provider/model` string in a recent entry.
 
-Write the recent state only after `mimo models PROVIDER_ID` confirms that the exact model is registered. An already-running TUI may have loaded the old state and can overwrite an external edit, so tell the user to close or restart that TUI before relying on the updated shortcut.
+Write the recent state only after `ymcode models PROVIDER_ID` confirms that the exact model is registered. An already-running TUI may have loaded the old state and can overwrite an external edit, so tell the user to close or restart that TUI before relying on the updated shortcut.
 
 ## Minimal edit and verification
 
@@ -147,7 +147,7 @@ Preserve JSONC comments, `$schema`, unrelated providers, models, and settings. A
 Do not make a paid or state-changing API request merely to verify configuration. Validate locally from the same working directory in which the user will run ymcode:
 
 ```sh
-mimo models PROVIDER_ID
+ymcode models PROVIDER_ID
 ```
 
 Confirm that the output contains exactly `PROVIDER_ID/MODEL_ID`. This proves the config parsed and the provider/model registered; it does not prove the remote credential, endpoint, or selected wire protocol works. If the current TUI session already pinned a model, reselect it or start a new session after the edit.

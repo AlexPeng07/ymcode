@@ -4,7 +4,7 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_dir="$repo_dir/packages/cli"
-install_dir="${MIMOCODE_INSTALL_DIR:-$HOME/.mimocode/bin}"
+install_dir="${YMCODE_INSTALL_DIR:-$HOME/.ymcode/bin}"
 
 if ! command -v bun >/dev/null 2>&1; then
   echo "bun is required but was not found in PATH" >&2
@@ -44,10 +44,10 @@ esac
   # PATH that has every ancestor node_modules/.bin prepended, so a stray bun
   # installed above this checkout would hijack the build and embed its own
   # (possibly broken) runtime into the compiled binary.
-  MIMOCODE_CHANNEL=local MIMOCODE_VERSION=local bun run script/build.ts --single
+  YMCODE_CHANNEL=local YMCODE_VERSION=local bun run script/build.ts --single
 )
 
-binary="$package_dir/dist/mimocode-$platform-$arch/bin/mimo"
+binary="$package_dir/dist/ymcode-$platform-$arch/bin/mimo"
 if [[ ! -f "$binary" ]]; then
   echo "Built binary not found: $binary" >&2
   exit 1

@@ -11,7 +11,7 @@ export const AttachCommand = cmd({
     yargs
       .positional("url", {
         type: "string",
-        describe: "server base URL printed by `mimo serve`",
+        describe: "server base URL printed by `ymcode serve`",
         demandOption: true,
       })
       .option("dir", {

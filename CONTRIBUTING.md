@@ -1,6 +1,6 @@
-# Contributing to MiMoCode
+# Contributing to ymcode
 
-MiMoCode's codebase moves quickly. Outside contributions are welcome, especially focused improvements to the terminal experience and developer compatibility.
+ymcode's codebase moves quickly. Outside contributions are welcome, especially focused improvements to the terminal experience and developer compatibility.
 
 ## What we accept
 
@@ -30,9 +30,9 @@ Small bug fixes and documentation corrections can go directly to a pull request.
 
 Good places to start:
 
-- [`bug`](https://github.com/XiaomiMiMo/MiMo-Code/issues?q=is%3Aissue+state%3Aopen+label%3Abug)
-- [`help wanted`](https://github.com/XiaomiMiMo/MiMo-Code/issues?q=is%3Aissue+state%3Aopen+label%3A%22help+wanted%22)
-- [`good first issue`](https://github.com/XiaomiMiMo/MiMo-Code/issues?q=is%3Aissue+state%3Aopen+label%3A%22good+first+issue%22)
+- [`bug`](https://github.com/XiaomiMiMo/ymcode/issues?q=is%3Aissue+state%3Aopen+label%3Abug)
+- [`help wanted`](https://github.com/XiaomiMiMo/ymcode/issues?q=is%3Aissue+state%3Aopen+label%3A%22help+wanted%22)
+- [`good first issue`](https://github.com/XiaomiMiMo/ymcode/issues?q=is%3Aissue+state%3Aopen+label%3A%22good+first+issue%22)
 
 Want to work on an existing issue? Leave a comment first so we can tell you if it is already being worked on.
 
@@ -72,7 +72,7 @@ bun dev <directory>
 bun dev .            # run against this repo itself
 ```
 
-`bun dev` is the local equivalent of the shipped `mimo` command and takes the same arguments:
+`bun dev` is the local equivalent of the shipped `ymcode` command and takes the same arguments:
 
 ```bash
 bun dev --help
@@ -84,7 +84,7 @@ bun dev serve --port 8080 # pin the port (the default, 0, takes a free one)
 
 ```bash
 bun run build:local
-./packages/cli/dist/mimocode-<platform>/bin/mimo
+./packages/cli/dist/ymcode-<platform>/bin/ymcode
 ```
 
 Replace `<platform>` with your platform, e.g. `darwin-arm64` or `linux-x64`.
@@ -122,9 +122,9 @@ Repository setup: secrets `MIMO_FDS_AK` / `MIMO_FDS_SK` (optional variables `MIM
 
 ### Setting up a debugger
 
-Bun debugging is rough around the edges. The reliable approach is to run MiMoCode with the inspector flag and **attach** a CDP client to that URL:
+Bun debugging is rough around the edges. The reliable approach is to run ymcode with the inspector flag and **attach** a CDP client to that URL:
 
-- Server: `bun run --inspect=ws://localhost:6499/ --cwd packages/cli ./src/index.ts serve --port 4096`, then attach the TUI with `mimo attach http://localhost:4096`
+- Server: `bun run --inspect=ws://localhost:6499/ --cwd packages/cli ./src/index.ts serve --port 4096`, then attach the TUI with `ymcode attach http://localhost:4096`
 - TUI: `bun run --inspect=ws://localhost:6499/ --cwd packages/cli --conditions=browser ./src/index.ts`
 - Instead of repeating the flag, `export BUN_OPTIONS=--inspect=ws://localhost:6499/`. `--inspect-wait` / `--inspect-brk` also work.
 

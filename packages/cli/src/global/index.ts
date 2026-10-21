@@ -4,11 +4,11 @@ import os from "os"
 import { Filesystem } from "../util"
 import { Flock } from "@ymcode/shared/util/flock"
 import { resolveYmcodeHome } from "@ymcode/shared/global"
-import { migrateFromMimocode } from "../installation/migrate"
+import { migrateFromymcode } from "../installation/migrate"
 
 const { data, cache, config, state } = resolveYmcodeHome()
 
-await migrateFromMimocode().catch((error) => {
+await migrateFromymcode().catch((error) => {
   console.warn("ymcode migration failed", error)
 })
 

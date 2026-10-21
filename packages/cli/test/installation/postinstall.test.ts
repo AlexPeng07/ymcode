@@ -13,7 +13,7 @@ function stagePackage(dir: string) {
   fs.copyFileSync(LAUNCHER_PATH, path.join(dir, "launcher.js"))
   fs.writeFileSync(
     path.join(dir, "package.json"),
-    JSON.stringify({ name: "@ymcode/cli", version: "9.9.9", type: "module", bin: { mimo: "./mimo.js" } }),
+    JSON.stringify({ name: "@ymcode/cli", version: "9.9.9", type: "module", bin: { ymcode: "./ymcode.js" } }),
   )
 }
 
@@ -45,15 +45,15 @@ describe("postinstall", () => {
     // Point at a closed port so prefetch fails quickly and stays best-effort.
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "",
       }),
     )
 
     expect(result.exitCode).toBe(0)
     const stdout = result.stdout.toString()
-    expect(stdout).toContain("Recommended: install ymcode natively for a better")
-    expect(stdout).toContain(os.platform() === "win32" ? "    irm" : "    curl")
+    expect(stdout).toContain("Build ymcode locally:")
+    expect(stdout).toContain("bun run --cwd packages/cli build:local")
   })
 
   test("best-effort prefetch leaves vendor empty and exits 0 when FDS is down", async () => {
@@ -63,7 +63,7 @@ describe("postinstall", () => {
 
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "",
       }),
     )
@@ -71,10 +71,10 @@ describe("postinstall", () => {
     expect(result.exitCode).toBe(0)
     expect(fs.existsSync(path.join(dir, "vendor"))).toBe(false)
     const combined = result.stdout + result.stderr
-    expect(combined).toMatch(/skipped binary prefetch|first `mimo` run/i)
+    expect(combined).toMatch(/skipped binary prefetch|Build the binary locally/i)
   })
 
-  test("prefetches into package-local vendor when FDS serves the archive", async () => {
+  test.skipIf(process.platform === "win32")("prefetches into package-local vendor when FDS serves the archive", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stagePackage(dir)
@@ -83,7 +83,7 @@ describe("postinstall", () => {
     const archiveName = target.includes("linux") ? `${target}.tar.gz` : `${target}.zip`
     const work = path.join(dir, "build")
     fs.mkdirSync(work, { recursive: true })
-    const binaryName = target.includes("windows") ? "mimo.exe" : "mimo"
+    const binaryName = target.includes("windows") ? "ymcode.exe" : "ymcode"
     fs.writeFileSync(path.join(work, binaryName), "FAKE_BINARY")
     const archivePath = path.join(dir, archiveName)
     if (target.includes("linux")) {
@@ -105,7 +105,7 @@ describe("postinstall", () => {
     try {
       const result = await waitPostinstall(
         runPostinstall(dir, {
-          MIMO_FDS_BASE: `http://127.0.0.1:${server.port}`,
+          YMCODE_FDS_BASE: `http://127.0.0.1:${server.port}`,
           YMCODE_BIN_PATH: "",
         }),
       )
@@ -125,14 +125,14 @@ describe("postinstall", () => {
 
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        MIMO_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_FDS_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "/nonexistent/escape-hatch",
       }),
     )
 
     expect(result.exitCode).toBe(0)
     expect(fs.existsSync(path.join(dir, "vendor"))).toBe(false)
-    expect(result.stdout).toContain("Recommended: install ymcode natively")
+    expect(result.stdout).toContain("Build ymcode locally")
   })
 })
 

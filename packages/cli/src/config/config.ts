@@ -105,7 +105,7 @@ const InfoSchema = Schema.Struct({
   }),
   logLevel: Schema.optional(LogLevelRef).annotate({ description: "Log level" }),
   server: Schema.optional(ConfigServer.Server).annotate({
-    description: "Server configuration for mimo serve and web commands",
+    description: "Server configuration for ymcode serve and web commands",
   }),
   llmServer: Schema.optional(ConfigLLMServer.LLMServer).annotate({
     description: "Token lifetime defaults for the temporary local LLM server (mimo llm-server)",
@@ -943,7 +943,7 @@ export const layer = Layer.effect(
 
         if (Flag.YMCODE_DANGEROUSLY_SKIP_PERMISSIONS) {
           // Allow-all base, merged UNDER user config so an explicit deny still
-          // wins. Matches `mimo run --dangerously-skip-permissions`: auto-approve
+          // wins. Matches `ymcode run --dangerously-skip-permissions`: auto-approve
           // everything not explicitly denied.
           result.permission = mergeDeep({ "*": "allow" } as ConfigPermission.Info, result.permission ?? {})
         }

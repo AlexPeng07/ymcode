@@ -9,18 +9,18 @@ const PACKAGES = [
   // Legacy platform packages (no longer published; keep syncing existing versions
   // so mirrors stay complete for old installs). New releases only update the list
   // above.
-  "@ymcode/mimocode-darwin-arm64",
-  "@ymcode/mimocode-darwin-x64",
-  "@ymcode/mimocode-darwin-x64-baseline",
-  "@ymcode/mimocode-linux-arm64",
-  "@ymcode/mimocode-linux-arm64-musl",
-  "@ymcode/mimocode-linux-x64",
-  "@ymcode/mimocode-linux-x64-baseline",
-  "@ymcode/mimocode-linux-x64-musl",
-  "@ymcode/mimocode-linux-x64-baseline-musl",
-  "@ymcode/mimocode-windows-arm64",
-  "@ymcode/mimocode-windows-x64",
-  "@ymcode/mimocode-windows-x64-baseline",
+  "@ymcode/ymcode-darwin-arm64",
+  "@ymcode/ymcode-darwin-x64",
+  "@ymcode/ymcode-darwin-x64-baseline",
+  "@ymcode/ymcode-linux-arm64",
+  "@ymcode/ymcode-linux-arm64-musl",
+  "@ymcode/ymcode-linux-x64",
+  "@ymcode/ymcode-linux-x64-baseline",
+  "@ymcode/ymcode-linux-x64-musl",
+  "@ymcode/ymcode-linux-x64-baseline-musl",
+  "@ymcode/ymcode-windows-arm64",
+  "@ymcode/ymcode-windows-x64",
+  "@ymcode/ymcode-windows-x64-baseline",
 ]
 
 const REGISTRIES = {
@@ -54,7 +54,7 @@ async function syncNpmmirror(packageName: string) {
   const res = await fetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ skipDependencies: true, tips: "MiMoCode release sync" }),
+    body: JSON.stringify({ skipDependencies: true, tips: "ymcode release sync" }),
   })
   if (!res.ok) {
     const text = await res.text()
@@ -157,7 +157,7 @@ if (target && target !== "all" && !(target in REGISTRIES)) {
   process.exit(1)
 }
 
-console.log("═══ MiMoCode Registry Sync ═══")
+console.log("═══ ymcode Registry Sync ═══")
 console.log(`Version: ${Script.version} (${Script.channel})`)
 console.log(`Packages: ${PACKAGES.length}`)
 

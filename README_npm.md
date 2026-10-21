@@ -1,16 +1,16 @@
-<h1 align="center">MiMoCode</h1>
+<h1 align="center">ymcode</h1>
 
-<p align="center"><strong>MiMo Code: Where Models and Agents Co-Evolve</strong></p>
+<p align="center"><strong>ymcode: Where Models and Agents Co-Evolve</strong></p>
 
 <p align="center">
-  <a href="https://mimo.xiaomi.com/coder">Website</a> | <a href="https://mimo.xiaomi.com/en/blog/mimo-code-long-horizon">Blog</a> | <a href="https://github.com/XiaomiMiMo/MiMo-Code">GitHub</a>
+  <a href="https://mimo.xiaomi.com/coder">Website</a> | <a href="https://mimo.xiaomi.com/en/blog/mimo-code-long-horizon">Blog</a> | <a href="https://github.com/XiaomiMiMo/ymcode">GitHub</a>
 </p>
 
 ---
 
-MiMoCode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.
+ymcode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.
 
-MiMo Auto is built in as a free-for-limited-time channel, so you can start with zero configuration. MiMoCode also supports connecting to any mainstream LLM provider API.
+MiMo Auto is built in as a free-for-limited-time channel, so you can start with zero configuration. ymcode also supports connecting to any mainstream LLM provider API.
 
 ---
 
@@ -53,14 +53,14 @@ The first launch guides you through configuration automatically. Supported optio
 - **Voice Input** — real-time streaming voice input powered by TenVAD and MiMo ASR
 - **Dream & Distill** — extract knowledge into memory (`/dream`) and discover reusable workflows (`/distill`)
 
-For detailed documentation, configuration options, and troubleshooting, see the [GitHub repository](https://github.com/XiaomiMiMo/MiMo-Code).
+For detailed documentation, configuration options, and troubleshooting, see the [GitHub repository](https://github.com/XiaomiMiMo/ymcode).
 
 ---
 
 ## License
 
-Source code is licensed under the [MIT License](https://github.com/XiaomiMiMo/MiMo-Code/blob/main/LICENSE).
+Source code is licensed under the [MIT License](https://github.com/XiaomiMiMo/ymcode/blob/main/LICENSE).
 
-Use of MiMoCode is also subject to the [Use Restrictions](https://github.com/XiaomiMiMo/MiMo-Code/blob/main/USE_RESTRICTIONS.md).
+Use of ymcode is also subject to the [Use Restrictions](https://github.com/XiaomiMiMo/ymcode/blob/main/USE_RESTRICTIONS.md).
 Use of Xiaomi MiMo-hosted services is subject to the [MiMo Terms of Service](https://platform.xiaomimimo.com/docs/terms/user-agreement).
 Use of the MiMo name, logo, and trademarks is subject to the MiMo Trademark Policy.

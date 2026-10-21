@@ -38,7 +38,7 @@ jobs:
             echo "::error::Run this workflow from a vX.Y.Z tag, not $REF_TYPE $REF_NAME"
             exit 1
           fi
-          MIMOCODE_VERSION="$REF_NAME" bun script/release.ts verify
+          YMCODE_VERSION="$REF_NAME" bun script/release.ts verify
 
   typecheck:
     needs: verify
@@ -69,7 +69,7 @@ jobs:
       - name: Build archives and npm tarballs
         env:
           COPYFILE_DISABLE: "1"
-          MIMOCODE_VERSION: ${{ github.ref_name }}
+          YMCODE_VERSION: ${{ github.ref_name }}
         run: bun script/release.ts build
 
       - uses: actions/upload-artifact@v7
@@ -92,7 +92,7 @@ jobs:
     env:
       GH_REPO: ${{ github.repository }}
       GH_TOKEN: ${{ github.token }}
-      MIMOCODE_VERSION: ${{ github.ref_name }}
+      YMCODE_VERSION: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v6
         with:

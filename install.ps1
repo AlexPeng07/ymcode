@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    MiMoCode installer for Windows.
+    ymcode installer for Windows.
 .DESCRIPTION
-    Downloads and installs MiMoCode to $env:USERPROFILE\.mimocode\bin,
+    Downloads and installs ymcode to $env:USERPROFILE\.ymcode\bin,
     then adds the directory to the user PATH.
 .PARAMETER Version
     Install a specific version (e.g., 0.1.0). Defaults to latest.
@@ -57,7 +57,7 @@ if (($PSVersionTable.PSVersion.Major) -lt 5) {
 
 $Arch = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "arm64" }
     elseif ([Environment]::Is64BitOperatingSystem) { "x64" }
-    else { Write-Err "MiMoCode requires a 64-bit operating system." }
+    else { Write-Err "ymcode requires a 64-bit operating system." }
 
 # AVX2 baseline detection (only relevant for x64)
 $NeedsBaseline = $false
@@ -86,7 +86,7 @@ if ($NeedsBaseline) { $Target = "$Target-baseline" }
 # --- Resolve version ---
 
 $FdsBase = if ($env:MIMO_FDS_BASE) { $env:MIMO_FDS_BASE.TrimEnd('/') } else {
-    "https://mimocode.cnbj1.mi-fds.com/mimocode/mimocode"
+    "https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode"
 }
 
 if (-not $Version) {
@@ -99,14 +99,14 @@ if (-not $Version) {
     $Version = $Version.TrimStart('v')
 }
 
-# Warn about old versions that don't support mimo upgrade via install.ps1
+# Warn about old versions that don't support ymcode upgrade via install.ps1
 $MajMin = $Version -replace '^(\d+\.\d+\.\d+).*', '$1'
 if ($MajMin -match '^\d+\.\d+\.\d+$') {
     $parts = $MajMin.Split('.')
     $semver = [int]$parts[0] * 10000 + [int]$parts[1] * 100 + [int]$parts[2]
     if ($semver -le 104) {
         Write-Host ""
-        Write-Host "WARNING: Installing v$Version via install.ps1 will cause 'mimo upgrade' to not function properly." -ForegroundColor Yellow
+        Write-Host "WARNING: Installing v$Version via install.ps1 will cause 'ymcode upgrade' to not function properly." -ForegroundColor Yellow
         Write-Host "This is a known limitation for versions before 0.1.5." -ForegroundColor Yellow
         Write-Host ""
     }
@@ -115,11 +115,11 @@ if ($MajMin -match '^\d+\.\d+\.\d+$') {
 # --- Check existing installation ---
 
 $Staging = $false
-if ($env:MIMOCODE_INSTALL_DIR) {
-    $InstallDir = $env:MIMOCODE_INSTALL_DIR
+if ($env:YMCODE_INSTALL_DIR) {
+    $InstallDir = $env:YMCODE_INSTALL_DIR
     $Staging = $true
 } else {
-    $InstallDir = Join-Path $env:USERPROFILE ".mimocode\bin"
+    $InstallDir = Join-Path $env:USERPROFILE ".ymcode\bin"
 }
 
 if (-not $Staging) {
@@ -127,7 +127,7 @@ if (-not $Staging) {
     if ($Existing) {
         $InstalledVersion = & mimo --version 2>$null
         if ($InstalledVersion -eq $Version) {
-            Write-Host "MiMoCode v$Version is already installed." -ForegroundColor DarkGray
+            Write-Host "ymcode v$Version is already installed." -ForegroundColor DarkGray
             Exit-Install 0
         }
         Write-Host "Installed version: $InstalledVersion" -ForegroundColor DarkGray
@@ -136,16 +136,16 @@ if (-not $Staging) {
 
 # --- Download and install ---
 
-$Filename = "mimocode-$Target.zip"
+$Filename = "ymcode-$Target.zip"
 $Url = "$FdsBase/releases/v$Version/$Filename"
 
 Write-Host ""
 Write-Host "Installing " -NoNewline -ForegroundColor DarkGray
-Write-Host "mimocode" -NoNewline
+Write-Host "ymcode" -NoNewline
 Write-Host " version: " -NoNewline -ForegroundColor DarkGray
 Write-Host "$Version"
 
-$TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "mimocode_install_$PID"
+$TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "ymcode_install_$PID"
 New-Item -ItemType Directory -Path $TmpDir -Force | Out-Null
 $ZipPath = Join-Path $TmpDir $Filename
 
@@ -171,12 +171,12 @@ try {
 }
 
 New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-$BinName = if (Test-Path (Join-Path $TmpDir "mimo.exe")) { "mimo.exe" } else { "mimo" }
+$BinName = if (Test-Path (Join-Path $TmpDir "ymcode.exe")) { "ymcode.exe" } else { "mimo" }
 try {
-    Move-Item -Path (Join-Path $TmpDir $BinName) -Destination (Join-Path $InstallDir "mimo.exe") -Force -ErrorAction Stop
+    Move-Item -Path (Join-Path $TmpDir $BinName) -Destination (Join-Path $InstallDir "ymcode.exe") -Force -ErrorAction Stop
 } catch {
     Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
-    Write-Err "Failed to install binary. If MiMoCode is currently running, please close it and retry.`n$($_.Exception.Message)"
+    Write-Err "Failed to install binary. If ymcode is currently running, please close it and retry.`n$($_.Exception.Message)"
 }
 Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
 

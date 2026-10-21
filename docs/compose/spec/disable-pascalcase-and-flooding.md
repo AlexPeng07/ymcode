@@ -52,7 +52,7 @@ safety work:
 - `packages/cli/src/tool/gate.ts` FIFO admission (read/grep/glob overlap;
   every other top-level tool serial within an assistant step).
 - Fail cascade in the same gate: `FailCascadeError`,
-  `FAIL_CASCADE_MESSAGE`, `MIMOCODE_DISABLE_FAIL_CASCADE`, and all
+  `FAIL_CASCADE_MESSAGE`, `YMCODE_DISABLE_FAIL_CASCADE`, and all
   fail-cascade / gate tests and behavior.
 - Provider-native buffering (for example the OpenAI-compatible complete-call
   delay until EOF) is untouched.
@@ -64,7 +64,7 @@ canonical:
 
 - Delete `packages/cli/src/tool/names.ts` (`usesPascalCaseTools`,
   `defaultToolName`, `toolSurface`, `NamedTool`).
-- Drop `modelName` from tool definitions and the `MIMOCODE_PASCAL_CASE_TOOLS`
+- Drop `modelName` from tool definitions and the `YMCODE_PASCAL_CASE_TOOLS`
   flag.
 - Stop projecting tools/messages in `session/llm.ts`; restore/prefix rewrite
   branches that only exist for projected names go away.
@@ -87,7 +87,7 @@ Delete the flooding detector completely:
 - Remove flooding recovery (cancelled batch parts, recovery reminder,
   `releasedCallID` skip) and related `retrySafe` special cases from
   `session/processor.ts`.
-- Delete `MIMOCODE_DISABLE_TOOLCALL_FLOODING_DETECT`.
+- Delete `YMCODE_DISABLE_TOOLCALL_FLOODING_DETECT`.
 - Delete flooding tests; strip flooding flag combinations from fail-cascade,
   invalid-tool-cascade, structured-output, and tool-safety-flag tests.
 
@@ -111,7 +111,7 @@ Delete the flooding detector completely:
 
 - [x] T1: Remove PascalCase projection — acceptance: MiMo v2.6 requests advertise
   lowercase canonical tools and history replays the same names; no
-  `MIMOCODE_PASCAL_CASE_TOOLS` / `modelName` remains; prompt display names still
+  `YMCODE_PASCAL_CASE_TOOLS` / `modelName` remains; prompt display names still
   say Edit/Grep/Glob (covers: S2).
 - [x] T2: Remove toolcall flooding — acceptance: no flooding module, middleware,
   recovery reminder, or flag remains; tools execute without a flooding generation

@@ -1,20 +1,20 @@
-<h1 align="center">MiMoCode</h1>
+<h1 align="center">ymcode</h1>
 
 <p align="center">
-  <img src="assets/readme/mimocode-banner.png" alt="MiMoCode" width="700">
+  <img src="assets/readme/ymcode-banner.png" alt="ymcode" width="700">
 </p>
 
-<p align="center"><strong>MiMo Code: Where Models and Agents Co-Evolve</strong></p>
+<p align="center"><strong>ymcode: Where Models and Agents Co-Evolve</strong></p>
 
 <p align="center">
   中文 | <a href="README.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://mimo.xiaomi.com/zh/mimocode">官网</a> | <a href="https://mimo.xiaomi.com/zh/blog/mimo-code-long-horizon">博客</a>
+  <a href="https://mimo.xiaomi.com/zh/ymcode">官网</a> | <a href="https://mimo.xiaomi.com/zh/blog/mimo-code-long-horizon">博客</a>
 </p>
 
-MiMoCode 是一个终端原生的 AI 编程助手。它能读写代码、执行命令、管理 Git，通过持久化记忆系统，在多次会话间保持对你项目的深度理解，并自我进化。
+ymcode 是一个终端原生的 AI 编程助手。它能读写代码、执行命令、管理 Git，通过持久化记忆系统，在多次会话间保持对你项目的深度理解，并自我进化。
 
 ---
 
@@ -24,7 +24,7 @@ MiMoCode 是一个终端原生的 AI 编程助手。它能读写代码、执行�
 
 <p align="center"><img src="assets/readme/mimo-desktop-cn.jpg" alt="Xiaomi MiMo Desktop 中文界面：会话与研究报告预览" width="900"></p>
 
-Xiaomi MiMo Desktop 面向真实工作场景打造，一个会话即可完成办公、设计、编程和全模态创作；多个会话可自动分工、协作与通信。桌面端以 **MiMo Code 作为核心引擎**，将终端原生的智能能力延伸到桌面工作流。
+Xiaomi MiMo Desktop 面向真实工作场景打造，一个会话即可完成办公、设计、编程和全模态创作；多个会话可自动分工、协作与通信。桌面端以 **ymcode 作为核心引擎**，将终端原生的智能能力延伸到桌面工作流。
 
 - **「Smart」调度**：自动评估任务类型与成本，动态选择模型、框架与工具，复杂任务由多个 Agent 并行推进。
 - **从生成结果到持续迭代**：支持拖入多格式文件，成果覆盖 PPT、网页、3D、App 等；会话内实时预览和操作，选中局部即可精准修改，并支持版本回退。
@@ -70,7 +70,7 @@ sudo apt install xsel
 <details>
 <summary><strong>macOS：默认终端渲染异常</strong></summary>
 
-MiMoCode 不支持 macOS 自带的“终端”（Terminal.app）。如果界面出现错位、闪烁或其他渲染异常，请改用 [iTerm2](https://iterm2.com/) 或 VS Code 集成终端：
+ymcode 不支持 macOS 自带的“终端”（Terminal.app）。如果界面出现错位、闪烁或其他渲染异常，请改用 [iTerm2](https://iterm2.com/) 或 VS Code 集成终端：
 
 ```bash
 brew install --cask iterm2
@@ -80,17 +80,17 @@ brew install --cask iterm2
 <details>
 <summary><strong>TUI 卡顿与视觉动画问题</strong></summary>
 
-如果通过 SSH 直接运行 TUI 时卡顿，可以让 TUI 在本地渲染，远端只运行 MiMoCode 服务。先在远端项目目录中启动服务：
+如果通过 SSH 直接运行 TUI 时卡顿，可以让 TUI 在本地渲染，远端只运行 ymcode 服务。先在远端项目目录中启动服务：
 
 ```bash
 # 远端主机
-mimo serve --port 4096
+ymcode serve --port 4096
 
 # 本地主机：建立 SSH 端口转发
 ssh -N -L 4096:127.0.0.1:4096 user@remote-host
 
-# 本地主机：在另一个终端连接远端 MiMoCode
-mimo attach http://127.0.0.1:4096
+# 本地主机：在另一个终端连接远端 ymcode
+ymcode attach http://127.0.0.1:4096
 ```
 
 如果卡顿来自装饰性动画，可以运行 `/vivid`，或在 `ctrl+p` 命令面板中设置“丰富显示”，根据实际情况在丰富视觉模式和简洁模式间切换。
@@ -101,7 +101,7 @@ mimo attach http://127.0.0.1:4096
 <summary><strong>Windows：shell 输出中文（CJK）乱码</strong></summary>
 
 在系统区域为非 UTF-8 的 Windows 上（如简体中文，活动代码页为 936/GBK），命令输出里的
-中日韩字符可能显示为乱码。MiMoCode 已为 PowerShell/cmd 子进程强制开启 UTF-8 输出。
+中日韩字符可能显示为乱码。ymcode 已为 PowerShell/cmd 子进程强制开启 UTF-8 输出。
 如果在尚未覆盖的场景下仍遇到乱码，可以开启 Windows 的系统级 UTF-8 支持：
 
 **设置 → 时间和语言 → 语言和区域 → 管理语言设置 → 更改系统区域设置 →
@@ -115,7 +115,7 @@ mimo attach http://127.0.0.1:4096
 
 ## MiMo 生态
 
-除了 MiMoCode，小米 MiMo 模型也能在 Cursor、Cline、Zed 等各种 Agent 和编程工具里使用。
+除了 ymcode，小米 MiMo 模型也能在 Cursor、Cline、Zed 等各种 Agent 和编程工具里使用。
 
 **[awesome-mimo-agent](https://github.com/XiaomiMiMo/awesome-mimo-agent)** 收集了这些工具接入 MiMo 模型的配置教程，想换个工具试试 MiMo 的话可以去看看。也欢迎把你自己的接入方式提 PR 分享出来。
 
@@ -176,7 +176,7 @@ mimo attach http://127.0.0.1:4096
   这类转售渠道，实际可用窗口可能不同 —— 目录里写 1M 不代表你这条链路给你 1M。
 - **质量与延迟。** 上下文越长越慢，超过某个点也并不更好。
 
-`mimo models <provider>` 会逐个模型打印 MiMoCode 解析出的窗口以及实际压缩的 token 数。输入框底部
+`ymcode models <provider>` 会逐个模型打印 ymcode 解析出的窗口以及实际压缩的 token 数。输入框底部
 用的就是同一个数字作分母（`33.0K/260K↓ (13%)`，`↓` 表示有预算生效），`/status` 里有完整拆解。
 
 </details>
@@ -201,7 +201,7 @@ mimo attach http://127.0.0.1:4096
 
 Workflow 是在沙箱运行时中执行的确定性 JavaScript 脚本，可编排多个 Agent 协作。与 Agent 对话不同，Workflow 编码了固定的阶段序列、有界重试和自动并行化——全程非交互，丢出去跑完即可。
 
-MiMoCode 内置三个 Workflow：
+ymcode 内置三个 Workflow：
 
 | Workflow | 阶段 | 说明 |
 |----------|------|------|
@@ -209,13 +209,13 @@ MiMoCode 内置三个 Workflow：
 | `fact-check` | Plan → Search → Extract → Group → Crosscheck → Report | 对抗式事实验证。并行搜索网络、提取可验证事实、分组去重、用 3 人陪审投票交叉验证，只保留通过的结论。适合精确求证（"X 是否属实？"）。 |
 | `research-experiment` | Baseline → Loop → Audit → Report | 面向可机械验证指标的自主优化循环。建立基线后反复执行“提出假设 → 实现 → 评估 → 保留/回滚”，审计指标作弊风险，并生成可复现的结果日志。需要固定预算的评估命令和明确的可编辑文件范围。 |
 
-**自定义 Workflow：** 在 `.mimocode/workflows/` 或 `.claude/workflows/` 下放置 `.js` 文件即可定义自己的 Workflow，也可用同名文件覆盖内置 Workflow。
+**自定义 Workflow：** 在 `.ymcode/workflows/` 或 `.claude/workflows/` 下放置 `.js` 文件即可定义自己的 Workflow，也可用同名文件覆盖内置 Workflow。
 
 ### 内置技能（Builtin Skills）
 
-技能（Skill）是可复用的指令集，教会 Agent 如何处理特定任务（如生成 PDF、写学术论文、搜索 arXiv）。面对新任务时，MiMoCode 会按准确名称、本地化别名和 BM25 相关性搜索可用技能；高置信度结果会自动加载，不确定的候选则交由 Agent 判断。在 TUI 中输入 `/` 可以浏览自动补全列表，也可以通过 `/<skill-name>` 直接调用 Skill——一条消息里提到两个及以上技能时会自动加载它们并注入多技能编排计划。
+技能（Skill）是可复用的指令集，教会 Agent 如何处理特定任务（如生成 PDF、写学术论文、搜索 arXiv）。面对新任务时，ymcode 会按准确名称、本地化别名和 BM25 相关性搜索可用技能；高置信度结果会自动加载，不确定的候选则交由 Agent 判断。在 TUI 中输入 `/` 可以浏览自动补全列表，也可以通过 `/<skill-name>` 直接调用 Skill——一条消息里提到两个及以上技能时会自动加载它们并注入多技能编排计划。
 
-MiMoCode 打包了以下内置技能：
+ymcode 打包了以下内置技能：
 
 | 技能 | 说明 |
 |------|------|
@@ -229,7 +229,7 @@ MiMoCode 打包了以下内置技能：
 | `html-to-video-pipeline` | 通过无头浏览器 + ffmpeg 将 HTML 渲染为 MP4 |
 | `learn-everything` | 将文档、URL 或主题转化为包含练习、反馈和进度追踪的自适应课程 |
 | `loop` | 按固定周期调度循环提示 |
-| `mimocode-docs` | MiMoCode 功能、命令、Provider 和配置的自文档参考 |
+| `ymcode-docs` | ymcode 功能、命令、Provider 和配置的自文档参考 |
 | `modern-python-toolchain` | 使用 uv、Ruff 和 Pyright 配置现代 Python 项目 |
 | `pdf-official` | 生成、读取、填充和转换 PDF 文件 |
 | `pptx-official` | 制作和操作 PowerPoint (.pptx) 幻灯片 |
@@ -242,29 +242,29 @@ MiMoCode 打包了以下内置技能：
 
 `claude-code` 和 `codex` 仅在系统分别安装了 `claude` 和 `codex` 可执行文件时提供。其他技能也可能需要其说明中列出的任务专用工具。
 
-**覆盖内置技能：** 在项目的 `.mimocode/skills/<name>/SKILL.md`，或个人技能目录（例如 `~/.config/mimocode/skills/<name>/SKILL.md`）里放同名技能即可。项目 `.agents/skills/` 与 `~/.agents/skills/` 这两处开放标准目录同样会扫到。扫描顺序靠后的用户技能会覆盖同名内置技能。
+**覆盖内置技能：** 在项目的 `.ymcode/skills/<name>/SKILL.md`，或个人技能目录（例如 `~/.config/ymcode/skills/<name>/SKILL.md`）里放同名技能即可。项目 `.agents/skills/` 与 `~/.agents/skills/` 这两处开放标准目录同样会扫到。扫描顺序靠后的用户技能会覆盖同名内置技能。
 
 <details>
 <summary><strong>通过环境变量配置技能</strong></summary>
 
 | 变量 | 效果 |
 |------|------|
-| `MIMOCODE_DISABLE_BUILTIN_SKILLS=true` | 禁用所有内置技能 |
-| `MIMOCODE_DISABLE_OFFICIAL_SKILLS=true` | 仅禁用办公/媒体类技能：`docx-official`、`pdf-official`、`pptx-official`、`xlsx-official`、`html-to-video-pipeline` |
-| `MIMOCODE_DISABLE_SLASH_SKILLS=true` | 从 TUI 的 `/` 自动补全中隐藏 Skill，但不禁用它们 |
+| `YMCODE_DISABLE_BUILTIN_SKILLS=true` | 禁用所有内置技能 |
+| `YMCODE_DISABLE_OFFICIAL_SKILLS=true` | 仅禁用办公/媒体类技能：`docx-official`、`pdf-official`、`pptx-official`、`xlsx-official`、`html-to-video-pipeline` |
+| `YMCODE_DISABLE_SLASH_SKILLS=true` | 从 TUI 的 `/` 自动补全中隐藏 Skill，但不禁用它们 |
 
-**外部技能根**（默认加载面 = `.mimocode` + 开放标准 `.agents`）：
+**外部技能根**（默认加载面 = `.ymcode` + 开放标准 `.agents`）：
 
 | Env | 默认 | 作用 |
 | --- | --- | --- |
-| `MIMOCODE_DISABLE_AGENTS_SKILLS=true` | 不设 = 开 | 关闭 `~/.agents/skills` 与项目 `.agents/skills` |
-| `MIMOCODE_ENABLE_CLAUDE_CODE_SKILLS=true` | 不设 = 关 | 打开 `.claude/skills` |
-| `MIMOCODE_ENABLE_CODEX_SKILLS=true` | 不设 = 关 | 打开 `.codex/skills`（仅用户 skill；Codex `skills/.system` 永不加载） |
-| `MIMOCODE_ENABLE_OPENCODE_SKILLS=true` | 不设 = 关 | 打开 `.opencode/skills` |
+| `YMCODE_DISABLE_AGENTS_SKILLS=true` | 不设 = 开 | 关闭 `~/.agents/skills` 与项目 `.agents/skills` |
+| `YMCODE_ENABLE_CLAUDE_CODE_SKILLS=true` | 不设 = 关 | 打开 `.claude/skills` |
+| `YMCODE_ENABLE_CODEX_SKILLS=true` | 不设 = 关 | 打开 `.codex/skills`（仅用户 skill；Codex `skills/.system` 永不加载） |
+| `YMCODE_ENABLE_OPENCODE_SKILLS=true` | 不设 = 关 | 打开 `.opencode/skills` |
 
 外部扫描不匹配 `skills/` 下的点目录段。
 
-`MIMOCODE_DISABLE_BUILTIN_SKILLS` 与 `MIMOCODE_DISABLE_OFFICIAL_SKILLS` 会将对应技能从 Agent 可用技能列表中完全移除——不会出现在上下文中，也无法被调用。`MIMOCODE_DISABLE_SLASH_SKILLS` 仅影响 TUI 自动补全，Skill 对 Agent 仍然可用。
+`YMCODE_DISABLE_BUILTIN_SKILLS` 与 `YMCODE_DISABLE_OFFICIAL_SKILLS` 会将对应技能从 Agent 可用技能列表中完全移除——不会出现在上下文中，也无法被调用。`YMCODE_DISABLE_SLASH_SKILLS` 仅影响 TUI 自动补全，Skill 对 Agent 仍然可用。
 
 </details>
 
@@ -350,26 +350,26 @@ export PULSE_SERVER=tcp:127.0.0.1:4713
 
 ## 配置
 
-MiMoCode 使用 JSON/JSONC 配置文件，并提供 JSON Schema 以获得编辑器自动补全和校验。
+ymcode 使用 JSON/JSONC 配置文件，并提供 JSON Schema 以获得编辑器自动补全和校验。
 
 ### 文件位置
 
 | 文件 | 项目级 | 全局 |
 |------|--------|------|
-| 主配置 | `.mimocode/mimocode.jsonc`（也支持 `.json`） | `~/.config/mimocode/mimocode.jsonc`（也支持 `.json`） |
-| TUI 配置 | `.mimocode/tui.json` | `~/.config/mimocode/tui.json` |
-| 认证凭据 | — | `~/.local/share/mimocode/auth.json` |
+| 主配置 | `.ymcode/ymcode.jsonc`（也支持 `.json`） | `~/.config/ymcode/ymcode.jsonc`（也支持 `.json`） |
+| TUI 配置 | `.ymcode/tui.json` | `~/.config/ymcode/tui.json` |
+| 认证凭据 | — | `~/.local/share/ymcode/auth.json` |
 
-> Windows 下 XDG 路径位于 `%LOCALAPPDATA%\mimocode\`。可通过 `MIMOCODE_HOME` 环境变量覆盖所有路径。
+> Windows 下 XDG 路径位于 `%LOCALAPPDATA%\ymcode\`。可通过 `YMCODE_HOME` 环境变量覆盖所有路径。
 
 ### JSON Schema
 
-MiMoCode 在首次加载配置时会自动注入 `$schema` 字段，使编辑器开箱即获得补全和校验：
+ymcode 在首次加载配置时会自动注入 `$schema` 字段，使编辑器开箱即获得补全和校验：
 
 | 配置文件 | Schema URL |
 |----------|-----------|
-| `mimocode.jsonc` / `mimocode.json` | `https://mimo.xiaomi.com/mimocode/config.json` |
-| `tui.json` | `https://mimo.xiaomi.com/mimocode/tui.json` |
+| `ymcode.jsonc` / `ymcode.json` | `https://mimo.xiaomi.com/ymcode/config.json` |
+| `tui.json` | `https://mimo.xiaomi.com/ymcode/tui.json` |
 
 <details>
 <summary><strong>VS Code / Cursor：信任 Schema 域名</strong></summary>
@@ -389,15 +389,15 @@ MiMoCode 在首次加载配置时会自动注入 `$schema` 字段，使编辑器
 <details>
 <summary><strong>数据目录</strong></summary>
 
-除配置文件外，MiMoCode 在 XDG 路径（或 `$MIMOCODE_HOME`）下存储运行时数据：
+除配置文件外，ymcode 在 XDG 路径（或 `$YMCODE_HOME`）下存储运行时数据：
 
 | 目录 | 默认路径（Linux） | 内容 |
 |------|------------------|------|
-| data | `~/.local/share/mimocode/` | SQLite 数据库、认证凭据（`auth.json`）、记忆、日志 |
-| state | `~/.local/state/mimocode/` | TUI 偏好设置（`kv.json`）、最近使用模型（`model.json`） |
-| cache | `~/.cache/mimocode/` | 语言服务器、缓存的模型目录、技能 |
+| data | `~/.local/share/ymcode/` | SQLite 数据库、认证凭据（`auth.json`）、记忆、日志 |
+| state | `~/.local/state/ymcode/` | TUI 偏好设置（`kv.json`）、最近使用模型（`model.json`） |
+| cache | `~/.cache/ymcode/` | 语言服务器、缓存的模型目录、技能 |
 
-如需删除已存储的凭据，删除 data 目录下的 `auth.json` 即可。macOS 下 XDG data 默认为 `~/Library/Application Support/mimocode/`。
+如需删除已存储的凭据，删除 data 目录下的 `auth.json` 即可。macOS 下 XDG data 默认为 `~/Library/Application Support/ymcode/`。
 
 </details>
 
@@ -407,7 +407,7 @@ MiMoCode 在首次加载配置时会自动注入 `$schema` 字段，使编辑器
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "custom/MODEL_NAME",
   "provider": {
     "custom": {
@@ -429,12 +429,12 @@ MiMoCode 在首次加载配置时会自动注入 `$schema` 字段，使编辑器
 ```
 
 - 必须使用准确的字段名 `baseURL` 和 `apiKey`。
-- 原样保留用户提供的 Base URL 和模型 ID。MiMoCode 不要求 Provider 已存在于内置目录中；除非端点本身要求，否则不要自行增删 `/v1`。
+- 原样保留用户提供的 Base URL 和模型 ID。ymcode 不要求 Provider 已存在于内置目录中；除非端点本身要求，否则不要自行增删 `/v1`。
 - `models` 下的键是上游模型 ID。模型 ID 可以包含 `/`，因为 `model` 中只有第一个 `/` 用于分隔 Provider ID 和模型 ID。
 - 如有需要，可将 `custom` 替换为其他未占用的小写 Provider ID，并同步更新顶层 `model` 中的 ID。
 - `@ai-sdk/openai-compatible` 适用于 OpenAI 兼容 API；使用其他通信协议的服务需要对应 Provider 的专用适配器。
 
-全局配置请写入 `~/.config/mimocode/mimocode.jsonc`（或同目录的 `mimocode.json`），仅项目生效的配置请写入 `.mimocode/mimocode.jsonc`（或 `.json`），并与已有内容合并。`apiKey` 会以明文保存在配置中，请确保文件仅当前用户可读，且不要提交到版本库。可运行 `mimo models` 或使用 TUI 模型选择器验证配置结果。
+全局配置请写入 `~/.config/ymcode/ymcode.jsonc`（或同目录的 `ymcode.json`），仅项目生效的配置请写入 `.ymcode/ymcode.jsonc`（或 `.json`），并与已有内容合并。`apiKey` 会以明文保存在配置中，请确保文件仅当前用户可读，且不要提交到版本库。可运行 `ymcode models` 或使用 TUI 模型选择器验证配置结果。
 
 要声明自定义模型支持哪些输入模态（图片、音频、视频、PDF），在 TUI 中运行 `/modalities`——多选对话框会把设置持久化到配置，无需手动编辑。
 
@@ -452,14 +452,14 @@ Max Mode（并行 best-of-N 推理 + 裁判选优）可通过配置中的 `exper
 <summary><strong>允许访问系统临时目录（<code>/tmp</code>）</strong></summary>
 
 默认情况下，读写项目工作目录之外的文件会触发 `external_directory` 权限询问——系统临时目录也不例外。
-这是有意为之：MiMoCode 不会静默放宽权限，你始终掌控模型在项目之外能触碰什么。
+这是有意为之：ymcode 不会静默放宽权限，你始终掌控模型在项目之外能触碰什么。
 
 临时目录之所以经常被用到，是因为多数模型习惯把它当作临时工作空间（比如临时脚本、一次性数据文件）。
 如果你信任所处环境、不想每次都被询问，可以在配置中主动放行：
 
-```json title=".mimocode/mimocode.json"
+```json title=".ymcode/ymcode.json"
 {
-  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "permission": {
     "external_directory": {
       "/tmp/**": "allow"
@@ -485,10 +485,10 @@ Max Mode（并行 best-of-N 推理 + 裁判选优）可通过配置中的 `exper
 mimo --dangerously-skip-permissions
 
 # 无头模式
-mimo run --dangerously-skip-permissions "你的提示词"
+ymcode run --dangerously-skip-permissions "你的提示词"
 
 # 或通过环境变量（任意入口）
-MIMOCODE_DANGEROUSLY_SKIP_PERMISSIONS=1 mimo
+YMCODE_DANGEROUSLY_SKIP_PERMISSIONS=1 mimo
 ```
 
 它会在你的配置**下方**注入一条“全部放行”的基础规则，因此没有任何规则的工具会自动放行——但你写下的
@@ -518,7 +518,7 @@ bun run typecheck          # 类型检查
 
 ## 与 OpenCode 的关系
 
-MiMoCode 基于 [OpenCode](https://github.com/anomalyco/opencode) fork 构建，保留其全部核心能力（多 Provider、TUI、LSP、MCP、插件），并在此基础上构建了持久化记忆、智能上下文管理、子智能体编排、目标驱动的自主循环、compose-next 端到端交付、Dynamic Workflow，以及通过 dream/distill 实现的自我进化。
+ymcode 基于 [OpenCode](https://github.com/anomalyco/opencode) fork 构建，保留其全部核心能力（多 Provider、TUI、LSP、MCP、插件），并在此基础上构建了持久化记忆、智能上下文管理、子智能体编排、目标驱动的自主循环、compose-next 端到端交付、Dynamic Workflow，以及通过 dream/distill 实现的自我进化。
 
 ---
 
@@ -538,6 +538,6 @@ MiMoCode 基于 [OpenCode](https://github.com/anomalyco/opencode) fork 构建，
 
 源代码基于 [MIT 许可证](./LICENSE) 开源。
 
-使用 MiMoCode 还需遵守[使用限制](./USE_RESTRICTIONS.md)。
+使用 ymcode 还需遵守[使用限制](./USE_RESTRICTIONS.md)。
 使用小米 MiMo 托管服务须遵守 [MiMo 服务条款](https://platform.xiaomimimo.com/docs/terms/user-agreement)。
 使用 MiMo 名称、标志和商标须遵守 MiMo 商标政策。

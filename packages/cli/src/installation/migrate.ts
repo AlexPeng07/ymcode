@@ -42,7 +42,7 @@ function legacyPaths(home: string, env: NodeJS.ProcessEnv) {
   }
 }
 
-export async function migrateFromMimocode(opts: Options = {}): Promise<MigrationResult> {
+export async function migrateFromymcode(opts: Options = {}): Promise<MigrationResult> {
   const env = process.env
   const home = opts.home ?? env.HOME ?? env.USERPROFILE ?? os.homedir()
   const old = legacyPaths(home, env)

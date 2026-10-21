@@ -3,7 +3,7 @@
  *
  * Those suites must run from packages/cli so packages/cli/test/preload.ts
  * loads (fixtures, Log, projectors). Even with test-isolation-env.ts setting
- * MIMOCODE_DB=:memory:, a root run still skips that fixture preload and can
+ * YMCODE_DB=:memory:, a root run still skips that fixture preload and can
  * produce misleading results.
  *
  * bun test invokes preloads with argv = [bun, <testfile>, ...].

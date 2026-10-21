@@ -26,12 +26,12 @@ exist without anyone asking for one. Two consequences:
   implicit listener serves exactly one project.
 
 Pass a network flag when a *fixed* port is wanted instead. That is the explicit case and
-behaves as it always did, credential-free on loopback — it is what `mimo attach` over SSH
+behaves as it always did, credential-free on loopback — it is what `ymcode attach` over SSH
 uses:
 
 ```bash
 mimo --port 4096                 # TUI plus a listener on a port you chose
-mimo serve --port 4096           # headless, same endpoints
+ymcode serve --port 4096           # headless, same endpoints
 ```
 
 Launch from the project directory either way: the instance directory is the process's cwd,

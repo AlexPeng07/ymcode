@@ -75,7 +75,7 @@ deferred MCP call through one fixed dispatcher tool.
   when it is active, as it does for `mcp_tool_search` (real-tool permission is enforced at dispatch).
 - **TUI.** A `mcp_tool_use` part renders as the underlying tool: name from `input.name`, arguments from
   `input.arguments`.
-- Non-deferred mode (`MIMOCODE_MCP_TOOL_SEARCH=false`, or `auto` below threshold) and the GPT/`exec` path
+- Non-deferred mode (`YMCODE_MCP_TOOL_SEARCH=false`, or `auto` below threshold) and the GPT/`exec` path
   are unchanged.
 - **Stability across MCP churn (amendment).**
   - An empty catalog counts as deferred: unless mode is `never`, `mcp_tool_search`/`mcp_tool_use` are

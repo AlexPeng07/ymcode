@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import fs from "fs/promises"
 import path from "path"
 import os from "os"
-import { migrateFromMimocode } from "../../src/installation/migrate"
+import { migrateFromymcode } from "../../src/installation/migrate"
 
 async function paths(root: string) {
   return {
@@ -16,7 +16,7 @@ async function paths(root: string) {
   }
 }
 
-describe("migrateFromMimocode", () => {
+describe("migrateFromymcode", () => {
   test("copies config, memory and database without deleting the source", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-migrate-"))
     const config = path.join(root, "old", "config")
@@ -28,7 +28,7 @@ describe("migrateFromMimocode", () => {
     await fs.writeFile(path.join(data, "mimocode.db-wal"), "wal")
     await fs.writeFile(path.join(data, "memory", "global", "MEMORY.md"), "# Global memory\n")
 
-    const result = await migrateFromMimocode({ home: root, ...(await paths(root)) })
+    const result = await migrateFromymcode({ home: root, ...(await paths(root)) })
 
     expect(result.copied).toContain(config)
     expect(await fs.readFile(path.join(root, "new", "config", "ymcode.json"), "utf8")).toBe("{}")
@@ -45,7 +45,7 @@ describe("migrateFromMimocode", () => {
     await fs.mkdir(path.join(root, "old", "config"), { recursive: true })
     await fs.writeFile(path.join(root, "old", "config", "mimocode.json"), "{}")
 
-    const result = await migrateFromMimocode({ home: root, dryRun: true, ...(await paths(root)) })
+    const result = await migrateFromymcode({ home: root, dryRun: true, ...(await paths(root)) })
 
     expect(result.copied).toContain(path.join(root, "old", "config"))
     expect(await fs.stat(path.join(root, "new", "config")).catch(() => null)).toBeNull()
@@ -58,7 +58,7 @@ describe("migrateFromMimocode", () => {
     await fs.writeFile(path.join(root, "old", "config", "mimocode.json"), '{"old":true}')
     await fs.writeFile(path.join(root, "new", "config", "ymcode.json"), '{"new":true}')
 
-    const result = await migrateFromMimocode({ home: root, ...(await paths(root)) })
+    const result = await migrateFromymcode({ home: root, ...(await paths(root)) })
 
     expect(result.skipped).toContain(path.join(root, "new", "config"))
     expect(await fs.readFile(path.join(root, "new", "config", "ymcode.json"), "utf8")).toBe('{"new":true}')

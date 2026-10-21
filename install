@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-APP=mimocode
+APP=ymcode
 
 MUTED='\033[0;2m'
 RED='\033[0;31m'
@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 
 usage() {
     cat <<EOF
-MiMoCode Installer
+ymcode Installer
 
 Usage: install.sh [options]
 
@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-INSTALL_DIR=$HOME/.mimocode/bin
+INSTALL_DIR=$HOME/.ymcode/bin
 mkdir -p "$INSTALL_DIR"
 
 # If --binary is provided, skip all download/detection logic
@@ -183,7 +183,7 @@ else
     # Download from Xiaomi FDS (fast in mainland China). Layout:
     #   $MIMO_FDS_BASE/releases/latest          -> text file containing the latest version (e.g. 0.1.0)
     #   $MIMO_FDS_BASE/releases/v<version>/<filename>
-    fds_base="${MIMO_FDS_BASE:-https://mimocode.cnbj1.mi-fds.com/mimocode/mimocode}"
+    fds_base="${MIMO_FDS_BASE:-https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode}"
     fds_base="${fds_base%/}"
 
     if [ -z "$requested_version" ]; then
@@ -283,7 +283,7 @@ download_with_progress() {
     fi
 
     local tmp_dir=${TMPDIR:-/tmp}
-    local basename="${tmp_dir}/mimocode_install_$$"
+    local basename="${tmp_dir}/ymcode_install_$$"
     local tracefile="${basename}.trace"
 
     rm -f "$tracefile"
@@ -333,8 +333,8 @@ download_with_progress() {
 }
 
 download_and_install() {
-    print_message info "\n${MUTED}Installing ${NC}mimocode ${MUTED}version: ${NC}$specific_version"
-    local tmp_dir="${TMPDIR:-/tmp}/mimocode_install_$$"
+    print_message info "\n${MUTED}Installing ${NC}ymcode ${MUTED}version: ${NC}$specific_version"
+    local tmp_dir="${TMPDIR:-/tmp}/ymcode_install_$$"
     mkdir -p "$tmp_dir"
 
     if [[ "$os" == "windows" ]] || ! [ -t 2 ] || ! download_with_progress "$url" "$tmp_dir/$filename"; then
@@ -354,7 +354,7 @@ download_and_install() {
 }
 
 install_from_binary() {
-    print_message info "\n${MUTED}Installing ${NC}mimocode ${MUTED}from: ${NC}$binary_path"
+    print_message info "\n${MUTED}Installing ${NC}ymcode ${MUTED}from: ${NC}$binary_path"
     cp "$binary_path" "${INSTALL_DIR}/mimo"
     chmod 755 "${INSTALL_DIR}/mimo"
 }
@@ -375,9 +375,9 @@ add_to_path() {
         print_message info "Command already exists in $config_file, skipping write."
         path_written=true
     elif [[ -w $config_file ]]; then
-        echo -e "\n# mimocode" >> "$config_file"
+        echo -e "\n# ymcode" >> "$config_file"
         echo "$command" >> "$config_file"
-        print_message info "${MUTED}Successfully added ${NC}mimocode ${MUTED}to \$PATH in ${NC}$config_file"
+        print_message info "${MUTED}Successfully added ${NC}ymcode ${MUTED}to \$PATH in ${NC}$config_file"
         path_written=true
     else
         print_message warning "Manually add the directory to $config_file (or similar):"

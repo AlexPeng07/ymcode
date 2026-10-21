@@ -1961,7 +1961,7 @@ export type GlobalEvent = {
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR"
 
 /**
- * Server configuration for mimo serve and web commands
+ * Server configuration for ymcode serve and web commands
  */
 export type ServerConfig = {
   /**

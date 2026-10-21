@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // Release stages run by .github/workflows/release.yml for a pushed vX.Y.Z tag.
-// Usage: MIMOCODE_VERSION=vX.Y.Z bun script/release.ts <verify|build|preflight|github|fds|npm libs|npm cli>
+// Usage: YMCODE_VERSION=vX.Y.Z bun script/release.ts <verify|build|preflight|github|fds|npm libs|npm cli>
 //        bun script/release.ts trust   (one-time npm trusted publisher setup)
 //
 // build writes dist/release/{archives,npm}; the publishing stages only read it.
@@ -29,7 +29,7 @@ export const platforms = [
   "windows-arm64",
   "windows-x64",
   "windows-x64-baseline",
-].map((name) => `mimocode-${name}`)
+].map((name) => `ymcode-${name}`)
 
 const archive = (name: string) => `${name}.${name.includes("linux") ? "tar.gz" : "zip"}`
 const tarball = (name: string, version: string) => `${name.slice(1).replace("/", "-")}-${version}.tgz`
@@ -45,7 +45,7 @@ export const npmPackages = [...npmGroups.libs, ...npmGroups.cli]
 
 export function stableVersion(value: string | undefined) {
   if (!value || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value)) {
-    throw new Error(`Expected MIMOCODE_VERSION=MAJOR.MINOR.PATCH, received ${value ?? "nothing"}`)
+    throw new Error(`Expected YMCODE_VERSION=MAJOR.MINOR.PATCH, received ${value ?? "nothing"}`)
   }
   return value
 }
@@ -135,7 +135,7 @@ async function packCli(version: string, dest: string) {
   const cli = path.join(root, "packages/cli")
   const stage = path.join(out, "stage/cli")
   await mkdir(stage, { recursive: true })
-  await cp(path.join(cli, "mimo.js"), path.join(stage, "mimo.js"))
+  await cp(path.join(cli, "ymcode.js"), path.join(stage, "ymcode.js"))
   await cp(path.join(cli, "launcher.js"), path.join(stage, "launcher.js"))
   await cp(path.join(cli, "postinstall.mjs"), path.join(stage, "postinstall.mjs"))
   await cp(path.join(root, "README_npm.md"), path.join(stage, "README.md"))
@@ -147,16 +147,16 @@ async function packCli(version: string, dest: string) {
         name: "@ymcode/cli",
         version,
         type: "module",
-        // Extensionless-free ESM entry (mimo.js) still wants a modern Node for fetch/AbortSignal.timeout.
+        // Extensionless-free ESM entry (ymcode.js) still wants a modern Node for fetch/AbortSignal.timeout.
         engines: { node: ">=20.10.0" },
-        description: "MiMo Code: Where Models and Agents Co-Evolve",
+        description: "ymcode: Where Models and Agents Co-Evolve",
         license: "MIT",
         author: "Xiaomi MiMo Team",
         homepage: "https://mimo.xiaomi.com/coder",
-        repository: { type: "git", url: "git+https://github.com/XiaomiMiMo/MiMo-Code.git" },
-        bugs: { url: "https://github.com/XiaomiMiMo/MiMo-Code/issues" },
-        keywords: ["ai", "cli", "code", "xiaomi", "mimo", "mimocode"],
-        bin: { mimo: "./mimo.js" },
+        repository: { type: "git", url: "git+https://github.com/XiaomiMiMo/ymcode.git" },
+        bugs: { url: "https://github.com/XiaomiMiMo/ymcode/issues" },
+        keywords: ["ai", "cli", "code", "xiaomi", "mimo", "ymcode"],
+        bin: { mimo: "./ymcode.js" },
         scripts: { postinstall: "bun ./postinstall.mjs || node ./postinstall.mjs" },
       },
       null,
@@ -174,7 +174,7 @@ async function build(version: string) {
   await mkdir(path.join(out, "npm"), { recursive: true })
   await $`${process.execPath} run script/build.ts --archive`
     .cwd(path.join(root, "packages/cli"))
-    .env({ ...process.env, MIMOCODE_VERSION: version, MIMOCODE_CHANNEL: "latest" })
+    .env({ ...process.env, YMCODE_VERSION: version, YMCODE_CHANNEL: "latest" })
   for (const name of platforms) {
     await cp(path.join(root, "packages/cli/dist", archive(name)), path.join(out, "archives", archive(name)))
   }
@@ -277,7 +277,7 @@ async function trust() {
         "--file",
         "release.yml",
         "--repo",
-        "XiaomiMiMo/MiMo-Code",
+        "XiaomiMiMo/ymcode",
         "--env",
         "release",
         "--allow-publish",
@@ -290,7 +290,7 @@ async function trust() {
 }
 
 if (import.meta.main) {
-  const version = () => stableVersion(process.env.MIMOCODE_VERSION?.replace(/^v/, ""))
+  const version = () => stableVersion(process.env.YMCODE_VERSION?.replace(/^v/, ""))
   const stages: Record<string, () => Promise<void>> = {
     verify: () => verify(version()),
     build: () => build(version()),

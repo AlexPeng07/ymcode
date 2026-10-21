@@ -10,13 +10,13 @@ commits: 67fecf88..9bac0dc6
 
 ## Report
 
-**What was built** — Home tips force the `/login` tip only when no computed provider carries known credentials. Credential-bearing means `key`, `source === "env"`, or a non-empty `options.apiKey`. This covers env keys, `mimocode.jsonc` API keys, and auth-store API keys through one rule. Bare list membership does not count (mimo is always listed). Keyless local-only providers still recommend `/login`.
+**What was built** — Home tips force the `/login` tip only when no computed provider carries known credentials. Credential-bearing means `key`, `source === "env"`, or a non-empty `options.apiKey`. This covers env keys, `ymcode.jsonc` API keys, and auth-store API keys through one rule. Bare list membership does not count (mimo is always listed). Keyless local-only providers still recommend `/login`.
 
 **Verification** — From `packages/cli`: `bun test test/cli/cmd/tui/tips-view.test.ts` → 11 pass / 0 fail. From worktree root: `bun run typecheck` PASS.
 
 ## [S1] Problem
 
-Home tips forced the `/login` tip whenever `provider_next.authenticated` was empty. That field is auth-store only (`auth.json` / `/login`). Users who already had API keys in env or `mimocode.jsonc` still saw “run /login”.
+Home tips forced the `/login` tip whenever `provider_next.authenticated` was empty. That field is auth-store only (`auth.json` / `/login`). Users who already had API keys in env or `ymcode.jsonc` still saw “run /login”.
 
 ## [S2] Design
 

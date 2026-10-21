@@ -11,7 +11,7 @@ export const YMCODE_GITIGNORE_ENTRIES = [
   "scheduled_tasks.json",
 ]
 
-export async function ensureMimocodeGitignore(dir: string) {
+export async function ensureymcodeGitignore(dir: string) {
   const gitignorePath = join(dir, ".gitignore")
   const exists = await stat(gitignorePath).then(
     () => true,

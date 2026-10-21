@@ -166,25 +166,25 @@ export const dict = {
   "tui.tips.plugin_protect":
     "Создайте плагин, который запретит ymcode читать чувствительные файлы",
   "tui.tips.run":
-    "Используйте {highlight}mimo run{/highlight} для неинтерактивных скриптов",
+    "Используйте {highlight}ymcode run{/highlight} для неинтерактивных скриптов",
   "tui.tips.continue":
-    "Используйте {highlight}mimo --continue{/highlight}, чтобы продолжить последнюю сессию",
+    "Используйте {highlight}ymcode --continue{/highlight}, чтобы продолжить последнюю сессию",
   "tui.tips.attach_cli":
-    "Используйте {highlight}mimo run -f file.ts{/highlight}, чтобы прикрепить файлы из командной строки",
+    "Используйте {highlight}ymcode run -f file.ts{/highlight}, чтобы прикрепить файлы из командной строки",
   "tui.tips.format_json":
     "Используйте {highlight}--format json{/highlight} для машинно-читаемого вывода в скриптах",
   "tui.tips.serve":
-    "Запустите {highlight}mimo serve{/highlight} для headless-доступа к API ymcode",
+    "Запустите {highlight}ymcode serve{/highlight} для headless-доступа к API ymcode",
   "tui.tips.attach_server":
-    "Используйте {highlight}mimo run --attach{/highlight}, чтобы подключиться к запущенному серверу",
+    "Используйте {highlight}ymcode run --attach{/highlight}, чтобы подключиться к запущенному серверу",
   "tui.tips.upgrade":
-    "Выполните {highlight}mimo upgrade{/highlight}, чтобы обновиться до последней версии",
+    "Выполните {highlight}ymcode upgrade{/highlight}, чтобы обновиться до последней версии",
   "tui.tips.auth_list":
-    "Выполните {highlight}mimo auth list{/highlight}, чтобы увидеть всех настроенных провайдеров",
+    "Выполните {highlight}ymcode auth list{/highlight}, чтобы увидеть всех настроенных провайдеров",
   "tui.tips.agent_create":
-    "Выполните {highlight}mimo agent create{/highlight}, чтобы создать агента в пошаговом режиме",
+    "Выполните {highlight}ymcode agent create{/highlight}, чтобы создать агента в пошаговом режиме",
   "tui.tips.github_install":
-    "Выполните {highlight}mimo github install{/highlight}, чтобы настроить GitHub-workflow",
+    "Выполните {highlight}ymcode github install{/highlight}, чтобы настроить GitHub-workflow",
   "tui.tips.github_oc":
     "Оставьте {highlight}/oc{/highlight} в комментарии к строке PR для точечного код-ревью",
   "tui.tips.theme_system":
@@ -221,7 +221,7 @@ export const dict = {
   "tui.tips.external_dir":
     "Разрешение {highlight}external_directory{/highlight} защищает файлы вне проекта",
   "tui.tips.debug_config":
-    "Выполните {highlight}mimo debug config{/highlight}, чтобы диагностировать проблемы конфигурации",
+    "Выполните {highlight}ymcode debug config{/highlight}, чтобы диагностировать проблемы конфигурации",
   "tui.tips.print_logs":
     "Используйте флаг {highlight}--print-logs{/highlight}, чтобы видеть подробные логи в stderr",
   "tui.tips.timeline":

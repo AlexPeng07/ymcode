@@ -53,7 +53,7 @@ Expected: 全绿。若基线有失败，记录失败文件与原因，先修复�
 - Modify: `packages/plugin/package.json`
 - Modify: `packages/sdk/package.json`
 - Modify: `packages/shared/package.json`
-- Rename: `packages/cli/mimo.js` → `packages/cli/ymcode.js`
+- Rename: `packages/cli/ymcode.js` → `packages/cli/ymcode.js`
 - Modify: 所有 `@ymcode/*` 导入
 - Modify: `bun.lock`（由 `bun install` 生成）
 
@@ -86,7 +86,7 @@ Expected: 全绿。若基线有失败，记录失败文件与原因，先修复�
 Run:
 ```bash
 cd F:/AllProjects/ymcode
-git mv packages/cli/mimo.js packages/cli/ymcode.js
+git mv packages/cli/ymcode.js packages/cli/ymcode.js
 git grep -l '@mimo-ai/' -- ':!bun.lock' | xargs perl -pi -e 's/\@mimo-ai\//\@ymcode\//g'
 ```
 
@@ -257,7 +257,7 @@ git commit -m "refactor: rename runtime paths and env vars to ymcode"
 
 - `scriptName("ymcode")`、`process.env.YMCODE = "1"`、`YMCODE_PID`。
 - `PACKAGE_NAME = "@ymcode/cli"`。
-- 安装目录 `.mimocode` → `.ymcode`，二进制 `mimo.exe` → `ymcode.exe`，PATH 注释 `# ymcode`。
+- 安装目录 `.mimocode` → `.ymcode`，二进制 `ymcode.exe` → `ymcode.exe`，PATH 注释 `# ymcode`。
 - 卸载逻辑同时识别旧 `.mimocode` 安装并只提示、不自动删除。
 
 - [ ] **Step 2: 改 CI/脚本**

@@ -48,9 +48,9 @@ temp/
 __pycache__
 Thumbs.db
 .playwright-cli/
-.mimocode/wiki
-.mimocode/wikis
-.mimocode/cache
+.ymcode/wiki
+.ymcode/wikis
+.ymcode/cache
 
 # SDK codegen scratch: script/build.ts writes it, consumes it, then removes it.
 # A failed generation leaves it behind, where it is easy to commit by accident.

@@ -156,7 +156,7 @@ const issue = cmd({
       // guessed. Nothing serving means nothing to point at: say so instead of printing a
       // URL that will refuse connections.
       if (!address) {
-        UI.println("Start a session in this directory (or `mimo serve --port <n>`) and issue again.")
+        UI.println("Start a session in this directory (or `ymcode serve --port <n>`) and issue again.")
       }
     }),
 })

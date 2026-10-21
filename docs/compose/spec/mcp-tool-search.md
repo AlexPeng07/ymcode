@@ -14,7 +14,7 @@ Sending every complete MCP function definition to the model consumes context bef
 
 ## [S2] Deferral Mode
 
-The design follows Claude Code's deferred tools + Tool Search. `MIMOCODE_MCP_TOOL_SEARCH` selects the mode:
+The design follows Claude Code's deferred tools + Tool Search. `YMCODE_MCP_TOOL_SEARCH` selects the mode:
 
 - `true` / `1` (default; also any unrecognized value): always defer.
 - `auto`: defer MCP tools once their estimated definition size (name, description, transformed schema) exceeds 10% of the model context window; unknown windows assume 200,000 tokens.
@@ -41,7 +41,7 @@ The result returns the matched tools' complete JSON Schema definitions inside a 
 
 ## [S4] Conversation-Scoped Loading
 
-A successful search persists validated matched names in ordinary tool-result metadata. On every subsequent outer-loop step, MiMoCode scans completed searches across the conversation (newest first, bounded at 32 tools) and exposes those MCP definitions through the AI SDK `activeTools` subset. A loaded tool stays callable across user turns as long as it is still request-authorized; compaction drops older searches together with their messages. Model-visible output is never trusted as activation state.
+A successful search persists validated matched names in ordinary tool-result metadata. On every subsequent outer-loop step, ymcode scans completed searches across the conversation (newest first, bounded at 32 tools) and exposes those MCP definitions through the AI SDK `activeTools` subset. A loaded tool stays callable across user turns as long as it is still request-authorized; compaction drops older searches together with their messages. Model-visible output is never trusted as activation state.
 
 ## [S5] Execution Safety
 

@@ -157,20 +157,26 @@ describe("installation", () => {
       expect(result).toBe("1.7.0")
     })
 
-    test("resolves version from FDS for curl method", async () => {
-      const layer = testLayer(
-        () => jsonResponse({}),
-        (cmd, args) => {
-          if (cmd === "curl" && args.includes("https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode/releases/latest"))
-            return "v0.1.1\n"
-          return ""
-        },
-      )
+    test("resolves version from YMCODE_FDS_BASE for curl method", async () => {
+      const previous = process.env.YMCODE_FDS_BASE
+      process.env.YMCODE_FDS_BASE = "https://mirror.example/ymcode"
+      try {
+        const layer = testLayer(
+          () => jsonResponse({}),
+          (cmd, args) => {
+            if (cmd === "curl" && args.includes("https://mirror.example/ymcode/releases/latest")) return "v0.1.1\n"
+            return ""
+          },
+        )
 
-      const result = await Effect.runPromise(
-        Installation.Service.use((svc) => svc.latest("curl")).pipe(Effect.provide(layer)),
-      )
-      expect(result).toBe("0.1.1")
+        const result = await Effect.runPromise(
+          Installation.Service.use((svc) => svc.latest("curl")).pipe(Effect.provide(layer)),
+        )
+        expect(result).toBe("0.1.1")
+      } finally {
+        if (previous === undefined) delete process.env.YMCODE_FDS_BASE
+        else process.env.YMCODE_FDS_BASE = previous
+      }
     })
 
     test("dies for unsupported channels (brew/choco/scoop/unknown)", async () => {

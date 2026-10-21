@@ -7,24 +7,24 @@ Invoked from the shell. `mimo` with no command opens the TUI.
 | Command | Purpose |
 |---------|---------|
 | `mimo` | Launch the interactive TUI |
-| `mimo run` | Headless, non-interactive run (scripting/eval) |
+| `ymcode run` | Headless, non-interactive run (scripting/eval) |
 | `mimo mcp` | Manage / inspect MCP servers |
-| `mimo agent` | Manage agents |
-| `mimo models` | List available models |
+| `ymcode agent` | Manage agents |
+| `ymcode models` | List available models |
 | `mimo providers` | List / manage providers |
 | `mimo account` (console) | Account / login console |
-| `mimo upgrade` | Update to the latest version |
-| `mimo uninstall` | Uninstall ymcode |
-| `mimo serve` | Run the server |
+| `ymcode upgrade` | Update to the latest version |
+| `ymcode uninstall` | Uninstall ymcode |
+| `ymcode serve` | Run the server |
 | `mimo llm-server issue`/`list`/`revoke` | Mint and manage tokens that let a task reach this instance's models over `/v1`; it starts nothing — see @capability-api.md |
 | `mimo stats` | Usage statistics |
-| `mimo export` / `mimo import` | Export / import sessions |
+| `mimo export` / `ymcode import` | Export / import sessions |
 | `mimo session` | Manage sessions |
-| `mimo github` / `mimo pr` | GitHub / pull-request integration |
+| `ymcode github` / `mimo pr` | GitHub / pull-request integration |
 | `mimo generate` | Code generation entry |
 | `mimo plugin` (plug) | Manage plugins |
-| `mimo db` | Database utilities |
-| `mimo acp` / `mimo attach` | ACP / attach to a running session |
+| `ymcode db` | Database utilities |
+| `mimo acp` / `ymcode attach` | ACP / attach to a running session |
 | `mimo debug` | Debug utilities |
 | `mimo completion` | Generate shell completion script |
 
@@ -32,7 +32,7 @@ Run `mimo <command> --help` for flags on any command.
 
 Notable TUI flags: `--continue`/`-c` (resume last session), `--session`/`-s`, `--model`/`-m`, `--agent`, `--never-ask`, `--trust`, and `--dangerously-skip-permissions`/`--yolo` (auto-approve everything not explicitly denied; prompts once for confirmation — see permissions.md).
 
-For terminal compatibility, TUI rendering or lag, and local rendering over SSH with `mimo serve` + `mimo attach`, see @guide.md.
+For terminal compatibility, TUI rendering or lag, and local rendering over SSH with `ymcode serve` + `ymcode attach`, see @guide.md.
 
 ## Slash commands (inside the TUI)
 
