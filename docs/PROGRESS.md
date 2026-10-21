@@ -19,3 +19,13 @@
 - 新增 `ymcode migrate --dry-run` 与首次启动自动复制迁移；旧目录只复制不删除。
 - 移除失效的 `$schema` 自动注入；旧 `opencode.ai` / `mimo.xiaomi.com` schema 行会被安全删除，保留 JSONC 注释。
 - 验证：`bun run typecheck` 通过；memory 103 pass / 2 skip；shared 56 pass；config/launcher/migration 137 pass / 5 skip（Windows 跳过 Unix 归档测试）。
+
+### instincts 进度
+
+- 新增 `instinct` 文件格式、FTS 类型、service（写入/晋升/降级/衰减/复核/注入预算）。
+- 新增 `instinct` 模型工具、`ymcode instinct` CLI、`/instinct` 斜杠命令。
+- checkpoint 成功后节流触发 `instinct-observer` 子代理；只写候选，不晋升。
+- `MEMORY.md` 晋升写入 Rules / Architecture decisions / Discovered durable knowledge，带去重与 10KB 上限。
+- `llm.ts` 注入 active instincts（默认预算 1200 token）；`/dream` 增加 review 阶段。
+- 验证：typecheck 通过；instinct 相关 67 pass；checkpoint 回归 22 pass；`ymcode instinct --help` / `review` 冒烟通过。
+- 未验证：observer 的真实 LLM 抽取（需要隔离的 provider 凭据）；将在最终验收时明确记录。
