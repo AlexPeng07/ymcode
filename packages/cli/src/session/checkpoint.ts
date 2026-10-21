@@ -36,6 +36,7 @@ import {
   migrateProjectMemory,
 } from "./checkpoint-paths"
 import { readBudgeted, readBudgetedSectionAware } from "./budgeted-read"
+import { startInstinctObserver } from "./instinct-observer"
 import type { LastMessageInfo } from "./last-message-info"
 import { CHECKPOINT_TEMPLATE, MEMORY_TEMPLATE, NOTES_TEMPLATE, CHECKPOINT_SECTION_BUDGETS } from "./checkpoint-templates"
 import { adjustBoundaryForApiInvariants } from "./boundary"
@@ -1021,6 +1022,15 @@ export const layer: Layer.Layer<
                 .where(eq(SessionTable.id, input.sessionID))
                 .run(),
             ),
+          )
+          yield* startInstinctObserver({
+            sessionID: input.sessionID,
+            projectID,
+            model: { providerID: input.model.providerID, modelID: input.model.modelID },
+          }).pipe(
+            Effect.provideService(Config.Service, config),
+            Effect.provideService(Session.Service, session),
+            Effect.ignore,
           )
         } else {
           // Classify instead of count. This is the replacement for the failure

@@ -114,6 +114,10 @@ If you notice a repeated manual workflow worth packaging, leave it to the
 one line, but do not create skills, subagents, or commands here. Stay focused on
 memory consolidation.
 
+## Phase 3.5 - Review Instincts
+
+Call the `instinct` tool with operation="review" for the current project. This applies decay and promotes only candidates that meet confidence and evidence thresholds. Do not edit INSTINCTS.md or MEMORY.md directly. Report promoted/decayed counts in the summary.
+
 ## Phase 4 - Consolidate
 
 Edit the current project's `MEMORY.md` using these sections when useful:

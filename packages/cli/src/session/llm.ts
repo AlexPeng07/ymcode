@@ -34,6 +34,7 @@ import * as Option from "effect/Option"
 import * as OtelTracer from "@effect/opentelemetry/Tracer"
 import { ActorRegistry } from "@/actor/registry"
 import { Memory } from "@/memory"
+import * as Instinct from "@/memory/instinct-service"
 import { isRetryableTransientError } from "./retry"
 import * as SessionRetry from "./retry"
 import { MCP_TOOL_SEARCH_ID, MCP_TOOL_USE_ID } from "@/tool/mcp-tool-search"
@@ -84,7 +85,7 @@ export function isTransientCapacityError(error: unknown): boolean {
  * prompt is byte-identical across projects and sessions; the real paths reach
  * the model through the memory paths reminder (session/prompt.ts).
  */
-function buildMemoryInstructions(memoryRoot: string): string {
+export function buildMemoryInstructions(memoryRoot: string, instinctText?: string): string {
   const memoryFile = path.join(memoryRoot, "projects", "<project_id>", "MEMORY.md")
   const sessionMemoryDir = path.join(memoryRoot, "sessions", "<session_id>")
   const globalMemoryFile = path.join(memoryRoot, "global", "MEMORY.md")
@@ -100,6 +101,7 @@ function buildMemoryInstructions(memoryRoot: string): string {
         ]
       : []),
     `- Global memory at \`${globalMemoryFile}\` — user-level preferences and cross-project feedback that persist across all projects.${checkpointEnabled ? ` Auto-injected into rebuild context under the "# Global memory" header when present.` : ""}`,
+    `- Instincts at \`${path.join(memoryRoot, "projects", "<project_id>", "instincts")}\` — evidence-backed rules. Active rules are injected automatically; candidates are searchable with the \`memory\` tool (\`type=instinct\`).`,
   ]
 
   const sections = [
@@ -174,7 +176,7 @@ Don't ask the user about something memory may already record.`,
       : []),
   ]
 
-  return sections.join("\n\n")
+  return [sections.join("\n\n"), instinctText].filter((part) => part && part.trim()).join("\n\n")
 }
 
 export type StreamInput = {
@@ -366,7 +368,10 @@ const live: Layer.Layer<
         // checkpoint-flow call sites cover the writer/rebuild paths; this covers
         // the "agent edits MEMORY.md before any checkpoint" path. Idempotent.
         yield* Effect.promise(() => migrateProjectMemory(projectID)).pipe(Effect.ignore)
-        system.push(buildMemoryInstructions(yield* memory.root()))
+        const instinct = Instinct.make(path.join(Global.Path.data, "memory"))
+        const scope = projectID === ProjectID.global ? "global" : "projects"
+        const instinctText = yield* instinct.renderInjection({ scope, projectID }).pipe(Effect.orElseSucceed(() => ""))
+        system.push(buildMemoryInstructions(yield* memory.root(), instinctText || undefined))
       }
 
       // Plugins transform the stable base before the caller-controlled tail.

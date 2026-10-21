@@ -65,6 +65,7 @@ export const Default = {
   REVIEW: "review",
   DREAM: "dream",
   DISTILL: "distill",
+  INSTINCT: "instinct",
   GOAL: "goal",
   DEEP_RESEARCH: "deep-research",
   LOOPS: "loops",
@@ -165,6 +166,22 @@ export const layer = Layer.effect(
             "Inventory existing skills, agents, and commands first so you reuse or extend instead of duplicating.",
             "Use bash for read-only SQLite and filesystem inspection. Do not modify the database.",
             "Produce a compact shortlist, then create only the high-confidence missing assets.",
+          ].join("\n")
+        },
+        hints: ["$ARGUMENTS"],
+      }
+      commands[Default.INSTINCT] = {
+        name: Default.INSTINCT,
+        description: "review, promote or forget instinct rules",
+        source: "command",
+        subtask: false,
+        get template() {
+          return [
+            "Use the `instinct` tool to handle this request.",
+            "Operations: list, get, promote, demote, forget, review.",
+            "Never promote without evidence; never forget without explicit user confirmation.",
+            "",
+            "Request: $ARGUMENTS",
           ].join("\n")
         },
         hints: ["$ARGUMENTS"],

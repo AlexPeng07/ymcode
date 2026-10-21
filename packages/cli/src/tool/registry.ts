@@ -8,6 +8,7 @@ import { GlobTool } from "./glob"
 import { GrepTool } from "./grep"
 import { HistoryTool } from "./history"
 import { MemoryTool } from "./memory"
+import { InstinctTool } from "./instinct"
 import { ReadTool, describeMedia } from "./read"
 import { ViewImageTool } from "./view-image"
 import { ActorTool } from "./actor"
@@ -162,6 +163,7 @@ export const layer = Layer.effect(
     const mcptoolsearch = yield* McpToolSearchTool
     const historytool = yield* HistoryTool
     const memorytool = yield* MemoryTool
+    const instincttool = yield* InstinctTool
     const tasktool = yield* TaskTool
     const crontool = yield* CronTool
     const workflowtool = yield* WorkflowTool
@@ -246,6 +248,7 @@ export const layer = Layer.effect(
           lsp: Tool.init(lsptool),
           planexit: Tool.init(planexit),
           memory: Tool.init(memorytool),
+          instinct: Tool.init(instincttool),
           history: Tool.init(historytool),
           task: Tool.init(tasktool),
           cron: Tool.init(crontool),
@@ -277,6 +280,7 @@ export const layer = Layer.effect(
             ...(Flag.YMCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
             tool.planexit,
             tool.memory,
+            tool.instinct,
             tool.history,
             tool.task,
             tool.toolscript,

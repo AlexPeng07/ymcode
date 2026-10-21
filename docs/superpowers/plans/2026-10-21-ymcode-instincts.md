@@ -579,7 +579,7 @@ describe("instinct tool", () => {
 // packages/cli/src/tool/instinct.ts
 import { Effect } from "effect"
 import z from "zod"
-import { Instinct } from "@/memory/instinct-service"
+import * as Instinct from "@/memory/instinct-service"
 import * as Tool from "./tool"
 
 const parameters = z.object({
@@ -683,7 +683,7 @@ git commit -m "feat(tool): expose instinct operations"
 import { cmd } from "./cmd"
 import { Instance } from "../../project/instance"
 import { AppRuntime } from "@/effect/app-runtime"
-import { Instinct } from "../../memory/instinct-service"
+import * as Instinct from "../../memory/instinct-service"
 
 async function run(fn: (scope: "projects", projectID: string) => Promise<void>) {
   await Instance.provide({

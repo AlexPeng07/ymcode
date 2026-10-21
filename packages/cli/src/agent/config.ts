@@ -4,7 +4,12 @@ import type { Info } from "./agent"
  *  NOT by the model. They get tool whitelist defaults and are skipped by
  *  prune/bootstrap/memory/recall scans.
  */
-export const SYSTEM_SPAWNED_AGENT_TYPES: ReadonlySet<string> = new Set(["checkpoint-writer", "dream", "distill"])
+export const SYSTEM_SPAWNED_AGENT_TYPES: ReadonlySet<string> = new Set([
+  "checkpoint-writer",
+  "dream",
+  "distill",
+  "instinct-observer",
+])
 
 /** Whether the `actor` tool is in an agent's schema: subagents don't get it,
  *  because they must not spawn further subagents, and neither does an agent whose

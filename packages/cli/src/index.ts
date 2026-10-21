@@ -34,6 +34,7 @@ import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
 import { DbCommand } from "./cli/cmd/db"
 import { MigrateCommand } from "./cli/cmd/migrate"
+import { InstinctCommand } from "./cli/cmd/instinct"
 import path from "path"
 import { readdirSync, unlinkSync } from "fs"
 import { Global } from "./global"
@@ -215,6 +216,7 @@ const cli = yargs(args)
   .command(PluginCommand)
   .command(DbCommand)
   .command(MigrateCommand)
+  .command(InstinctCommand)
   .fail((msg, err) => {
     if (
       msg?.startsWith("Unknown argument") ||

@@ -59,6 +59,7 @@ import { TaskRegistry } from "@/task/registry"
 import { WorkflowRuntime } from "@/workflow/runtime"
 import { History } from "@/history"
 import { Memory } from "@/memory"
+import * as Instinct from "@/memory/instinct-service"
 import * as BashInteractive from "@/tool/bash-interactive"
 import { memoMap } from "./memo-map"
 
@@ -118,6 +119,7 @@ export const AppLayer = Layer.suspend(() =>
     TaskRegistry.defaultLayer,
     WorkflowRuntime.defaultLayer,
     Memory.defaultLayer,
+    Instinct.defaultLayer,
     History.defaultLayer,
     // MCP, Command, SessionPrompt, and Actor form one ownership chain. Their
     // standalone default layers remain convenient for focused tests, while

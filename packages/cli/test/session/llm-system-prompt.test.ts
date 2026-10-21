@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test"
 import path from "path"
 import { Effect, Stream, ManagedRuntime, Layer } from "effect"
-import { LLM } from "../../src/session/llm"
+import { LLM, buildMemoryInstructions } from "../../src/session/llm"
 import { isOpenCodeGoTarget, openCodeGoSessionHeaders } from "../../src/provider/opencode-go"
 import { ActorRegistry } from "../../src/actor/registry"
 import { Session as SessionNs } from "../../src/session"
@@ -588,6 +588,13 @@ describe("session.llm system prompt — memory-instructions guard", () => {
       else process.env.YMCODE_DISABLE_CHECKPOINT = previous
     }
   })
+})
+
+test("injects active instincts into memory instructions", () => {
+  const text = buildMemoryInstructions("/example/memory", "# Active instincts\n\n- (0.90) 提交前跑 typecheck [ins_example]")
+  expect(text).toContain("# Active instincts")
+  expect(text).toContain("提交前跑 typecheck")
+  expect(text).toContain("instincts")
 })
 
 // https://github.com/XiaomiMiMo/MiMo-Code/issues/2317 — OpenCode Go rejects

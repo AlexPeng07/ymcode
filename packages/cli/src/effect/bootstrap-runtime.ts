@@ -11,6 +11,7 @@ import { Snapshot } from "@/snapshot"
 import { Bus } from "@/bus"
 import { Config } from "@/config"
 import { Memory } from "@/memory"
+import * as Instinct from "@/memory/instinct-service"
 import { History } from "@/history"
 import * as Observability from "./observability"
 import { memoMap } from "./memo-map"
@@ -27,6 +28,7 @@ export const BootstrapLayer = Layer.mergeAll(
   Snapshot.defaultLayer,
   Bus.defaultLayer,
   Memory.defaultLayer,
+  Instinct.defaultLayer,
   History.defaultLayer,
 ).pipe(Layer.provide(Observability.layer))
 
