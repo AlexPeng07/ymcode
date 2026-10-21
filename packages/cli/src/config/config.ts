@@ -345,6 +345,31 @@ const InfoSchema = Schema.Struct({
       }),
     }),
   ),
+  instincts: Schema.optional(
+    Schema.Struct({
+      enabled: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable instinct capture and injection. Default: true.",
+      }),
+      capture: Schema.optional(Schema.Literals(["auto", "manual", "off"])).annotate({
+        description: "How candidates are captured: auto after checkpoints, manual, or off. Default: auto.",
+      }),
+      promote_threshold: Schema.optional(Schema.Number).annotate({
+        description: "Minimum confidence for promotion. Default: 0.8.",
+      }),
+      min_evidence: Schema.optional(PositiveInt).annotate({
+        description: "Minimum distinct sessions of evidence for promotion. Default: 2.",
+      }),
+      decay_days: Schema.optional(PositiveInt).annotate({
+        description: "Days without evidence before confidence decay. Default: 60.",
+      }),
+      inject_token_budget: Schema.optional(PositiveInt).annotate({
+        description: "Token budget for active instincts injected into context. Default: 1200.",
+      }),
+      observe_interval_minutes: Schema.optional(PositiveInt).annotate({
+        description: "Minimum minutes between observer runs for one session. Default: 30.",
+      }),
+    }),
+  ),
   dream: Schema.optional(
     Schema.Struct({
       auto: Schema.optional(Schema.Boolean).annotate({

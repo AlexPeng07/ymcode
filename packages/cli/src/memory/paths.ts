@@ -12,6 +12,7 @@ export type MemoryType =
   | "project"
   | "reference"
   | "user"
+  | "instinct"
 
 export const CC_TYPES = ["feedback", "project", "reference", "user"] as const
 export type CcType = (typeof CC_TYPES)[number]
@@ -35,6 +36,7 @@ const TYPE_PATTERNS: Array<{ match: RegExp; type: MemoryType }> = [
   { match: /^checkpoint-/, type: "checkpoint" },
   { match: /^tasks\/[^/]+\/progress$/, type: "progress" },
   { match: /^tasks\/[^/]+\/notes$/, type: "notes" },
+  { match: /^instincts\/[^/]+$/, type: "instinct" },
 ]
 
 function detectType(key: string): MemoryType {

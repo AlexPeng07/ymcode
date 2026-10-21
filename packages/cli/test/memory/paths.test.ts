@@ -259,3 +259,9 @@ describe("resolveProjectId", () => {
     expect(resolveProjectId("/a")).not.toBe(resolveProjectId("/b"))
   })
 })
+
+test("classifies instincts/<id> as instinct", () => {
+  const loc = parsePath("/data/memory/projects/p1/instincts/ins_abc12345.md")
+  expect(loc?.type).toBe("instinct")
+  expect(loc?.key).toBe("instincts/ins_abc12345")
+})
