@@ -18,5 +18,6 @@
   { "path": "packages/cli/test/provider/transform.test.ts", "reason": "external Xiaomi MiMo provider/model fixtures" },
   { "path": "packages/cli/test/session/llm-system-prompt.test.ts", "reason": "upstream issue URL attribution" },
   { "path": "script/brand-allowlist.json", "reason": "contains legacy names in allowlist reasons" },
-  { "path": "docs/upstream", "reason": "upstream README snapshot" }
+  { "path": "docs/upstream", "reason": "upstream README snapshot" },
+  { "path": "README.md", "reason": "documents the legacy mimocode data migration path" }
 ]
