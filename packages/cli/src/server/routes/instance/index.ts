@@ -15,6 +15,7 @@ import { Command } from "@/command"
 import { QuestionRoutes } from "./question"
 import { PermissionRoutes } from "./permission"
 import { WorkflowRoutes } from "./workflows"
+import { InstinctRoutes } from "./instinct"
 import { BashInteractiveRoutes } from "./bash-interactive"
 import { Flag } from "@/flag/flag"
 import { ExperimentalHttpApiServer } from "./httpapi/server"
@@ -60,6 +61,7 @@ export const InstanceRoutes = (upgrade: UpgradeWebSocket): Hono => {
     .route("/session", SessionRoutes())
     .route("/permission", PermissionRoutes())
     .route("/workflows", WorkflowRoutes())
+    .route("/instinct", InstinctRoutes())
     .route("/question", QuestionRoutes())
     .route("/bash-interactive", BashInteractiveRoutes())
     .route("/provider", ProviderRoutes())

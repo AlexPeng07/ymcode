@@ -20,6 +20,7 @@ import { isSystemSession } from "@/session/auto-dream"
 import semver from "semver"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
 import { DialogMimoLogin } from "@tui/component/dialog-mimo-login"
+import { DialogInstinct } from "@tui/component/dialog-instinct"
 import { ErrorComponent } from "@tui/component/error-component"
 import { PluginRouteMissing } from "@tui/component/plugin-route-missing"
 import { ProjectProvider } from "@tui/context/project"
@@ -471,6 +472,18 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       onSelect: () => {
         dialog.replace(() => <DialogWorkflows />)
+      },
+    },
+    {
+      title: t("tui.command.instinct.list.title"),
+      value: "instinct.list",
+      slash: {
+        name: "instincts",
+        aliases: ["rules"],
+      },
+      category: "system",
+      onSelect: () => {
+        dialog.replace(() => <DialogInstinct />)
       },
     },
     {

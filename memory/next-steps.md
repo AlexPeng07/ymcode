@@ -20,6 +20,9 @@
 - **新增 `ymcode setup`**：非交互/交互两用的首次运行向导（服务商 → API Key →
   默认模型 → 写入 auth.json 与全局配置并验证 provider 加载）；TUI 首次无凭据启动
   时自动打开服务商选择框，且只自动出现一次。
+- **新增 instincts TUI 面板**：`/instincts` 列出规则、展示证据与正文，支持晋升、
+  强制晋升、降级、删除、review 以及项目/全局范围切换；新增 `/instinct` HTTP 路由
+  并重新生成 SDK。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

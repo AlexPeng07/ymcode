@@ -1172,6 +1172,7 @@ export type UserMessage = {
   system?: string
   systemMode?: "append" | "replace-agent"
   harness?: "auto" | "codex" | "default"
+  task_id?: string
   tools?: {
     [key: string]: boolean
   }
@@ -1987,7 +1988,7 @@ export type ServerConfig = {
 }
 
 /**
- * Token lifetime defaults for the temporary local LLM server (mimo llm-server)
+ * Token lifetime defaults for the temporary local LLM server (ymcode llm-server)
  */
 export type LlmServerConfig = {
   /**
@@ -2483,7 +2484,7 @@ export type Config = {
   server?: ServerConfig
   llmServer?: LlmServerConfig
   /**
-   * Command configuration, see https://mimo.xiaomi.com/ymcode/commands
+   * Command configuration; see the repository documentation.
    */
   command?: {
     [key: string]: {
@@ -2583,7 +2584,7 @@ export type Config = {
     [key: string]: AgentConfig | undefined
   }
   /**
-   * Agent configuration, see https://mimo.xiaomi.com/ymcode/agents
+   * Agent configuration; see the repository documentation.
    */
   agent?: {
     plan?: AgentConfig
@@ -2958,6 +2959,36 @@ export type Config = {
      * Index Claude Code memory (~/.claude/projects/<slug>/memory) and expose under scope='cc'. Default: false. Note: when enabled, every ymcode agent (build/explore/subagents) can search these memories via the builtin `memory` tool — including CC's `type: user` (your role/preferences) and `type: feedback` (your guidance) categories. CC originally writes them for future CC sessions; flipping this on widens the consumer set to ymcode agents on the same machine. Leave disabled (default) if you don't want personal context recallable from a prompt-injection-vulnerable agent.
      */
     cc_index?: boolean
+  }
+  instincts?: {
+    /**
+     * Enable instinct capture and injection. Default: true.
+     */
+    enabled?: boolean
+    /**
+     * How candidates are captured: auto after checkpoints, manual, or off. Default: auto.
+     */
+    capture?: "auto" | "manual" | "off"
+    /**
+     * Minimum confidence for promotion. Default: 0.8.
+     */
+    promote_threshold?: number
+    /**
+     * Minimum distinct sessions of evidence for promotion. Default: 2.
+     */
+    min_evidence?: number
+    /**
+     * Days without evidence before confidence decay. Default: 60.
+     */
+    decay_days?: number
+    /**
+     * Token budget for active instincts injected into context. Default: 1200.
+     */
+    inject_token_budget?: number
+    /**
+     * Minimum minutes between observer runs for one session. Default: 30.
+     */
+    observe_interval_minutes?: number
   }
   dream?: {
     /**
@@ -6685,6 +6716,210 @@ export type WorkflowStructureResponses = {
 }
 
 export type WorkflowStructureResponse = WorkflowStructureResponses[keyof WorkflowStructureResponses]
+
+export type InstinctListData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+    scope?: "project" | "global"
+    status?: "candidate" | "active" | "retired"
+  }
+  url: "/instinct"
+}
+
+export type InstinctListResponses = {
+  /**
+   * Instinct rules
+   */
+  200: Array<{
+    id: string
+    description: string
+    status: "candidate" | "active" | "retired"
+    confidence: number
+    evidence: Array<{
+      session: string
+      date: string
+      quote?: string
+    }>
+    source: "correction" | "repetition" | "decision"
+    created_at: string
+    updated_at: string
+    last_seen_at: string
+    contradictions?: number
+  }>
+}
+
+export type InstinctListResponse = InstinctListResponses[keyof InstinctListResponses]
+
+export type InstinctForgetData = {
+  body?: never
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+    scope?: "project" | "global"
+  }
+  url: "/instinct/{id}"
+}
+
+export type InstinctForgetResponses = {
+  /**
+   * Deleted
+   */
+  200: boolean
+}
+
+export type InstinctForgetResponse = InstinctForgetResponses[keyof InstinctForgetResponses]
+
+export type InstinctGetData = {
+  body?: never
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+    scope?: "project" | "global"
+  }
+  url: "/instinct/{id}"
+}
+
+export type InstinctGetResponses = {
+  /**
+   * Instinct rule
+   */
+  200: {
+    info: {
+      id: string
+      description: string
+      status: "candidate" | "active" | "retired"
+      confidence: number
+      evidence: Array<{
+        session: string
+        date: string
+        quote?: string
+      }>
+      source: "correction" | "repetition" | "decision"
+      created_at: string
+      updated_at: string
+      last_seen_at: string
+      contradictions?: number
+    }
+    body: string
+    file: string
+  }
+}
+
+export type InstinctGetResponse = InstinctGetResponses[keyof InstinctGetResponses]
+
+export type InstinctPromoteData = {
+  body?: {
+    scope?: "project" | "global"
+    force?: boolean
+  }
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/instinct/{id}/promote"
+}
+
+export type InstinctPromoteResponses = {
+  /**
+   * Promotion result
+   */
+  200: {
+    info: {
+      id: string
+      description: string
+      status: "candidate" | "active" | "retired"
+      confidence: number
+      evidence: Array<{
+        session: string
+        date: string
+        quote?: string
+      }>
+      source: "correction" | "repetition" | "decision"
+      created_at: string
+      updated_at: string
+      last_seen_at: string
+      contradictions?: number
+    }
+    appended: boolean
+  }
+}
+
+export type InstinctPromoteResponse = InstinctPromoteResponses[keyof InstinctPromoteResponses]
+
+export type InstinctDemoteData = {
+  body?: {
+    scope?: "project" | "global"
+    reason: string
+  }
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/instinct/{id}/demote"
+}
+
+export type InstinctDemoteResponses = {
+  /**
+   * Demoted rule
+   */
+  200: {
+    id: string
+    description: string
+    status: "candidate" | "active" | "retired"
+    confidence: number
+    evidence: Array<{
+      session: string
+      date: string
+      quote?: string
+    }>
+    source: "correction" | "repetition" | "decision"
+    created_at: string
+    updated_at: string
+    last_seen_at: string
+    contradictions?: number
+  }
+}
+
+export type InstinctDemoteResponse = InstinctDemoteResponses[keyof InstinctDemoteResponses]
+
+export type InstinctReviewData = {
+  body?: {
+    scope?: "project" | "global"
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/instinct/review"
+}
+
+export type InstinctReviewResponses = {
+  /**
+   * Review result
+   */
+  200: {
+    promoted: Array<string>
+    decayed: number
+  }
+}
+
+export type InstinctReviewResponse = InstinctReviewResponses[keyof InstinctReviewResponses]
 
 export type QuestionListData = {
   body?: never

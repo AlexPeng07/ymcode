@@ -28,6 +28,8 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - `bun run upstream:diff` 可查看上游差异。
 - `ymcode doctor` 检查运行时/路径/配置/凭据/搜索/数据库并给出修复建议；`ymcode setup`
   完成服务商、API Key 与默认模型的首次配置，TUI 首次无凭据启动会自动弹出服务商选择。
+- instincts TUI 面板：`/instincts` 列出候选/生效/退役规则，支持晋升、强制晋升、降级、
+  删除、review 与项目/全局切换；数据经 `/instinct` HTTP 路由与重新生成的 SDK 读取。
 
 未验证/未完成：
 

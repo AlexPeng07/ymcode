@@ -62,6 +62,7 @@ ymcode migrate --dry-run
 - 直觉规则：`memory/projects/<project_id>/instincts/*.md`，索引 `INSTINCTS.md`
 - 捕获：checkpoint 成功后由 `instinct-observer` 子代理节流生成候选；只写候选，不晋升。
 - 晋升：`ymcode instinct promote <id>`（需达到置信度与证据阈值）或 `/instinct`；`/dream` 会执行 review。
+- 面板：TUI 中 `/instincts` 浏览候选与生效规则，支持晋升/强制晋升/降级/删除/review，并可切换项目与全局范围。
 - 注入：只有 `active` 规则进入上下文（默认 1200 token 预算）；候选通过 `memory` 工具检索。
 - 配置：`instincts.enabled`、`capture`、`promote_threshold`、`min_evidence`、`decay_days`、`inject_token_budget`、`observe_interval_minutes`。
 

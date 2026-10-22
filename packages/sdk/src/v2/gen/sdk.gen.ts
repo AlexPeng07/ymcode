@@ -67,6 +67,12 @@ import type {
   GlobalUpgradeErrors,
   GlobalUpgradeResponses,
   InstanceDisposeResponses,
+  InstinctDemoteResponses,
+  InstinctForgetResponses,
+  InstinctGetResponses,
+  InstinctListResponses,
+  InstinctPromoteResponses,
+  InstinctReviewResponses,
   LspStatusResponses,
   McpAddErrors,
   McpAddResponses,
@@ -3698,6 +3704,229 @@ export class Workflow extends HeyApiClient {
   }
 }
 
+export class Instinct extends HeyApiClient {
+  /**
+   * List instinct rules
+   *
+   * List instinct rules for the current project or the global scope, newest confidence first.
+   */
+  public list<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+      status?: "candidate" | "active" | "retired"
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "query", key: "scope" },
+            { in: "query", key: "status" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<InstinctListResponses, unknown, ThrowOnError>({
+      url: "/instinct",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Delete an instinct rule
+   *
+   * Remove an instinct rule and rebuild the index. The caller owns explicit user confirmation.
+   */
+  public forget<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "query", key: "scope" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).delete<InstinctForgetResponses, unknown, ThrowOnError>({
+      url: "/instinct/{id}",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Get one instinct rule
+   *
+   * Read a single instinct rule including its markdown body and evidence list.
+   */
+  public get<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "query", key: "scope" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<InstinctGetResponses, unknown, ThrowOnError>({
+      url: "/instinct/{id}",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Promote an instinct rule
+   *
+   * Promote a candidate into MEMORY.md. Without force the confidence and evidence thresholds must pass.
+   */
+  public promote<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+      force?: boolean
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "scope" },
+            { in: "body", key: "force" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<InstinctPromoteResponses, unknown, ThrowOnError>({
+      url: "/instinct/{id}/promote",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Demote an instinct rule
+   *
+   * Lower confidence, record a contradiction, and return the rule to candidate when it falls below threshold.
+   */
+  public demote<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+      reason?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "scope" },
+            { in: "body", key: "reason" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<InstinctDemoteResponses, unknown, ThrowOnError>({
+      url: "/instinct/{id}/demote",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Review instinct rules
+   *
+   * Apply decay and auto-promote every candidate that passes the configured thresholds.
+   */
+  public review<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "scope" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<InstinctReviewResponses, unknown, ThrowOnError>({
+      url: "/instinct/review",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+}
+
 export class Question extends HeyApiClient {
   /**
    * List pending questions
@@ -5546,6 +5775,11 @@ export class OpencodeClient extends HeyApiClient {
   private _workflow?: Workflow
   get workflow(): Workflow {
     return (this._workflow ??= new Workflow({ client: this.client }))
+  }
+
+  private _instinct?: Instinct
+  get instinct(): Instinct {
+    return (this._instinct ??= new Instinct({ client: this.client }))
   }
 
   private _question?: Question
