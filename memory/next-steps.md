@@ -14,6 +14,9 @@
   详见 memory/verification.md「P0 observer 实链路冒烟」。
 - **远端备份已建**：github.com/AlexPeng07/ymcode（私有），main 已跟踪 origin。
 - CI 品牌残留清理（test.yml git identity、brand-allowlist 补 upstream-diff）。
+- **新增 `ymcode doctor`**：检查运行时、目录可写性、配置解析与模型可用性、凭据、
+  ripgrep、会话数据库与旧版迁移目录；`--json` 便于提交问题报告，`--network`
+  额外探测 models.dev 与 github.com。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 
