@@ -119,7 +119,14 @@ function memoryTemplate(): string {
   ].join("\n")
 }
 
-export function make(root: string, settings: Settings = defaultSettings): Interface {
+/** Resolves the effective instinct settings for the current instance. */
+export type SettingsSource = () => Effect.Effect<Settings>
+
+export function make(root: string, settings: Settings | SettingsSource = defaultSettings): Interface {
+  // Settings are resolved per operation, not at construction: the layer can be
+  // built outside an instance scope (AppLayer provided at the test boundary),
+  // while every actual call runs inside one and must read that project's config.
+  const readSettings: SettingsSource = typeof settings === "function" ? settings : () => Effect.succeed(settings)
   const base = (scope: Scope, projectID: string) =>
     path.join(root, scope === "global" ? "global" : path.join("projects", projectID))
   const dir = (scope: Scope, projectID: string) => path.join(base(scope, projectID), "instincts")
@@ -217,52 +224,58 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
     })
 
   const promote = (input: { scope: Scope; projectID: string; id: string; force?: boolean }) =>
-    Effect.promise(async () => {
-      const item = await readItem(input.scope, input.projectID, input.id)
-      if (!input.force) {
-        const sessions = new Set(item.info.evidence.map((entry) => entry.session))
-        if (item.info.confidence < settings.promoteThreshold || sessions.size < settings.minEvidence) {
-          throw new Error("instinct does not meet promotion threshold")
+    Effect.gen(function* () {
+      const settings = yield* readSettings()
+      return yield* Effect.promise(async () => {
+        const item = await readItem(input.scope, input.projectID, input.id)
+        if (!input.force) {
+          const sessions = new Set(item.info.evidence.map((entry) => entry.session))
+          if (item.info.confidence < settings.promoteThreshold || sessions.size < settings.minEvidence) {
+            throw new Error("instinct does not meet promotion threshold")
+          }
         }
-      }
-      const section = sectionFor(item.info.source)
-      const file = memoryFile(input.scope, input.projectID)
-      const current = await fs.readFile(file, "utf8").catch(() => memoryTemplate())
-      const appended =
-        !normalize(current).includes(normalize(item.info.description)) &&
-        !normalize(current).includes(normalize(`instinct: ${item.info.id}`))
-      const line = `- ${item.info.description} (instinct: ${item.info.id}, confidence: ${item.info.confidence.toFixed(2)}, updated: ${new Date().toISOString().slice(0, 10)})`
-      const next = appended ? insertAfterSection(current, section, line) : current
-      if (appended && Buffer.byteLength(next) > MEMORY_MAX_BYTES) {
-        throw new Error("MEMORY.md over 10KB; run /dream to consolidate first")
-      }
-      if (appended) await fs.writeFile(file, next)
-      const info = Info.parse({ ...item.info, status: "active", updated_at: new Date().toISOString() })
-      await fs.writeFile(item.file, serialize(info, item.body))
-      await rebuildIndex(input.scope, input.projectID)
-      return { info, appended }
+        const section = sectionFor(item.info.source)
+        const file = memoryFile(input.scope, input.projectID)
+        const current = await fs.readFile(file, "utf8").catch(() => memoryTemplate())
+        const appended =
+          !normalize(current).includes(normalize(item.info.description)) &&
+          !normalize(current).includes(normalize(`instinct: ${item.info.id}`))
+        const line = `- ${item.info.description} (instinct: ${item.info.id}, confidence: ${item.info.confidence.toFixed(2)}, updated: ${new Date().toISOString().slice(0, 10)})`
+        const next = appended ? insertAfterSection(current, section, line) : current
+        if (appended && Buffer.byteLength(next) > MEMORY_MAX_BYTES) {
+          throw new Error("MEMORY.md over 10KB; run /dream to consolidate first")
+        }
+        if (appended) await fs.writeFile(file, next)
+        const info = Info.parse({ ...item.info, status: "active", updated_at: new Date().toISOString() })
+        await fs.writeFile(item.file, serialize(info, item.body))
+        await rebuildIndex(input.scope, input.projectID)
+        return { info, appended }
+      })
     })
 
   const decay = (input: { scope: Scope; projectID: string }) =>
-    Effect.promise(async () => {
-      const items = await readAll(input.scope, input.projectID)
-      let changed = 0
-      for (const item of items) {
-        if (item.info.status === "retired") continue
-        const days = (Date.now() - Date.parse(item.info.last_seen_at)) / DAY_MS
-        if (days <= settings.decayDays) continue
-        const confidence = clampConfidence(item.info.confidence - 0.1)
-        const info = Info.parse({
-          ...item.info,
-          confidence,
-          status: confidence < 0.2 ? "retired" : item.info.status,
-          updated_at: new Date().toISOString(),
-        })
-        await fs.writeFile(item.file, serialize(info, item.body))
-        changed++
-      }
-      if (changed > 0) await rebuildIndex(input.scope, input.projectID)
-      return changed
+    Effect.gen(function* () {
+      const settings = yield* readSettings()
+      return yield* Effect.promise(async () => {
+        const items = await readAll(input.scope, input.projectID)
+        let changed = 0
+        for (const item of items) {
+          if (item.info.status === "retired") continue
+          const days = (Date.now() - Date.parse(item.info.last_seen_at)) / DAY_MS
+          if (days <= settings.decayDays) continue
+          const confidence = clampConfidence(item.info.confidence - 0.1)
+          const info = Info.parse({
+            ...item.info,
+            confidence,
+            status: confidence < 0.2 ? "retired" : item.info.status,
+            updated_at: new Date().toISOString(),
+          })
+          await fs.writeFile(item.file, serialize(info, item.body))
+          changed++
+        }
+        if (changed > 0) await rebuildIndex(input.scope, input.projectID)
+        return changed
+      })
     })
 
   return {
@@ -304,19 +317,22 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
       }),
 
     demote: (input) =>
-      Effect.promise(async () => {
-        const item = await readItem(input.scope, input.projectID, input.id)
-        const confidence = clampConfidence(item.info.confidence - 0.3)
-        const info = Info.parse({
-          ...item.info,
-          confidence,
-          status: confidence < settings.promoteThreshold ? "candidate" : item.info.status,
-          contradictions: item.info.contradictions + 1,
-          updated_at: new Date().toISOString(),
+      Effect.gen(function* () {
+        const settings = yield* readSettings()
+        return yield* Effect.promise(async () => {
+          const item = await readItem(input.scope, input.projectID, input.id)
+          const confidence = clampConfidence(item.info.confidence - 0.3)
+          const info = Info.parse({
+            ...item.info,
+            confidence,
+            status: confidence < settings.promoteThreshold ? "candidate" : item.info.status,
+            contradictions: item.info.contradictions + 1,
+            updated_at: new Date().toISOString(),
+          })
+          await fs.writeFile(item.file, serialize(info, `${item.body}\n\n- contradiction: ${input.reason}`.trim()))
+          await rebuildIndex(input.scope, input.projectID)
+          return info
         })
-        await fs.writeFile(item.file, serialize(info, `${item.body}\n\n- contradiction: ${input.reason}`.trim()))
-        await rebuildIndex(input.scope, input.projectID)
-        return info
       }),
 
     forget: (input) =>
@@ -328,6 +344,7 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
 
     review: (input) =>
       Effect.gen(function* () {
+        const settings = yield* readSettings()
         const decayExit = yield* Effect.exit(decay(input))
         const decayed = Exit.isSuccess(decayExit) ? decayExit.value : 0
         const candidatesExit = yield* Effect.exit(
@@ -351,34 +368,37 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
       }),
 
     renderInjection: (input) =>
-      Effect.promise(async () => {
-        const budget = input.budget ?? settings.injectTokenBudget
-        const active = (await readAll(input.scope, input.projectID))
-          .filter((entry) => entry.info.status === "active")
-          .sort((a, b) => b.info.confidence - a.info.confidence || a.info.id.localeCompare(b.info.id))
-        if (active.length === 0) return ""
-        const lines = [
-          "# Active instincts",
-          "",
-          "Only promoted rules are listed. Search candidates with the `memory` tool (type=instinct).",
-          "",
-        ]
-        let left = budget
-        for (const item of active.slice(0, 12)) {
-          const line = `- (${item.info.confidence.toFixed(2)}) ${item.info.description} [${item.info.id}]`
-          const cost = Token.estimate(line)
-          if (cost > left) break
-          lines.push(line)
-          left -= cost
-        }
-        for (const item of active.slice(0, 3)) {
-          const body = `### ${item.info.id}\n${item.body || item.info.description}`
-          const cost = Token.estimate(body)
-          if (cost > left) break
-          lines.push(body)
-          left -= cost
-        }
-        return lines.join("\n")
+      Effect.gen(function* () {
+        const settings = yield* readSettings()
+        return yield* Effect.promise(async () => {
+          const budget = input.budget ?? settings.injectTokenBudget
+          const active = (await readAll(input.scope, input.projectID))
+            .filter((entry) => entry.info.status === "active")
+            .sort((a, b) => b.info.confidence - a.info.confidence || a.info.id.localeCompare(b.info.id))
+          if (active.length === 0) return ""
+          const lines = [
+            "# Active instincts",
+            "",
+            "Only promoted rules are listed. Search candidates with the `memory` tool (type=instinct).",
+            "",
+          ]
+          let left = budget
+          for (const item of active.slice(0, 12)) {
+            const line = `- (${item.info.confidence.toFixed(2)}) ${item.info.description} [${item.info.id}]`
+            const cost = Token.estimate(line)
+            if (cost > left) break
+            lines.push(line)
+            left -= cost
+          }
+          for (const item of active.slice(0, 3)) {
+            const body = `### ${item.info.id}\n${item.body || item.info.description}`
+            const cost = Token.estimate(body)
+            if (cost > left) break
+            lines.push(body)
+            left -= cost
+          }
+          return lines.join("\n")
+        })
       }),
   }
 }
@@ -396,17 +416,18 @@ export const layer: Layer.Layer<Service, never, Config.Service> = Layer.effect(
   Service,
   Effect.gen(function* () {
     const config = yield* Config.Service
-    // Config.get resolves through the instance state, which needs either an
-    // InstanceRef service or the Instance ALS. Layer construction can happen
-    // outside both (AppLayer provided at the outer test scope, build-time
-    // runtime creation), so fall back to defaults instead of failing the
-    // layer — otherwise every consumer of AppLayer dies before running.
-    const cfg = yield* config.get().pipe(
-      Effect.catchDefect((defect) =>
-        defect instanceof LocalContext.NotFound ? Effect.succeed({} as Config.Info) : Effect.die(defect),
-      ),
-    )
-    return Service.of(make(path.join(Global.Path.data, "memory"), settingsFromConfig(cfg)))
+    // Construction must not touch Config.get: the layer can be built outside an
+    // instance scope (AppLayer provided at the test boundary). Every operation
+    // resolves settings through this source instead, so a project's own
+    // `instincts` config applies to calls made under that project's instance.
+    const settings: SettingsSource = () =>
+      config.get().pipe(
+        Effect.map(settingsFromConfig),
+        Effect.catchDefect((defect) =>
+          defect instanceof LocalContext.NotFound ? Effect.succeed(defaultSettings) : Effect.die(defect),
+        ),
+      )
+    return Service.of(make(path.join(Global.Path.data, "memory"), settings))
   }),
 )
 
