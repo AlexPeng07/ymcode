@@ -42,7 +42,7 @@ describe("tool schema checkpoint copy is composed, not always-on", () => {
     const memory = withCheckpointDescription(MEMORY_DESCRIPTION, MEMORY_CHECKPOINT)
     expect(actor).toContain(ACTOR_DESCRIPTION.trim())
     expect(actor).toContain(ACTOR_CHECKPOINT.trim())
-    expect(memory).toContain("Session checkpoints")
+    expect(memory).toContain("会话检查点")
   })
 
   test("withCheckpointClause helper still gates optional copy on the flag", () => {

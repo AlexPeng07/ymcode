@@ -11,17 +11,17 @@ describe("actor tool prompt steers to spawn first", () => {
   ] as const) {
     describe(name, () => {
       test("names spawn as the default", () => {
-        expect(prompt).toMatch(/spawn[^\n]*\bDEFAULT\b|\bDEFAULT\b[^\n]*spawn/i)
+        expect(prompt).toMatch(/spawn[^\n]*默认|默认[^\n]*spawn/i)
       })
 
       test("ties spawn to background + parallel work", () => {
-        expect(prompt).toMatch(/background/i)
-        expect(prompt).toMatch(/parallel/i)
+        expect(prompt).toMatch(/后台/)
+        expect(prompt).toMatch(/并行/)
       })
 
       test("marks run as blocking and as the exception", () => {
-        expect(prompt).toMatch(/\brun\b[^\n]*\bBLOCK/i)
-        expect(prompt).toMatch(/exception/i)
+        expect(prompt).toMatch(/\brun\b[^\n]*阻塞/i)
+        expect(prompt).toMatch(/例外/)
       })
 
       test("mentions the spawned-result collection pattern", () => {
@@ -45,11 +45,11 @@ describe("actor tool prompt steers to spawn first", () => {
   }
 
   test("actor.txt keeps at most one run example, labelled as the exception", () => {
-    const examples = ACTOR_DESCRIPTION.slice(ACTOR_DESCRIPTION.indexOf("## Examples"))
+    const examples = ACTOR_DESCRIPTION.slice(ACTOR_DESCRIPTION.indexOf("## 示例"))
     expect(examples.length).toBeGreaterThan(0)
     const runExamples = examples.match(/"action":"run"/g)?.length ?? 0
     expect(runExamples).toBeLessThanOrEqual(1)
-    if (runExamples === 1) expect(examples).toMatch(/EXCEPTION/)
+    if (runExamples === 1) expect(examples).toMatch(/例外/)
     const spawnExamples = examples.match(/"action":"spawn"/g)?.length ?? 0
     expect(spawnExamples).toBeGreaterThanOrEqual(3)
   })

@@ -60,7 +60,7 @@ describe("loop skill", () => {
           expect(body).toContain("<<autonomous-loop>>")
 
           // Immediate first-execute rule.
-          expect(body.toLowerCase()).toContain("immediately")
+          expect(body).toContain("立刻把提示词执行一次")
 
           // Instructs the model to call the cron tool's schedule verb — but
           // does NOT hardcode a JSON call form (invocation style is per-session).

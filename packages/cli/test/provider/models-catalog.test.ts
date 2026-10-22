@@ -371,7 +371,9 @@ test("generate accepts valid offline input without fetching and writes an import
     await copyFile(path.resolve("src/provider/models-schema.ts"), path.join(root, "src/provider/models-schema.ts"))
     await symlink(path.resolve("node_modules"), path.join(root, "node_modules"), "dir")
     await writeFile(cache, JSON.stringify(baseline))
-    const child = Bun.spawn(["bun", output], {
+    // `bun` is not a real executable on every platform (Windows resolves it
+    // through an npm shim), so spawn the runtime that is running this test.
+    const child = Bun.spawn([process.execPath, output], {
       env: { ...Bun.env, MODELS_DEV_API_JSON: cache, YMCODE_MODELS_URL: "http://127.0.0.1:1" },
       stdout: "pipe", stderr: "pipe",
     })
@@ -386,13 +388,13 @@ test("generate refuses empty or malformed offline baseline before writing snapsh
   fixture(async (cache) => {
     for (const raw of ["{}", "not-json"]) {
       await writeFile(cache, raw)
-      const process = Bun.spawn(["bun", "script/generate.ts"], {
+      const child = Bun.spawn([process.execPath, "script/generate.ts"], {
         env: { ...Bun.env, MODELS_DEV_API_JSON: cache },
         stdout: "pipe",
         stderr: "pipe",
       })
-      expect(await process.exited).not.toBe(0)
-      expect(await new Response(process.stdout).text()).not.toContain("Generated models-snapshot")
+      expect(await child.exited).not.toBe(0)
+      expect(await new Response(child.stdout).text()).not.toContain("Generated models-snapshot")
     }
   }))
 

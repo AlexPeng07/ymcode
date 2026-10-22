@@ -1,4 +1,4 @@
-import { Worktree } from "../../src/worktree"
+﻿import { Worktree } from "../../src/worktree"
 import { Instance } from "../../src/project/instance"
 import { NodeFileSystem } from "@effect/platform-node"
 import { FetchHttpClient } from "effect/unstable/http"
@@ -1965,7 +1965,7 @@ it.live("uses the frozen system and appends the compaction prompt to the existin
       expect(compactionRequest.tool_choice).toBe(beforeRequest.tool_choice)
       expect(JSON.stringify(compactionRequest)).toContain(marker)
       expect(JSON.stringify(compactionRequest)).toContain("third answer kept verbatim")
-      expect(JSON.stringify(compactionRequest)).toContain("1. Task Overview")
+      expect(JSON.stringify(compactionRequest)).toContain("1. 任务概览")
       expect(JSON.stringify(compactionRequest)).not.toContain("When constructing the summary")
 
       yield* prompt.prompt({
@@ -2063,7 +2063,7 @@ it.live("provider-overflow compaction uses its configured model and keeps replay
       expect(request.messages).toBeArray()
       if (Array.isArray(request.messages)) {
         expect(JSON.stringify(request.messages[0])).not.toContain("You have been working on the task described above")
-        expect(JSON.stringify(request.messages.at(-1))).toContain("1. Task Overview")
+        expect(JSON.stringify(request.messages.at(-1))).toContain("1. 任务概览")
       }
       expect(JSON.stringify(request)).not.toContain(mcpErrorImage)
 
@@ -3281,7 +3281,7 @@ mcpIt.live(
 
         const request = (yield* llm.inputs)[0]
         expect((request.tools as Array<Record<string, unknown>>).map(wireToolName)).toEqual(["exec"])
-        expect(JSON.stringify(request)).toContain("You are Codex")
+        expect(JSON.stringify(request)).toContain("你是 Codex")
         expect(JSON.stringify(request)).toContain("tools.apply_patch")
       }),
       { git: true, config: gptProviderCfg },

@@ -56,7 +56,7 @@ describe("ToolRegistry.tools: toolset selection", () => {
         nested.filter((id) => id !== "bash").forEach((id) => expect(description).toContain(`${id}(input:`))
         expect(description).toContain("exec_command(input:")
         expect(description).not.toContain("\n  bash(input:")
-        expect(description).toContain("`timeout` is always measured in milliseconds")
+        expect(description).toContain("`timeout` 始终以毫秒为单位")
       }),
     ),
   )
@@ -198,9 +198,9 @@ describe("ToolRegistry.tools: toolset selection", () => {
           agent: general,
         })
         const bash = tools.find((tool) => tool.id === "bash")
-        expect(bash?.description).toContain("DO NOT use it for file operations")
-        expect(bash?.description).not.toContain("the dedicated `read`, `write`, and `edit` tools are unavailable")
-        expect(tools.find((tool) => tool.id === "skill_search")?.description).not.toContain("first query")
+        expect(bash?.description).toContain("不要用它执行文件操作")
+        expect(bash?.description).not.toContain("专用的 `read`、`write` 和 `edit` 工具不可用")
+        expect(tools.find((tool) => tool.id === "skill_search")?.description).not.toContain("先查询")
         expect(tools.some((tool) => tool.id === "notebook_edit")).toBeTrue()
         expect(tools.some((tool) => tool.id === "grep")).toBeTrue()
         expect(tools.some((tool) => tool.id === "glob")).toBeTrue()

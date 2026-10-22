@@ -5,7 +5,7 @@ import { ulid } from "ulid"
 import z from "zod"
 import { Global } from "../global"
 import { Config } from "../config"
-import { Token } from "@/util"
+import { LocalContext, Token } from "@/util"
 import { Info, parse, serialize, clampConfidence, type Source, type Status } from "./instinct"
 
 export type Scope = "global" | "projects"
@@ -396,7 +396,16 @@ export const layer: Layer.Layer<Service, never, Config.Service> = Layer.effect(
   Service,
   Effect.gen(function* () {
     const config = yield* Config.Service
-    const cfg = yield* config.get()
+    // Config.get resolves through the instance state, which needs either an
+    // InstanceRef service or the Instance ALS. Layer construction can happen
+    // outside both (AppLayer provided at the outer test scope, build-time
+    // runtime creation), so fall back to defaults instead of failing the
+    // layer — otherwise every consumer of AppLayer dies before running.
+    const cfg = yield* config.get().pipe(
+      Effect.catchDefect((defect) =>
+        defect instanceof LocalContext.NotFound ? Effect.succeed({} as Config.Info) : Effect.die(defect),
+      ),
+    )
     return Service.of(make(path.join(Global.Path.data, "memory"), settingsFromConfig(cfg)))
   }),
 )

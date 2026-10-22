@@ -67,21 +67,21 @@ describe("session.system", () => {
 
   test("the explicit harness selects the prompt for MiMo regardless of API transport", () => {
     const gpt = ProviderTest.model({ id: ModelID.make("gpt-5.2"), api: { id: "gpt-5.2" } as never })
-    expect(SystemPrompt.provider(gpt, "default")[0]).toContain("You are Codex")
+    expect(SystemPrompt.provider(gpt, "default")[0]).toContain("你是 Codex")
     expect(SystemPrompt.provider(gpt, "default")[0]).toContain("tools.apply_patch")
 
     const mimo = ProviderTest.model({ id: ModelID.make("mimo-v2.6"), api: { id: "mimo-v2.6" } as never })
-    expect(SystemPrompt.provider(mimo, "codex")[0]).toContain("You are Codex")
+    expect(SystemPrompt.provider(mimo, "codex")[0]).toContain("你是 Codex")
     expect(SystemPrompt.provider(mimo, "codex")[0]).toContain("tools.apply_patch")
-    expect(SystemPrompt.provider(mimo, "default")[0]).not.toContain("You are Codex")
+    expect(SystemPrompt.provider(mimo, "default")[0]).not.toContain("你是 Codex")
     expect(SystemPrompt.provider(mimo, "default")[0]).not.toContain("tools.apply_patch")
 
     const responses = ProviderTest.model({
       id: ModelID.make("mimo-v2.6-ptc"),
       api: { id: "mimo-v2.6-ptc" } as never,
     })
-    expect(SystemPrompt.provider(responses, "codex")[0]).toContain("You are Codex")
-    expect(SystemPrompt.provider(responses, "default")[0]).not.toContain("You are Codex")
+    expect(SystemPrompt.provider(responses, "codex")[0]).toContain("你是 Codex")
+    expect(SystemPrompt.provider(responses, "default")[0]).not.toContain("你是 Codex")
   })
 
   test("renders machine and repository environment only for Claude models", async () => {
@@ -206,13 +206,13 @@ describe("session.system", () => {
   test("GPT prompt aligns exec and parallel-call guidance", () => {
     const prompt = SystemPrompt.provider(ProviderTest.model())[0]
 
-    expect(prompt).toContain("Parallelize only tool calls that are independent")
-    expect(prompt).toContain("keep dependencies sequential")
-    expect(prompt).toContain("including a single small call")
+    expect(prompt).toContain("只并行相互独立的工具调用")
+    expect(prompt).toContain("让依赖操作保持串行")
+    expect(prompt).toContain("包括单次小调用")
     expect(prompt).toContain("tools.<name>(...)")
     expect(prompt).toContain('tools.skill({ name: "<skill-name>" })')
     expect(prompt).toContain("return result.output")
-    expect(prompt).toContain("never call an unavailable top-level `skill`")
+    expect(prompt).toContain("绝不要调用不可用的顶层 `skill`")
     expect(prompt).not.toContain("When possible, prefer parallelization over sequential tool calls")
   })
 

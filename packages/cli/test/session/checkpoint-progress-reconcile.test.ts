@@ -214,6 +214,8 @@ describe("composeWriterPrompt progressDiff injection", () => {
       rangeDesc: "test range",
       progressDiff: "",
     })
-    expect(prompt).not.toContain("SUBAGENT PROGRESS to integrate")
+    // The writer prompt template itself mentions the phrase when explaining the
+    // reconcile duty, so assert on the injected block's heading instead.
+    expect(prompt).not.toContain("SUBAGENT PROGRESS to integrate (since last reconcile):")
   })
 })

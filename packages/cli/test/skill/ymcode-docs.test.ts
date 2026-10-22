@@ -9,8 +9,8 @@ describe("ymcode-docs provider guidance", () => {
     const skill = await Bun.file(path.join(root, "SKILL.md")).text()
 
     expect(skill).toContain("@reference/providers.md")
-    expect(skill).toContain("Never recursively search the user's home directory")
-    expect(skill).toContain("Don't invent config keys, model limits")
+    expect(skill).toContain("绝不要递归搜索用户主目录")
+    expect(skill).toContain("不要发明配置键、模型上限")
     expect(skill).toContain("research-experiment")
     expect(skill).not.toContain("SQLite FTS5 across sessions")
   })
@@ -19,9 +19,9 @@ describe("ymcode-docs provider guidance", () => {
     const providers = await Bun.file(path.join(root, "reference/providers.md")).text()
 
     expect(providers).toContain('"npm": "@ai-sdk/openai-compatible"')
-    expect(providers).toContain("Do not substitute `@ai-sdk/compatible-openai`")
-    expect(providers).toContain("If the endpoint matches but the supplied credential differs, create a distinct provider ID")
-    expect(providers).toContain("Do not guess `limit.context`, `limit.output`")
+    expect(providers).toContain("不要替换为 `@ai-sdk/compatible-openai`")
+    expect(providers).toContain("若端点匹配但提供的凭据不同，除非用户明确想轮换现有提供方的 key，否则新建一个独立的提供方 ID")
+    expect(providers).toContain("不要根据模型名猜测 `limit.context`、`limit.output`")
     expect(providers).toContain("ymcode models PROVIDER_ID")
   })
 
@@ -29,17 +29,17 @@ describe("ymcode-docs provider guidance", () => {
     const providers = await Bun.file(path.join(root, "reference/providers.md")).text()
 
     expect(providers).toContain('"npm": "@ai-sdk/anthropic"')
-    expect(providers).toContain("the adapter appends `/messages`")
-    expect(providers).toContain("not the model name")
-    expect(providers).toContain("even when the upstream model ID contains `claude`")
-    expect(providers).toContain("`x-api-key`, and `anthropic-version`")
+    expect(providers).toContain("因为适配器会追加 `/messages`")
+    expect(providers).toContain("而不是依据模型名")
+    expect(providers).toContain("即使上游模型 ID 含 `claude`")
+    expect(providers).toContain("`x-api-key` 与 `anthropic-version`")
   })
 
   test("documents the effective global config precedence", async () => {
     const providers = await Bun.file(path.join(root, "reference/providers.md")).text()
 
-    expect(providers).toContain("`config.json`, `ymcode.json`, then `ymcode.jsonc`; later files win")
-    expect(providers).toContain("create `ymcode.jsonc` when none exists")
+    expect(providers).toContain("`config.json`、`ymcode.json`，然后是 `ymcode.jsonc`；后者胜出")
+    expect(providers).toContain("若都不存在则创建 `ymcode.jsonc`")
   })
 
   test("keeps a newly configured API model in TUI recents without clobbering state", async () => {
@@ -47,22 +47,22 @@ describe("ymcode-docs provider guidance", () => {
     const config = await Bun.file(path.join(root, "reference/config.md")).text()
     const providers = await Bun.file(path.join(root, "reference/providers.md")).text()
 
-    expect(skill).toContain("put that exact `provider/model` at the front of the TUI recent-model state")
-    expect(config).toContain("TUI recent/favorite models in `model.json`")
+    expect(skill).toContain("还要把确切的 `provider/model` 放到 TUI 最近模型状态的前端")
+    expect(config).toContain("`model.json` 中的 TUI 最近/收藏模型")
     expect(providers).toContain("$YMCODE_HOME/state/model.json")
-    expect(providers).toContain("Respect `XDG_STATE_HOME`")
-    expect(providers).toContain("Preserve every top-level field, especially `favorite` and `variant`")
-    expect(providers).toContain("remove any later entry with the same `providerID` and `modelID`")
-    expect(providers).toContain("keep at most 10 entries")
-    expect(providers).toContain("Write the recent state only after `ymcode models PROVIDER_ID`")
-    expect(providers).toContain("Never put the API key, base URL, display name, or combined `provider/model` string")
+    expect(providers).toContain("若设置了 `XDG_STATE_HOME`，遵循它")
+    expect(providers).toContain("保留每个顶层字段，尤其是 `favorite` 与 `variant`")
+    expect(providers).toContain("移除其后任何 `providerID` 与 `modelID` 相同的条目")
+    expect(providers).toContain("最多保留 10 条")
+    expect(providers).toContain("只有在 `ymcode models PROVIDER_ID` 确认该确切模型已注册后，才写入最近状态")
+    expect(providers).toContain("绝不要把 API key、base URL、显示名或拼接的 `provider/model` 字符串")
   })
 
   test("documents the checkpoint writer fork default", async () => {
     const config = await Bun.file(path.join(root, "reference/config.md")).text()
 
-    expect(config).toContain("| `checkpoint.fork` | Fork parent prefix into writer session for cache reuse (default true) |")
-    expect(config).not.toContain("| `checkpoint.fork` | Fork parent prefix into writer session for cache reuse (default false) |")
+    expect(config).toContain("| `checkpoint.fork` | 把父前缀分叉进写入器会话以复用缓存（默认 true） |")
+    expect(config).not.toContain("| `checkpoint.fork` | 把父前缀分叉进写入器会话以复用缓存（默认 false） |")
   })
 })
 
@@ -72,18 +72,18 @@ describe("ymcode-docs TUI troubleshooting", () => {
     const guide = await Bun.file(path.join(root, "reference/guide.md")).text()
     const commands = await Bun.file(path.join(root, "reference/commands.md")).text()
 
-    expect(skill.data.description).toContain("terminal compatibility, rendering glitches, TUI lag, SSH or remote rendering")
-    expect(skill.content).toContain("Terminal compatibility, TUI rendering or lag, and SSH remote use")
-    expect(guide).toContain("does not support the built-in Terminal.app")
+    expect(skill.data.description).toContain("终端兼容性、渲染异常、TUI 卡顿、SSH 或远程渲染")
+    expect(skill.content).toContain("终端兼容性、TUI 渲染或卡顿")
+    expect(guide).toContain("不支持内置的 Terminal.app")
     expect(guide).toContain("brew install --cask iterm2")
     expect(guide).toContain("ymcode serve --port 4096")
     expect(guide).toContain("ssh -N -L 4096:127.0.0.1:4096 user@remote-host")
     expect(guide).toContain("ymcode attach http://127.0.0.1:4096")
-    expect(guide).toContain("switch between Vivid and Minimal visuals as needed")
-    expect(guide).toContain("visual-mode option in `ctrl+p`")
-    expect(guide).toContain("separate animation override")
+    expect(guide).toContain("按需在 Vivid 与 Minimal 视觉之间切换")
+    expect(guide).toContain("`ctrl+p` 中的视觉模式选项")
+    expect(guide).toContain("独立的动画覆盖开关")
     expect(guide).not.toContain("same persisted setting")
-    expect(commands).toContain("see @guide.md")
+    expect(commands).toContain("见 @guide.md")
   })
 })
 
@@ -98,15 +98,15 @@ describe("ymcode-docs permission arity", () => {
   test("classifies mcp_sampling as glob-keyed, not action-only", async () => {
     const permissions = await Bun.file(path.join(root, "reference/permissions.md")).text()
 
-    const globLine = permissions.split("\n").find((line) => line.startsWith("Glob-keyed"))
-    const simpleLine = permissions.split("\n").find((line) => line.startsWith("Simple action-only"))
+    const globLine = permissions.split("\n").find((line) => line.startsWith("以 glob 为键"))
+    const simpleLine = permissions.split("\n").find((line) => line.startsWith("仅用简单动作"))
     expect(globLine).toBeDefined()
     expect(simpleLine).toBeDefined()
     expect(globLine).toContain("`mcp_sampling`")
     expect(simpleLine).not.toContain("`mcp_sampling`")
     // The glob key is a server name, not a path or a command — say so, since the
     // section is otherwise about paths and commands.
-    expect(permissions).toContain("except for `mcp_sampling`, where it is the MCP server name")
+    expect(permissions).toContain("但 `mcp_sampling` 例外，其键是 MCP 服务器名")
     // The example that the old classification contradicted must still be present.
     expect(permissions).toContain('"mcp_sampling": { "*": "ask", "mimo-cut": "allow" }')
   })
@@ -115,7 +115,7 @@ describe("ymcode-docs permission arity", () => {
     const permissions = await Bun.file(path.join(root, "reference/permissions.md")).text()
 
     expect(permissions).toContain(
-      'A `deny` from either control wins: `mcp.<name>.sampling: "allow"` does **not** override `permission.mcp_sampling` denying that server.',
+      '任一控制给出 `deny` 都胜出：`mcp.<name>.sampling: "allow"` **不会**覆盖 `permission.mcp_sampling` 对该服务器的拒绝。',
     )
   })
 })
