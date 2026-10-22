@@ -222,3 +222,39 @@ headless `ymcode run` 在 checkpoint-writer drain 后立即退出，杀死刚 sp
 
 - `ymcode instinct list` 必须在项目 cwd 下运行（按 cwd 解析 projectID）。
 - 触发节流：`shouldObserve` 要求 `checkpoints % 3 === 0` 且距 lastRunAt 超过 interval。
+
+## 2026-10-22 Linux 全量定性（阿里云服务器，逐文件跑）
+
+**动机**：GitHub Actions 免费额度耗尽（runner 不启动），改在用户自有服务器
+（Alibaba Cloud Linux 4 / x86_64 / 2 核 1.6G + 4G swap）上跑 Linux 全量，
+定性 277 个 Windows 失败。部署方式：git bundle 本地打包 scp 上传 clone
+（服务器连不上 github 443，私有仓库不能走公共镜像）；bun 走 npmmirror 二进制镜像；
+npm 依赖走 registry.npmmirror.com；装 gcc/python3 编译 tree-sitter 原生模块。
+
+**执行方式**：`bun test` 全量单进程在 651 用例后被 OOM-kill（虚拟内存 75GB），
+改为 565 个测试文件逐文件串行（每文件独立 bun 进程），全部跑完（ALL-DONE）。
+
+### 结果：42/565 个文件存在失败（数据见服务器 /root/test-results.txt）
+
+与 Windows 277 fail 的对照（按文件）：
+
+- **两边都挂（平台无关，测试本身需要整修）**：
+  `actor/main-wait`（Linux 46 fail）、`config/tui`（27 fail，与 Windows 数一致）、
+  `session/turn-queue-admission`（20 fail）、`skill/ymcode-docs`（9 fail，内容断言
+  与汉化漂移，平台无关）、`session/prompt-effect`（3 fail）、`file/ripgrep`（5 fail）、
+  `tool/grep`（4 fail）、inbox/queue 系列、history 等。
+- **Windows 特有（Linux 全过）**：`tool/memory-path-guard`（Windows 29 fail，
+  Linux 通过）、`permission/next`、`mcp/lifecycle`、`tool/bash` 不在 Linux 失败清单。
+- **Linux 环境性失败（Windows 过）**：`installation/launcher-bin`、
+  `installation/postinstall`（无 build 产物）、`effect/cross-spawn-spawner`（15 fail，
+  服务器 spawn 环境）、`provider/refresh-boundaries`（网络环境）等。
+- `provider/transform.test.ts` 逐文件跑时无汇总输出（疑似资源卡死，其后服务器 SSH
+  持续超时），待服务器恢复后单独复核。
+
+### 结论
+
+Windows 277 fail **不是**单纯的平台问题：失败文件在 Linux 上大多同样失败
+（两边合计失败面更大），核心是测试断言与实现漂移、时序敏感、环境假设过强，
+需要一次专门的测试整修轮次（先按"两边都挂 / 仅 Windows / 仅 Linux"三档拆分，
+两边都挂的优先修）。Windows 侧零回归的结论不变（memory-path-guard 等差异
+均为既有平台差异，非本次改动引入）。
