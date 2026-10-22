@@ -15,12 +15,14 @@
 - **远端备份已建**：github.com/AlexPeng07/ymcode（私有），main 已跟踪 origin。
 - CI 品牌残留清理（test.yml git identity、brand-allowlist 补 upstream-diff）。
 
-## P1：GitHub Actions billing 阻塞（需要用户）
+## P1：测试整修轮次（Linux 全量已定性）
 
-push 已触发 CI，但 runner 不启动：账号有未支付账单或支出限制
-（"recent account payments have failed or your spending limit needs to be increased"）。
-需在 GitHub Settings → Billing & plans 处理；修好后 `gh run rerun <run-id>` 重跑，
-Linux 全量结果即可定性 277 个 Windows 失败是否平台相关。
+Linux 全量（自有服务器逐文件串行）结果：pass=5948 / fail=207 / skip=50，41 个文件有失败；
+Windows 为 277 fail。失败面大部分与平台无关（main-wait 46 / config/tui 27 /
+turn-queue-admission 20 / ymcode-docs 9 两边都挂），需专门整修：
+先按"两边都挂 / 仅 Windows / 仅 Linux"三档拆分，两边都挂的优先修。
+运维细节见 memory/verification.md「服务器复用方式」。
+GitHub Actions 额度耗尽，若后续要用 CI 需在 Billing 充值，或注册 self-hosted runner。
 
 ## P2：TUI 像素级人工验收（可选）
 

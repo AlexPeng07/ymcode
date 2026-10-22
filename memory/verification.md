@@ -234,7 +234,11 @@ npm 依赖走 registry.npmmirror.com；装 gcc/python3 编译 tree-sitter 原生
 **执行方式**：`bun test` 全量单进程在 651 用例后被 OOM-kill（虚拟内存 75GB），
 改为 565 个测试文件逐文件串行（每文件独立 bun 进程），全部跑完（ALL-DONE）。
 
-### 结果：42/565 个文件存在失败（数据见服务器 /root/test-results.txt）
+### 结果：Linux 全量 pass=5948 / fail=207 / skip=50（565 个文件，41 个文件有失败）
+
+（逐文件日志在服务器 `/root/test-results.txt`；`provider/transform.test.ts` 在该轮无汇总行，
+单独复核为 263 pass / 0 fail / 16s，已计入上面 pass 总数。该文件上次导致服务器卡死
+是资源叠加巧合，不是测试死循环——复跑正常。）
 
 与 Windows 277 fail 的对照（按文件）：
 
@@ -247,14 +251,20 @@ npm 依赖走 registry.npmmirror.com；装 gcc/python3 编译 tree-sitter 原生
   Linux 通过）、`permission/next`、`mcp/lifecycle`、`tool/bash` 不在 Linux 失败清单。
 - **Linux 环境性失败（Windows 过）**：`installation/launcher-bin`、
   `installation/postinstall`（无 build 产物）、`effect/cross-spawn-spawner`（15 fail，
-  服务器 spawn 环境）、`provider/refresh-boundaries`（网络环境）等。
-- `provider/transform.test.ts` 逐文件跑时无汇总输出（疑似资源卡死，其后服务器 SSH
-  持续超时），待服务器恢复后单独复核。
+  服务器 spawn 环境）、`provider/refresh-boundaries`（网络环境）、`inbox/*`、
+  `history/*`、`plugin/host-node` 等。
 
 ### 结论
 
-Windows 277 fail **不是**单纯的平台问题：失败文件在 Linux 上大多同样失败
-（两边合计失败面更大），核心是测试断言与实现漂移、时序敏感、环境假设过强，
-需要一次专门的测试整修轮次（先按"两边都挂 / 仅 Windows / 仅 Linux"三档拆分，
-两边都挂的优先修）。Windows 侧零回归的结论不变（memory-path-guard 等差异
-均为既有平台差异，非本次改动引入）。
+Windows 277 fail / Linux 207 fail 说明失败面**大部分与平台无关**：测试断言与实现漂移、
+时序敏感、环境假设过强才是主因，需要一次专门的测试整修轮次（先按"两边都挂 / 仅 Windows /
+仅 Linux"三档拆分，两边都挂的优先修）。Windows 侧零回归的结论不变
+（memory-path-guard 等差异均为既有平台差异，非本次改动引入）。
+
+### 服务器复用方式（后续跑 Linux 测试）
+
+- 代码在 `/root/ymcode`（git bundle 装入，无 origin）——更新代码需重新 bundle + scp。
+- toolchain：`/root/.bun/bin/bun`（1.3.14，npmmirror 二进制）、gcc/python3 已装、
+  `/root/ymcode/bunfig.toml` 指向 registry.npmmirror.com。
+- **不要用单进程全量 `bun test`**：1.6G 内存会 OOM。用 `timeout` 兜底逐文件串行，
+  或先加内存。卡死时 SSH banner 会超时，需控制台强制重启（数据不丢）。
