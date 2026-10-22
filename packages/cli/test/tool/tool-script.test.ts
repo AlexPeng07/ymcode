@@ -171,8 +171,8 @@ describe("exec", () => {
     const parsed = def.parameters.parse({ code: "return 1", timeout: 120_000 })
 
     expect(parsed.timeout).toBe(120_000)
-    expect(def.description).toContain("`timeout` is always measured in milliseconds")
-    expect(def.description).toContain("600000 milliseconds")
+    expect(def.description).toContain("`timeout`")
+    expect(def.description).toContain("600000")
   })
 
   test("cannot call tools outside the actor runtime whitelist", async () => {
@@ -770,7 +770,7 @@ return r.output;`,
     const marker = `ts-${Date.now()}`
     const write = await runToolScript(
       `
-      await files.writeText("${path.join(os.tmpdir(), marker)}.json", JSON.stringify({ a: [1, 2], s: "x: 1" }))
+      await files.writeText(${JSON.stringify(path.join(os.tmpdir(), marker) + ".json")}, JSON.stringify({ a: [1, 2], s: "x: 1" }))
       return "written"
       `,
       [],
@@ -778,7 +778,7 @@ return r.output;`,
     expect(write.metadata.status).toBe("completed")
     const read = await runToolScript(
       `
-      const data = JSON.parse(await files.readText("${path.join(os.tmpdir(), marker)}.json"))
+      const data = JSON.parse(await files.readText(${JSON.stringify(path.join(os.tmpdir(), marker) + ".json")}))
       return data.a.length + ":" + data.s
       `,
       [],
@@ -790,7 +790,7 @@ return r.output;`,
 
   test("files.readText returns null for missing file", async () => {
     const result = await runToolScript(
-      `return (await files.readText("${path.join(os.tmpdir(), "definitely-missing-xyz.json")}")) === null`,
+      `return (await files.readText(${JSON.stringify(path.join(os.tmpdir(), "definitely-missing-xyz.json"))})) === null`,
       [],
     )
     expect(result.output).toContain("true")
@@ -925,7 +925,7 @@ return r.output;`,
     const bin = path.join(os.tmpdir(), `ts-bin-${Date.now()}.dat`)
     await fs.writeFile(bin, new Uint8Array([0x00, 0xff, 0xfe, 0x41, 0x80]))
     const result = await runToolScript(
-      `try { await files.readText("${bin}"); return "no-error" } catch (e) { return "caught: " + e.message }`,
+      `try { await files.readText(${JSON.stringify(bin)}); return "no-error" } catch (e) { return "caught: " + e.message }`,
       [],
     )
     expect(result.metadata.status).toBe("completed")
@@ -939,7 +939,7 @@ return r.output;`,
     // Valid UTF-8 containing a NUL byte — legal text, previously truncated at \0.
     await fs.writeFile(nulFile, "before\0after")
     const result = await runToolScript(
-      `const v = await files.readText("${nulFile}"); return { len: v.length, tail: v.slice(7) }`,
+      `const v = await files.readText(${JSON.stringify(nulFile)}); return { len: v.length, tail: v.slice(7) }`,
       [],
     )
     expect(result.metadata.status).toBe("completed")

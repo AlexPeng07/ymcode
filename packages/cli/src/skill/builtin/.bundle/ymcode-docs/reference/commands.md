@@ -1,34 +1,34 @@
 # ymcode 命令参考
 
-## CLI（`mimo <command>`）
+## CLI（`ymcode <command>`）
 
-从 shell 调用。不带命令的 `mimo` 会打开 TUI。
+从 shell 调用。不带命令的 `ymcode` 会打开 TUI。
 
 | 命令 | 用途 |
 |---------|---------|
-| `mimo` | 启动交互式 TUI |
+| `ymcode` | 启动交互式 TUI |
 | `ymcode run` | 无头、非交互运行（脚本/评测） |
-| `mimo mcp` | 管理 / 查看 MCP 服务器 |
+| `ymcode mcp` | 管理 / 查看 MCP 服务器 |
 | `ymcode agent` | 管理智能体 |
 | `ymcode models` | 列出可用模型 |
-| `mimo providers` | 列出 / 管理提供方 |
-| `mimo account`（console） | 账户 / 登录控制台 |
+| `ymcode providers` | 列出 / 管理提供方 |
+| `ymcode account`（console） | 账户 / 登录控制台 |
 | `ymcode upgrade` | 更新到最新版本 |
 | `ymcode uninstall` | 卸载 ymcode |
 | `ymcode serve` | 运行服务器 |
 | `ymcode llm-server issue`/`list`/`revoke` | 签发与管理 token，让任务能通过 `/v1` 访问本实例的模型；它不启动任何东西——见 @capability-api.md |
-| `mimo stats` | 使用统计 |
-| `mimo export` / `ymcode import` | 导出 / 导入会话 |
-| `mimo session` | 管理会话 |
-| `ymcode github` / `mimo pr` | GitHub / 拉取请求集成 |
-| `mimo generate` | 代码生成入口 |
-| `mimo plugin`（plug） | 管理插件 |
+| `ymcode stats` | 使用统计 |
+| `ymcode export` / `ymcode import` | 导出 / 导入会话 |
+| `ymcode session` | 管理会话 |
+| `ymcode github` / `ymcode pr` | GitHub / 拉取请求集成 |
+| `ymcode generate` | 代码生成入口 |
+| `ymcode plugin`（plug） | 管理插件 |
 | `ymcode db` | 数据库工具 |
-| `mimo acp` / `ymcode attach` | ACP / 附着到运行中的会话 |
-| `mimo debug` | 调试工具 |
-| `mimo completion` | 生成 shell 补全脚本 |
+| `ymcode acp` / `ymcode attach` | ACP / 附着到运行中的会话 |
+| `ymcode debug` | 调试工具 |
+| `ymcode completion` | 生成 shell 补全脚本 |
 
-运行 `mimo <command> --help` 可查看任何命令的参数。
+运行 `ymcode <command> --help` 可查看任何命令的参数。
 
 值得注意的 TUI 参数：`--continue`/`-c`（恢复上次会话）、`--session`/`-s`、`--model`/`-m`、`--agent`、`--never-ask`、`--trust`，以及 `--dangerously-skip-permissions`/`--yolo`（自动批准所有未被明确拒绝的操作；会提示确认一次——见 permissions.md）。
 
@@ -137,4 +137,4 @@
 ## 备注
 
 - web 命令当前已禁用；TUI 是受支持的界面。
-- 语音 ASR（`mimo-v2.5-asr`）仅限 MiMo 平台；语音控制（`mimo-v2.5`）也可通过 `voice` 配置在 OpenRouter 及兼容中继上运行（见 config.md 与 README 的语音章节）。
+- 语音 ASR（`ymcode-v2.5-asr`）仅限 MiMo 平台；语音控制（`ymcode-v2.5`）也可通过 `voice` 配置在 OpenRouter 及兼容中继上运行（见 config.md 与 README 的语音章节）。

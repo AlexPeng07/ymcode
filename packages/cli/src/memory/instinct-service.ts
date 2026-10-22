@@ -2,6 +2,7 @@ import { Context, Effect, Exit, Layer } from "effect"
 import fs from "fs/promises"
 import path from "path"
 import { ulid } from "ulid"
+import z from "zod"
 import { Global } from "../global"
 import { Config } from "../config"
 import { Token } from "@/util"
@@ -22,6 +23,13 @@ export const defaultSettings: Settings = {
   decayDays: 60,
   injectTokenBudget: 1200,
 }
+
+export const Bundle = z.object({
+  version: z.literal(1),
+  exported_at: z.string(),
+  items: z.array(z.object({ info: Info, body: z.string() })),
+})
+export type Bundle = z.infer<typeof Bundle>
 
 export interface Interface {
   readonly list: (input: { scope: Scope; projectID: string; status?: Status }) => Effect.Effect<Info[]>
@@ -49,6 +57,13 @@ export interface Interface {
   readonly decay: (input: { scope: Scope; projectID: string }) => Effect.Effect<number>
   readonly review: (input: { scope: Scope; projectID: string }) => Effect.Effect<{ promoted: string[]; decayed: number }>
   readonly renderInjection: (input: { scope: Scope; projectID: string; budget?: number }) => Effect.Effect<string>
+  readonly exportAll: (input: { scope: Scope; projectID: string; status?: Status }) => Effect.Effect<Bundle>
+  readonly importAll: (input: {
+    scope: Scope
+    projectID: string
+    bundle: unknown
+    force?: boolean
+  }) => Effect.Effect<{ imported: number; skipped: number }>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@ymcode/Instinct") {}
@@ -167,21 +182,32 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
       const now = new Date().toISOString()
       const id = input.id ?? `ins_${ulid().toLowerCase().slice(0, 12)}`
       if (!ID_RE.test(id)) throw new Error("invalid instinct id")
-      const existing = (await readAll(input.scope, input.projectID)).find((entry) => entry.info.id === id)?.info
+      const current = (await readAll(input.scope, input.projectID)).find((entry) => entry.info.id === id)
+      const existing = current?.info
+      const evidenceKeys = new Set((existing?.evidence ?? []).map((entry) => `${entry.session}|${entry.date}`))
+      const newEvidence = input.evidence.some((entry) => !evidenceKeys.has(`${entry.session}|${entry.date}`))
       const evidence = [...(existing?.evidence ?? []), ...input.evidence].filter(
         (entry, index, all) =>
           all.findIndex((candidate) => candidate.session === entry.session && candidate.date === entry.date) === index,
       )
+      const confidence = clampConfidence(input.confidence)
+      const contentChanged =
+        !!existing &&
+        (existing.description !== input.description.trim() ||
+          existing.source !== input.source ||
+          existing.confidence !== confidence ||
+          (current?.body ?? "") !== input.body.trim())
+      if (existing && !newEvidence && !contentChanged) return existing
       const info = Info.parse({
         id,
         description: input.description.trim(),
         status: existing?.status ?? "candidate",
-        confidence: clampConfidence(input.confidence),
+        confidence,
         evidence,
         source: input.source,
         created_at: existing?.created_at ?? now,
         updated_at: now,
-        last_seen_at: now,
+        last_seen_at: !existing || newEvidence ? now : existing.last_seen_at,
         contradictions: existing?.contradictions ?? 0,
       })
       await fs.mkdir(dir(input.scope, input.projectID), { recursive: true })
@@ -245,6 +271,37 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
     write,
     promote,
     decay,
+
+    exportAll: (input) =>
+      Effect.promise(async () => {
+        const items = (await readAll(input.scope, input.projectID))
+          .filter((entry) => !input.status || entry.info.status === input.status)
+          .sort((a, b) => b.info.confidence - a.info.confidence || a.info.id.localeCompare(b.info.id))
+        return {
+          version: 1 as const,
+          exported_at: new Date().toISOString(),
+          items: items.map((entry) => ({ info: entry.info, body: entry.body })),
+        }
+      }),
+
+    importAll: (input) =>
+      Effect.promise(async () => {
+        const bundle = Bundle.parse(input.bundle)
+        await fs.mkdir(dir(input.scope, input.projectID), { recursive: true })
+        let imported = 0
+        let skipped = 0
+        for (const item of bundle.items) {
+          const file = path.join(dir(input.scope, input.projectID), `${item.info.id}.md`)
+          if (!input.force && (await fs.stat(file).then(() => true).catch(() => false))) {
+            skipped++
+            continue
+          }
+          await fs.writeFile(file, serialize(Info.parse(item.info), item.body))
+          imported++
+        }
+        if (imported > 0) await rebuildIndex(input.scope, input.projectID)
+        return { imported, skipped }
+      }),
 
     demote: (input) =>
       Effect.promise(async () => {
@@ -326,7 +383,7 @@ export function make(root: string, settings: Settings = defaultSettings): Interf
   }
 }
 
-function settingsFromConfig(config: Config.Info): Settings {
+export function settingsFromConfig(config: Config.Info): Settings {
   return {
     promoteThreshold: config.instincts?.promote_threshold ?? defaultSettings.promoteThreshold,
     minEvidence: config.instincts?.min_evidence ?? defaultSettings.minEvidence,

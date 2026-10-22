@@ -5,33 +5,33 @@ import { AppRuntime } from "@/effect/app-runtime"
 const options = {
   port: {
     type: "number" as const,
-    describe: "port to listen on (0 = OS-assigned ephemeral; pass an explicit port when a fixed URL is required)",
+    describe: "监听端口（0 表示由系统分配临时端口；需要固定 URL 时请显式指定端口）",
     default: 0,
   },
   hostname: {
     type: "string" as const,
-    describe: "hostname to listen on",
+    describe: "监听主机名",
     default: "127.0.0.1",
   },
   mdns: {
     type: "boolean" as const,
-    describe: "enable mDNS service discovery (defaults hostname to 0.0.0.0)",
+    describe: "启用 mDNS 服务发现（默认将主机名设为 0.0.0.0）",
     default: false,
   },
   "mdns-domain": {
     type: "string" as const,
-    describe: "custom domain name for mDNS service (default: ymcode.local)",
+    describe: "mDNS 服务的自定义域名（默认：ymcode.local）",
     default: "ymcode.local",
   },
   cors: {
     type: "string" as const,
     array: true,
-    describe: "additional domains to allow for CORS",
+    describe: "额外允许的 CORS 域名",
     default: [] as string[],
   },
   "no-auth": {
     type: "boolean" as const,
-    describe: "allow starting without authentication on non-loopback addresses (DANGEROUS)",
+    describe: "允许在非回环地址上无认证启动（危险）",
     default: false,
   },
 }

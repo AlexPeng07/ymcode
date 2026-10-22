@@ -82,21 +82,21 @@ const cli = yargs(args)
   .parserConfiguration({ "populate--": true })
   .scriptName("ymcode")
   .wrap(100)
-  .help("help", "show help")
+  .help("help", "显示帮助")
   .alias("help", "h")
-  .version("version", "show version number", InstallationVersion)
+  .version("version", "显示版本号", InstallationVersion)
   .alias("version", "v")
   .option("print-logs", {
-    describe: "print logs to stderr",
+    describe: "将日志输出到 stderr",
     type: "boolean",
   })
   .option("log-level", {
-    describe: "log level",
+    describe: "日志级别",
     type: "string",
     choices: ["DEBUG", "INFO", "WARN", "ERROR"],
   })
   .option("pure", {
-    describe: "run without external plugins",
+    describe: "不加载外部插件运行",
     type: "boolean",
   })
   .middleware(async (opts) => {
@@ -189,7 +189,7 @@ const cli = yargs(args)
     }
   })
   .usage("")
-  .completion("completion", "generate shell completion script")
+  .completion("completion", "生成 shell 补全脚本")
   .command(AcpCommand)
   .command(McpCommand)
   .command(TuiThreadCommand)

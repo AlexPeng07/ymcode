@@ -219,97 +219,97 @@ function normalizePath(input?: string) {
 
 export const RunCommand = cmd({
   command: "run [message..]",
-  describe: "run ymcode with a message",
+  describe: "发送消息运行 ymcode",
   builder: (yargs: Argv) => {
     return yargs
       .positional("message", {
-        describe: "message to send",
+        describe: "要发送的消息",
         type: "string",
         array: true,
         default: [],
       })
       .option("command", {
-        describe: "the command to run, use message for args",
+        describe: "要运行的命令，参数通过 message 传入",
         type: "string",
       })
       .option("continue", {
         alias: ["c"],
-        describe: "continue the last session",
+        describe: "继续上一个会话",
         type: "boolean",
       })
       .option("session", {
         alias: ["s"],
-        describe: "session id to continue",
+        describe: "要继续的会话 ID",
         type: "string",
       })
       .option("fork", {
-        describe: "fork the session before continuing (requires --continue or --session)",
+        describe: "继续前派生会话（需要 --continue 或 --session）",
         type: "boolean",
       })
       .option("share", {
         type: "boolean",
-        describe: "share the session",
+        describe: "共享会话",
       })
       .option("model", {
         type: "string",
         alias: ["m"],
-        describe: "model to use in the format of provider/model",
+        describe: "使用的模型，格式为 服务商/模型",
       })
       .option("agent", {
         type: "string",
-        describe: "agent to use",
+        describe: "使用的智能体",
       })
       .option("format", {
         type: "string",
         choices: ["default", "json"],
         default: "default",
-        describe: "format: default (formatted) or json (raw JSON events)",
+        describe: "输出格式：default（格式化）或 json（原始 JSON 事件）",
       })
       .option("file", {
         alias: ["f"],
         type: "string",
         array: true,
-        describe: "file(s) to attach to message",
+        describe: "要附加到消息的文件",
       })
       .option("title", {
         type: "string",
-        describe: "title for the session (uses truncated prompt if no value provided)",
+        describe: "会话标题（不提供值时使用截断的提示词）",
       })
       .option("attach", {
         type: "string",
-        describe: "attach to a running ymcode server (use the URL printed by `ymcode serve`)",
+        describe: "连接到正在运行的 ymcode 服务器（使用 `ymcode serve` 输出的 URL）",
       })
       .option("password", {
         alias: ["p"],
         type: "string",
-        describe: "basic auth password (defaults to YMCODE_SERVER_PASSWORD)",
+        describe: "Basic 认证密码（默认取 YMCODE_SERVER_PASSWORD）",
       })
       .option("dir", {
         type: "string",
-        describe: "directory to run in, path on remote server if attaching",
+        describe: "运行目录；连接远程服务器时为远程路径",
       })
       .option("port", {
         type: "number",
-        describe: "port for the local server (defaults to random port if no value provided)",
+        describe: "本地服务器端口（不提供值时使用随机端口）",
       })
       .option("variant", {
         type: "string",
-        describe: "model variant (provider-specific reasoning effort, e.g., high, max, minimal)",
+        describe: "模型变体（服务商特定的推理强度，例如 high、max、minimal）",
       })
       .option("thinking", {
         type: "boolean",
-        describe: "show thinking blocks",
+        describe: "显示思考块",
         default: false,
       })
       .option("role", {
         type: "string",
         choices: ["user", "assistant"],
-        describe: "role for the injected message (assistant injects text as model output then triggers continuation)",
+        describe: "注入消息的角色（assistant 会将文本作为模型输出注入并触发后续生成）",
       })
       .option("dangerously-skip-permissions", {
         alias: ["yolo"],
         type: "boolean",
-        describe: "auto-approve permissions that are not explicitly denied (dangerous!)",
+        describe: "自动批准未被明确拒绝的权限（危险！）",
         default: false,
       })
   },

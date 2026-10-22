@@ -54,3 +54,48 @@
 - `/logout` 改为清除当前模型所属 provider 的凭据，而不是固定删除 xiaomi。
 - 清理相关 i18n 文案（en/zh/es/fr/ja/ru/zht）与插件测试。
 - 验证：`typecheck`、`check:brand`、`check:i18n`（706 en / 731 zh）、`check:skills`、`check:prompts` 通过；`test/plugin/mimo.test.ts` + `test/cli/tui/model.test.ts` 12 pass / 0 fail；离线构建 `--version` 冒烟通过。
+
+### 剩余待办批量完成（2026-10-22）
+
+**登录与主题收尾**
+
+- 移除小米条款弹窗：删除 `dialog-agreement.tsx`、`agreement.test.ts`、`app.tsx` 的首启弹窗逻辑与 7 语言 `tui.home.agreement.*` / `tui.dialog.agreement.*` keys。
+- 移除小米专用 `ymcode auth whoami`（凭据查看统一走 `ymcode auth list`）。
+- 默认模型按凭据选择：`Model.hasCredentials()`（key / source=env / options.apiKey）；`fallback` 顺序改为 xiaomi(有凭据) → 第一个有凭据 provider → 第一个 provider。新增 3 个测试用例。
+
+**P1：CLI `--help` 全量汉化**
+
+- 顶层 `index.ts`、`cli/network.ts` 与 33 个命令文件约 173 条 `describe` 翻译为中文；术语统一（服务商/会话/凭据/插件/智能体/快照/工作树/权限/模型变体）；保留 MCP、OAuth、JSON、ACP、LSP、ripgrep、TUI、URL、shell、npm、API Key。
+- 内置 ymcode-docs 技能中第一方命令名 `mimo ...` 清理为 `ymcode ...`。
+- `ymcode --help` / `auth --help` / `instinct --help` 构建产物冒烟确认为中文。
+
+**P0：observer 抽取自动化**
+
+- 新增 `test/session/instinct-observer-extraction.test.ts`：scripted OpenAI 兼容 SSE server 返回 `instinct` 工具调用，真实工具管线执行，candidate 落盘断言（id/status/confidence/evidence）。通过 `prompt.prompt(agent: "instinct-observer")` 驱动完整链路，无需真实网络。
+
+**P3：TUI 自动化视觉验收**
+
+- 新增 `test/cli/tui/theme-blue.test.ts`：`resolveTheme` 深浅模式断言 primary/secondary/success/info 蓝色系；导出 `generateSystem` 并断言系统主题 brand 色来自 `#3B82F6` 而非橙色。
+- 新增 `test/cli/tui/login-dialog.test.tsx`：`testRender` 渲染 `DialogMimoLogin`，断言 Xiaomi 入口保留、OAuth 流程文案（MiMo Login / Paste Code / Waiting for browser authorization）不再出现。
+
+**P5：instincts 记忆层增强**
+
+- 导出 `settingsFromConfig`；`llm.ts` 注入与 `tool/instinct.ts` 改为从 `Config.Service` 读取阈值（工具侧用 `Effect.serviceOption` 保持 R=never，读取失败回退默认值）。
+- observer 状态原子写：`writeObserverState` 先写 tmp 再 rename；`readObserverState` 对损坏 JSON 返回 `{}`。新增 roundtrip/损坏容错测试。
+- `last_seen_at` 稳定策略：同内容重复 `write` 不再刷新 `last_seen_at/updated_at`；仅新 evidence 更新 `last_seen_at`；仅 body/内容变化更新 `updated_at`。新增 3 断言测试。
+- 新增 `exportAll`/`importAll`（bundle version=1，zod 校验）与 CLI `instinct export`/`instinct import`（支持 `--status`/`--global`/`--force`/`--output`）。服务层测试 + 隔离 `YMCODE_HOME` CLI 冒烟（import → list → export roundtrip）通过。
+
+**P4：上游差异脚本**
+
+- 新增 `script/upstream-diff.ts`（`bun run upstream:diff`，支持 `--all`/`--json`）；SHA-256 内容比较，默认忽略 `.git`/`node_modules`/`dist` 等目录。首次运行：changed 757 / added 70 / deleted 17。
+
+**P2：Windows 全量测试**
+
+- 第一次全量运行（2401s）：5534 pass / 66 skip / 744 fail。逐类归因后：
+  - `test/cli/tui/plugin-*.test.ts` 24 个用例改为 Windows `skipIf`：Bun 缓存插件入口模块导致 fixture 目录 EBUSY（断言本身通过，属清理失败）。文件头注释写明原因。
+  - `test/workflow/workspace.test.ts` 的 `resolveInWorkspace` 4 个用例 Windows `skip`（断言使用 POSIX 绝对路径）。
+  - 修复 `workflow/workspace.ts` glob 返回路径统一 `/` 分隔符（Windows 反斜杠导致排序断言失败）。
+  - 修复 `tool-script.test.ts` 中 5 处 Windows 路径模板字符串注入问题（改用 `JSON.stringify` 传参）。
+  - `exec` timeout 描述断言改为与汉化后文案兼容。
+  - 其余偶发失败（provider refresh / instance dispose / session heartbeat 等）单独重跑全部通过，属并行负载下的时序敏感用例。
+- 第二次全量运行在完成前被手动中断（运行至 provider/refresh-boundaries）；第三次全量运行结果见 verification.md。

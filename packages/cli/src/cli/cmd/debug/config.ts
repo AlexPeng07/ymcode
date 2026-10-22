@@ -6,7 +6,7 @@ import { cmd } from "../cmd"
 
 export const ConfigCommand = cmd({
   command: "config",
-  describe: "show resolved configuration",
+  describe: "显示解析后的配置",
   builder: (yargs) => yargs,
   async handler() {
     await bootstrap(process.cwd(), async () => {

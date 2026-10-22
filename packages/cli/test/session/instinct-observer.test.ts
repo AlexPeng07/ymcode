@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test"
-import { observerTask, shouldObserve } from "../../src/session/instinct-observer"
+import fs from "fs/promises"
+import os from "os"
+import path from "path"
+import { observerTask, readObserverState, shouldObserve, writeObserverState } from "../../src/session/instinct-observer"
 
 describe("instinct observer", () => {
   test("requires auto capture and every third checkpoint", () => {
@@ -39,5 +42,20 @@ describe("instinct observer", () => {
     expect(task).toContain("project-example")
     expect(task).toContain("instincts")
     expect(task).toContain("instinct")
+  })
+
+  test("state store roundtrips and tolerates corrupt json", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-observer-state-"))
+    const file = path.join(root, "nested", "observer.json")
+    try {
+      await writeObserverState({ ses_a: { lastRunAt: 1, checkpoints: 3 } }, file)
+      expect(await readObserverState(file)).toEqual({ ses_a: { lastRunAt: 1, checkpoints: 3 } })
+
+      await fs.writeFile(file, "{ not json")
+      expect(await readObserverState(file)).toEqual({})
+      expect(await readObserverState(path.join(root, "missing.json"))).toEqual({})
+    } finally {
+      await fs.rm(root, { recursive: true, force: true })
+    }
   })
 })

@@ -3,7 +3,7 @@ import { Effect } from "effect"
 import fs from "fs/promises"
 import os from "os"
 import path from "path"
-import { make, defaultSettings } from "../../src/memory/instinct-service"
+import { make, defaultSettings, settingsFromConfig } from "../../src/memory/instinct-service"
 
 const MEMORY = `# Project memory
 
@@ -161,6 +161,101 @@ describe("instinct service", () => {
     expect(promoted.appended).toBe(false)
     const memory = await fs.readFile(path.join(root, "projects", "p1", "MEMORY.md"), "utf8")
     expect(memory.match(/禁止 force push/g)).toHaveLength(1)
+  })
+
+  test("maps configured thresholds", () => {
+    expect(
+      settingsFromConfig({
+        instincts: {
+          promote_threshold: 0.9,
+          min_evidence: 3,
+          decay_days: 7,
+          inject_token_budget: 500,
+        },
+      } as any),
+    ).toEqual({
+      promoteThreshold: 0.9,
+      minEvidence: 3,
+      decayDays: 7,
+      injectTokenBudget: 500,
+    })
+    expect(settingsFromConfig({} as any)).toEqual(defaultSettings)
+  })
+
+  test("keeps last_seen_at stable unless evidence changes", async () => {
+    const { instinct } = await fixture()
+    const input = {
+      scope: "projects" as const,
+      projectID: "p1",
+      description: "提交前必须跑 typecheck",
+      source: "correction" as const,
+      confidence: 0.6,
+      evidence: [{ session: "ses_1", date: "2026-10-21" }],
+      body: "证据正文",
+    }
+    const first = await Effect.runPromise(instinct.write(input))
+    await Bun.sleep(5)
+    const repeated = await Effect.runPromise(instinct.write({ ...input, id: first.id }))
+    expect(repeated.last_seen_at).toBe(first.last_seen_at)
+    expect(repeated.updated_at).toBe(first.updated_at)
+
+    await Bun.sleep(5)
+    const withEvidence = await Effect.runPromise(
+      instinct.write({
+        ...input,
+        id: first.id,
+        evidence: [...input.evidence, { session: "ses_2", date: "2026-10-22" }],
+      }),
+    )
+    expect(withEvidence.last_seen_at).not.toBe(first.last_seen_at)
+
+    await Bun.sleep(5)
+    const withBody = await Effect.runPromise(instinct.write({ ...input, id: first.id, body: "更新后的正文" }))
+    expect(withBody.last_seen_at).toBe(withEvidence.last_seen_at)
+    expect(withBody.updated_at).not.toBe(withEvidence.updated_at)
+  })
+
+  test("exports and imports instincts with status and body", async () => {
+    const { instinct } = await fixture()
+    const written = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "提交前必须跑 typecheck",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [
+          { session: "ses_1", date: "2026-10-21" },
+          { session: "ses_2", date: "2026-10-22" },
+        ],
+        body: "所有代码改动适用。",
+      }),
+    )
+    await Effect.runPromise(instinct.promote({ scope: "projects", projectID: "p1", id: written.id }))
+
+    const bundle = await Effect.runPromise(instinct.exportAll({ scope: "projects", projectID: "p1" }))
+    expect(bundle.version).toBe(1)
+    expect(bundle.items).toHaveLength(1)
+    expect(bundle.items[0]?.info.status).toBe("active")
+
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ymcode-instinct-import-"))
+    const imported = make(root, defaultSettings)
+    const result = await Effect.runPromise(
+      imported.importAll({ scope: "projects", projectID: "p1", bundle }),
+    )
+    expect(result).toEqual({ imported: 1, skipped: 0 })
+
+    const item = await Effect.runPromise(
+      imported.get({ scope: "projects", projectID: "p1", id: written.id }),
+    )
+    expect(item.info.status).toBe("active")
+    expect(item.info.evidence).toHaveLength(2)
+    expect(item.body).toContain("所有代码改动适用")
+
+    const again = await Effect.runPromise(
+      imported.importAll({ scope: "projects", projectID: "p1", bundle }),
+    )
+    expect(again).toEqual({ imported: 0, skipped: 1 })
   })
 
   test("list filters by status", async () => {

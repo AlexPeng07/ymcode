@@ -30,7 +30,7 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 | **Dynamic Workflow** | 用 JS 脚本确定性地编排大量子代理（扇出、流水线、嵌套）；内置包括 `deep-research`、`fact-check` 与 `research-experiment` | `.ymcode/workflows/*.js` + `workflow` 工具 |
 | **自定义技能** | 在 `.ymcode/skills/` 下添加可复用的任务指令 | 见 `skill-creator` 技能 |
 | **技能发现** | `/skill-name` 斜杠调用（一条消息中出现 2 个及以上会自动加载并给出编排计划）；`skill_search` 工具按精确名称/别名 + BM25 匹配并自动加载高置信命中；部分内置技能（`claude-code`、`codex`）仅在其 CLI 已安装时出现 | `/` 自动补全 · 自动 |
-| **MCP** | 本地与远程 Model Context Protocol 服务器 | `mcp` 配置 + `mimo mcp` |
+| **MCP** | 本地与远程 Model Context Protocol 服务器 | `mcp` 配置 + `ymcode mcp` |
 | **Capability API** | 每个会话已在回环端口上以 OpenAI 兼容的 `/v1` 提供本项目的聊天模型，因此技能或子进程可以借用模型而不必持有提供方密钥 | `ymcode llm-server issue` 签发限定范围的 token 并打印 base URL（见 @reference/capability-api.md） |
 
 ## 配置基础

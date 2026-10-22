@@ -26,11 +26,6 @@ export const dict: Record<string, string> = {
   "tui.home.placeholder.example.todo": "Fix a TODO in the codebase",
   "tui.home.placeholder.example.stack": "What is the tech stack of this project?",
   "tui.home.placeholder.example.tests": "Fix broken tests",
-  "tui.home.agreement.prefix": "By using ymcode, you agree to our ",
-  "tui.home.agreement.terms": "Terms of Service",
-  "tui.home.agreement.separator": " and ",
-  "tui.home.agreement.privacy": "Privacy Policy",
-  "tui.home.agreement.suffix": "",
 
   // Prompt bottom hints (trigger characters)
   "tui.prompt.hint.attach_file": "attach file",
@@ -333,9 +328,6 @@ export const dict: Record<string, string> = {
   "tui.dialog.ok": "ok",
   "tui.dialog.confirm.cancel": "Cancel",
   "tui.dialog.confirm.confirm": "Confirm",
-  "tui.dialog.agreement.title": "Terms & Privacy",
-  "tui.dialog.agreement.message": "Please review and agree to continue.",
-  "tui.dialog.agreement.confirm": "Agree & Continue",
   "tui.dialog.select.placeholder": "Search",
   "tui.dialog.model.login_hint": "Tip: run /login to sign in before switching models",
   "tui.dialog.select.no_results": "No results found",

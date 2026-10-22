@@ -7,16 +7,16 @@ import { InstallationVersion } from "../../installation/version"
 
 export const UpgradeCommand = {
   command: "upgrade [target]",
-  describe: "upgrade ymcode to the latest or a specific version",
+  describe: "升级 ymcode 到最新或指定版本",
   builder: (yargs: Argv) => {
     return yargs
       .positional("target", {
-        describe: "version to upgrade to, for ex '0.1.48' or 'v0.1.48'",
+        describe: "要升级到的版本，例如 '0.1.48' 或 'v0.1.48'",
         type: "string",
       })
       .option("method", {
         alias: "m",
-        describe: "installation method to use",
+        describe: "使用的安装方式",
         type: "string",
         choices: ["curl", "npm", "pnpm", "bun", "brew", "choco", "scoop"],
       })

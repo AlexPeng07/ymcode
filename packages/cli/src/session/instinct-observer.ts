@@ -29,13 +29,26 @@ function stateFile() {
   return path.join(Global.Path.state, "instinct-observer.json")
 }
 
-export async function readObserverState(): Promise<ObserverState> {
-  return JSON.parse(await fs.readFile(stateFile(), "utf8").catch(() => "{}"))
+export async function readObserverState(file = stateFile()): Promise<ObserverState> {
+  const text = await fs.readFile(file, "utf8").catch(() => "{}")
+  try {
+    const parsed = JSON.parse(text) as unknown
+    return parsed && typeof parsed === "object" ? (parsed as ObserverState) : {}
+  } catch {
+    return {}
+  }
 }
 
-export async function writeObserverState(state: ObserverState): Promise<void> {
-  await fs.mkdir(Global.Path.state, { recursive: true })
-  await fs.writeFile(stateFile(), JSON.stringify(state, null, 2))
+export async function writeObserverState(state: ObserverState, file = stateFile()): Promise<void> {
+  await fs.mkdir(path.dirname(file), { recursive: true })
+  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`
+  try {
+    await fs.writeFile(tmp, JSON.stringify(state, null, 2))
+    await fs.rename(tmp, file)
+  } catch (error) {
+    await fs.rm(tmp, { force: true }).catch(() => undefined)
+    throw error
+  }
 }
 
 export function observerTask(input: { sessionID: string; projectID: string }) {
@@ -68,7 +81,7 @@ export function startInstinctObserver(input: {
     const intervalMs = (settings?.observe_interval_minutes ?? 30) * 60_000
     const now = Date.now()
 
-    const state = yield* Effect.promise(readObserverState)
+    const state = yield* Effect.promise(() => readObserverState())
     const entry = state[input.sessionID] ?? { lastRunAt: 0, checkpoints: 0 }
     entry.checkpoints += 1
     const observe = shouldObserve({

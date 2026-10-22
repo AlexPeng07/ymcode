@@ -7,11 +7,11 @@ import { Log, Process } from "@/util"
 
 export const PrCommand = cmd({
   command: "pr <number>",
-  describe: "fetch and checkout a GitHub PR branch, then run ymcode",
+  describe: "获取并检出 GitHub PR 分支，然后运行 ymcode",
   builder: (yargs) =>
     yargs.positional("number", {
       type: "number",
-      describe: "PR number to checkout",
+      describe: "要检出的 PR 编号",
       demandOption: true,
     }),
   async handler(args) {

@@ -368,7 +368,8 @@ const live: Layer.Layer<
         // checkpoint-flow call sites cover the writer/rebuild paths; this covers
         // the "agent edits MEMORY.md before any checkpoint" path. Idempotent.
         yield* Effect.promise(() => migrateProjectMemory(projectID)).pipe(Effect.ignore)
-        const instinct = Instinct.make(path.join(Global.Path.data, "memory"))
+        const cfg = yield* config.get()
+        const instinct = Instinct.make(path.join(Global.Path.data, "memory"), Instinct.settingsFromConfig(cfg))
         const scope = projectID === ProjectID.global ? "global" : "projects"
         const instinctText = yield* instinct.renderInjection({ scope, projectID }).pipe(Effect.orElseSucceed(() => ""))
         system.push(buildMemoryInstructions(yield* memory.root(), instinctText || undefined))

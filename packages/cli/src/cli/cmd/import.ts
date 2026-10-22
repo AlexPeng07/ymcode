@@ -153,10 +153,10 @@ export function storeImportedSession(
 
 export const ImportCommand = cmd({
   command: "import <file>",
-  describe: "import session data from JSON or URL without starting runs or transferring live process ownership",
+  describe: "从 JSON 或 URL 导入会话数据，不启动运行，也不转移运行中进程的所有权",
   builder: (yargs: Argv) => {
     return yargs.positional("file", {
-      describe: "path to JSON file or share URL",
+      describe: "JSON 文件路径或分享 URL",
       type: "string",
       demandOption: true,
     })

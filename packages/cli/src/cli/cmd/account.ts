@@ -177,7 +177,7 @@ export const LoginCommand = cmd({
   describe: false,
   builder: (yargs) =>
     yargs.positional("url", {
-      describe: "server URL",
+      describe: "服务器 URL",
       type: "string",
       demandOption: true,
     }),
@@ -192,7 +192,7 @@ export const LogoutCommand = cmd({
   describe: false,
   builder: (yargs) =>
     yargs.positional("email", {
-      describe: "account email to log out from",
+      describe: "要退出的账号邮箱",
       type: "string",
     }),
   async handler(args) {
@@ -235,23 +235,23 @@ export const ConsoleCommand = cmd({
     yargs
       .command({
         ...LoginCommand,
-        describe: "log in to console",
+        describe: "登录控制台",
       })
       .command({
         ...LogoutCommand,
-        describe: "log out from console",
+        describe: "退出控制台",
       })
       .command({
         ...SwitchCommand,
-        describe: "switch active org",
+        describe: "切换活动组织",
       })
       .command({
         ...OrgsCommand,
-        describe: "list orgs",
+        describe: "列出组织",
       })
       .command({
         ...OpenCommand,
-        describe: "open active console account",
+        describe: "打开当前控制台账号",
       })
       .demandCommand(),
   async handler() {},

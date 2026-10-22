@@ -79,7 +79,7 @@
 
 | 入口 | 方式 |
 |---------|-----|
-| TUI（`mimo`） | `mimo --dangerously-skip-permissions` 或 `mimo --yolo` |
+| TUI（`ymcode`） | `ymcode --dangerously-skip-permissions` 或 `ymcode --yolo` |
 | 运行时 TUI | `/skip-permissions` —— 会话中途切换，实例级生效，子代理继承 |
 | 无头（`ymcode run`） | `ymcode run --dangerously-skip-permissions "<prompt>"` 或 `ymcode run --yolo "<prompt>"` |
 | 任意入口（环境变量） | `YMCODE_PERMISSION='"allow"'` 或 `YMCODE_DANGEROUSLY_SKIP_PERMISSIONS=1` |

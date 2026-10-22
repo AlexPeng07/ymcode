@@ -5,14 +5,14 @@ import { cmd } from "../cmd"
 
 export const SnapshotCommand = cmd({
   command: "snapshot",
-  describe: "snapshot debugging utilities",
+  describe: "快照调试工具",
   builder: (yargs) => yargs.command(TrackCommand).command(PatchCommand).command(DiffCommand).demandCommand(),
   async handler() {},
 })
 
 const TrackCommand = cmd({
   command: "track",
-  describe: "track current snapshot state",
+  describe: "跟踪当前快照状态",
   async handler() {
     await bootstrap(process.cwd(), async () => {
       console.log(await AppRuntime.runPromise(Snapshot.Service.use((svc) => svc.track())))
@@ -22,11 +22,11 @@ const TrackCommand = cmd({
 
 const PatchCommand = cmd({
   command: "patch <hash>",
-  describe: "show patch for a snapshot hash",
+  describe: "显示指定快照哈希的补丁",
   builder: (yargs) =>
     yargs.positional("hash", {
       type: "string",
-      description: "hash",
+      description: "哈希",
       demandOption: true,
     }),
   async handler(args) {
@@ -38,11 +38,11 @@ const PatchCommand = cmd({
 
 const DiffCommand = cmd({
   command: "diff <hash>",
-  describe: "show diff for a snapshot hash",
+  describe: "显示指定快照哈希的差异",
   builder: (yargs) =>
     yargs.positional("hash", {
       type: "string",
-      description: "hash",
+      description: "哈希",
       demandOption: true,
     }),
   async handler(args) {

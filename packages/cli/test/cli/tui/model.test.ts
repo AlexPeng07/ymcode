@@ -24,10 +24,28 @@ const withXiaomiPro = [
   },
   {
     id: "xiaomi",
+    source: "config",
+    key: "test-key",
+    options: {},
     models: {
       "mimo-v2.6-pro": {},
       "mimo-v2.6": {},
     },
+  },
+] as unknown as Provider[]
+
+const withCredentials = [
+  {
+    id: "openai",
+    source: "config",
+    options: {},
+    models: { "gpt-5.6-sol": {} },
+  },
+  {
+    id: "ppio",
+    source: "env",
+    options: {},
+    models: { "deepseek-v3": {} },
   },
 ] as unknown as Provider[]
 
@@ -79,6 +97,21 @@ describe("fallback model", () => {
     expect(fallback(withXiaomiPro, { openai: "gpt-5.6-sol" })).toEqual({
       providerID: "xiaomi",
       modelID: "mimo-v2.6-pro",
+    })
+  })
+
+  test("does not prefer xiaomi without credentials", () => {
+    const noCreds = withXiaomiPro.map((provider) => ({ ...provider, key: undefined, source: "config", options: {} }))
+    expect(fallback(noCreds as unknown as Provider[], { openai: "gpt-5.6-sol" })).toEqual({
+      providerID: "openai",
+      modelID: "gpt-5.6-sol",
+    })
+  })
+
+  test("prefers the first credentialed provider", () => {
+    expect(fallback(withCredentials, { openai: "gpt-5.6-sol", ppio: "deepseek-v3" })).toEqual({
+      providerID: "ppio",
+      modelID: "deepseek-v3",
     })
   })
 

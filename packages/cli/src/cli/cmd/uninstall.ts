@@ -25,30 +25,30 @@ interface RemovalTargets {
 
 export const UninstallCommand = {
   command: "uninstall",
-  describe: "uninstall ymcode and remove all related files",
+  describe: "卸载 ymcode 并删除所有相关文件",
   builder: (yargs: Argv) =>
     yargs
       .option("keep-config", {
         alias: "c",
         type: "boolean",
-        describe: "keep configuration files",
+        describe: "保留配置文件",
         default: false,
       })
       .option("keep-data", {
         alias: "d",
         type: "boolean",
-        describe: "keep session data and snapshots",
+        describe: "保留会话数据与快照",
         default: false,
       })
       .option("dry-run", {
         type: "boolean",
-        describe: "show what would be removed without removing",
+        describe: "仅显示将要删除的内容而不实际删除",
         default: false,
       })
       .option("force", {
         alias: "f",
         type: "boolean",
-        describe: "skip confirmation prompts",
+        describe: "跳过确认提示",
         default: false,
       }),
 

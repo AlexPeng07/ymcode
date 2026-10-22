@@ -30,7 +30,7 @@
 
 - `YMCODE_HOME` — 覆盖所有基础目录（绝对路径）。
 - `YMCODE_CONFIG_DIR` — 额外要搜索的配置目录。
-- `YMCODE_PURE` — 不加载外部插件运行（等同于 `mimo --pure`）。**不**改变模型或 Claude Code 继承。
+- `YMCODE_PURE` — 不加载外部插件运行（等同于 `ymcode --pure`）。**不**改变模型或 Claude Code 继承。
 - `YMCODE_DISABLE_LOG_ROTATION` — 保留单个持续增长的日志文件，而不轮转。
 - `YMCODE_TEXT_TOOL_CALL_RETRY_LIMIT` — 模型把工具调用作为散文标记而非结构化调用发出时的重试次数（默认 2）。
 - `YMCODE_EXPERIMENTAL_CRON` — 定时提示词（cron/loop）；**默认开启**。`YMCODE_DISABLE_CRON` 在运行时关闭它。用 `YMCODE_LOOP_KEEPALIVE_BUDGET`（默认 1）与 `YMCODE_LOOP_KEEPALIVE_DELAY_S`（默认 1200）调整循环保活。

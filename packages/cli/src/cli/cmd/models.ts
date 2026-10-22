@@ -14,20 +14,20 @@ import { Effect } from "effect"
 
 export const ModelsCommand = cmd({
   command: "models [provider]",
-  describe: "list all available models",
+  describe: "列出所有可用模型",
   builder: (yargs: Argv) => {
     return yargs
       .positional("provider", {
-        describe: "provider ID to filter models by",
+        describe: "按服务商 ID 筛选模型",
         type: "string",
         array: false,
       })
       .option("verbose", {
-        describe: "use more verbose model output (includes metadata like costs)",
+        describe: "输出更详细的模型信息（包含费用等元数据）",
         type: "boolean",
       })
       .option("refresh", {
-        describe: "refresh the models cache from models.dev",
+        describe: "从 models.dev 刷新模型缓存",
         type: "boolean",
       })
   },

@@ -43,7 +43,7 @@ function pagerCmd(): string[] {
 
 export const SessionCommand = cmd({
   command: "session",
-  describe: "manage sessions",
+  describe: "管理会话",
   builder: (yargs: Argv) =>
     yargs.command(SessionListCommand).command(SessionDeleteCommand).command(SessionImportClaudeCommand).demandCommand(),
   async handler() {},
@@ -51,10 +51,10 @@ export const SessionCommand = cmd({
 
 export const SessionImportClaudeCommand = cmd({
   command: "import-claude",
-  describe: "import Claude Code sessions (~/.claude/projects) into ymcode",
+  describe: "将 Claude Code 会话（~/.claude/projects）导入 ymcode",
   builder: (yargs: Argv) =>
     yargs.option("force", {
-      describe: "re-sync every session, ignoring the mtime cache",
+      describe: "重新同步所有会话，忽略 mtime 缓存",
       type: "boolean",
       default: false,
     }),
@@ -70,10 +70,10 @@ export const SessionImportClaudeCommand = cmd({
 
 export const SessionDeleteCommand = cmd({
   command: "delete <sessionID>",
-  describe: "delete a session",
+  describe: "删除会话",
   builder: (yargs: Argv) => {
     return yargs.positional("sessionID", {
-      describe: "session ID to delete",
+      describe: "要删除的会话 ID",
       type: "string",
       demandOption: true,
     })
@@ -95,16 +95,16 @@ export const SessionDeleteCommand = cmd({
 
 export const SessionListCommand = cmd({
   command: "list",
-  describe: "list sessions",
+  describe: "列出会话",
   builder: (yargs: Argv) => {
     return yargs
       .option("max-count", {
         alias: "n",
-        describe: "limit to N most recent sessions",
+        describe: "仅显示最近的 N 个会话",
         type: "number",
       })
       .option("format", {
-        describe: "output format",
+        describe: "输出格式",
         type: "string",
         choices: ["table", "json"],
         default: "table",

@@ -13,18 +13,18 @@ import { childProcessEnv } from "@/util/child-process-env"
 
 const QueryCommand = cmd({
   command: "$0 [query]",
-  describe: "open an interactive sqlite3 shell or run a query",
+  describe: "打开交互式 sqlite3 shell 或执行查询",
   builder: (yargs: Argv) => {
     return yargs
       .positional("query", {
         type: "string",
-        describe: "SQL query to execute",
+        describe: "要执行的 SQL 查询",
       })
       .option("format", {
         type: "string",
         choices: ["json", "tsv"],
         default: "tsv",
-        describe: "Output format",
+        describe: "输出格式",
       })
   },
   handler: async (args: { query?: string; format: string }) => {
@@ -59,7 +59,7 @@ const QueryCommand = cmd({
 
 const PathCommand = cmd({
   command: "path",
-  describe: "print the database path",
+  describe: "打印数据库路径",
   handler: () => {
     console.log(Database.Path)
   },
@@ -67,7 +67,7 @@ const PathCommand = cmd({
 
 const MigrateCommand = cmd({
   command: "migrate",
-  describe: "migrate JSON data to SQLite (merges with existing data)",
+  describe: "将 JSON 数据迁移到 SQLite（与现有数据合并）",
   handler: async () => {
     const sqlite = new BunDatabase(Database.Path)
     const tty = process.stderr.isTTY
@@ -115,7 +115,7 @@ const MigrateCommand = cmd({
 
 export const DbCommand = cmd({
   command: "db",
-  describe: "database tools",
+  describe: "数据库工具",
   builder: (yargs: Argv) => {
     return yargs.command(QueryCommand).command(PathCommand).command(MigrateCommand).demandCommand()
   },

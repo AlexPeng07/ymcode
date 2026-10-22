@@ -49,22 +49,22 @@ interface SessionStats {
 
 export const StatsCommand = cmd({
   command: "stats",
-  describe: "show token usage and cost statistics",
+  describe: "显示 token 用量与费用统计",
   builder: (yargs: Argv) => {
     return yargs
       .option("days", {
-        describe: "show stats for the last N days (default: all time)",
+        describe: "显示最近 N 天的统计（默认：全部时间）",
         type: "number",
       })
       .option("tools", {
-        describe: "number of tools to show (default: all)",
+        describe: "显示的工具数量（默认：全部）",
         type: "number",
       })
       .option("models", {
-        describe: "show model statistics (default: hidden). Pass a number to show top N, otherwise shows all",
+        describe: "显示模型统计（默认：隐藏）。传入数字显示前 N 项，否则显示全部",
       })
       .option("project", {
-        describe: "filter by project (default: all projects, empty string: current project)",
+        describe: "按项目筛选（默认：所有项目；空字符串：当前项目）",
         type: "string",
       })
   },

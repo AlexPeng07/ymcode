@@ -83,25 +83,25 @@ function renewArgs(args: { ttl?: string; "max-age"?: string; model: string[]; la
 
 const issue = cmd({
   command: "issue",
-  describe: "mint a token for the local LLM server and print how to reach it",
+  describe: "为本地 LLM 服务器签发令牌并打印访问方式",
   builder: (yargs: Argv) =>
     yargs
       .option("ttl", {
         type: "string",
-        describe: "sliding lifetime, measured from last use (e.g. 30m, 12h, 1d, none)",
+        describe: "滑动有效期，从最后一次使用开始计算（例如 30m、12h、1d、none）",
       })
       .option("max-age", {
         type: "string",
-        describe: "absolute ceiling from issue regardless of activity (e.g. 7d, none)",
+        describe: "自签发起的绝对上限，与使用情况无关（例如 7d、none）",
       })
       .option("model", {
         type: "string",
         array: true,
-        describe: "restrict this token to the given provider/model (repeatable)",
+        describe: "将该令牌限制为指定的 服务商/模型（可重复）",
         default: [] as string[],
       })
-      .option("label", { type: "string", describe: "a note for `llm-server list`, e.g. the skill's name" })
-      .option("json", { type: "boolean", describe: "print connection details as JSON", default: false }),
+      .option("label", { type: "string", describe: "用于 `llm-server list` 的备注，例如技能名称" })
+      .option("json", { type: "boolean", describe: "以 JSON 输出连接信息", default: false }),
   handler: (args) =>
     inInstance(async () => {
       const cfg = await defaults()
@@ -163,7 +163,7 @@ const issue = cmd({
 
 const list = cmd({
   command: "list",
-  describe: "list tokens issued for this directory",
+  describe: "列出为当前目录签发的令牌",
   builder: (yargs: Argv) => yargs.option("json", { type: "boolean", default: false }),
   handler: (args) =>
     inInstance(async () => {
@@ -194,11 +194,11 @@ const list = cmd({
 
 const revoke = cmd({
   command: "revoke [id]",
-  describe: "revoke a token by id, or every token with --all",
+  describe: "按 ID 撤销令牌，或使用 --all 撤销全部",
   builder: (yargs: Argv) =>
     yargs
-      .positional("id", { type: "string", describe: "token id from `llm-server list`" })
-      .option("all", { type: "boolean", describe: "revoke every token for this directory", default: false }),
+      .positional("id", { type: "string", describe: "来自 `llm-server list` 的令牌 ID" })
+      .option("all", { type: "boolean", describe: "撤销当前目录的所有令牌", default: false }),
   handler: (args) =>
     inInstance(async () => {
       if (args.all) {
@@ -222,7 +222,7 @@ const revoke = cmd({
 
 export const LlmServerCommand = cmd({
   command: "llm-server",
-  describe: "mint and manage credentials that let a task reach this instance's models",
+  describe: "签发并管理凭据，供任务访问本实例的模型",
   builder: (yargs: Argv) => yargs.command(issue).command(list).command(revoke).demandCommand(1),
   handler: () => {},
 })

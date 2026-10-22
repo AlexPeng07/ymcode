@@ -33,7 +33,7 @@ function getNetworkIPs() {
 export const WebCommand = cmd({
   command: "web",
   builder: (yargs) => withNetworkOptions(yargs),
-  describe: "start ymcode server and open web interface",
+  describe: "启动 ymcode 服务器并打开 Web 界面",
   handler: async (args) => {
     const opts = await resolveNetworkOptions(args)
     const isLoopback = opts.hostname === "127.0.0.1" || opts.hostname === "localhost" || opts.hostname === "::1"

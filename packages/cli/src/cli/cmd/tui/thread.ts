@@ -157,55 +157,55 @@ async function promptDangerousPermissions(): Promise<boolean> {
 
 export const TuiThreadCommand = cmd({
   command: "$0 [project]",
-  describe: "start ymcode tui",
+  describe: "启动 ymcode TUI",
   builder: (yargs) =>
     withNetworkOptions(yargs)
       .positional("project", {
         type: "string",
-        describe: "path to start ymcode in",
+        describe: "启动 ymcode 的路径",
       })
       .option("model", {
         type: "string",
         alias: ["m"],
-        describe: "model to use in the format of provider/model",
+        describe: "使用的模型，格式为 服务商/模型",
       })
       .option("continue", {
         alias: ["c"],
-        describe: "continue the last session",
+        describe: "继续上一个会话",
         type: "boolean",
       })
       .option("session", {
         alias: ["s"],
         type: "string",
-        describe: "session id to continue",
+        describe: "要继续的会话 ID",
       })
       .option("fork", {
         type: "boolean",
-        describe: "fork the session when continuing (use with --continue or --session)",
+        describe: "继续时派生会话（与 --continue 或 --session 一起使用）",
       })
       .option("prompt", {
         type: "string",
-        describe: "prompt to use",
+        describe: "使用的提示词",
       })
       .option("agent", {
         type: "string",
-        describe: "agent to use",
+        describe: "使用的智能体",
       })
       .option("never-ask", {
         type: "boolean",
         describe:
-          "start in never-ask mode — auto-decide without asking (permissions excluded), toggle at runtime with /never-ask",
+          "以 never-ask 模式启动——自动决策而不询问（权限除外），运行时可通过 /never-ask 切换",
         default: false,
       })
       .option("trust", {
         type: "boolean",
-        describe: "skip workspace trust prompt and trust the directory",
+        describe: "跳过工作区信任提示并直接信任该目录",
         default: false,
       })
       .option("dangerously-skip-permissions", {
         alias: ["yolo"],
         type: "boolean",
-        describe: "auto-approve permissions that are not explicitly denied (dangerous!)",
+        describe: "自动批准未被明确拒绝的权限（危险！）",
         default: false,
       }),
   handler: async (args) => {

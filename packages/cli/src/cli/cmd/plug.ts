@@ -178,24 +178,24 @@ export function createPlugTask(input: PlugInput, dep: PlugDeps = defaultPlugDeps
 export const PluginCommand = cmd({
   command: "plugin <module>",
   aliases: ["plug"],
-  describe: "install plugin and update config",
+  describe: "安装插件并更新配置",
   builder: (yargs: Argv) => {
     return yargs
       .positional("module", {
         type: "string",
-        describe: "npm module name",
+        describe: "npm 模块名",
       })
       .option("global", {
         alias: ["g"],
         type: "boolean",
         default: false,
-        describe: "install in global config",
+        describe: "安装到全局配置",
       })
       .option("force", {
         alias: ["f"],
         type: "boolean",
         default: false,
-        describe: "replace existing plugin version",
+        describe: "替换已有的插件版本",
       })
   },
   handler: async (args) => {

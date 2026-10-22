@@ -6,11 +6,11 @@ import * as Instinct from "../../memory/instinct-service"
 
 type Context = { scope: "global" | "projects"; projectID: string }
 
-async function withInstinct(fn: (ctx: Context) => Promise<void>) {
+async function withInstinct(fn: (ctx: Context) => Promise<void>, opts?: { global?: boolean }) {
   await Instance.provide({
     directory: process.cwd(),
     async fn() {
-      const projectID = Instance.project.id
+      const projectID = opts?.global ? ProjectID.global : Instance.project.id
       await fn({ scope: projectID === ProjectID.global ? "global" : "projects", projectID })
     },
   })
@@ -92,9 +92,80 @@ const ReviewCommand = cmd({
   },
 })
 
+const ExportCommand = cmd({
+  command: "export [id]",
+  describe: "导出直觉规则为 JSON",
+  builder: (yargs) =>
+    yargs
+      .positional("id", { type: "string", describe: "只导出指定直觉规则" })
+      .option("output", { type: "string", describe: "写入文件（默认输出到 stdout）" })
+      .option("status", { type: "string", choices: ["candidate", "active", "retired"], describe: "按状态过滤" })
+      .option("global", { type: "boolean", default: false, describe: "导出全局规则" }),
+  handler: async (args) => {
+    await withInstinct(
+      async (ctx) => {
+        const bundle = await AppRuntime.runPromise(
+          Instinct.Service.use((service) =>
+            service.exportAll({ ...ctx, status: args.status as never }),
+          ),
+        )
+        const items = args.id ? bundle.items.filter((item) => item.info.id === args.id) : bundle.items
+        const json = JSON.stringify({ ...bundle, items }, null, 2)
+        if (args.output) {
+          await Bun.write(args.output, json)
+          console.log(`exported ${items.length} instincts to ${args.output}`)
+          return
+        }
+        console.log(json)
+      },
+      { global: args.global },
+    )
+  },
+})
+
+const ImportCommand = cmd({
+  command: "import <file>",
+  describe: "从 JSON 导入直觉规则",
+  builder: (yargs) =>
+    yargs
+      .positional("file", { type: "string", describe: "JSON 文件路径" })
+      .option("force", { type: "boolean", default: false, describe: "覆盖已存在的同 ID 规则" })
+      .option("global", { type: "boolean", default: false, describe: "导入到全局规则" }),
+  handler: async (args) => {
+    const bundle = await Bun.file(args.file!)
+      .json()
+      .catch(() => undefined)
+    if (!bundle) {
+      console.error(`failed to read ${args.file}`)
+      process.exitCode = 1
+      return
+    }
+    await withInstinct(
+      async (ctx) => {
+        const result = await AppRuntime.runPromise(
+          Instinct.Service.use((service) =>
+            service.importAll({ ...ctx, bundle, force: args.force }),
+          ),
+        )
+        console.log(`imported=${result.imported}; skipped=${result.skipped}`)
+      },
+      { global: args.global },
+    )
+  },
+})
+
 export const InstinctCommand = cmd({
   command: "instinct",
   describe: "管理直觉规则（instincts）",
-  builder: (yargs) => yargs.command(ListCommand).command(PromoteCommand).command(DemoteCommand).command(ForgetCommand).command(ReviewCommand).demandCommand(),
+  builder: (yargs) =>
+    yargs
+      .command(ListCommand)
+      .command(PromoteCommand)
+      .command(DemoteCommand)
+      .command(ForgetCommand)
+      .command(ReviewCommand)
+      .command(ExportCommand)
+      .command(ImportCommand)
+      .demandCommand(),
   handler: () => {},
 })

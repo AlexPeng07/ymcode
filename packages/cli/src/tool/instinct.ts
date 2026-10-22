@@ -1,7 +1,8 @@
-import { Effect } from "effect"
+import { Effect, Option } from "effect"
 import path from "path"
 import z from "zod"
 import * as Instinct from "@/memory/instinct-service"
+import { Config } from "@/config"
 import { Global } from "@/global"
 import { Instance } from "@/project/instance"
 import { ProjectID } from "@/project/schema"
@@ -44,7 +45,6 @@ function currentProjectID(): string {
 export const InstinctTool = Tool.define(
   "instinct",
   Effect.gen(function* () {
-    const instinct = Instinct.make(path.join(Global.Path.data, "memory"))
     return {
       description: [
         "Manage instinct rules: list/get candidates, write evidence-backed candidates, promote/demote/forget, review with decay.",
@@ -52,11 +52,16 @@ export const InstinctTool = Tool.define(
       ].join(" "),
       parameters,
       execute: (args: z.infer<typeof parameters>): Effect.Effect<{
-        title: string
-        output: string
-        metadata: Metadata
-      }> =>
+          title: string
+          output: string
+          metadata: Metadata
+        }> =>
         Effect.gen(function* () {
+          const config = yield* Effect.serviceOption(Config.Service)
+          const cfg = Option.isSome(config)
+            ? yield* config.value.get().pipe(Effect.catchCause(() => Effect.succeed({} as Config.Info)))
+            : ({} as Config.Info)
+          const instinct = Instinct.make(path.join(Global.Path.data, "memory"), Instinct.settingsFromConfig(cfg))
           const projectID = args.projectID ?? currentProjectID()
           const scope = args.scope ?? (projectID === ProjectID.global ? "global" : "projects")
 

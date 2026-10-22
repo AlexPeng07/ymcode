@@ -22,13 +22,16 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - 汉化：70 个内置技能、54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
 - 门禁与 Windows 构建通过；隔离环境端到端验证通过。
 - 默认主题为蓝色系；小米 OAuth 登录已移除，Xiaomi/MiMo 入口保留并统一走 API Key。
+- CLI `--help` 已全量汉化；小米条款弹窗与 `auth whoami` 已移除。
+- TUI 蓝色主题、登录对话框有自动化测试；observer 抽取路径有 scripted-LLM 集成测试。
+- instincts：配置阈值统一、observer 状态原子写、`last_seen_at` 稳定策略、export/import。
+- `bun run upstream:diff` 可查看上游差异。
 
 未验证/未完成：
 
-- `instinct-observer` 的真实 LLM 抽取（需要隔离 provider 凭据）。
-- 顶层 CLI `--help` 与少数次级 provider/CLI 文案仍有英文。
-- TUI 人工视觉验收未做（无截图通道）。
-- Windows 全量 `bun test` 仍有 plugin/TUI 临时目录 EBUSY 清理失败（非功能失败）。
+- `instinct-observer` 的真实 provider 抽取（需要隔离凭据；自动化测试使用 scripted SSE）。
+- TUI 像素级人工视觉验收未做（自动化覆盖文本与主题色）。
+- Windows plugin loader 测试按平台跳过（Bun 模块缓存锁目录 EBUSY，见 PROGRESS.md）。
 
 ## 一页约束
 

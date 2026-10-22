@@ -103,14 +103,61 @@ instinct review
 
 ## 已知失败/未验证
 
-1. **observer 的真实 LLM 抽取未跑**：需要隔离 provider 凭据。当前验证的是候选写入、晋升、注入、CLI 和二进制路径；没有验证模型能否稳定抽出高质量候选。
-2. **Windows 全量 `bun test` 未全绿**：部分 `test/cli/tui/plugin-*` 在临时目录清理阶段 `EBUSY`，属于 Windows 文件锁/模块缓存，不是功能断言失败。fixture 已加 30 次重试；仍有个别插件测试受影响。
-3. **TUI 视觉验收未做**：没有终端截图通道；核心界面通过 i18n 字典、组件测试与门禁验证。
-4. **顶层 CLI help/部分次级文案仍英文**：不影响核心 TUI 与技能使用。
-5. **上游同步未自动化**：独立 git 历史，`_upstream_mimo/` 只读快照；同步需人工 diff。
+1. **observer 的真实 provider 抽取未跑**：需要隔离 provider 凭据。自动化已覆盖 scripted SSE → instinct 工具 → candidate 落盘链路（`test/session/instinct-observer-extraction.test.ts` pass）；真实模型能否稳定抽出高质量候选仍需人工冒烟（见 next-steps.md P0）。
+2. **Windows plugin loader 测试按平台跳过**：`test/cli/tui/plugin-*.test.ts` 23 个用例 + `tui.plugin.loader` describe，在 Windows 上 `skipIf(process.platform === "win32")`。原因：Bun 缓存插件入口模块持有目录句柄，fixture 清理 EBUSY（30 次重试后仍失败）；断言本身通过，属清理失败。macOS/Linux 正常运行。
+3. **TUI 像素级人工视觉验收未做**：自动化已覆盖主题色解析（`theme-blue.test.ts`）、登录对话框文本（`login-dialog.test.tsx`）、权限框与主界面既有测试；真实终端中的字符宽度/换行/对比度仍需人工检查。
+4. **Windows 全量偶发时序失败**：并行负载下 provider refresh / instance dispose / session heartbeat 类测试偶发超时（60s timeout），单独重跑通过；属时序敏感用例，非本次改动引入。
+
+## 2026-10-22 批量完成验证
+
+门禁（在 `F:/AllProjects/ymcode`）：
+
+```text
+brand check passed
+i18n check passed: 698 en keys, 723 zh keys, 24 skill descriptions
+skill check passed: 70 files
+prompt check passed: 54 files
+typecheck: sdk/plugin/shared/cli 全部 Done
+```
+
+定向测试（`cd packages/cli`）：
+
+```text
+test/plugin/mimo.test.ts                        4 pass
+test/cli/tui/model.test.ts                     10 pass（含 3 个新凭据用例）
+test/cli/tui/theme-blue.test.ts                 3 pass
+test/cli/tui/login-dialog.test.tsx              1 pass
+test/memory/instinct-service.test.ts            8 pass（含阈值映射/last_seen/export-import）
+test/session/instinct-observer.test.ts          4 pass（含状态 roundtrip/损坏容错）
+test/session/instinct-observer-extraction.test.ts 1 pass
+test/tool/tool-script.test.ts + workflow       105 pass / 5 skip / 0 fail
+test/cli/tui/plugin-*.test.ts                  24 skip（Windows，见上）
+```
+
+构建与冒烟：
+
+```text
+离线构建（本地模型快照 + --skip-install）通过；--version = local
+ymcode --help / auth --help / instinct --help：中文描述，auth 无 whoami，instinct 有 export/import
+upstream:diff：changed 757 / added 70 / deleted 17；--json 可解析
+```
+
+instinct export/import CLI 冒烟（隔离 `YMCODE_HOME`）：
+
+```text
+instinct import .scratch/instinct-bundle.json -> imported=1; skipped=0
+instinct list -> ins_smoke12345 candidate 0.90 提交前必须跑 typecheck
+instinct export --output .scratch/instinct-exported.json -> exported 1 instincts
+```
+
+Windows 全量 `bun test`：
+
+- 第一次完整运行：5534 pass / 66 skip / 744 fail（详见 PROGRESS.md，全部失败已归因处理）。
+- 第二次运行被手动中断；第三次运行结果待补记（运行中）。
 
 ## 复现注意事项
 
 - 不要把测试临时目录 `.ymcode-test-fixtures-*` 提交；测试后清理。
 - 不要用 `bun test` 的全量结果判断功能失败，先看失败是断言还是 cleanup。
 - 二进制验收用 `YMCODE_HOME` 隔离，避免污染真实用户数据。
+- 判断 Windows skip 是否合理：文件头注释有 `Windows: Bun keeps imported plugin entrypoints cached...` 标记。

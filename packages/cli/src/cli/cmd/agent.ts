@@ -19,30 +19,30 @@ const AVAILABLE_TOOLS = ["bash", "read", "write", "edit", "glob", "grep", "webfe
 
 const AgentCreateCommand = cmd({
   command: "create",
-  describe: "create a new agent",
+  describe: "创建新智能体",
   builder: (yargs: Argv) =>
     yargs
       .option("path", {
         type: "string",
-        describe: "directory path to generate the agent file",
+        describe: "生成智能体文件的目录路径",
       })
       .option("description", {
         type: "string",
-        describe: "what the agent should do",
+        describe: "智能体的职责描述",
       })
       .option("mode", {
         type: "string",
-        describe: "agent mode",
+        describe: "智能体模式",
         choices: ["all", "primary", "subagent"] as const,
       })
       .option("tools", {
         type: "string",
-        describe: `comma-separated list of tools to enable (default: all). Available: "${AVAILABLE_TOOLS.join(", ")}"`,
+        describe: `启用的工具列表，以逗号分隔（默认：全部）。可用："${AVAILABLE_TOOLS.join(", ")}"`,
       })
       .option("model", {
         type: "string",
         alias: ["m"],
-        describe: "model to use in the format of provider/model",
+        describe: "使用的模型，格式为 服务商/模型",
       }),
   async handler(args) {
     await Instance.provide({
@@ -218,7 +218,7 @@ const AgentCreateCommand = cmd({
 
 const AgentListCommand = cmd({
   command: "list",
-  describe: "list all available agents",
+  describe: "列出所有可用智能体",
   async handler() {
     await Instance.provide({
       directory: process.cwd(),
@@ -242,7 +242,7 @@ const AgentListCommand = cmd({
 
 export const AgentCommand = cmd({
   command: "agent",
-  describe: "manage agents",
+  describe: "管理智能体",
   builder: (yargs) => yargs.command(AgentCreateCommand).command(AgentListCommand).demandCommand(),
   async handler() {},
 })

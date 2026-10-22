@@ -3,7 +3,8 @@ import { resolveInWorkspace, makeFileHooks } from "../../src/workflow/workspace"
 import { tmpdir } from "os"
 import { mkdtempSync } from "fs"
 
-describe("resolveInWorkspace", () => {
+// POSIX path expectations; on Windows path.resolve yields native drive paths.
+describe.skipIf(process.platform === "win32")("resolveInWorkspace", () => {
   test("resolves a relative path inside the root", () => {
     expect(resolveInWorkspace("/ws", "a/b.txt")).toBe("/ws/a/b.txt")
   })

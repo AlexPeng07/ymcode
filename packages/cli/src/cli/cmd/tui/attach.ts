@@ -6,36 +6,36 @@ import { TuiConfig } from "@/cli/cmd/tui/config/tui"
 
 export const AttachCommand = cmd({
   command: "attach <url>",
-  describe: "attach to a running ymcode server",
+  describe: "连接到正在运行的 ymcode 服务器",
   builder: (yargs) =>
     yargs
       .positional("url", {
         type: "string",
-        describe: "server base URL printed by `ymcode serve`",
+        describe: "由 `ymcode serve` 输出的服务器基础 URL",
         demandOption: true,
       })
       .option("dir", {
         type: "string",
-        description: "directory to run in",
+        description: "运行目录",
       })
       .option("continue", {
         alias: ["c"],
-        describe: "continue the last session",
+        describe: "继续上一个会话",
         type: "boolean",
       })
       .option("session", {
         alias: ["s"],
         type: "string",
-        describe: "session id to continue",
+        describe: "要继续的会话 ID",
       })
       .option("fork", {
         type: "boolean",
-        describe: "fork the session when continuing (use with --continue or --session)",
+        describe: "继续时派生会话（与 --continue 或 --session 一起使用）",
       })
       .option("password", {
         alias: ["p"],
         type: "string",
-        describe: "basic auth password (defaults to YMCODE_SERVER_PASSWORD)",
+        describe: "Basic 认证密码（默认取 YMCODE_SERVER_PASSWORD）",
       }),
   handler: async (args) => {
     const unguard = win32InstallCtrlCGuard()

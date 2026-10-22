@@ -7,7 +7,7 @@ import { cmd } from "../cmd"
 
 export const SkillCommand = cmd({
   command: "skill",
-  describe: "list all available skills",
+  describe: "列出所有可用技能",
   builder: (yargs) => yargs,
   async handler() {
     await bootstrap(process.cwd(), async () => {

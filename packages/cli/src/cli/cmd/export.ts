@@ -282,15 +282,15 @@ export function sanitize(data: ReturnType<typeof captureExportData>) {
 
 export const ExportCommand = cmd({
   command: "export [sessionID]",
-  describe: "export session data as JSON",
+  describe: "以 JSON 导出会话数据",
   builder: (yargs: Argv) => {
     return yargs
       .positional("sessionID", {
-        describe: "session id to export",
+        describe: "要导出的会话 ID",
         type: "string",
       })
       .option("sanitize", {
-        describe: "redact sensitive transcript and file data",
+        describe: "对敏感对话记录和文件数据脱敏",
         type: "boolean",
       })
   },

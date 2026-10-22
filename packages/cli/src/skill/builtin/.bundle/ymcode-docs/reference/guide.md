@@ -6,7 +6,7 @@
 
 1. **登录** —— `ymcode auth login` 为提供方保存凭据；`/connect` 可在 TUI 内完成同样操作（例如添加 OpenRouter）。Codex（ChatGPT Pro/Plus）与 xAI（Grok）支持 OAuth 登录；小米 MiMo 使用 API key；Claude Code 认证可从 `~/.claude/settings*.json` 导入。其他账户子命令：`logout`、`switch`、`orgs`、`open`、`console`。
 2. **选择模型** —— 在配置中设置 `"model": "provider/model"`，或在 TUI 模型对话框中实时切换。提供方 API key 会从环境变量自动探测（除非 `YMCODE_MIMO_ONLY=1`）。
-3. **列出可用内容** —— `ymcode models`、`mimo providers`。
+3. **列出可用内容** —— `ymcode models`、`ymcode providers`。
 
 对于自定义 base URL、API key 或 OpenAI/Anthropic 兼容模型，编辑配置前请阅读 @providers.md；它涵盖协议选择、适配器名称、提供方复用、密钥处理与本地验证。
 
@@ -127,7 +127,7 @@ frontmatter 字段（除正文应非空外均可选）：
 }
 ```
 
-用 `mimo mcp` 查看/管理。请求超时默认 5000ms（逐服务器 `timeout`，或全局 `experimental.mcp_timeout`）。
+用 `ymcode mcp` 查看/管理。请求超时默认 5000ms（逐服务器 `timeout`，或全局 `experimental.mcp_timeout`）。
 
 ## Compose 模式
 

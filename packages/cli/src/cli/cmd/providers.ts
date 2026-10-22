@@ -217,13 +217,12 @@ export function resolvePluginProviders(input: {
 export const ProvidersCommand = cmd({
   command: "providers",
   aliases: ["auth"],
-  describe: "manage AI providers and credentials",
+  describe: "管理 AI 服务商与凭据",
   builder: (yargs) =>
     yargs
       .command(ProvidersListCommand)
       .command(ProvidersLoginCommand)
       .command(ProvidersLogoutCommand)
-      .command(ProvidersWhoamiCommand)
       .demandCommand(),
   async handler() {},
 })
@@ -231,7 +230,7 @@ export const ProvidersCommand = cmd({
 export const ProvidersListCommand = cmd({
   command: "list",
   aliases: ["ls"],
-  describe: "list providers and credentials",
+  describe: "列出服务商与凭据",
   async handler(_args) {
     UI.empty()
     const authPath = path.join(Global.Path.data, "auth.json")
@@ -281,21 +280,21 @@ export const ProvidersListCommand = cmd({
 
 export const ProvidersLoginCommand = cmd({
   command: "login [url]",
-  describe: "log in to a provider",
+  describe: "登录服务商",
   builder: (yargs) =>
     yargs
       .positional("url", {
-        describe: "ymcode auth provider",
+        describe: "ymcode 认证服务商",
         type: "string",
       })
       .option("provider", {
         alias: ["p"],
-        describe: "provider id or name to log in to (skips provider selection)",
+        describe: "要登录的服务商 ID 或名称（跳过服务商选择）",
         type: "string",
       })
       .option("method", {
         alias: ["m"],
-        describe: "login method label (skips method selection)",
+        describe: "登录方式标签（跳过方式选择）",
         type: "string",
       }),
   async handler(args) {
@@ -495,7 +494,7 @@ export const ProvidersLoginCommand = cmd({
 
 export const ProvidersLogoutCommand = cmd({
   command: "logout",
-  describe: "log out from a configured provider",
+  describe: "退出已配置的服务商",
   async handler(_args) {
     UI.empty()
     const credentials: Array<[string, Auth.Info]> = await AppRuntime.runPromise(
@@ -526,32 +525,5 @@ export const ProvidersLogoutCommand = cmd({
       }),
     )
     prompts.outro("Logout successful")
-  },
-})
-
-export const ProvidersWhoamiCommand = cmd({
-  command: "whoami",
-  describe: "show current logged-in user info",
-  async handler(_args) {
-    UI.empty()
-    prompts.intro("Current user")
-    const info = await AppRuntime.runPromise(
-      Effect.gen(function* () {
-        const auth = yield* Auth.Service
-        return yield* auth.get("xiaomi")
-      }),
-    )
-    if (!info) {
-      prompts.log.error("Not logged in. Run `ymcode auth login` to log in.")
-      return
-    }
-    if (info.type === "api" && info.metadata) {
-      prompts.log.info(`Provider: MiMo`)
-      prompts.log.info(`User ID: ${info.metadata.uid ?? "unknown"}`)
-    } else {
-      prompts.log.info(`Provider: MiMo`)
-      prompts.log.info(`Type: ${info.type}`)
-    }
-    prompts.outro("")
   },
 })

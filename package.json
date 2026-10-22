@@ -15,6 +15,7 @@
     "check:i18n": "bun run script/check-i18n.ts",
     "check:skills": "bun run script/check-skills.ts",
     "check:prompts": "bun run script/check-prompts.ts",
+    "upstream:diff": "bun run script/upstream-diff.ts",
     "i18n:audit": "bun run script/i18n-audit.ts"
   },
   "workspaces": {

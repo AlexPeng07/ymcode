@@ -1,3 +1,5 @@
+// Windows: Bun keeps imported plugin entrypoints cached, so fixture cleanup
+// fails with EBUSY after the assertions pass. Tracked in docs/PROGRESS.md.
 import { expect, spyOn, test } from "bun:test"
 import fs from "fs/promises"
 import path from "path"
@@ -8,7 +10,7 @@ import type { TuiConfig } from "../../../src/cli/cmd/tui/config/tui"
 
 const { TuiPluginRuntime } = await import("../../../src/cli/cmd/tui/plugin/runtime")
 
-test("installs plugin without loading it", async () => {
+test.skipIf(process.platform === "win32")("installs plugin without loading it", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       const file = path.join(dir, "install-plugin.ts")

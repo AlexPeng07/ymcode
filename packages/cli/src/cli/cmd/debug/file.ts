@@ -7,12 +7,12 @@ import { cmd } from "../cmd"
 
 const FileSearchCommand = cmd({
   command: "search <query>",
-  describe: "search files by query",
+  describe: "按查询搜索文件",
   builder: (yargs) =>
     yargs.positional("query", {
       type: "string",
       demandOption: true,
-      description: "Search query",
+      description: "搜索查询",
     }),
   async handler(args) {
     await bootstrap(process.cwd(), async () => {
@@ -24,12 +24,12 @@ const FileSearchCommand = cmd({
 
 const FileReadCommand = cmd({
   command: "read <path>",
-  describe: "read file contents as JSON",
+  describe: "以 JSON 读取文件内容",
   builder: (yargs) =>
     yargs.positional("path", {
       type: "string",
       demandOption: true,
-      description: "File path to read",
+      description: "要读取的文件路径",
     }),
   async handler(args) {
     await bootstrap(process.cwd(), async () => {
@@ -41,7 +41,7 @@ const FileReadCommand = cmd({
 
 const FileStatusCommand = cmd({
   command: "status",
-  describe: "show file status information",
+  describe: "显示文件状态信息",
   builder: (yargs) => yargs,
   async handler() {
     await bootstrap(process.cwd(), async () => {
@@ -53,12 +53,12 @@ const FileStatusCommand = cmd({
 
 const FileListCommand = cmd({
   command: "list <path>",
-  describe: "list files in a directory",
+  describe: "列出目录中的文件",
   builder: (yargs) =>
     yargs.positional("path", {
       type: "string",
       demandOption: true,
-      description: "File path to list",
+      description: "要列出的文件路径",
     }),
   async handler(args) {
     await bootstrap(process.cwd(), async () => {
@@ -70,11 +70,11 @@ const FileListCommand = cmd({
 
 const FileTreeCommand = cmd({
   command: "tree [dir]",
-  describe: "show directory tree",
+  describe: "显示目录树",
   builder: (yargs) =>
     yargs.positional("dir", {
       type: "string",
-      description: "Directory to tree",
+      description: "要生成目录树的目录",
       default: process.cwd(),
     }),
   async handler(args) {
@@ -87,7 +87,7 @@ const FileTreeCommand = cmd({
 
 export const FileCommand = cmd({
   command: "file",
-  describe: "file system debugging utilities",
+  describe: "文件系统调试工具",
   builder: (yargs) =>
     yargs
       .command(FileReadCommand)

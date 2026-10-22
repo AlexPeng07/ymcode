@@ -54,19 +54,36 @@ export function initial(
 
 const PREFERRED_DEFAULT: Selection = { providerID: "xiaomi", modelID: "mimo-v2.6-pro" }
 
+/** True when the computed provider already carries a usable credential. */
+export function hasCredentials(provider: Provider): boolean {
+  if (provider.key) return true
+  if (provider.source === "env") return true
+  return typeof provider.options?.apiKey === "string" && provider.options.apiKey.length > 0
+}
+
+function defaultModel(provider: Provider, providerDefault: Record<string, string>): string | undefined {
+  return providerDefault[provider.id] ?? Object.keys(provider.models)[0]
+}
+
 /**
- * When argument/recent/configured all miss: prefer the signed-in xiaomi pro
- * model (login required), else the first provider's default/first model.
+ * When argument/recent/configured all miss: prefer the xiaomi pro model only
+ * when it has credentials, then the first credentialed provider, and finally
+ * the first provider (so a credential-less install still lands on /login).
  */
 export function fallback(
   list: Provider[] | undefined,
   providerDefault: Record<string, string> = {},
 ): Selection | undefined {
   const preferred = get(list, PREFERRED_DEFAULT.providerID, PREFERRED_DEFAULT.modelID)
-  if (preferred) return PREFERRED_DEFAULT
+  const preferredProvider = list?.find((item) => item.id === PREFERRED_DEFAULT.providerID)
+  if (preferred && preferredProvider && hasCredentials(preferredProvider)) return PREFERRED_DEFAULT
+  const credentialed = list?.find((item) => hasCredentials(item) && defaultModel(item, providerDefault))
+  if (credentialed) {
+    return { providerID: credentialed.id, modelID: defaultModel(credentialed, providerDefault)! }
+  }
   const provider = list?.[0]
   if (!provider) return undefined
-  const model = providerDefault[provider.id] ?? Object.keys(provider.models)[0]
+  const model = defaultModel(provider, providerDefault)
   if (!model) return undefined
   return { providerID: provider.id, modelID: model }
 }
