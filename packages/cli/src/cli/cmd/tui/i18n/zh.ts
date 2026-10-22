@@ -246,6 +246,7 @@ export const dict = {
   "tui.session.recovering": "恢复中",
   "tui.command.workflow.list.title": "工作流",
   "tui.command.instinct.list.title": "直觉规则",
+  "tui.command.remember.title": "记住这条",
   "tui.command.model.list.title": "切换模型",
   "tui.command.model.cycle_recent.title": "循环切换模型",
   "tui.command.model.cycle_recent_reverse.title": "反向循环切换模型",
@@ -791,6 +792,14 @@ export const dict = {
   "tui.instinct.toast.reviewed": "review 完成：晋升 {{promoted}} 条，衰减 {{decayed}} 条",
   "tui.instinct.toast.failed": "操作失败：{{message}}",
   "tui.instinct.detail.evidence": "证据",
+
+  // Remember slash command
+  "tui.remember.title": "记住一条直觉规则",
+  "tui.remember.placeholder": "描述要记住的规则",
+  "tui.remember.saved": "已记录候选 {{id}}，可在 /instincts 中晋升",
+  "tui.remember.failed": "保存失败：{{message}}",
+  "tui.remember.no_session": "请先在会话中使用 /remember",
+  "tui.remember.too_long": "规则内容请控制在 200 字以内",
 
   // Session rename
   "tui.session.rename.toast.unconfirmed": "保存结果未确认。请重新读取会话后再重试。",

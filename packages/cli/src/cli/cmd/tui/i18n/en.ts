@@ -233,6 +233,7 @@ export const dict: Record<string, string> = {
   "tui.session.recovering": "recovering",
   "tui.command.workflow.list.title": "Workflows",
   "tui.command.instinct.list.title": "Instinct rules",
+  "tui.command.remember.title": "Remember this",
   "tui.command.model.list.title": "Switch model",
   "tui.command.model.cycle_recent.title": "Model cycle",
   "tui.command.model.cycle_recent_reverse.title": "Model cycle reverse",
@@ -780,6 +781,14 @@ export const dict: Record<string, string> = {
   "tui.instinct.toast.reviewed": "Review complete: {{promoted}} promoted, {{decayed}} decayed",
   "tui.instinct.toast.failed": "Operation failed: {{message}}",
   "tui.instinct.detail.evidence": "Evidence",
+
+  // Remember slash command
+  "tui.remember.title": "Remember an instinct",
+  "tui.remember.placeholder": "Describe the rule to remember",
+  "tui.remember.saved": "Saved candidate {{id}}. Promote it from /instincts.",
+  "tui.remember.failed": "Could not save: {{message}}",
+  "tui.remember.no_session": "Open a session before using /remember.",
+  "tui.remember.too_long": "Keep the rule under 200 characters.",
 
   // Session rename
   "tui.session.rename.toast.unconfirmed": "Save result is not confirmed. Read the session before retrying.",

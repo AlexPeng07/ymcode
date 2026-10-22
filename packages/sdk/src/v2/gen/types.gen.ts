@@ -6753,6 +6753,47 @@ export type InstinctListResponses = {
 
 export type InstinctListResponse = InstinctListResponses[keyof InstinctListResponses]
 
+export type InstinctCreateData = {
+  body?: {
+    scope?: "project" | "global"
+    description: string
+    body?: string
+    source?: "correction" | "repetition" | "decision"
+    confidence?: number
+    session?: string
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/instinct"
+}
+
+export type InstinctCreateResponses = {
+  /**
+   * Created candidate
+   */
+  200: {
+    id: string
+    description: string
+    status: "candidate" | "active" | "retired"
+    confidence: number
+    evidence: Array<{
+      session: string
+      date: string
+      quote?: string
+    }>
+    source: "correction" | "repetition" | "decision"
+    created_at: string
+    updated_at: string
+    last_seen_at: string
+    contradictions?: number
+  }
+}
+
+export type InstinctCreateResponse = InstinctCreateResponses[keyof InstinctCreateResponses]
+
 export type InstinctForgetData = {
   body?: never
   path: {

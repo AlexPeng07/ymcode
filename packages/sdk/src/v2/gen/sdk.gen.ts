@@ -67,6 +67,7 @@ import type {
   GlobalUpgradeErrors,
   GlobalUpgradeResponses,
   InstanceDisposeResponses,
+  InstinctCreateResponses,
   InstinctDemoteResponses,
   InstinctForgetResponses,
   InstinctGetResponses,
@@ -3736,6 +3737,53 @@ export class Instinct extends HeyApiClient {
       url: "/instinct",
       ...options,
       ...params,
+    })
+  }
+
+  /**
+   * Create an instinct candidate
+   *
+   * Capture a rule from the current session as a candidate. The candidate is not promoted automatically; use the promote endpoint or the TUI panel.
+   */
+  public create<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+      scope?: "project" | "global"
+      description?: string
+      body?: string
+      source?: "correction" | "repetition" | "decision"
+      confidence?: number
+      session?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "body", key: "scope" },
+            { in: "body", key: "description" },
+            { in: "body", key: "body" },
+            { in: "body", key: "source" },
+            { in: "body", key: "confidence" },
+            { in: "body", key: "session" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<InstinctCreateResponses, unknown, ThrowOnError>({
+      url: "/instinct",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
     })
   }
 

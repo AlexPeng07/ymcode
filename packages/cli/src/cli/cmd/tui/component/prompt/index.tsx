@@ -20,6 +20,7 @@ import { assign, expandPlaceholders, resolvePromptCommand } from "./part"
 import { usePromptStash } from "./stash"
 import { clampStatusMessage } from "./footer"
 import { DialogStash } from "../dialog-stash"
+import { remember } from "../dialog-remember"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
 import { useCommandDialog } from "../dialog-command"
 import { useLanguage } from "@tui/context/language"
@@ -1215,6 +1216,15 @@ export function Prompt(props: PromptProps) {
               }),
           { busyText: t("tui.command.session.ask.busy") },
         )
+    } else if (inputText === "/remember" || inputText.startsWith("/remember ")) {
+      await remember({
+        dialog,
+        sdk,
+        toast,
+        t,
+        sessionID,
+        text: inputText.slice("/remember".length).trim() || undefined,
+      })
     } else if (clientSlash) {
       clientSlash.onSelect?.()
     } else if (serverSlash) {

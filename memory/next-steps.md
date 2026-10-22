@@ -23,6 +23,8 @@
 - **新增 instincts TUI 面板**：`/instincts` 列出规则、展示证据与正文，支持晋升、
   强制晋升、降级、删除、review 以及项目/全局范围切换；新增 `/instinct` HTTP 路由
   并重新生成 SDK。
+- **新增 `/remember`**：会话内直接写入带当前会话证据的候选（`POST /instinct`），
+  无参数时弹出输入框；随后可在 `/instincts` 中一键晋升。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

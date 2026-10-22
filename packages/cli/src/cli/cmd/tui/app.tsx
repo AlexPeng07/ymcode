@@ -21,6 +21,7 @@ import semver from "semver"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
 import { DialogMimoLogin } from "@tui/component/dialog-mimo-login"
 import { DialogInstinct } from "@tui/component/dialog-instinct"
+import { remember } from "@tui/component/dialog-remember"
 import { ErrorComponent } from "@tui/component/error-component"
 import { PluginRouteMissing } from "@tui/component/plugin-route-missing"
 import { ProjectProvider } from "@tui/context/project"
@@ -484,6 +485,18 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
       category: "system",
       onSelect: () => {
         dialog.replace(() => <DialogInstinct />)
+      },
+    },
+    {
+      title: t("tui.command.remember.title"),
+      value: "remember",
+      slash: {
+        name: "remember",
+      },
+      category: "system",
+      onSelect: () => {
+        const sessionID = route.data.type === "session" ? route.data.sessionID : undefined
+        void remember({ dialog, sdk, toast, t, sessionID })
       },
     },
     {

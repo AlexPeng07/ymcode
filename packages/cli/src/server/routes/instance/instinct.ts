@@ -2,7 +2,7 @@ import { Hono } from "hono"
 import { describeRoute, resolver, validator } from "hono-openapi"
 import z from "zod"
 import { Instinct } from "@/memory"
-import { Info, Status } from "@/memory/instinct"
+import { Info, Source, Status } from "@/memory/instinct"
 import { Instance } from "@/project/instance"
 import { ProjectID } from "@/project/schema"
 import { lazy } from "@/util/lazy"
@@ -170,6 +170,51 @@ export const InstinctRoutes = lazy(() =>
         jsonRequest("InstinctRoutes.review", c, function* () {
           const svc = yield* Instinct.Service
           return yield* svc.review(target(c.req.valid("json").scope))
+        }),
+    )
+    .post(
+      "/",
+      describeRoute({
+        summary: "Create an instinct candidate",
+        description:
+          "Capture a rule from the current session as a candidate. The candidate is not promoted automatically; use the promote endpoint or the TUI panel.",
+        operationId: "instinct.create",
+        responses: {
+          200: {
+            description: "Created candidate",
+            content: { "application/json": { schema: resolver(Info) } },
+          },
+        },
+      }),
+      validator(
+        "json",
+        z.object({
+          scope: Scope,
+          description: z.string().trim().min(1).max(200),
+          body: z.string().optional(),
+          source: Source.default("decision"),
+          confidence: z.number().min(0).max(1).default(0.85),
+          session: z.string().min(1).optional(),
+        }),
+      ),
+      async (c) =>
+        jsonRequest("InstinctRoutes.create", c, function* () {
+          const body = c.req.valid("json")
+          const svc = yield* Instinct.Service
+          return yield* svc.write({
+            ...target(body.scope),
+            description: body.description,
+            source: body.source,
+            confidence: body.confidence,
+            evidence: [
+              {
+                session: body.session ?? "manual",
+                date: new Date().toISOString().slice(0, 10),
+                quote: body.description,
+              },
+            ],
+            body: body.body ?? body.description,
+          })
         }),
     ),
 )

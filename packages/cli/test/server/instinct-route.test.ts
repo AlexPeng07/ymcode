@@ -85,6 +85,35 @@ describe("instinct routes", () => {
     })
   })
 
+  test("creates a candidate from a session note", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const app = Server.Default().app
+        const created = await app.request("/instinct", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            scope: "global",
+            description: "Prefer early returns",
+            session: "ses_remember",
+          }),
+        })
+        expect(created.status).toBe(200)
+        const info = (await created.json()) as { id: string; status: string; evidence: Array<{ session: string }> }
+        expect(info.status).toBe("candidate")
+        expect(info.evidence[0]?.session).toBe("ses_remember")
+
+        const list = await app.request("/instinct?scope=global")
+        const items = (await list.json()) as Array<{ id: string; description: string }>
+        expect(items.some((item) => item.id === info.id && item.description === "Prefer early returns")).toBe(true)
+
+        await app.request(`/instinct/${info.id}?scope=global`, { method: "DELETE" })
+      },
+    })
+  })
+
   test("rejects a malformed instinct id", async () => {
     await using tmp = await tmpdir({ git: true })
     await Instance.provide({
