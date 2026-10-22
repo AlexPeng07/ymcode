@@ -1,4 +1,5 @@
-import { Effect } from "effect"
+import { Cause, Effect } from "effect"
+import { Deferred } from "effect"
 import fs from "fs/promises"
 import path from "path"
 import { Global } from "../global"
@@ -8,6 +9,75 @@ import { spawnRef } from "@/actor/spawn-ref"
 import * as Session from "./session"
 import { checkpointPath } from "./checkpoint-paths"
 import type { SessionID } from "./schema"
+import { Log } from "../util"
+
+const log = Log.create({ service: "session.instinct-observer" })
+
+// Headless `ymcode run` would otherwise exit right after the checkpoint-writer
+// drain, killing a freshly spawned observer mid-LLM-loop (its candidate write
+// lands as `pending` and never executes). bootstrap awaits this set — bounded —
+// so a fired observer can finish writing its candidates before teardown.
+const pendingObservers = new Set<Promise<unknown>>()
+
+export interface ObserverSlot {
+  /** Resolve the reserved drain slot. One settle per slot. */
+  settle(): void
+}
+
+/**
+ * Reserve a drain slot synchronously so the bootstrap drain can never race
+ * past an observer that is about to spawn. The watcher fiber in checkpoint.ts
+ * and drainWriters resume on the same writer-outcome Deferred; without a slot
+ * the drain observes an empty pendingObservers set while the watcher is still
+ * in its async prologue (state file, session.create, actor.spawn) and exits
+ * before the real outcome promise is registered.
+ */
+export function reserveObserverSlot(): ObserverSlot {
+  let settle!: () => void
+  const gate = new Promise<void>((resolve) => (settle = resolve))
+  pendingObservers.add(gate)
+  log.info("observer slot reserved", { size: pendingObservers.size })
+  return {
+    settle: () => {
+      // Remove BEFORE resolving: nothing else deletes the gate, and the drain
+      // polls pendingObservers.size — a settled-but-remaining gate would pin
+      // the set non-empty forever and hold every shutdown for the full timeout.
+      pendingObservers.delete(gate)
+      log.info("observer slot settled", { size: pendingObservers.size })
+      settle()
+    },
+  }
+}
+
+/**
+ * Resolves when every observer spawned by this process has reached a terminal
+ * outcome, or after `timeoutMs` (mirrors the checkpoint-writer drain cap).
+ *
+ * Quiet-period semantics: slots are settled from multiple places (Effect
+ * finalizers AND a promise backstop on the writer outcome), and an observer's
+ * outcome promise is registered slightly AFTER its slot settles — the watcher
+ * fiber resumes on the same writer Deferred and still has to run its async
+ * prologue. So instead of "exit when the set is empty", wait for `quietMs`
+ * without any pending slot before giving up; any late registration resets the
+ * clock and keeps the process alive until the observer settles.
+ */
+export async function drainInstinctObservers(timeoutMs = 120_000, quietMs = 5_000): Promise<void> {
+  const start = Date.now()
+  const deadline = start + timeoutMs
+  let lastActive = start
+  while (Date.now() < deadline) {
+    if (pendingObservers.size > 0) {
+      lastActive = Date.now()
+    } else if (Date.now() - lastActive >= quietMs) {
+      break
+    }
+    await Bun.sleep(200)
+  }
+  log.info("observer drain complete", {
+    pending: pendingObservers.size,
+    waitedMs: Date.now() - start,
+  })
+}
 
 export function shouldObserve(input: {
   enabled: boolean
@@ -70,6 +140,8 @@ export function startInstinctObserver(input: {
   sessionID: string
   projectID: string
   model: { providerID: string; modelID: string }
+  /** Drain slot reserved by the caller; settled when this Effect exits. */
+  slot?: ObserverSlot
 }) {
   return Effect.gen(function* () {
     const config = yield* Config.Service
@@ -104,7 +176,7 @@ export function startInstinctObserver(input: {
       parentID: input.sessionID as SessionID,
       title: `instinct-observer: ${input.sessionID}`,
     })
-    yield* actor.spawn({
+    const spawned = yield* actor.spawn({
       mode: "subagent",
       sessionID: child.id,
       parentSessionID: input.sessionID as SessionID,
@@ -119,5 +191,31 @@ export function startInstinctObserver(input: {
       },
       background: true,
     })
-  })
+    log.info("instinct-observer spawned", { session: child.id, parent: input.sessionID })
+    try {
+      // Track the observer's terminal outcome so bootstrap's drain can wait for
+      // it. The Deferred resolves on success/failure/cancel; a hung observer is
+      // abandoned by the drain timeout instead of hanging the process exit.
+      const tracked = Effect.runPromise(Deferred.await(spawned.outcome))
+        .catch((error) => {
+          log.warn("instinct-observer outcome await failed", { error: String(error) })
+          return undefined
+        })
+        .finally(() => {
+          log.info("instinct-observer settled", { session: child.id })
+          pendingObservers.delete(tracked)
+        })
+      pendingObservers.add(tracked)
+    } catch (error) {
+      log.error("instinct-observer tracking failed", { error: String(error) })
+    }
+  }).pipe(
+    // Settle the reserved drain slot as soon as THIS effect exits — success,
+    // early return, failure, or interruption. By this point any spawned
+    // observer's outcome promise is already registered in pendingObservers.
+    // Do NOT rely on the caller's watcher fiber to settle the slot: it can be
+    // interrupted during teardown before its own ensuring finalizer runs,
+    // which would hold the bootstrap drain for the full timeout.
+    Effect.onExit(() => Effect.sync(() => input.slot?.settle())),
+  )
 }

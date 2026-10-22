@@ -21,7 +21,7 @@ import { SessionStatus } from "./status"
 import { MessageV2 } from "./message-v2"
 import { SessionID, MessageID, PartID } from "./schema"
 import { Log, Token } from "../util"
-import { Effect, Layer, Deferred, Context, Scope } from "effect"
+import { Effect, Layer, Deferred, Context, Scope, Cause } from "effect"
 import { makeRuntime } from "@/effect/run-service"
 import type { ActorPromptOps } from "@/tool/actor"
 import type { ProviderID, ModelID } from "../provider/schema"
@@ -36,7 +36,7 @@ import {
   migrateProjectMemory,
 } from "./checkpoint-paths"
 import { readBudgeted, readBudgetedSectionAware } from "./budgeted-read"
-import { startInstinctObserver } from "./instinct-observer"
+import { startInstinctObserver, reserveObserverSlot } from "./instinct-observer"
 import type { LastMessageInfo } from "./last-message-info"
 import { CHECKPOINT_TEMPLATE, MEMORY_TEMPLATE, NOTES_TEMPLATE, CHECKPOINT_SECTION_BUDGETS } from "./checkpoint-templates"
 import { adjustBoundaryForApiInvariants } from "./boundary"
@@ -1000,6 +1000,28 @@ export const layer: Layer.Layer<
 
       writers.set(input.sessionID, { writing: result.outcome })
 
+      // Reserve the observer drain slot NOW, synchronously: the settle watcher
+      // forked below and bootstrap's drainWriters resume on the SAME writer
+      // outcome Deferred, and drainInstinctObservers (which runs right after
+      // drainWriters) would otherwise see an empty pendingObservers set while
+      // the watcher is still in startInstinctObserver's async prologue —
+      // exiting before the real observer outcome promise is registered. The
+      // slot settles in the watcher's ensuring below, by which point any
+      // observer outcome promise is already tracked (or no observer fired).
+      const observerSlot = reserveObserverSlot()
+      // Guaranteed settle: the watcher fiber runs on the checkpoint layer's
+      // runtime and can be frozen by teardown scheduling before any of its
+      // Effect finalizers fire (observed on Windows headless runs). A plain
+      // promise chain off the SAME writer outcome always runs. The drain's
+      // quiet-period logic bridges the gap until the watcher registers the
+      // observer's outcome promise (or until it's clear none will spawn).
+      Effect.runPromise(Deferred.await(result.outcome))
+        .catch(() => undefined)
+        .finally(() => {
+          log.info("writer outcome backstop settling observer slot")
+          observerSlot.settle()
+        })
+
       // Bookkeeping: the parent's last_checkpoint_message_id (the delta
       // watermark — the point future rebuilds compute the message tail from)
       // advances ONLY when the writer SUCCEEDS. This is a transactional
@@ -1027,10 +1049,13 @@ export const layer: Layer.Layer<
             sessionID: input.sessionID,
             projectID,
             model: { providerID: input.model.providerID, modelID: input.model.modelID },
+            slot: observerSlot,
           }).pipe(
             Effect.provideService(Config.Service, config),
             Effect.provideService(Session.Service, session),
-            Effect.ignore,
+            Effect.catchCause((cause) =>
+              Effect.sync(() => log.error("startInstinctObserver failed", { error: Cause.pretty(cause) })),
+            ),
           )
         } else {
           // Classify instead of count. This is the replacement for the failure
@@ -1105,7 +1130,10 @@ export const layer: Layer.Layer<
         }
       }).pipe(
         Effect.ensuring(
-          Effect.sync(() => CheckpointContext.remove(input.sessionID, actorID)),
+          Effect.sync(() => {
+            CheckpointContext.remove(input.sessionID, actorID)
+            observerSlot.settle()
+          }),
         ),
         Effect.forkIn(scope),
       )
