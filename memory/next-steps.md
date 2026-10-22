@@ -17,6 +17,9 @@
 - **新增 `ymcode doctor`**：检查运行时、目录可写性、配置解析与模型可用性、凭据、
   ripgrep、会话数据库与旧版迁移目录；`--json` 便于提交问题报告，`--network`
   额外探测 models.dev 与 github.com。
+- **新增 `ymcode setup`**：非交互/交互两用的首次运行向导（服务商 → API Key →
+  默认模型 → 写入 auth.json 与全局配置并验证 provider 加载）；TUI 首次无凭据启动
+  时自动打开服务商选择框，且只自动出现一次。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

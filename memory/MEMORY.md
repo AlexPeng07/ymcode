@@ -26,6 +26,8 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - TUI 蓝色主题、登录对话框有自动化测试；observer 抽取路径有 scripted-LLM 集成测试。
 - instincts：配置阈值统一、observer 状态原子写、`last_seen_at` 稳定策略、export/import。
 - `bun run upstream:diff` 可查看上游差异。
+- `ymcode doctor` 检查运行时/路径/配置/凭据/搜索/数据库并给出修复建议；`ymcode setup`
+  完成服务商、API Key 与默认模型的首次配置，TUI 首次无凭据启动会自动弹出服务商选择。
 
 未验证/未完成：
 

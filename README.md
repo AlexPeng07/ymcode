@@ -38,9 +38,11 @@ MODELS_DEV_API_JSON=/path/to/models.json bun run script/build.ts --single --skip
 ## 运行
 
 ```bash
+ymcode setup           # 首次运行向导：服务商、API Key、默认模型
 ymcode                 # 启动 TUI
 ymcode run "..."       # 非交互执行
 ymcode serve           # headless server
+ymcode doctor          # 检查环境、配置与凭据
 ymcode instinct list   # 查看直觉规则
 ymcode migrate --dry-run
 ```

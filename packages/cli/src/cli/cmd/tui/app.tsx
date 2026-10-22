@@ -425,6 +425,18 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
 
   const connected = useConnected()
 
+  // First launch without any credential: open the provider picker once, so setup
+  // does not depend on the user discovering /connect. Later launches keep the
+  // regular tip instead of stealing focus.
+  let welcomed = false
+  createEffect(() => {
+    if (welcomed || !kv.ready || sync.status !== "complete" || connected()) return
+    if (kv.get("setup.welcomed", false)) return
+    welcomed = true
+    kv.set("setup.welcomed", true)
+    dialog.replace(() => <DialogMimoLogin />)
+  })
+
   // Seed never-ask from the launch flag once connected (the server starts with
   // it off; this mirrors --never-ask to the question service).
   let seededNeverAsk = false
