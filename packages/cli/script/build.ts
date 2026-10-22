@@ -270,7 +270,9 @@ if (archive) {
     if (key.includes("linux")) {
       await $`tar -czf ../../${key}.tar.gz *`.cwd(`dist/${key}/bin`)
     } else {
-      await $`zip -r ../../${key}.zip *`.cwd(`dist/${key}/bin`)
+      // bsdtar (Windows/macOS) picks the format from the extension; avoids a
+      // dependency on an external `zip` binary.
+      await $`tar -a -cf ../../${key}.zip *`.cwd(`dist/${key}/bin`)
     }
   }
 }

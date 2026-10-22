@@ -25,7 +25,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | ba
 powershell -ep Bypass -c "irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex"
 ```
 
-指定版本：Unix 追加 `-s -- --version 0.1.15`，Windows 设置 `$env:VERSION`。
+指定版本：Unix 追加 `-s -- --version 0.2.0`，Windows 设置 `$env:VERSION`。
 镜像或私有托管：设置 `YMCODE_RELEASE_BASE`，并可用 `YMCODE_RELEASE_LATEST_URL` 指向返回 `tag_name` JSON 或纯版本文本的地址。`ymcode upgrade` 会从同一发布通道获取最新版本。
 
 ## 构建
@@ -84,8 +84,8 @@ ymcode migrate --dry-run
 
 ## 发布
 
-1. 让根 `package.json` 与 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.1.16`）。
-2. 提交后打 tag 并推送：`git tag v0.1.16 && git push origin main --tags`。
+1. 让根 `package.json` 与 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.0`）。
+2. 提交后打 tag 并推送：`git tag v0.2.0 && git push origin main --tags`。
 
 `release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 

@@ -61,6 +61,7 @@ Thumbs.db
 /codex/
 # local progress notes for agent worktrees
 /.scratch/
+/.trae/
 
 # upstream reference clone (read-only baseline, never committed)
 _upstream_mimo/
