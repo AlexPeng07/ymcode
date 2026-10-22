@@ -98,4 +98,8 @@
   - 修复 `tool-script.test.ts` 中 5 处 Windows 路径模板字符串注入问题（改用 `JSON.stringify` 传参）。
   - `exec` timeout 描述断言改为与汉化后文案兼容。
   - 其余偶发失败（provider refresh / instance dispose / session heartbeat 等）单独重跑全部通过，属并行负载下的时序敏感用例。
-- 第二次全量运行在完成前被手动中断（运行至 provider/refresh-boundaries）；第三次全量运行结果见 verification.md。
+- 第二次全量运行在完成前被手动中断（运行至 provider/refresh-boundaries）。
+- 第三次完整运行（3501s）：**5952 pass / 94 skip / 1 todo / 277 fail / 7 errors**。
+- 基线对照（git worktree @ `f5a16f3` + node_modules junction）：memory-path-guard 基线 29 fail == 当前 29 fail；main-wait / permission-next / mcp-lifecycle / turn-queue-admission / bash / ymcode-docs 六文件基线 136 fail ≈ 当前 135 fail。**剩余 277 fail 全部为既有 Windows 失败，本次改动零回归**；tips-view 的 276 为日志汇总段误计，单独运行全绿。
+- 失败性质：守卫函数未按预期抛出（memory-path-guard / permission-next）、ymcode-docs 测试仍断言英文正文（技能已汉化，早于本批次）、PTY / git identity / MCP stdio 平台差异。
+- 后续建议：先在 Linux CI 跑一次全量确认这些用例的平台相关性，再决定逐个修复或平台 skip；Windows skip 清单以 verification.md 为准。

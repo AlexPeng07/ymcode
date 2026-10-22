@@ -153,7 +153,29 @@ instinct export --output .scratch/instinct-exported.json -> exported 1 instincts
 Windows 全量 `bun test`：
 
 - 第一次完整运行：5534 pass / 66 skip / 744 fail（详见 PROGRESS.md，全部失败已归因处理）。
-- 第二次运行被手动中断；第三次运行结果待补记（运行中）。
+- 第二次运行被手动中断。
+- **第三次完整运行（3501s）：5952 pass / 94 skip / 1 todo / 277 fail / 7 errors**。
+
+### 剩余 277 fail 的基线对照（结论：均为既有 Windows 失败，非本次改动引入）
+
+在改动前 commit `f5a16f3` 的 git worktree（junction 复用 node_modules）上重跑失败最多的文件：
+
+```text
+test/tool/memory-path-guard.test.ts   基线 29 fail == 当前 29 fail
+test/actor/main-wait.test.ts 等 6 个文件（main-wait / permission-next /
+  mcp-lifecycle / turn-queue-admission / bash / ymcode-docs）
+                                      基线 136 fail ≈ 当前 135 fail（当前少 1，来自本次修复）
+test/cli/cmd/tui/tips-view.test.ts    单独运行 11 pass / 0 fail（全量日志中 276 的归因
+  是 bun 汇总段被误计，实际非失败）
+```
+
+失败性质（均为断言失败，非清理失败）：
+
+- `memory-path-guard` / `permission/next`：守卫函数在 Windows 上未按预期抛出（"Received function did not throw"）。
+- `ymcode-docs`：测试断言英文技能正文，而技能在改名/汉化轮已中文化（早于本次批次）。
+- 其余：PTY/websocket、git identity floor、MCP stdio 观测、并行负载超时。
+
+结论：Windows 全量绿灯需要一次专门的平台适配（预计先在 Linux CI 跑全量确认这些用例本身平台相关，再决定 skip/修复），超出本批次范围；本次改动零回归。
 
 ## 复现注意事项
 
