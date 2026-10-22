@@ -15,6 +15,7 @@
   { "path": "packages/cli/test/config/tui.test.ts", "reason": "legacy schema cleanup tests" },
   { "path": "packages/cli/src/cli/cmd/uninstall.ts", "reason": "legacy install detection" },
   { "path": "packages/cli/src/cli/cmd/tui/component/dialog-model.tsx", "reason": "external Xiaomi MiMo model family reference" },
+  { "path": "packages/cli/src/cli/cmd/doctor.ts", "reason": "legacy mimocode directory detection" },
   { "path": "packages/cli/test/provider/transform.test.ts", "reason": "external Xiaomi MiMo provider/model fixtures" },
   { "path": "packages/cli/test/session/llm-system-prompt.test.ts", "reason": "upstream issue URL attribution" },
   { "path": "script/brand-allowlist.json", "reason": "contains legacy names in allowlist reasons" },

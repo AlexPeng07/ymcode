@@ -38,9 +38,9 @@ Upgrade is package replace, not tree migration: no leftover-`node_modules` fallb
 ### Runtime resolution (`ymcode.js`)
 
 1. `YMCODE_BIN_PATH` → spawn that.
-2. `<package-root>/vendor/mimo` or `vendor/ymcode.exe` → spawn that.
-3. Else download from FDS into `vendor/`, then spawn.
-4. On failure: exit 1 with the error and recommended `curl -fsSL https://mimo.xiaomi.com/install | bash` (Windows: `irm https://mimo.xiaomi.com/install.ps1 | iex`).
+2. `<package-root>/vendor/ymcode` or `vendor/ymcode.exe` → spawn that.
+3. Else download from the release channel into `vendor/`, then spawn.
+4. On failure: exit 1 with the error and recommended `curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | bash` (Windows: `irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex`).
 
 Detection (one target, all 12 published names):
 
@@ -51,31 +51,31 @@ Detection (one target, all 12 published names):
 
 ### Fetch
 
-- URL: `MIMO_FDS_BASE` (default `https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode`) + `/releases/v${packageVersion}/${target}.tar.gz|.zip` — pinned to the package version, never `releases/latest`.
-- Stream to temp, optional `<url>.sha256` check when published (404 skips), extract the single `mimo[.exe]`, chmod 755, `*.partial` + rename.
+- URL: `YMCODE_RELEASE_BASE` (default `https://github.com/AlexPeng07/ymcode`) + `/releases/download/v${packageVersion}/${target}.tar.gz|.zip` — pinned to the package version, never `releases/latest`.
+- Stream to temp, optional `<url>.sha256` check when published (404 skips), extract the single `ymcode[.exe]`, chmod 755, `*.partial` + rename.
 - `postinstall.mjs` calls the same helper; failures only warn. First run still downloads when needed.
 
 ### Upgrade
 
-`npm/pnpm/bun i -g @ymcode/cli@X.Y.Z` (or built-in upgrade) replaces the package; the new launcher fetches `vX.Y.Z`. Curl channel and `installation/index.ts` methods are unchanged. Publish order (FDS before `npm cli`) already guarantees the archive exists.
+`npm/pnpm/bun i -g @ymcode/cli@X.Y.Z` (or built-in upgrade) replaces the package; the new launcher fetches `vX.Y.Z`. Curl channel and `installation/index.ts` methods are unchanged. Publish order (GitHub Release before `npm cli`) already guarantees the archive exists.
 
 ### Uninstall
 
 Binary lives inside the package directory → `npm uninstall` / `pnpm remove` / `bun remove` / `rm -rf node_modules` all remove it. No uninstall lifecycle hook.
 
-On Windows a running PE is locked: `ymcode.js` copies `vendor/ymcode.exe` to `%TEMP%/ymcode-bin/<version>/` once and executes that copy, so `vendor/` itself stays deletable while mimo runs (upgrade/uninstall from a live TUI). The temp copy is a run artifact, not the install.
+On Windows a running PE is locked: `ymcode.js` copies `vendor/ymcode.exe` to `%TEMP%/ymcode-bin/<version>/` once and executes that copy, so `vendor/` itself stays deletable while ymcode runs (upgrade/uninstall from a live TUI). The temp copy is a run artifact, not the install.
 
 ## [S3] Compatibility
 
 | Surface | Behavior |
 | --- | --- |
-| `mimo` on PATH | `bin.mimo` unchanged |
+| `ymcode` on PATH | `bin.ymcode` |
 | argv / stdio / exit code | forwarded |
 | `YMCODE_BIN_PATH` | wins, no network |
 | curl `install` / `install.ps1` | untouched |
 | built-in upgrade | npm/pnpm/bun/curl methods work |
-| Direct `@ymcode/ymcode-*` | not published to npm anymore; FDS/GitHub archives only |
-| `MIMO_FDS_BASE` | same override as the curl installer |
+| Direct `@ymcode/ymcode-*` | not published to npm anymore; GitHub Release archives only |
+| `YMCODE_RELEASE_BASE` | same override as the curl installer |
 
 ## [S4] Rejected (not in this change)
 

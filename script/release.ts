@@ -100,7 +100,7 @@ async function pack(dir: string, name: string, version: string, dest: string) {
   ) {
     throw new Error(`Unresolved workspace/catalog dependency in ${file}`)
   }
-  const entries = new Set((await $`tar -tzf ${file}`.quiet().text()).split("\n"))
+  const entries = new Set((await $`tar -tzf ${file}`.quiet().text()).split("\n").map((line) => line.trim()))
   const missing = [...exportTargets(pkg.exports), ...exportTargets(pkg.bin)].filter(
     (target) => !entries.has(`package/${target.replace(/^\.\//, "")}`),
   )
@@ -149,14 +149,14 @@ async function packCli(version: string, dest: string) {
         type: "module",
         // Extensionless-free ESM entry (ymcode.js) still wants a modern Node for fetch/AbortSignal.timeout.
         engines: { node: ">=20.10.0" },
-        description: "ymcode: Where Models and Agents Co-Evolve",
+        description: "ymcode — personal AI coding harness",
         license: "MIT",
-        author: "Xiaomi MiMo Team",
-        homepage: "https://mimo.xiaomi.com/coder",
-        repository: { type: "git", url: "git+https://github.com/XiaomiMiMo/ymcode.git" },
-        bugs: { url: "https://github.com/XiaomiMiMo/ymcode/issues" },
-        keywords: ["ai", "cli", "code", "xiaomi", "mimo", "ymcode"],
-        bin: { mimo: "./ymcode.js" },
+        author: "ymcode contributors",
+        homepage: "https://github.com/AlexPeng07/ymcode",
+        repository: { type: "git", url: "git+https://github.com/AlexPeng07/ymcode.git" },
+        bugs: { url: "https://github.com/AlexPeng07/ymcode/issues" },
+        keywords: ["ai", "cli", "code", "agent", "ymcode"],
+        bin: { ymcode: "./ymcode.js" },
         scripts: { postinstall: "bun ./postinstall.mjs || node ./postinstall.mjs" },
       },
       null,
@@ -203,6 +203,7 @@ async function github(version: string) {
 }
 
 async function fds(version: string) {
+  assertFdsCredentials()
   for (const name of platforms) {
     await uploadFile(path.join(out, "archives", archive(name)), `releases/v${version}/${archive(name)}`)
     console.log(`Uploaded to FDS: releases/v${version}/${archive(name)}`)
@@ -234,14 +235,18 @@ export function assertFdsCredentials(env: Record<string, string | undefined> = p
   if (!env.MIMO_FDS_AK || !env.MIMO_FDS_SK) throw new Error("MIMO_FDS_AK / MIMO_FDS_SK must be set before publish")
 }
 
-// Gate before any publish stage: prove the artifact is complete and FDS accepts
-// a signed write, so a bad release cannot half-ship npm and/or GitHub.
+// Gate before any publish stage: prove the artifact is complete. FDS is an
+// optional mirror; only validate and touch it when that channel is enabled.
 async function preflight(version: string) {
   await assertTarballs(version)
-  assertFdsCredentials()
-  await Bun.write(path.join(out, "preflight.txt"), version)
-  await uploadFile(path.join(out, "preflight.txt"), `releases/v${version}/.preflight-ok`)
-  console.log(`Preflight OK: ${npmPackages.length} tarballs ready; FDS accepted canary for v${version}`)
+  if (process.env.YMCODE_PUBLISH_FDS === "1") {
+    assertFdsCredentials()
+    await Bun.write(path.join(out, "preflight.txt"), version)
+    await uploadFile(path.join(out, "preflight.txt"), `releases/v${version}/.preflight-ok`)
+    console.log(`Preflight OK: ${npmPackages.length} tarballs ready; FDS accepted canary for v${version}`)
+    return
+  }
+  console.log(`Preflight OK: ${npmPackages.length} tarballs ready; FDS publishing disabled`)
 }
 
 async function npm(version: string, group: keyof typeof npmGroups) {

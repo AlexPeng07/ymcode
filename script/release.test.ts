@@ -76,7 +76,7 @@ describe("packLibrary", () => {
       const before = await status()
       const file = await packLibrary(name, version, dest)
       const pkg = JSON.parse(await $`tar -xOzf ${file} package/package.json`.quiet().text())
-      const entries = (await $`tar -tzf ${file}`.quiet().text()).split("\n")
+      const entries = (await $`tar -tzf ${file}`.quiet().text()).split("\n").map((line) => line.trim())
 
       expect(pkg.name).toBe(`@ymcode/${name}`)
       expect(pkg.exports["."]).toEqual({ types: "./dist/index.d.ts", import: "./dist/index.js" })

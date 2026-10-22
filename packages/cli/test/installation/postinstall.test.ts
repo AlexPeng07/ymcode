@@ -45,7 +45,7 @@ describe("postinstall", () => {
     // Point at a closed port so prefetch fails quickly and stays best-effort.
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "",
       }),
     )
@@ -56,14 +56,14 @@ describe("postinstall", () => {
     expect(stdout).toContain("bun run --cwd packages/cli build:local")
   })
 
-  test("best-effort prefetch leaves vendor empty and exits 0 when FDS is down", async () => {
+  test("best-effort prefetch leaves vendor empty and exits 0 when the release channel is down", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stagePackage(dir)
 
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "",
       }),
     )
@@ -74,7 +74,7 @@ describe("postinstall", () => {
     expect(combined).toMatch(/skipped binary prefetch|Build the binary locally/i)
   })
 
-  test.skipIf(process.platform === "win32")("prefetches into package-local vendor when FDS serves the archive", async () => {
+  test.skipIf(process.platform === "win32")("prefetches into package-local vendor when the release channel serves the archive", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stagePackage(dir)
@@ -105,7 +105,7 @@ describe("postinstall", () => {
     try {
       const result = await waitPostinstall(
         runPostinstall(dir, {
-          YMCODE_FDS_BASE: `http://127.0.0.1:${server.port}`,
+          YMCODE_RELEASE_BASE: `http://127.0.0.1:${server.port}`,
           YMCODE_BIN_PATH: "",
         }),
       )
@@ -125,7 +125,7 @@ describe("postinstall", () => {
 
     const result = await waitPostinstall(
       runPostinstall(dir, {
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
         YMCODE_BIN_PATH: "/nonexistent/escape-hatch",
       }),
     )

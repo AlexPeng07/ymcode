@@ -57,18 +57,24 @@ describe("launcher targets", () => {
     expect(binaryNameFor("ymcode-windows-x64")).toBe("ymcode.exe")
   })
 
-  test("release URL pins the package version and honors YMCODE_FDS_BASE", () => {
-    const previous = process.env.YMCODE_FDS_BASE
+  test("release URL pins the package version and honors YMCODE_RELEASE_BASE", () => {
+    const previousBase = process.env.YMCODE_RELEASE_BASE
+    const previousRepo = process.env.YMCODE_RELEASE_REPO
     try {
-      delete process.env.YMCODE_FDS_BASE
-      expect(() => releaseUrl("1.2.3", "ymcode-linux-x64")).toThrow(/YMCODE_FDS_BASE/)
-      process.env.YMCODE_FDS_BASE = "https://mirror.example/ymcode/"
+      delete process.env.YMCODE_RELEASE_BASE
+      delete process.env.YMCODE_RELEASE_REPO
       expect(releaseUrl("1.2.3", "ymcode-darwin-arm64")).toBe(
-        "https://mirror.example/ymcode/releases/v1.2.3/ymcode-darwin-arm64.zip",
+        "https://github.com/AlexPeng07/ymcode/releases/download/v1.2.3/ymcode-darwin-arm64.zip",
+      )
+      process.env.YMCODE_RELEASE_BASE = "https://mirror.example/ymcode/"
+      expect(releaseUrl("1.2.3", "ymcode-linux-x64")).toBe(
+        "https://mirror.example/ymcode/releases/download/v1.2.3/ymcode-linux-x64.tar.gz",
       )
     } finally {
-      if (previous === undefined) delete process.env.YMCODE_FDS_BASE
-      else process.env.YMCODE_FDS_BASE = previous
+      if (previousBase === undefined) delete process.env.YMCODE_RELEASE_BASE
+      else process.env.YMCODE_RELEASE_BASE = previousBase
+      if (previousRepo === undefined) delete process.env.YMCODE_RELEASE_REPO
+      else process.env.YMCODE_RELEASE_REPO = previousRepo
     }
   })
 

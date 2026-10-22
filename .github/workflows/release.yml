@@ -113,25 +113,21 @@ jobs:
           name: release-${{ github.ref_name }}
           path: dist/release/
 
-      # Gate before any publish stage: fail on missing tarballs or unusable FDS
-      # so npm/GitHub cannot half-ship.
-      - name: Preflight tarballs and FDS
-        env:
-          MIMO_FDS_AK: ${{ secrets.MIMO_FDS_AK }}
-          MIMO_FDS_SK: ${{ secrets.MIMO_FDS_SK }}
-          MIMO_FDS_ENDPOINT: ${{ vars.MIMO_FDS_ENDPOINT }}
-          MIMO_FDS_BUCKET: ${{ vars.MIMO_FDS_BUCKET }}
-          MIMO_FDS_PREFIX: ${{ vars.MIMO_FDS_PREFIX }}
+      # Gate before any publish stage: fail on missing tarballs so GitHub cannot
+      # half-ship. FDS is an optional mirror gated by YMCODE_PUBLISH_FDS.
+      - name: Preflight tarballs
         run: bun script/release.ts preflight
 
       # Libraries first: a released binary may resolve @ymcode/plugin at its own version.
       - name: npm — SDK and plugin
+        if: vars.YMCODE_PUBLISH_NPM == '1'
         run: bun script/release.ts npm libs
 
       - name: GitHub Release
         run: bun script/release.ts github
 
       - name: FDS archives, then releases/latest
+        if: vars.YMCODE_PUBLISH_FDS == '1'
         env:
           MIMO_FDS_AK: ${{ secrets.MIMO_FDS_AK }}
           MIMO_FDS_SK: ${{ secrets.MIMO_FDS_SK }}
@@ -141,8 +137,10 @@ jobs:
         run: bun script/release.ts fds
 
       - name: npm — @ymcode/cli launcher
+        if: vars.YMCODE_PUBLISH_NPM == '1'
         run: bun script/release.ts npm cli
 
       - name: Sync China npm mirrors
+        if: vars.YMCODE_PUBLISH_NPM == '1'
         continue-on-error: true
         run: bun script/sync-registry.ts

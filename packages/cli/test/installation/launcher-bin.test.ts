@@ -54,7 +54,7 @@ describe("bin/ymcode launcher", () => {
     const result = await waitMimo(
       runMimo(dir, ["--version", "hello"], {
         YMCODE_BIN_PATH: sh,
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(0)
@@ -66,7 +66,7 @@ describe("bin/ymcode launcher", () => {
     const failed = await waitMimo(
       runMimo(dir, [], {
         YMCODE_BIN_PATH: failSh,
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(failed.exitCode).toBe(7)
@@ -91,14 +91,14 @@ describe("bin/ymcode launcher", () => {
     const result = await waitMimo(
       runMimo(dir, ["hello"], {
         YMCODE_BIN_PATH: "",
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toContain("vendor-run:hello")
   })
 
-  test.skipIf(process.platform === "win32")("downloads from FDS on first run when vendor is missing", async () => {
+  test.skipIf(process.platform === "win32")("downloads from the release channel on first run when vendor is missing", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
@@ -128,7 +128,7 @@ describe("bin/ymcode launcher", () => {
       const result = await waitMimo(
         runMimo(dir, ["hi"], {
           YMCODE_BIN_PATH: "",
-          YMCODE_FDS_BASE: `http://127.0.0.1:${server.port}`,
+          YMCODE_RELEASE_BASE: `http://127.0.0.1:${server.port}`,
         }),
       )
       expect(fs.existsSync(path.join(dir, "vendor", binaryName))).toBe(true)
@@ -142,7 +142,7 @@ describe("bin/ymcode launcher", () => {
     }
   })
 
-  test("reports FDS failure with a native install recommendation", async () => {
+  test("reports release failure with a native install recommendation", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stageLauncher(dir)
@@ -150,7 +150,7 @@ describe("bin/ymcode launcher", () => {
     const result = await waitMimo(
       runMimo(dir, [], {
         YMCODE_BIN_PATH: "",
-        YMCODE_FDS_BASE: "http://127.0.0.1:9",
+        YMCODE_RELEASE_BASE: "http://127.0.0.1:9",
       }),
     )
     expect(result.exitCode).toBe(1)

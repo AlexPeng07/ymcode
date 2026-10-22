@@ -40,13 +40,13 @@ async function main() {
     runBinary(stageWindowsRunCopy(binary, readVersion(root)))
   } catch (error) {
     const detail = error && error.message ? error.message : String(error)
-    console.error(`Failed to install ymcode binary (${target}) from FDS: ${detail}`)
+    console.error(`Failed to install ymcode binary (${target}) from the release channel: ${detail}`)
     console.error("")
     console.error("  Recommended: install ymcode natively:")
     console.error(`    ${installHint}`)
     console.error("")
     console.error("  Or set YMCODE_BIN_PATH to an existing ymcode executable,")
-    console.error("  or retry with network access (YMCODE_FDS_BASE can point at a mirror).")
+    console.error("  or retry with network access (YMCODE_RELEASE_BASE can point at a mirror).")
     process.exit(1)
   }
 }

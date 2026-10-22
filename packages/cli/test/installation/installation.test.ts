@@ -157,14 +157,16 @@ describe("installation", () => {
       expect(result).toBe("1.7.0")
     })
 
-    test("resolves version from YMCODE_FDS_BASE for curl method", async () => {
-      const previous = process.env.YMCODE_FDS_BASE
-      process.env.YMCODE_FDS_BASE = "https://mirror.example/ymcode"
+    test("resolves the latest version from the GitHub releases API for curl method", async () => {
+      const previous = process.env.YMCODE_RELEASE_LATEST_URL
+      process.env.YMCODE_RELEASE_LATEST_URL = "https://api.example/ymcode/releases/latest"
       try {
         const layer = testLayer(
           () => jsonResponse({}),
           (cmd, args) => {
-            if (cmd === "curl" && args.includes("https://mirror.example/ymcode/releases/latest")) return "v0.1.1\n"
+            if (cmd === "curl" && args.includes("https://api.example/ymcode/releases/latest")) {
+              return '{"tag_name":"v0.1.1"}'
+            }
             return ""
           },
         )
@@ -174,8 +176,30 @@ describe("installation", () => {
         )
         expect(result).toBe("0.1.1")
       } finally {
-        if (previous === undefined) delete process.env.YMCODE_FDS_BASE
-        else process.env.YMCODE_FDS_BASE = previous
+        if (previous === undefined) delete process.env.YMCODE_RELEASE_LATEST_URL
+        else process.env.YMCODE_RELEASE_LATEST_URL = previous
+      }
+    })
+
+    test("accepts a plain-text latest body from a mirror", async () => {
+      const previous = process.env.YMCODE_RELEASE_LATEST_URL
+      process.env.YMCODE_RELEASE_LATEST_URL = "https://mirror.example/ymcode/releases/latest"
+      try {
+        const layer = testLayer(
+          () => jsonResponse({}),
+          (cmd, args) => {
+            if (cmd === "curl" && args.includes("https://mirror.example/ymcode/releases/latest")) return "v0.1.2\n"
+            return ""
+          },
+        )
+
+        const result = await Effect.runPromise(
+          Installation.Service.use((svc) => svc.latest("curl")).pipe(Effect.provide(layer)),
+        )
+        expect(result).toBe("0.1.2")
+      } finally {
+        if (previous === undefined) delete process.env.YMCODE_RELEASE_LATEST_URL
+        else process.env.YMCODE_RELEASE_LATEST_URL = previous
       }
     })
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// FDS launcher core: detect the one platform target, fetch its binary into
+// Release launcher core: detect the one platform target, fetch its binary into
 // package-local vendor/, and spawn it. Shared by ymcode.js and postinstall.mjs.
 
 import childProcess from "child_process"
@@ -148,14 +148,18 @@ export function readVersion(root) {
   return version
 }
 
-export function fdsBase() {
-  const base = process.env.YMCODE_FDS_BASE
-  if (!base) throw new Error("YMCODE_FDS_BASE is not configured; build locally with `bun run --cwd packages/cli build:local`")
-  return base.replace(/\/+$/, "")
+/** GitHub repository that hosts the release assets. */
+export function releaseRepo() {
+  return process.env.YMCODE_RELEASE_REPO || "AlexPeng07/ymcode"
+}
+
+/** Asset base; a mirror must serve the same `releases/download/vX.Y.Z/...` layout. */
+export function releaseBase() {
+  return (process.env.YMCODE_RELEASE_BASE || `https://github.com/${releaseRepo()}`).replace(/\/+$/, "")
 }
 
 export function releaseUrl(version, target) {
-  return `${fdsBase()}/releases/v${version}/${archiveNameFor(target)}`
+  return `${releaseBase()}/releases/download/v${version}/${archiveNameFor(target)}`
 }
 
 export function vendorBinaryPath(root, target) {
@@ -186,14 +190,14 @@ async function downloadTo(url, dest, { timeoutMs = 15 * 60_000 } = {}) {
   // but healthy first-run downloads.
   const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(timeoutMs) })
   if (!res.ok || !res.body) {
-    throw new Error(`FDS download failed ${res.status} for ${url}`)
+    throw new Error(`Download failed ${res.status} for ${url}`)
   }
   await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(dest))
 }
 
 async function verifySha256(filePath, url) {
   // Optional check: enforce only when a well-formed checksum is published.
-  // Missing/erroring *.sha256 must not brick first-run (FDS may not 404).
+  // Missing/erroring *.sha256 must not brick first-run (the host may not 404).
   const checksumUrl = `${url}.sha256`
   let expected
   try {
@@ -238,7 +242,7 @@ async function extractBinary(archivePath, target, dest) {
 }
 
 /**
- * Ensure the vendor binary exists under `root`. Downloads exactly one FDS
+ * Ensure the vendor binary exists under `root`. Downloads exactly one release
  * archive for this host when missing. Returns the absolute binary path.
  */
 export async function ensureBinary(options = {}) {

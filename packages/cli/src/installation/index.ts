@@ -17,6 +17,34 @@ const log = Log.create({ service: "installation" })
 
 const PACKAGE_NAME = "@ymcode/cli"
 
+/** Default GitHub repository that publishes platform binaries as release assets. */
+export const RELEASE_REPO = "AlexPeng07/ymcode"
+
+export function releaseRepo() {
+  return process.env.YMCODE_RELEASE_REPO || RELEASE_REPO
+}
+
+/** Asset base; a mirror must serve the same `releases/download/vX.Y.Z/...` layout. */
+export function releaseBase() {
+  return (process.env.YMCODE_RELEASE_BASE || `https://github.com/${releaseRepo()}`).replace(/\/+$/, "")
+}
+
+/** Latest-version endpoint. Defaults to the GitHub Releases API; mirrors may return plain text. */
+export function releaseLatestUrl() {
+  return process.env.YMCODE_RELEASE_LATEST_URL || `https://api.github.com/repos/${releaseRepo()}/releases/latest`
+}
+
+export function installScriptUrl(platform = process.platform) {
+  if (process.env.YMCODE_INSTALL_SCRIPT_URL) return process.env.YMCODE_INSTALL_SCRIPT_URL
+  return `https://raw.githubusercontent.com/${releaseRepo()}/main/${platform === "win32" ? "install.ps1" : "install"}`
+}
+
+/** Accepts the GitHub Releases JSON (tag_name) or a plain version body from a mirror. */
+export function parseLatestVersion(raw: string) {
+  const tag = raw.match(/"tag_name"\s*:\s*"v?([^"]+)"/)?.[1]
+  return (tag ?? raw.trim()).replace(/^v/, "")
+}
+
 export type Method = "curl" | "npm" | "pnpm" | "bun" | "brew" | "scoop" | "choco" | "unknown"
 
 export type ReleaseType = "patch" | "minor" | "major"
@@ -151,11 +179,8 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
           if (process.platform === "win32") {
             return yield* upgradeCurlWindows(target)
           }
-          const installScriptUrl = process.env.YMCODE_INSTALL_SCRIPT_URL
-          if (!installScriptUrl) {
-            return yield* Effect.die(new Error("no ymcode install script configured; build locally"))
-          }
-          const response = yield* httpOk.execute(HttpClientRequest.get(installScriptUrl))
+          const scriptUrl = installScriptUrl()
+          const response = yield* httpOk.execute(HttpClientRequest.get(scriptUrl))
           const body = yield* response.text
           const bodyBytes = new TextEncoder().encode(body)
           const proc = ChildProcess.make("bash", [], {
@@ -181,13 +206,10 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
         const stageDir = path.join(os.tmpdir(), `ymcode_upgrade_${pid}`)
 
         // Download new version to staging dir (reuses install.ps1 logic)
-        const installScriptUrl = process.env.YMCODE_INSTALL_SCRIPT_URL
-        if (!installScriptUrl) {
-          return yield* Effect.die(new Error("no ymcode install script configured; build locally"))
-        }
+        const scriptUrl = installScriptUrl()
         const downloadResult = yield* run(
           ["powershell.exe", "-NoProfile", "-NonInteractive", "-ep", "Bypass", "-c", "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; irm $env:INSTALL_SCRIPT_URL | iex"],
-          { env: { YMCODE_INSTALL_DIR: stageDir, VERSION: target, INSTALL_SCRIPT_URL: installScriptUrl } },
+          { env: { YMCODE_INSTALL_DIR: stageDir, VERSION: target, INSTALL_SCRIPT_URL: scriptUrl } },
         )
         if (downloadResult.code !== 0) return downloadResult
 
@@ -264,15 +286,16 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
         // }
 
         if (detectedMethod === "curl") {
-          const base = process.env.YMCODE_FDS_BASE?.replace(/\/+$/, "")
-          if (!base) {
-            return yield* Effect.die(
-              new Error("no ymcode release channel configured; build locally with `bun run --cwd packages/cli build:local`"),
-            )
-          }
-          const version = (yield* text(["curl", "-fsSL", `${base}/releases/latest`])).trim().replace(/^v/, "")
+          const raw = yield* text([
+            "curl",
+            "-fsSL",
+            "-H",
+            "Accept: application/vnd.github+json",
+            releaseLatestUrl(),
+          ])
+          const version = parseLatestVersion(raw)
           if (/^\d+\.\d+\.\d+/.test(version)) return version
-          return yield* Effect.die(new Error("failed to resolve latest version from YMCODE_FDS_BASE"))
+          return yield* Effect.die(new Error("failed to resolve the latest version from the release channel"))
         }
 
         if (detectedMethod === "npm" || detectedMethod === "bun" || detectedMethod === "pnpm") {

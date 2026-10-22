@@ -13,6 +13,21 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 - **数据迁移**：首次启动把旧 mimocode 配置、记忆与数据库复制到 ymcode 目录，旧目录不删除。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
 
+## 安装
+
+发布资产托管在 GitHub Releases。仓库需公开（或提供可匿名访问、布局一致的镜像）：
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | bash
+
+# Windows PowerShell
+powershell -ep Bypass -c "irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex"
+```
+
+指定版本：Unix 追加 `-s -- --version 0.1.15`，Windows 设置 `$env:VERSION`。
+镜像或私有托管：设置 `YMCODE_RELEASE_BASE`，并可用 `YMCODE_RELEASE_LATEST_URL` 指向返回 `tag_name` JSON 或纯版本文本的地址。`ymcode upgrade` 会从同一发布通道获取最新版本。
+
 ## 构建
 
 需要 Bun `1.3.14`（仓库已锁定版本）。
@@ -66,6 +81,13 @@ ymcode migrate --dry-run
 - 快捷记忆：会话中 `/remember <规则>` 直接写入带当前会话证据的候选（不带参数会打开输入框），之后可在 `/instincts` 中晋升。
 - 注入：只有 `active` 规则进入上下文（默认 1200 token 预算）；候选通过 `memory` 工具检索。
 - 配置：`instincts.enabled`、`capture`、`promote_threshold`、`min_evidence`、`decay_days`、`inject_token_budget`、`observe_interval_minutes`。
+
+## 发布
+
+1. 让根 `package.json` 与 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.1.16`）。
+2. 提交后打 tag 并推送：`git tag v0.1.16 && git push origin main --tags`。
+
+`release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 
 ## 汉化门禁
 

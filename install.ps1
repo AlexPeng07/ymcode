@@ -10,11 +10,11 @@
 .PARAMETER NoModifyPath
     Don't modify the user PATH environment variable.
 .LINK
-    https://mimo.xiaomi.com/coder
+    https://github.com/AlexPeng07/ymcode
 .EXAMPLE
-    irm https://mimo.xiaomi.com/install.ps1 | iex
+    irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex
 .EXAMPLE
-    $env:VERSION = "0.1.0"; irm https://mimo.xiaomi.com/install.ps1 | iex
+    $env:VERSION = "0.1.0"; irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex
 #>
 param(
     [String] $Version,
@@ -85,13 +85,21 @@ if ($NeedsBaseline) { $Target = "$Target-baseline" }
 
 # --- Resolve version ---
 
-$FdsBase = if ($env:MIMO_FDS_BASE) { $env:MIMO_FDS_BASE.TrimEnd('/') } else {
-    "https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode"
+$Repo = if ($env:YMCODE_RELEASE_REPO) { $env:YMCODE_RELEASE_REPO } else { "AlexPeng07/ymcode" }
+$ReleaseBase = if ($env:YMCODE_RELEASE_BASE) { $env:YMCODE_RELEASE_BASE.TrimEnd('/') } else {
+    "https://github.com/$Repo"
 }
 
 if (-not $Version) {
     try {
-        $Version = (Invoke-WebRequest "$FdsBase/releases/latest" -UseBasicParsing).Content.Trim().TrimStart('v')
+        $LatestUrl = if ($env:YMCODE_RELEASE_LATEST_URL) { $env:YMCODE_RELEASE_LATEST_URL } else {
+            "https://api.github.com/repos/$Repo/releases/latest"
+        }
+        $Release = Invoke-RestMethod -Uri $LatestUrl -Headers @{
+            'User-Agent' = 'ymcode-installer'
+            'Accept' = 'application/vnd.github+json'
+        }
+        $Version = if ($Release.tag_name) { $Release.tag_name.TrimStart('v') } else { "$Release".Trim().TrimStart('v') }
     } catch {
         Write-Err "Failed to fetch latest version. Check your network and retry, or specify -Version."
     }
@@ -123,9 +131,9 @@ if ($env:YMCODE_INSTALL_DIR) {
 }
 
 if (-not $Staging) {
-    $Existing = Get-Command mimo -ErrorAction SilentlyContinue
+    $Existing = Get-Command ymcode -ErrorAction SilentlyContinue
     if ($Existing) {
-        $InstalledVersion = & mimo --version 2>$null
+        $InstalledVersion = & ymcode --version 2>$null
         if ($InstalledVersion -eq $Version) {
             Write-Host "ymcode v$Version is already installed." -ForegroundColor DarkGray
             Exit-Install 0
@@ -137,7 +145,7 @@ if (-not $Staging) {
 # --- Download and install ---
 
 $Filename = "ymcode-$Target.zip"
-$Url = "$FdsBase/releases/v$Version/$Filename"
+$Url = "$ReleaseBase/releases/download/v$Version/$Filename"
 
 Write-Host ""
 Write-Host "Installing " -NoNewline -ForegroundColor DarkGray
@@ -171,9 +179,8 @@ try {
 }
 
 New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-$BinName = if (Test-Path (Join-Path $TmpDir "ymcode.exe")) { "ymcode.exe" } else { "mimo" }
 try {
-    Move-Item -Path (Join-Path $TmpDir $BinName) -Destination (Join-Path $InstallDir "ymcode.exe") -Force -ErrorAction Stop
+    Move-Item -Path (Join-Path $TmpDir "ymcode.exe") -Destination (Join-Path $InstallDir "ymcode.exe") -Force -ErrorAction Stop
 } catch {
     Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
     Write-Err "Failed to install binary. If ymcode is currently running, please close it and retry.`n$($_.Exception.Message)"
@@ -225,8 +232,8 @@ if ($PathUpdated) {
 }
 Write-Host ""
 Write-Host "  cd <project>"
-Write-Host "  mimo"
+Write-Host "  ymcode"
 Write-Host ""
 Write-Host "For more information visit " -NoNewline -ForegroundColor DarkGray
-Write-Host "https://mimo.xiaomi.com/coder/docs"
+Write-Host "https://github.com/AlexPeng07/ymcode#readme"
 Write-Host ""

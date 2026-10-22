@@ -20,9 +20,9 @@ Options:
         --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
 
 Examples:
-    curl -fsSL https://mimo.xiaomi.com/install | bash
-    curl -fsSL https://mimo.xiaomi.com/install | bash -s -- --version 0.1.0
-    ./install --binary /path/to/mimo
+    curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | bash
+    curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | bash -s -- --version 0.1.0
+    ./install --binary /path/to/ymcode
 EOF
 }
 
@@ -180,27 +180,33 @@ else
         fi
     fi
 
-    # Download from Xiaomi FDS (fast in mainland China). Layout:
-    #   $MIMO_FDS_BASE/releases/latest          -> text file containing the latest version (e.g. 0.1.0)
-    #   $MIMO_FDS_BASE/releases/v<version>/<filename>
-    fds_base="${MIMO_FDS_BASE:-https://ymcode.cnbj1.mi-fds.com/ymcode/ymcode}"
-    fds_base="${fds_base%/}"
+    # Release assets live on GitHub Releases. A mirror must keep the same layout:
+    #   $YMCODE_RELEASE_BASE/releases/download/v<version>/<filename>
+    github_repo="${YMCODE_RELEASE_REPO:-AlexPeng07/ymcode}"
+    release_base="${YMCODE_RELEASE_BASE:-https://github.com/${github_repo}}"
+    release_base="${release_base%/}"
 
     if [ -z "$requested_version" ]; then
-        specific_version=$(curl -fsSL "${fds_base}/releases/latest" 2>/dev/null | tr -d '[:space:]' | sed 's/^v//')
+        latest_url="${YMCODE_RELEASE_LATEST_URL:-https://api.github.com/repos/${github_repo}/releases/latest}"
+        latest_body=$(curl -fsSL -H "Accept: application/vnd.github+json" -H "User-Agent: ymcode-installer" "$latest_url" 2>/dev/null)
+        specific_version=$(printf '%s' "$latest_body" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v\{0,1\}\([^"]*\)".*/\1/p' | head -n1)
+        if [ -z "$specific_version" ]; then
+            # Plain-text mirrors return just the version body.
+            specific_version=$(printf '%s' "$latest_body" | tr -d '[:space:]' | sed 's/^v//')
+        fi
 
         if [ -z "$specific_version" ]; then
             echo -e "${RED}Failed to fetch version information${NC}"
-            echo -e "${MUTED}Could not resolve the latest release from FDS. Please check your network and retry,${NC}"
+            echo -e "${MUTED}Could not resolve the latest release from GitHub. Please check your network and retry,${NC}"
             echo -e "${MUTED}or install a specific version, e.g.: bash -s -- --version 0.1.0${NC}"
             exit 1
         fi
-        url="${fds_base}/releases/v${specific_version}/$filename"
+        url="${release_base}/releases/download/v${specific_version}/$filename"
     else
         # Strip leading 'v' if present
         requested_version="${requested_version#v}"
         specific_version=$requested_version
-        url="${fds_base}/releases/v${requested_version}/$filename"
+        url="${release_base}/releases/download/v${requested_version}/$filename"
 
         # Verify the artifact exists before downloading
         http_status=$(curl -sI -o /dev/null -w "%{http_code}" "$url")
@@ -227,11 +233,11 @@ print_message() {
 }
 
 check_version() {
-    if command -v mimo >/dev/null 2>&1; then
-        mimo_path=$(which mimo)
+    if command -v ymcode >/dev/null 2>&1; then
+        ymcode_path=$(which ymcode)
 
         ## Check the installed version
-        installed_version=$(mimo --version 2>/dev/null || echo "")
+        installed_version=$(ymcode --version 2>/dev/null || echo "")
 
         if [[ "$installed_version" != "$specific_version" ]]; then
             print_message info "${MUTED}Installed version: ${NC}$installed_version."
@@ -348,15 +354,15 @@ download_and_install() {
         unzip -q "$tmp_dir/$filename" -d "$tmp_dir"
     fi
 
-    mv "$tmp_dir/mimo" "$INSTALL_DIR"
-    chmod 755 "${INSTALL_DIR}/mimo"
+    mv "$tmp_dir/ymcode" "$INSTALL_DIR"
+    chmod 755 "${INSTALL_DIR}/ymcode"
     rm -rf "$tmp_dir"
 }
 
 install_from_binary() {
     print_message info "\n${MUTED}Installing ${NC}ymcode ${MUTED}from: ${NC}$binary_path"
-    cp "$binary_path" "${INSTALL_DIR}/mimo"
-    chmod 755 "${INSTALL_DIR}/mimo"
+    cp "$binary_path" "${INSTALL_DIR}/ymcode"
+    chmod 755 "${INSTALL_DIR}/ymcode"
 }
 
 if [ -n "$binary_path" ]; then
@@ -480,14 +486,14 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
         echo -e "export PATH=$INSTALL_DIR:\$PATH"
     fi
     echo -e "cd <project>"
-    echo -e "mimo"
+    echo -e "ymcode"
 else
     echo -e "${MUTED}To start:${NC}"
     echo -e ""
     echo -e "cd <project>  ${MUTED}# Open directory${NC}"
-    echo -e "mimo          ${MUTED}# Run command${NC}"
+    echo -e "ymcode        ${MUTED}# Run command${NC}"
 fi
 echo -e ""
-echo -e "${MUTED}For more information visit ${NC}https://mimo.xiaomi.com/coder/docs"
+echo -e "${MUTED}For more information visit ${NC}https://github.com/AlexPeng07/ymcode#readme"
 echo -e ""
 echo -e ""

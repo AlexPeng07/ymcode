@@ -1,9 +1,9 @@
 <h1 align="center">ymcode</h1>
 
-<p align="center"><strong>ymcode: Where Models and Agents Co-Evolve</strong></p>
+<p align="center"><strong>ymcode: a personal AI coding harness</strong></p>
 
 <p align="center">
-  <a href="https://mimo.xiaomi.com/coder">Website</a> | <a href="https://mimo.xiaomi.com/en/blog/mimo-code-long-horizon">Blog</a> | <a href="https://github.com/XiaomiMiMo/ymcode">GitHub</a>
+  <a href="https://github.com/AlexPeng07/ymcode">GitHub</a> | <a href="https://github.com/AlexPeng07/ymcode/releases">Releases</a>
 </p>
 
 ---
@@ -20,22 +20,16 @@ npm is in limited support. Prefer the native installer over `npm install -g @ymc
 
 ```bash
 # One-line install (macOS / Linux)
-curl -fsSL https://mimo.xiaomi.com/install | bash
+curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | bash
 
 # One-line install (Windows PowerShell)
-powershell -ep Bypass -c "irm https://mimo.xiaomi.com/install.ps1 | iex"
+powershell -ep Bypass -c "irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex"
 
 # Run
-mimo
+ymcode
 ```
 
-The first launch guides you through configuration automatically. Supported options:
-- **MiMo Auto (free for a limited time)** — anonymous channel, zero configuration
-- **Xiaomi MiMo Platform** — OAuth login
-- **Codex (ChatGPT Pro/Plus)** — OpenAI OAuth login
-- **Import from Claude Code** — migrate existing authentication in one step
-- **Provider list** — connect catalog providers by API key, or OAuth where supported (e.g. xAI/Grok)
-- **Custom Provider** — add any OpenAI-compatible API in the TUI
+The first launch guides you through configuration automatically. `ymcode setup` selects a provider, stores an API key, and writes the default model. Custom OpenAI-compatible providers can be added from the TUI provider picker.
 
 ---
 
