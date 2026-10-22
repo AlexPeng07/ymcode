@@ -197,7 +197,6 @@ export const dict: Record<string, string> = {
   "tui.skill.xlsx-official.description": "Create, edit, and read Microsoft Excel (.xlsx) workbooks",
   "tui.skill.pdf-official.description": "Create, edit, transform, and read PDF files",
   "tui.skill.pptx-official.description": "Create, edit, and read Microsoft PowerPoint (.pptx) decks",
-  "tui.skill.ymcode.description": "Self-documentation for ymcode features, config, and commands",
   "tui.skill.loop.description": "Schedule a prompt to run on a recurring interval",
   "tui.skill.html-to-video-pipeline.description": "Short-video magic — make short videos with HTML",
   "tui.skill.arxiv.description": "Search, cite, download, and track arXiv papers",

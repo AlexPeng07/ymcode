@@ -209,7 +209,6 @@ export const dict = {
   "tui.skill.xlsx-official.description": "Microsoft Excel (.xlsx) ブックの作成・編集・読み取り",
   "tui.skill.pdf-official.description": "PDF ファイルの作成・編集・変換・読み取り",
   "tui.skill.pptx-official.description": "Microsoft PowerPoint (.pptx) スライドの作成・編集・読み取り",
-  "tui.skill.ymcode.description": "ymcode の機能・設定・コマンドに関するセルフドキュメント",
   "tui.skill.loop.description": "プロンプトを一定間隔で繰り返し実行するようスケジュール",
   "tui.skill.html-to-video-pipeline.description": "ショート動画の神ツール - HTML でショート動画を制作",
   "tui.skill.arxiv.description": "arXiv 論文の検索・引用・ダウンロード・追跡",

@@ -268,3 +268,36 @@ Windows 277 fail / Linux 207 fail 说明失败面**大部分与平台无关**：
   `/root/ymcode/bunfig.toml` 指向 registry.npmmirror.com。
 - **不要用单进程全量 `bun test`**：1.6G 内存会 OOM。用 `timeout` 兜底逐文件串行，
   或先加内存。卡死时 SSH banner 会超时，需控制台强制重启（数据不丢）。
+- 服务器缺 `node`、缺 `rg`（ripgrep 下载需 github，443 不通）、无 build 产物：
+  cross-spawn-spawner（`node -e` NotFound）、tool/grep、tool/glob、file/ripgrep、
+  skill-search、plugin/host-node、installation/* 在服务器上失败是缺件所致，与代码无关。
+
+## 2026-10-22 测试整修（Linux 定性后的修复轮）
+
+**根因**：`Instinct.layer` 构造时调用 `Config.get()`，后者需要 InstanceRef 或 Instance ALS；
+而测试把 AppLayer 提供在外层作用域、用 `provideTmpdirInstance` 包裹 body，层构造时没有
+instance → `LocalContext.NotFound` defect → 整个 AppLayer 报废。这一条解释了
+main-wait（46）、config/tui（27）、turn-queue-admission（20）、spawn-ownership、
+app-runtime-logger、inbox/queue、history、ripgrep、grep 等大批文件的失败。
+修复：`instinct-service.ts` 在 `LocalContext.NotFound` 时回退到默认 settings（其他 defect
+继续抛出），不再让层构造失败。
+
+**其余修复**（全部是测试与实现漂移，非平台差异）：
+
+- 英文断言 vs 汉化文案：ymcode-docs（9）、builtin（2）、loop、session/system（2）、
+  prompt-effect（3）、tool/read、tool/registry-toolset（2）、tool/skill、
+  checkpoint-tool-description、actor-prompt-spawn-first（4）、
+  checkpoint-progress-reconcile（writer 模板自身已含该短语，改断言注入块标题）。
+- zh locale：learn-everything / mate / memory-search / ymcode-docs 缺 slash 别名；
+  删除陈旧的 `tui.skill.ymcode.*` 重复项。
+- models-catalog：`Bun.spawn(["bun"])` 在 Windows 只有 npm shim → 改用 `process.execPath`；
+  局部变量名 `process` 造成 TDZ 遮蔽。
+- cross-spawn-spawner：`echo` 在 Windows 是内建命令 → 改用子解释器写 stdout。
+
+**验证**（commit c7840e2）：
+
+- Windows 本地：上述文件全部 0 fail；main-wait 46 例单独跑全绿（全文件在慢机上有
+  超时 flaky，Linux 上 46/46 全绿）。
+- Linux 复跑 43 个原失败文件：29 个完全全绿，其余 14 个全为服务器缺件
+  （无 node / 无 rg / 无构建产物），详见上一节。
+- typecheck 通过；brand/i18n/lint 门禁通过。

@@ -272,7 +272,6 @@ export const dict = {
   "tui.skill.xlsx-official.description": "Crear, editar y leer libros de Microsoft Excel (.xlsx)",
   "tui.skill.pdf-official.description": "Crear, editar, transformar y leer archivos PDF",
   "tui.skill.pptx-official.description": "Crear, editar y leer presentaciones de Microsoft PowerPoint (.pptx)",
-  "tui.skill.ymcode.description": "Autodocumentación de funciones, configuración y comandos de ymcode",
   "tui.skill.loop.description": "Programar un prompt para ejecutarse en un intervalo recurrente",
   "tui.skill.html-to-video-pipeline.description": "El arma definitiva para vídeos cortos — crea vídeos cortos con HTML",
   "tui.skill.arxiv.description": "Busca, cita, descarga y sigue artículos de arXiv",
