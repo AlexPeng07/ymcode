@@ -183,3 +183,42 @@ test/cli/cmd/tui/tips-view.test.ts    单独运行 11 pass / 0 fail（全量日�
 - 不要用 `bun test` 的全量结果判断功能失败，先看失败是断言还是 cleanup。
 - 二进制验收用 `YMCODE_HOME` 隔离，避免污染真实用户数据。
 - 判断 Windows skip 是否合理：文件头注释有 `Windows: Bun keeps imported plugin entrypoints cached...` 标记。
+
+## 2026-10-22 P0 observer 实链路冒烟（live provider，Windows headless）
+
+隔离环境：`YMCODE_HOME=<temp>/ymcode-p0/home`，测试项目 `<temp>/ymcode-p0/project`（git 仓库），
+`checkpoint.thresholds=["2000"]`、`instincts.observe_interval_minutes=1`，provider deepseek（temp key）。
+配置 `"model": "deepseek/deepseek-flash"`（注意：models.dev 在线刷新会把 deepseek 模型改名，
+模型不存在时先 `ymcode models` 看快照；key 未入 auth.json 时需 `DEEPSEEK_API_KEY` 环境变量）。
+
+### 发现并修复的产品缺口（commit f722150）
+
+headless `ymcode run` 在 checkpoint-writer drain 后立即退出，杀死刚 spawn 的 observer
+（8 个 observer 会话全部 0 消息、0 候选）。根因链：
+
+1. fireCheckpoints 用本进程 lastFinished tokens → writer+observer 链总在 drain/teardown 阶段运行；
+2. watcher fiber 与 drainWriters 在同一个 writer outcome Deferred 上唤醒，drain 先到，
+   `pendingObservers` 还是空的 → 原 drain 逻辑（size==0 即过）直接放行；
+3. 修复中一度引入新坑：gate promise settle 后**未从 Set 删除**，size 永远 ≥1，
+   每次关机都等满 120s 超时——用插桩日志（reserved/settled + size）定位。
+
+修复：`drainInstinctObservers()`（bootstrap，120s 上限 + 5s 静默期）+ 同步预留槽位
+（writer spawn 时）+ 三路幂等 settle（observer onExit / watcher ensuring / writer outcome
+的普通 promise 兜底——Effect finalizer 在 teardown 调度下不可全信）。
+
+### 验收结果（全部通过）
+
+- checkpoint 触发：`"2000"` 绝对阈值下每轮 run 都出 checkpoint（33 个/主会话）。
+- observer 完整生命周期（run @ checkpoint 33）：spawned → 多步 LLM 循环（~15s）→
+  settled → 进程 ~20s 干净退出（此前：0 消息被杀）。
+- 候选质量：每轮 3 条，frontmatter 完整（status: candidate、confidence、evidence 含
+  session id/日期/原文引述），内容取自真实会话证据；`instinct list` 在项目 cwd 下可见。
+- 晋升：`instinct promote <id> --force`（0.50 低于 promoteThreshold，非 force 会按
+  阈值拒绝——预期行为）→ MEMORY.md 追加行、状态转 active、索引重建。
+- 注入：全新会话（不带 -c）system prompt 出现 `# Active instincts` 小节及晋升条目。
+- 定向测试：instinct-observer-extraction / instinct-service 全绿。
+
+### 复现注意
+
+- `ymcode instinct list` 必须在项目 cwd 下运行（按 cwd 解析 projectID）。
+- 触发节流：`shouldObserve` 要求 `checkpoints % 3 === 0` 且距 lastRunAt 超过 interval。
