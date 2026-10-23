@@ -40,6 +40,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - instincts TUI 面板：`/instincts` 列出候选/生效/退役规则，支持晋升、强制晋升、降级、
   删除、review 与项目/全局切换；数据经 `/instinct` HTTP 路由与重新生成的 SDK 读取。
 - 快捷记忆：会话中 `/remember <规则>` 写入带会话证据的候选；`POST /instinct` 同时支持脚本调用。
+- 记忆隔离与体检：非 Git 项目用 `dir-<hash>` 作为记忆项目 ID，不再共用
+  `projects/global/MEMORY.md`；`ymcode memory doctor` 检查文件数/体积、重复行、
+  陈旧文件与 FTS 索引一致性。记忆写路径守卫在 Windows 下先 `resolve` 再比较，
+  避免混合分隔符导致静默放行。
 - 发布通道：安装脚本、npm launcher 与 `ymcode upgrade` 默认从 GitHub Releases 取二进制；
   FDS/npm 发布步骤由 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM` 仓库变量控制。
   仓库已公开，匿名安装可用；受限网络可配置 `YMCODE_RELEASE_BASE` 镜像。

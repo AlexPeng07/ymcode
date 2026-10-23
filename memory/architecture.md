@@ -43,6 +43,8 @@ packages/cli/src/skill/builtin/  内置技能（.bundle）
 | instincts CRUD/晋升/衰减/注入 | `packages/cli/src/memory/instinct-service.ts` |
 | FTS 路径类型 | `packages/cli/src/memory/paths.ts` |
 | memory FTS 服务 | `packages/cli/src/memory/service.ts`、`reconcile.ts` |
+| 非 Git 记忆项目 ID | `packages/cli/src/memory/project-id.ts`（`dir-<hash>`） |
+| 记忆健康检查 | `packages/cli/src/cli/cmd/memory.ts`（`ymcode memory doctor`） |
 | instinct 模型工具 | `packages/cli/src/tool/instinct.ts` |
 | 工具注册 | `packages/cli/src/tool/registry.ts` |
 | CLI 命令 | `packages/cli/src/cli/cmd/instinct.ts` |

@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test"
 import path from "node:path"
 import { parsePath, buildPath, resolveProjectId } from "../../src/memory/paths"
+import { memoryProjectID } from "../../src/memory/project-id"
+import { ProjectID } from "../../src/project/schema"
 
 describe("parsePath", () => {
   test("global scope, key is filename", () => {
@@ -257,6 +259,25 @@ describe("resolveProjectId", () => {
 
   test("different input → different id", () => {
     expect(resolveProjectId("/a")).not.toBe(resolveProjectId("/b"))
+  })
+})
+
+describe("memoryProjectID", () => {
+  test("keeps the project ID for git projects", () => {
+    const project = { id: "project-example" }
+    expect(memoryProjectID(project, "/tmp/example")).toBe(ProjectID.make("project-example"))
+  })
+
+  test("derives a stable directory ID for non-git projects", () => {
+    const project = { id: ProjectID.global }
+    const first = memoryProjectID(project, "/tmp/example")
+    expect(first).toMatch(/^dir-[a-f0-9]{12}$/)
+    expect(memoryProjectID(project, "/tmp/example")).toBe(first)
+  })
+
+  test("different non-git directories get different IDs", () => {
+    const project = { id: ProjectID.global }
+    expect(memoryProjectID(project, "/tmp/example-a")).not.toBe(memoryProjectID(project, "/tmp/example-b"))
   })
 })
 

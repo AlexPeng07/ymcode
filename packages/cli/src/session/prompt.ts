@@ -53,6 +53,7 @@ import { computeLastMessageInfo } from "./last-message-info"
 import { usable, isOverflow as overflowCheck } from "./overflow"
 import { Config } from "@/config"
 import { isMemoryWriteEnabled } from "@/memory/write-gate"
+import { memoryProjectID } from "@/memory/project-id"
 import { NotFoundError, Database, eq, and, inArray, isNull } from "@/storage"
 import { InboxTable } from "@/inbox/inbox.sql"
 import * as QueueSync from "@/inbox/sync"
@@ -5110,11 +5111,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
             const sessionMemoryDir = metaDir(sessionID)
             const target = memoryPathsReminderTarget({ msgs, sessionID, dir: sessionMemoryDir })
             if (target) {
+              const ctx = yield* InstanceState.context
               yield* ensurePersistedUserSynthetic({
                 message: target,
                 marker: `${SESSION_MEMORY_DIR_MARKER} ${sessionMemoryDir}/`,
                 text: buildMemoryPathsReminderText({
-                  projectMemoryFile: memoryPath((yield* InstanceState.context).project.id),
+                  projectMemoryFile: memoryPath(memoryProjectID(ctx.project, ctx.directory)),
                   sessionDir: sessionMemoryDir,
                 }),
               })

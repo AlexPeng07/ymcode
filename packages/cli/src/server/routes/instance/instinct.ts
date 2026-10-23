@@ -5,13 +5,14 @@ import { Instinct } from "@/memory"
 import { Info, Source, Status } from "@/memory/instinct"
 import { Instance } from "@/project/instance"
 import { ProjectID } from "@/project/schema"
+import { memoryProjectID } from "@/memory/project-id"
 import { lazy } from "@/util/lazy"
 import { jsonRequest } from "./trace"
 
 const Scope = z.enum(["project", "global"]).default("project")
 
 function target(scope: "project" | "global") {
-  const projectID = scope === "global" ? ProjectID.global : Instance.project.id
+  const projectID = scope === "global" ? ProjectID.global : memoryProjectID(Instance.project, Instance.directory)
   return {
     scope: (scope === "global" ? "global" : "projects") as Instinct.Scope,
     projectID,

@@ -97,7 +97,9 @@ export async function reconcileMemory(
   // Collect disk paths from BOTH roots before pruning. If we pruned per-root,
   // enabling CC indexing on a fresh run would prune all mimo rows (and vice
   // versa) because each walk's set is missing the other root's paths.
-  const mimoFiles = new Set(await walkMemoryDir(roots.mimo))
+  // Only files under the three memory scopes are indexable. Archive/backup
+  // folders may intentionally contain old copies and must not be indexed.
+  const mimoFiles = new Set((await walkMemoryDir(roots.mimo)).filter((p) => parsePath(p) !== null))
   const ccFiles = roots.cc ? new Set(await walkCcRoot(roots.cc)) : new Set<string>()
   const diskPaths = new Set<string>([...mimoFiles, ...ccFiles])
 

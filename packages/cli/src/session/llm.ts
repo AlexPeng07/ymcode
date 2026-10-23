@@ -34,6 +34,7 @@ import * as Option from "effect/Option"
 import * as OtelTracer from "@effect/opentelemetry/Tracer"
 import { ActorRegistry } from "@/actor/registry"
 import { Memory } from "@/memory"
+import { memoryProjectID } from "@/memory/project-id"
 import * as Instinct from "@/memory/instinct-service"
 import { isRetryableTransientError } from "./retry"
 import * as SessionRetry from "./retry"
@@ -356,11 +357,11 @@ const live: Layer.Layer<
       // block itself names no project. system-spawned actors
       // (checkpoint-writer et al.) stay out via servesCheckpoint.
       if (servesCheckpoint) {
-        const projectID =
-          (yield* Effect.try({
-            try: () => Instance.current?.project?.id as ProjectID | undefined,
-            catch: () => undefined,
-          }).pipe(Effect.orElseSucceed(() => undefined))) ?? ProjectID.global
+        const current = yield* Effect.try({
+          try: () => Instance.current,
+          catch: () => undefined,
+        }).pipe(Effect.orElseSucceed(() => undefined))
+        const projectID = current ? memoryProjectID(current.project, current.directory) : ProjectID.global
         // Bootstrap the memory.md → MEMORY.md migration at session start so a
         // legacy lowercase file is renamed before the agent's first direct
         // Edit/Write (which would otherwise miss it on a case-sensitive FS, or

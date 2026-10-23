@@ -5,6 +5,7 @@ import { Bus } from "@/bus"
 import { Config } from "@/config"
 import { Flag } from "@/flag/flag"
 import { Memory } from "@/memory"
+import { memoryProjectID } from "@/memory/project-id"
 import { isMemoryWriteEnabled } from "@/memory/write-gate"
 import { MemoryFtsTable } from "@/memory/fts.sql"
 import { TaskRegistry } from "@/task/registry"
@@ -729,11 +730,11 @@ export const layer: Layer.Layer<
       // project (carries across sessions in the same repo), task narrative
       // under <sid>/tasks/<id>/. Resolve projectID once HERE — Instance.current
       // is ALS-bound and lost once the writer subagent fiber detaches.
-      const projectID =
-        (yield* Effect.try({
-          try: () => Instance.current?.project?.id as ProjectID | undefined,
-          catch: () => undefined,
-        }).pipe(Effect.orElseSucceed(() => undefined))) ?? ProjectID.global
+      const current = yield* Effect.try({
+        try: () => Instance.current,
+        catch: () => undefined,
+      }).pipe(Effect.orElseSucceed(() => undefined))
+      const projectID = current ? memoryProjectID(current.project, current.directory) : ProjectID.global
       const sessMemDir = metaDir(input.sessionID)
       const projectMemDir = path.join(Global.Path.data, "memory", "projects", projectID)
       const checkpointFile = checkpointPath(input.sessionID)
@@ -1341,14 +1342,15 @@ export const layer: Layer.Layer<
 
       const sessMemDir = path.join(memoryRoot, "sessions", sessionID)
 
-      // Resolve current project ID once. Used by Section 7 (project memory
+      // Resolve the memory project ID once. Used by Section 7 (project memory
       // read) and Section 8 (FTS scope filter). ALS-bound — must be resolved
-      // before any deferred work.
-      const currentProjectID = yield* Effect.try({
-        try: () => Instance.current?.project?.id as ProjectID | undefined,
-        catch: () => undefined as ProjectID | undefined,
-      }).pipe(Effect.catch(() => Effect.succeed<ProjectID | undefined>(undefined)))
-      const projectID = currentProjectID ?? ProjectID.global
+      // before any deferred work. Non-git directories get a path-derived ID so
+      // unrelated projects do not share projects/global/MEMORY.md.
+      const current = yield* Effect.try({
+        try: () => Instance.current,
+        catch: () => undefined,
+      }).pipe(Effect.orElseSucceed(() => undefined))
+      const projectID = current ? memoryProjectID(current.project, current.directory) : ProjectID.global
 
       // Section data: tasks (SQL), session checkpoint (file), project memory (file).
       const tasks = yield* taskRegistry.list({ session_id: sessionID, include_terminal: true })
@@ -1521,11 +1523,11 @@ export const layer: Layer.Layer<
       )
 
       const scopeFilter =
-        currentProjectID && currentProjectID !== ProjectID.global
+        projectID !== ProjectID.global
           ? or(
               eq(MemoryFtsTable.scope, "global"),
               and(eq(MemoryFtsTable.scope, "sessions"), eq(MemoryFtsTable.scope_id, sessionID as string)),
-              and(eq(MemoryFtsTable.scope, "projects"), eq(MemoryFtsTable.scope_id, currentProjectID)),
+              and(eq(MemoryFtsTable.scope, "projects"), eq(MemoryFtsTable.scope_id, projectID)),
             )
           : or(
               eq(MemoryFtsTable.scope, "global"),

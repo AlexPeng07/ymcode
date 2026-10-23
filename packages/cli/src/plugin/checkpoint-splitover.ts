@@ -1,6 +1,6 @@
 import type { Hooks, PluginInput } from "@ymcode/plugin"
 import { Log } from "../util"
-import type { ProjectID } from "../project/schema"
+import { memoryProjectID } from "../memory/project-id"
 import type { SessionID } from "../session/schema"
 import { runValidatorsForCkpt, buildExtractionReflection, buildReflectionMessage } from "../session/checkpoint-retry"
 import { checkpointPath, memoryPath } from "../session/checkpoint-paths"
@@ -14,7 +14,7 @@ const EMPTY_CTX: CheckpointContext.CheckpointContext = {
 }
 
 export async function CheckpointSplitoverPlugin(pluginInput: PluginInput): Promise<Hooks> {
-  const projectID = pluginInput.project.id as ProjectID
+  const projectID = memoryProjectID(pluginInput.project, pluginInput.directory)
 
   return {
     "actor.preStop": {

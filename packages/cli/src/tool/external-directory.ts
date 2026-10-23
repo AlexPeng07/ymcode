@@ -8,6 +8,7 @@ import { isMemoryWriteEnabled } from "@/memory/write-gate"
 import type * as Tool from "./tool"
 import { Instance } from "../project/instance"
 import { ProjectID } from "../project/schema"
+import { memoryProjectID } from "../memory/project-id"
 import { assertMemoryWriteAllowed, assertAgentWriteSandbox } from "./memory-path-guard"
 import { AppFileSystem } from "@ymcode/shared/filesystem"
 
@@ -114,7 +115,9 @@ export const assertWriteAllowed = Effect.fn("Tool.assertWriteAllowed")(function*
   // guard can still resolve a canonical memory path. Mirrors session/checkpoint.ts.
   const projectID = (() => {
     try {
-      return (Instance.current?.project?.id as ProjectID | undefined) ?? ProjectID.global
+      const current = Instance.current
+      if (!current) return ProjectID.global
+      return memoryProjectID(current.project, current.directory)
     } catch {
       return ProjectID.global
     }

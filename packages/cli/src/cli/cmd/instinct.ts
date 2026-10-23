@@ -1,6 +1,7 @@
 import { cmd } from "./cmd"
 import { Instance } from "../../project/instance"
 import { ProjectID } from "../../project/schema"
+import { memoryProjectID } from "../../memory/project-id"
 import { AppRuntime } from "@/effect/app-runtime"
 import * as Instinct from "../../memory/instinct-service"
 
@@ -10,7 +11,7 @@ async function withInstinct(fn: (ctx: Context) => Promise<void>, opts?: { global
   await Instance.provide({
     directory: process.cwd(),
     async fn() {
-      const projectID = opts?.global ? ProjectID.global : Instance.project.id
+      const projectID = opts?.global ? ProjectID.global : memoryProjectID(Instance.project, Instance.directory)
       await fn({ scope: projectID === ProjectID.global ? "global" : "projects", projectID })
     },
   })

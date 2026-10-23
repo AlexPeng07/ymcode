@@ -6,6 +6,7 @@ import { Config } from "@/config"
 import { Global } from "@/global"
 import { Instance } from "@/project/instance"
 import { ProjectID } from "@/project/schema"
+import { memoryProjectID } from "@/memory/project-id"
 import * as Tool from "./tool"
 
 type Metadata = {
@@ -36,7 +37,9 @@ const parameters = z.object({
 
 function currentProjectID(): string {
   try {
-    return (Instance.current?.project?.id as string | undefined) ?? ProjectID.global
+    const current = Instance.current
+    if (!current) return ProjectID.global
+    return memoryProjectID(current.project, current.directory)
   } catch {
     return ProjectID.global
   }

@@ -34,6 +34,7 @@ import { SessionCommand } from "./cli/cmd/session"
 import { DbCommand } from "./cli/cmd/db"
 import { InstinctCommand } from "./cli/cmd/instinct"
 import { DoctorCommand } from "./cli/cmd/doctor"
+import { MemoryCommand } from "./cli/cmd/memory"
 import { SetupCommand } from "./cli/cmd/setup"
 import path from "path"
 import { readdirSync, unlinkSync } from "fs"
@@ -216,6 +217,7 @@ const cli = yargs(args)
   .command(PluginCommand)
   .command(DbCommand)
   .command(InstinctCommand)
+  .command(MemoryCommand)
   .command(DoctorCommand)
   .command(SetupCommand)
   .fail((msg, err) => {
