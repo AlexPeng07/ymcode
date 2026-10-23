@@ -54,7 +54,6 @@
 | `/skip-permissions` | — | 切换运行时对权限询问的自动允许；显式拒绝仍会阻挡 |
 | `/mcps` | — | 显示 MCP 服务器状态 |
 | `/variants` | — | 切换模型变体；仅在存在变体时显示 |
-| `/login` | — | 登录小米 MiMo |
 | `/connect` | — | 连接或登录模型提供方 |
 | `/logout` | — | 登出小米 MiMo |
 | `/org` | `/orgs`, `/switch-org` | 切换组织；在存在多个组织时显示 |

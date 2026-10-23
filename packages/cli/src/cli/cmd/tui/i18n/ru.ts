@@ -87,8 +87,6 @@ export const dict = {
     "Нажмите {highlight}Ctrl+X Y{/highlight}, чтобы скопировать последнее сообщение ассистента",
   "tui.tips.command_palette":
     "Нажмите {highlight}Ctrl+P{/highlight}, чтобы посмотреть все доступные действия и команды",
-  "tui.tips.login":
-    "Выполните {highlight}/login{/highlight}, чтобы войти и использовать Token Plan или настроить собственный API-ключ",
   "tui.tips.connect":
     "Выполните {highlight}/connect{/highlight}, чтобы выбрать LLM-провайдера и добавить API-ключи",
   "tui.tips.leader":
@@ -348,7 +346,6 @@ export const dict = {
   "tui.command.agent.cycle.reverse.title": "Цикл агентов (в обратном порядке)",
   "tui.agent.locked": "Невозможно сменить режим после входа в {{mode}}",
   "tui.agent.locked.subset": "В этой сессии можно переключаться только между {{agents}}",
-  "tui.command.provider.login.title": "Войти",
   "tui.command.provider.connect.title": "Подключить провайдера",
   "tui.command.provider.logout.title": "Выйти",
   "tui.command.console.org.switch.title": "Сменить организацию",
@@ -376,8 +373,7 @@ export const dict = {
   "tui.dialog.confirm.cancel": "Отмена",
   "tui.dialog.confirm.confirm": "Подтвердить",
   "tui.dialog.select.placeholder": "Поиск",
-  "tui.dialog.model.login_hint": "Подсказка: выполните /login для входа перед сменой модели",
-  "tui.dialog.select.no_results": "Ничего не найдено",
+  "tui.dialog.select.no_results": "Результаты не найдены",
   "tui.dialog.prompt.placeholder": "Введите текст",
   "tui.dialog.prompt.busy": "Выполняется...",
   "tui.dialog.prompt.processing": "обработка...",

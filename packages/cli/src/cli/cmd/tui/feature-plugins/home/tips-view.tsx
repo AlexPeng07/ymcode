@@ -141,12 +141,12 @@ export type CredentialProvider = {
 }
 
 /**
- * Show `/login` only when no computed provider carries credentials.
+ * Show `/connect` only when no computed provider carries credentials.
  *
  * One rule, any source: env keys land as `key` / `source === "env"`, config and
  * auth-store API keys as `options.apiKey` / `key`. Bare list membership does
  * not count — mimo is always listed. Keyless local-only config is the accepted
- * gap (still recommends `/login`).
+ * gap (still recommends `/connect`).
  */
 export function hasUsableCredentials(providers: readonly CredentialProvider[]): boolean {
   return providers.some((provider) => {
@@ -226,7 +226,7 @@ export function Tips() {
   })
   const interval = setInterval(() => setKey(pickWeighted(allKeys())), TIP_ROTATION_MS)
   onCleanup(() => clearInterval(interval))
-  // Only known credentials on computed providers suppress /login. mimo's mere
+  // Only known credentials on computed providers suppress /connect. mimo's mere
   // presence in that list is not a credential.
   const displayKey = createMemo(() =>
     pickDisplayKey({

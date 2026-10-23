@@ -88,8 +88,6 @@ export const dict = {
     "Pulsa {highlight}Ctrl+X Y{/highlight} para copiar el último mensaje del asistente al portapapeles",
   "tui.tips.command_palette":
     "Pulsa {highlight}Ctrl+P{/highlight} para ver todas las acciones y comandos disponibles",
-  "tui.tips.login":
-    "Ejecuta {highlight}/login{/highlight} para iniciar sesión y usar un Token Plan o configurar tu propia API key",
   "tui.tips.connect":
     "Ejecuta {highlight}/connect{/highlight} para elegir tu proveedor LLM y añadir claves API",
   "tui.tips.leader":
@@ -345,7 +343,6 @@ export const dict = {
   "tui.command.agent.cycle.reverse.title": "Ciclo de agentes (inverso)",
   "tui.agent.locked": "No se puede cambiar de modo después de entrar en modo {{mode}}",
   "tui.agent.locked.subset": "En esta sesión, solo puede cambiar entre {{agents}}",
-  "tui.command.provider.login.title": "Iniciar sesión",
   "tui.command.provider.connect.title": "Conectar proveedor",
   "tui.command.provider.logout.title": "Cerrar sesión",
   "tui.command.console.org.switch.title": "Cambiar de organización",
@@ -372,7 +369,6 @@ export const dict = {
   "tui.dialog.confirm.cancel": "Cancelar",
   "tui.dialog.confirm.confirm": "Confirmar",
   "tui.dialog.select.placeholder": "Buscar",
-  "tui.dialog.model.login_hint": "Consejo: ejecuta /login para iniciar sesión antes de cambiar de modelo",
   "tui.dialog.select.no_results": "No se encontraron resultados",
   "tui.dialog.prompt.placeholder": "Introduce texto",
   "tui.dialog.prompt.busy": "Trabajando...",
