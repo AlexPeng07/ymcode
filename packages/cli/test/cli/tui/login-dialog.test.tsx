@@ -3,7 +3,7 @@ import { beforeAll, expect, test } from "bun:test"
 import path from "path"
 import { testRender } from "@opentui/solid"
 import { Global } from "../../../src/global"
-import { DialogMimoLogin } from "../../../src/cli/cmd/tui/component/dialog-mimo-login"
+import { DialogProvider as DialogProviderPicker } from "../../../src/cli/cmd/tui/component/dialog-provider"
 import { ArgsProvider } from "../../../src/cli/cmd/tui/context/args"
 import { ExitProvider } from "../../../src/cli/cmd/tui/context/exit"
 import { ProjectProvider } from "../../../src/cli/cmd/tui/context/project"
@@ -89,7 +89,7 @@ test("keeps the Xiaomi entry without the removed OAuth flow", async () => {
                           <LocalProvider>
                             <DialogProvider>
                               <KeybindProvider>
-                                <DialogMimoLogin />
+                                <DialogProviderPicker />
                               </KeybindProvider>
                             </DialogProvider>
                           </LocalProvider>

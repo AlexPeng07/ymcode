@@ -19,7 +19,7 @@ import { Flag } from "@/flag/flag"
 import { isSystemSession } from "@/session/auto-dream"
 import semver from "semver"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
-import { DialogMimoLogin } from "@tui/component/dialog-mimo-login"
+import { DialogProvider as DialogProviderPicker } from "@tui/component/dialog-provider"
 import { DialogInstinct } from "@tui/component/dialog-instinct"
 import { remember } from "@tui/component/dialog-remember"
 import { ErrorComponent } from "@tui/component/error-component"
@@ -436,7 +436,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
     if (kv.get("setup.welcomed", false)) return
     welcomed = true
     kv.set("setup.welcomed", true)
-    dialog.replace(() => <DialogMimoLogin />)
+    dialog.replace(() => <DialogProviderPicker />)
   })
 
   // Seed never-ask from the launch flag once connected (the server starts with
@@ -717,17 +717,6 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: t("tui.command.provider.login.title"),
-      value: "provider.login",
-      slash: {
-        name: "login",
-      },
-      onSelect: () => {
-        dialog.replace(() => <DialogMimoLogin />)
-      },
-      category: "provider",
-    },
-    {
       title: t("tui.command.provider.connect.title"),
       value: "provider.connect",
       suggested: !connected(),
@@ -735,7 +724,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
         name: "connect",
       },
       onSelect: () => {
-        dialog.replace(() => <DialogMimoLogin />)
+        dialog.replace(() => <DialogProviderPicker />)
       },
       category: "provider",
     },

@@ -7,7 +7,7 @@ import { Flag } from "@/flag/flag"
 
 const themeCount = Object.keys(DEFAULT_THEMES).length
 const TIP_ROTATION_MS = 10_000
-const LOGIN_TIP = "tui.tips.login"
+const CONNECT_TIP = "tui.tips.connect"
 
 // Weighted tip priority. Higher weight = shown more often.
 // Promote recently-added or critical features so users discover them.
@@ -17,7 +17,6 @@ const PRIORITY_WEIGHTS: Record<string, number> = {
   "tui.tips.multi_skills": 60,
   "tui.tips.background": 50,
   "tui.tips.vivid": 40,
-  "tui.tips.login": 40,
   "tui.tips.theme_mode": 40,
   "tui.tips.tab_agent": 40,
   "tui.tips.compose_next": 35,
@@ -51,7 +50,6 @@ const TIP_KEYS = [
   "tui.tips.export",
   "tui.tips.copy_last",
   "tui.tips.command_palette",
-  "tui.tips.login",
   "tui.tips.connect",
   "tui.tips.leader",
   "tui.tips.f2",
@@ -161,13 +159,14 @@ export function hasUsableCredentials(providers: readonly CredentialProvider[]): 
 
 /**
  * Display override for the rotating tip. A credential-less install shows
- * /login (default model needs auth); otherwise the weighted rotation wins.
+ * /connect (no model is selected until a provider is configured); otherwise
+ * the weighted rotation wins.
  */
 export function pickDisplayKey(input: {
   hasCredentials: boolean
   rotationKey: string
 }): string {
-  if (!input.hasCredentials) return LOGIN_TIP
+  if (!input.hasCredentials) return CONNECT_TIP
   return input.rotationKey
 }
 

@@ -330,7 +330,7 @@ export const dict: Record<string, string> = {
   "tui.dialog.confirm.cancel": "Cancel",
   "tui.dialog.confirm.confirm": "Confirm",
   "tui.dialog.select.placeholder": "Search",
-  "tui.dialog.model.login_hint": "Tip: run /login to sign in before switching models",
+  "tui.dialog.model.connect_hint": "Tip: run /connect to add a provider credential before switching models",
   "tui.dialog.select.no_results": "No results found",
   "tui.dialog.prompt.placeholder": "Enter text",
   "tui.dialog.prompt.busy": "Working...",

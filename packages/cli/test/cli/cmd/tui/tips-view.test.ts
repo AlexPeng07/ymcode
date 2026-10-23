@@ -40,9 +40,9 @@ describe("buildTipKeys", () => {
     expect(buildTipKeys("linux")).toContain("tui.tips.suspend.unix")
   })
 
-  test("keeps the login tip available for credential-less installs", () => {
-    expect(buildTipKeys("linux")).toContain("tui.tips.login")
-    Array.of(en, es, fr, ja, ru, zh, zht).forEach((dict) => expect(dict["tui.tips.login"]).toBeTruthy())
+  test("keeps the connect tip available for credential-less installs", () => {
+    expect(buildTipKeys("linux")).toContain("tui.tips.connect")
+    Array.of(en, es, fr, ja, ru, zh, zht).forEach((dict) => expect(dict["tui.tips.connect"]).toBeTruthy())
   })
 
   test("includes compose-next as a normal rotating tip with positive capability copy", () => {
@@ -74,8 +74,8 @@ describe("hasUsableCredentials", () => {
 })
 
 describe("pickDisplayKey", () => {
-  test("forces the login tip when the install has no credentials", () => {
-    expect(pickDisplayKey({ hasCredentials: false, rotationKey: "tui.tips.theme" })).toBe("tui.tips.login")
+  test("forces the connect tip when the install has no credentials", () => {
+    expect(pickDisplayKey({ hasCredentials: false, rotationKey: "tui.tips.theme" })).toBe("tui.tips.connect")
   })
 
   test("keeps the rotation tip once credentials exist", () => {

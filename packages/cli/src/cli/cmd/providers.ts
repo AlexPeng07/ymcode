@@ -399,32 +399,19 @@ export const ProvidersLoginCommand = cmd({
           }
           provider = match.value
         } else {
-          const choice = await prompts.select({
+          const selected = await prompts.autocomplete({
             message: t("cli.providers.select"),
+            maxItems: 8,
             options: [
-              { label: "MiMo", value: "xiaomi", hint: t("cli.providers.mimo.recommended_hint") },
-              { label: t("cli.providers.other"), value: "__other__" },
+              ...options,
+              {
+                value: "other",
+                label: "Other",
+              },
             ],
           })
-          if (prompts.isCancel(choice)) throw new UI.CancelledError()
-
-          if (choice === "xiaomi") {
-            provider = "xiaomi"
-          } else {
-            const selected = await prompts.autocomplete({
-              message: t("cli.providers.select"),
-              maxItems: 8,
-              options: [
-                ...options,
-                {
-                  value: "other",
-                  label: "Other",
-                },
-              ],
-            })
-            if (prompts.isCancel(selected)) throw new UI.CancelledError()
-            provider = selected as string
-          }
+          if (prompts.isCancel(selected)) throw new UI.CancelledError()
+          provider = selected as string
         }
 
         const plugin = hooks.findLast((x) => x.auth?.provider === provider)

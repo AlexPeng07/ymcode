@@ -17,23 +17,6 @@ const providers = [
   },
 ] as unknown as Provider[]
 
-const withXiaomiPro = [
-  {
-    id: "openai",
-    models: { "gpt-5.6-sol": {} },
-  },
-  {
-    id: "xiaomi",
-    source: "config",
-    key: "test-key",
-    options: {},
-    models: {
-      "mimo-v2.6-pro": {},
-      "mimo-v2.6": {},
-    },
-  },
-] as unknown as Provider[]
-
 const withCredentials = [
   {
     id: "openai",
@@ -93,21 +76,6 @@ describe("initial model", () => {
 })
 
 describe("fallback model", () => {
-  test("prefers xiaomi/mimo-v2.6-pro when no recent/configured match", () => {
-    expect(fallback(withXiaomiPro, { openai: "gpt-5.6-sol" })).toEqual({
-      providerID: "xiaomi",
-      modelID: "mimo-v2.6-pro",
-    })
-  })
-
-  test("does not prefer xiaomi without credentials", () => {
-    const noCreds = withXiaomiPro.map((provider) => ({ ...provider, key: undefined, source: "config", options: {} }))
-    expect(fallback(noCreds as unknown as Provider[], { openai: "gpt-5.6-sol" })).toEqual({
-      providerID: "openai",
-      modelID: "gpt-5.6-sol",
-    })
-  })
-
   test("prefers the first credentialed provider", () => {
     expect(fallback(withCredentials, { openai: "gpt-5.6-sol", ppio: "deepseek-v3" })).toEqual({
       providerID: "ppio",
@@ -115,17 +83,15 @@ describe("fallback model", () => {
     })
   })
 
-  test("falls back to the first provider default when xiaomi pro is absent", () => {
-    expect(fallback(providers, { openai: "gpt-5.6-sol" })).toEqual({
-      providerID: "openai",
-      modelID: "gpt-5.6-sol",
-    })
+  test("stays empty when no provider has a credential", () => {
+    expect(fallback(providers, { openai: "gpt-5.6-sol" })).toBeUndefined()
   })
 
-  test("falls back to the first model when no provider default is set", () => {
-    expect(fallback(providers, {})).toEqual({
-      providerID: "openai",
-      modelID: "gpt-5.6-sol",
+  test("falls back to the first model of a credentialed provider without a default", () => {
+    const credentialed = [withCredentials[1]!]
+    expect(fallback(credentialed, {})).toEqual({
+      providerID: "ppio",
+      modelID: "deepseek-v3",
     })
   })
 

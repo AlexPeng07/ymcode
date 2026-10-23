@@ -343,7 +343,7 @@ export const dict = {
   "tui.dialog.confirm.cancel": "取消",
   "tui.dialog.confirm.confirm": "确认",
   "tui.dialog.select.placeholder": "搜索",
-  "tui.dialog.model.login_hint": "提示：先 /login 登录再切换模型",
+  "tui.dialog.model.connect_hint": "提示：先 /connect 配置服务商凭据再切换模型",
   "tui.dialog.select.no_results": "未找到结果",
   "tui.dialog.prompt.placeholder": "输入文本",
   "tui.dialog.prompt.busy": "处理中...",
