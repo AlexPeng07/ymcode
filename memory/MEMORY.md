@@ -23,7 +23,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - 门禁与 Windows 构建通过；隔离环境端到端验证通过。
 - 默认主题为蓝色系；小米 OAuth 登录已移除，Xiaomi/MiMo 入口保留并统一走 API Key。
 - CLI `--help` 已全量汉化；小米条款弹窗与 `auth whoami` 已移除。
-- TUI 蓝色主题、登录对话框有自动化测试；observer 抽取路径有 scripted-LLM 集成测试。
+- TUI 蓝色主题、服务商选择对话框有自动化测试；observer 抽取路径有 scripted-LLM 集成测试。
 - instincts：配置阈值统一、observer 状态原子写、`last_seen_at` 稳定策略、export/import。
 - `bun run upstream:diff` 可查看上游差异。
 - `ymcode doctor` 检查运行时/路径/配置/凭据/搜索/数据库并给出修复建议；`ymcode setup`
@@ -37,6 +37,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - **v0.2.0 已发布**（2026-10-23）：仓库已公开，12 个平台 asset 上传到 GitHub Releases；
   Windows 安装脚本实测下载并运行 `ymcode --version` 返回 `0.2.0`。Actions 额度未恢复，
   本次为 C: 盘本机构建 + `gh release create` 手动发布。
+- **v0.2.1 已发布**（2026-10-23，Actions 自动发布）：仓库公开后 Actions 恢复可用，
+  `release.yml` 在 tag 上跑完门禁、测试、macOS 构建并自动上传 12 个 asset。
+  本版包含 4 项修正：无凭据时不再默认 Xiaomi 模型、侧栏品牌改为 ymcode、
+  删除不可用的 `/login` 与 MiMo 登录对话框、默认主题与 logo/agent 强调色统一为蓝色。
 
 未验证/未完成：
 

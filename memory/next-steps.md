@@ -30,6 +30,10 @@
   改为可选（仓库变量 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM=1`）。
 - **v0.2.0 已发布**：12 平台 asset 已上传，Windows 安装脚本实测可用；Actions 恢复前，
   按 memory/build.md 的 C: 盘本机构建 + `gh release create` 流程手动发布。
+- **v0.2.1 已发布**：仓库公开后 Actions 恢复，tag 触发的 `release.yml` 自动完成测试、
+  构建与 12 平台发布。包含默认模型、侧栏品牌、移除 `/login`、整体转蓝四项修正。
+  注意：用 PowerShell `Set-Content -Encoding utf8` 改 JSON 会写入 BOM，导致 CI 的
+  Format/packLibrary 测试失败；改包清单时用无 BOM 的 UTF-8 写入。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 
