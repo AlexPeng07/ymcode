@@ -66,7 +66,7 @@ const MemoryDoctorCommand = cmd({
           .select({ path: MemoryFtsTable.path, fingerprint: MemoryFtsTable.fingerprint })
           .from(MemoryFtsTable)
           .all(),
-      )
+      ).filter((row) => row.path.startsWith(root + path.sep))
       const indexed = new Set(rows.map((row) => row.path))
       const onDisk = new Set(files)
 
