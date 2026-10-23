@@ -8,6 +8,13 @@ const files = (await $`git ls-files "packages/cli/src/skill/builtin/**/SKILL.md"
 
 const normalize = (text: string) => text.replace(/\r\n/g, "\n")
 
+// Files whose commands or URLs were deliberately changed after the upstream
+// baseline (the ymcode rename dropped obsolete vendor schema URLs). Prose and
+// description checks still run for these files.
+const INTENTIONAL_CODE_EDITS = new Set([
+  "packages/cli/src/skill/builtin/.bundle/ymcode-docs/SKILL.md",
+])
+
 function frontmatter(text: string): { name?: string; description?: string; body: string } {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
   if (!match) return { body: text }
@@ -52,7 +59,7 @@ for (const file of files) {
     console.error(`${file}: frontmatter name changed (${prev.name} -> ${next.name})`)
     bad++
   }
-  if (old) {
+  if (old && !INTENTIONAL_CODE_EDITS.has(file)) {
     if (!same(fences(prev.body), fences(next.body))) {
       console.error(`${file}: code fence changed`)
       bad++

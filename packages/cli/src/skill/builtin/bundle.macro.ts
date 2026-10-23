@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import { BUNDLE_BINARY_PREFIX, isBinaryBundleFile } from "./bundle-format"
 
 const JUNK = new Set([".DS_Store", "Thumbs.db", "__pycache__"])
 
@@ -11,7 +12,10 @@ function walkDir(base: string, rel: string, out: Record<string, string>) {
     if (entry.isDirectory()) {
       walkDir(base, relPath, out)
     } else {
-      out[relPath] = fs.readFileSync(path.join(fullPath, entry.name), "utf8")
+      const content = fs.readFileSync(path.join(fullPath, entry.name))
+      out[relPath] = isBinaryBundleFile(relPath, content)
+        ? BUNDLE_BINARY_PREFIX + content.toString("base64")
+        : content.toString("utf8")
     }
   }
 }

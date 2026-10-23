@@ -8,6 +8,7 @@ import { Log } from "@/util"
 import { which } from "@/util/which"
 import { loadBuiltinBundle } from "./bundle.macro" with { type: "macro" }
 import { loadBuiltinBundle as loadBuiltinBundleDev } from "./bundle.macro"
+import { BUNDLE_BINARY_PREFIX } from "./bundle-format"
 
 export const OFFICIAL_SKILL_NAMES = new Set([
   "docx-official",
@@ -138,7 +139,10 @@ export const extractBuiltinBundle = Effect.fn("Skill.extractBuiltinBundle")(func
     if (!enabled.has(skillName)) continue
     const skillDir = path.join(skillsRoot, skillName)
     for (const [relPath, content] of Object.entries(files)) {
-      yield* fsys.writeWithDirs(path.join(skillDir, relPath), content)
+      const value = content.startsWith(BUNDLE_BINARY_PREFIX)
+        ? Buffer.from(content.slice(BUNDLE_BINARY_PREFIX.length), "base64")
+        : content
+      yield* fsys.writeWithDirs(path.join(skillDir, relPath), value)
     }
   }
   yield* fsys.writeWithDirs(marker, markerContent)

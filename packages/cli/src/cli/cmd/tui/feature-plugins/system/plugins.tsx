@@ -40,6 +40,26 @@ function meta(item: TuiPluginStatus, width: number, t: Translate) {
   return item.spec
 }
 
+function builtinKey(item: TuiPluginStatus) {
+  if (item.source !== "internal") return undefined
+  return item.id.startsWith("internal:") ? item.id.slice("internal:".length) : undefined
+}
+
+function title(item: TuiPluginStatus, t: Translate) {
+  const key = builtinKey(item)
+  if (!key) return item.id
+  return t(`tui.plugins.builtin.${key}.name`) || item.id
+}
+
+function description(item: TuiPluginStatus, width: number, t: Translate) {
+  const key = builtinKey(item)
+  if (key) {
+    const text = t(`tui.plugins.builtin.${key}.description`)
+    if (text) return text
+  }
+  return meta(item, width, t)
+}
+
 function Install(props: { api: TuiPluginApi }) {
   const [global, setGlobal] = createSignal(false)
   const [busy, setBusy] = createSignal(false)
@@ -149,10 +169,10 @@ function Install(props: { api: TuiPluginApi }) {
 
 function row(api: TuiPluginApi, item: TuiPluginStatus, width: number, t: Translate): DialogSelectOption<string> {
   return {
-    title: item.id,
+    title: title(item, t),
     value: item.id,
     category: item.source === "internal" ? t("tui.plugins.category.internal") : t("tui.plugins.category.external"),
-    description: meta(item, width, t),
+    description: description(item, width, t),
     footer: state(api, item, t),
     disabled: item.id === id,
   }

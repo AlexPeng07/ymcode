@@ -186,8 +186,12 @@ export const dict: Record<string, string> = {
     "manually consolidate project memory from memory files and raw trajectory",
   "tui.slash.distill.description":
     "find repeated workflows in recent work and package them into skills, subagents, or commands",
+  "tui.slash.instinct.description": "review, promote or forget instinct rules",
   "tui.slash.goal.description":
     "set a stop-condition goal; runs until a judge says it's met. /goal clear to abort",
+  "tui.slash.rebuild.description":
+    "rebuild the conversation context from the latest checkpoint (frees context; keeps recent messages)",
+  "tui.slash.loops.description": "list active scheduled jobs; accepts `cancel <id>` to delete one",
   "tui.slash.deep-research.description":
     "deep multi-source, fact-checked research report (runs the deep-research workflow)",
 
@@ -217,6 +221,120 @@ export const dict: Record<string, string> = {
   "tui.skill.sales.description": "Prepare meetings, research accounts, plan deals, and work with sales systems",
   "tui.skill.compose-next.description":
     "End-to-end delivery: clarify, spec, implement, review",
+
+  // Built-in bundled skill picker metadata (Chinese name and when-to-use hint)
+  "tui.skill.arxiv.title": "arXiv papers",
+  "tui.skill.arxiv.when": "searching literature, downloading PDFs, managing citations, or tracking new papers",
+  "tui.skill.claude-code.title": "Claude Code",
+  "tui.skill.claude-code.when": "handing a coding task to a local Claude Code CLI in parallel",
+  "tui.skill.codex.title": "Codex",
+  "tui.skill.codex.when": "calling Codex from scripts or automation instead of a terminal",
+  "tui.skill.compose-next.title": "Compose workflow",
+  "tui.skill.compose-next.when": "the request is still vague and needs clarification before implementation",
+  "tui.skill.data-analytics.title": "Data analytics",
+  "tui.skill.data-analytics.when": "you have data to clean, explore, chart, or summarize",
+  "tui.skill.deep-research.title": "Deep research",
+  "tui.skill.deep-research.when": "market, competitor, or technical research that needs cross-checked sources",
+  "tui.skill.docx-official.title": "Word documents",
+  "tui.skill.docx-official.when": "producing a deliverable Word document such as a contract, report, or resume",
+  "tui.skill.grok-build.title": "Grok Build",
+  "tui.skill.grok-build.when": "Grok Build is installed and you want to drive it from ymcode",
+  "tui.skill.html-to-video-pipeline.title": "HTML short video",
+  "tui.skill.html-to-video-pipeline.when": "turning a web animation, chart, or demo into a short video",
+  "tui.skill.learn-everything.title": "Interactive course",
+  "tui.skill.learn-everything.when": "turning a long document or topic into chapters you can study and self-test",
+  "tui.skill.loop.title": "Loop",
+  "tui.skill.loop.when": "running the same check or report on a schedule",
+  "tui.skill.mate.title": "Desktop pet",
+  "tui.skill.mate.when": "giving a project a desktop pet mascot",
+  "tui.skill.memory-search.title": "Trajectory search",
+  "tui.skill.memory-search.when": "reviewing what you did in past sessions or measuring effort",
+  "tui.skill.modern-python-toolchain.title": "Python toolchain",
+  "tui.skill.modern-python-toolchain.when": "starting a Python project with consistent linting, formatting, and types",
+  "tui.skill.pdf-official.title": "PDF documents",
+  "tui.skill.pdf-official.when": "merging, splitting, watermarking, filling, or extracting PDF content",
+  "tui.skill.playwright.title": "Browser automation",
+  "tui.skill.playwright.when": "you need to actually open pages, fill forms, take screenshots, or run E2E checks",
+  "tui.skill.pptx-official.title": "PowerPoint",
+  "tui.skill.pptx-official.when": "building a deck for a report, pitch, or lesson",
+  "tui.skill.product-design.title": "Product design",
+  "tui.skill.product-design.when": "moving from requirements and UX audit to a validated prototype",
+  "tui.skill.research-paper-writing.title": "Paper writing",
+  "tui.skill.research-paper-writing.when": "submitting, revising, or writing a literature review",
+  "tui.skill.sales.title": "Sales",
+  "tui.skill.sales.when": "preparing a customer visit, follow-up email, or pipeline review",
+  "tui.skill.skill-creator.title": "Skill creator",
+  "tui.skill.skill-creator.when": "packaging your own workflow into a reusable skill",
+  "tui.skill.super-research.title": "Super research",
+  "tui.skill.super-research.when": "running experiments, benchmarks, or reproducing a paper",
+  "tui.skill.xlsx-official.title": "Excel workbooks",
+  "tui.skill.xlsx-official.when": "cleaning data, building pivot tables, or producing a deliverable workbook",
+  "tui.skill.ymcode-docs.title": "ymcode docs",
+  "tui.skill.ymcode-docs.when": "you forgot a command, config key, or permission setting",
+
+  // Anthropic upstream skills
+  "tui.skill.academy-guide.title": "Claude Academy guide",
+  "tui.skill.academy-guide.description":
+    "Recommend matching Claude Academy courses, tutorials, and use cases when users ask how to use Claude or a Claude product",
+  "tui.skill.academy-guide.when": "looking for Claude courses, tutorials, or official use cases",
+  "tui.skill.algorithmic-art.title": "Algorithmic art",
+  "tui.skill.algorithmic-art.description":
+    "Create generative art with p5.js: seeded randomness, flow fields, particle systems, and interactive parameters",
+  "tui.skill.algorithmic-art.when": "making posters, flow fields, particles, or interactive visual art with code",
+  "tui.skill.brand-guidelines.title": "Anthropic brand",
+  "tui.skill.brand-guidelines.description":
+    "Apply Anthropic's official brand colors and typography to slides, documents, and web deliverables",
+  "tui.skill.brand-guidelines.when": "unifying visuals with Anthropic's brand colors and typography",
+  "tui.skill.canvas-design.title": "Canvas design",
+  "tui.skill.canvas-design.description":
+    "Create original PNG/PDF visual art such as posters and artwork with a design-philosophy approach; 54 bundled fonts",
+  "tui.skill.canvas-design.when": "making posters, covers, artwork, or other static visuals",
+  "tui.skill.claude-api.title": "Claude API",
+  "tui.skill.claude-api.description":
+    "Reference for Claude API and Anthropic SDK: model IDs, pricing, params, streaming, tool use, MCP, agents, caching, and migration",
+  "tui.skill.claude-api.when": "looking up Claude models, pricing, parameters, or SDK usage",
+  "tui.skill.discernment-nudge.title": "Discernment nudge",
+  "tui.skill.discernment-nudge.description":
+    "Append 2-3 specific follow-up questions to substantive answers so users can check facts, probe reasoning, and notice missing context",
+  "tui.skill.discernment-nudge.when": "adding a short fact and reasoning check after an important answer",
+  "tui.skill.doc-coauthoring.title": "Doc co-authoring",
+  "tui.skill.doc-coauthoring.description":
+    "Structured doc co-authoring: gather context, iterate structure and content, then blind-test with a context-free reader; for PRDs, design docs, decision docs, and RFCs",
+  "tui.skill.doc-coauthoring.when": "writing a PRD, design doc, decision doc, or RFC",
+  "tui.skill.frontend-design.title": "Frontend design",
+  "tui.skill.frontend-design.description":
+    "Give new or redesigned UIs a distinctive visual direction: palette, typography, layout, and motion without template defaults",
+  "tui.skill.frontend-design.when": "designing or redesigning a web UI that needs a clear visual style",
+  "tui.skill.internal-comms.title": "Internal comms",
+  "tui.skill.internal-comms.description":
+    "Write internal communications such as 3P updates, newsletters, FAQs, status updates, leadership updates, and incident reports from bundled templates",
+  "tui.skill.internal-comms.when": "writing a weekly update, newsletter, FAQ, or incident report",
+  "tui.skill.mcp-builder.title": "MCP builder",
+  "tui.skill.mcp-builder.description":
+    "Build high-quality MCP servers with Python (FastMCP) or Node/TypeScript (MCP SDK) that wrap external APIs as well-designed tools",
+  "tui.skill.mcp-builder.when": "wrapping an external API or service as MCP tools",
+  "tui.skill.skill-creator-official.title": "Anthropic skill creator",
+  "tui.skill.skill-creator-official.description":
+    "Anthropic's official skill creator: build and improve skills, run evals and benchmarks, and optimize description triggering",
+  "tui.skill.skill-creator-official.when":
+    "running evals or benchmarks, or optimizing a skill's trigger accuracy",
+  "tui.skill.slack-gif-creator.title": "Slack GIF creator",
+  "tui.skill.slack-gif-creator.description":
+    "Create animated GIFs optimized for Slack with size and file-size constraints, validation tools, and animation ideas",
+  "tui.skill.slack-gif-creator.when": "making a Slack emoji or chat GIF",
+  "tui.skill.theme-factory.title": "Theme factory",
+  "tui.skill.theme-factory.description":
+    "Apply a consistent theme to slides, docs, reports, and HTML landing pages with 10 preset palettes and fonts",
+  "tui.skill.theme-factory.when": "unifying colors and fonts across slides, reports, or web pages",
+  "tui.skill.web-artifacts-builder.title": "Web artifact builder",
+  "tui.skill.web-artifacts-builder.description":
+    "Build multi-component claude.ai HTML artifacts with React, Tailwind CSS, and shadcn/ui, including state and routing",
+  "tui.skill.web-artifacts-builder.when":
+    "building a complex web artifact with state, routing, or shadcn components",
+  "tui.skill.webapp-testing.title": "Webapp testing",
+  "tui.skill.webapp-testing.description":
+    "Test local web apps with Playwright: verify frontend behavior, debug UI issues, capture screenshots, and read browser logs",
+  "tui.skill.webapp-testing.when": "verifying local web behavior or debugging frontend interactions",
 
   // Language switching
   "tui.command.language.switch.title": "Switch language",
@@ -750,10 +868,70 @@ export const dict: Record<string, string> = {
   "tui.status.no_plugins": "No Plugins",
   "tui.status.plugin_count": "{{value}} Plugins",
 
+  // Plugins dialog
+  "tui.plugins.title": "Plugins",
+  "tui.plugins.state.disabled": "disabled",
+  "tui.plugins.state.active": "active",
+  "tui.plugins.state.inactive": "inactive",
+  "tui.plugins.meta.builtin_plugin": "built-in plugin",
+  "tui.plugins.meta.builtin": "built-in",
+  "tui.plugins.category.internal": "Built-in",
+  "tui.plugins.category.external": "External",
+  "tui.plugins.install.title": "Install plugin",
+  "tui.plugins.install.placeholder": "npm package name",
+  "tui.plugins.install.busy": "Installing...",
+  "tui.plugins.install.scope": "Scope",
+  "tui.plugins.install.toggle": "{keybind} toggles local/global",
+  "tui.plugins.scope.global": "global",
+  "tui.plugins.scope.local": "local",
+  "tui.plugins.install.success": "Installed {mod} ({scope}: {dir})",
+  "tui.plugins.loaded": "Loaded {mod}",
+  "tui.plugins.error.name_required": "Enter a package name",
+  "tui.plugins.error.registry": "Check your npm registry and network settings",
+  "tui.plugins.error.no_tui": "This plugin has no TUI entrypoint; it only affects the server",
+  "tui.plugins.error.load_failed": "Installed, but the TUI plugin failed to load",
+  "tui.plugins.error.update_failed": "Failed to update {id}",
+  "tui.plugins.keybind.toggle": "Toggle",
+  "tui.plugins.keybind.install": "Install",
+
+  // Built-in plugin names and explanations
+  "tui.plugins.builtin.sidebar-context.name": "Context usage",
+  "tui.plugins.builtin.sidebar-context.description":
+    "Sidebar · token usage, context limit, generation speed, and spend",
+  "tui.plugins.builtin.sidebar-cwd.name": "Working directory",
+  "tui.plugins.builtin.sidebar-cwd.description": "Sidebar · current project path",
+  "tui.plugins.builtin.sidebar-files.name": "Modified files",
+  "tui.plugins.builtin.sidebar-files.description": "Sidebar · files modified in this session",
+  "tui.plugins.builtin.sidebar-footer.name": "Project & version",
+  "tui.plugins.builtin.sidebar-footer.description": "Sidebar · project path, Git branch, and ymcode version",
+  "tui.plugins.builtin.sidebar-goal.name": "Goal",
+  "tui.plugins.builtin.sidebar-goal.description": "Sidebar · current session goal and verdict",
+  "tui.plugins.builtin.sidebar-instructions.name": "Instruction files",
+  "tui.plugins.builtin.sidebar-instructions.description": "Sidebar · loaded rule files such as AGENTS.md",
+  "tui.plugins.builtin.sidebar-lsp.name": "Language servers",
+  "tui.plugins.builtin.sidebar-lsp.description": "Sidebar · LSP status and diagnostic count",
+  "tui.plugins.builtin.sidebar-mcp.name": "MCP status",
+  "tui.plugins.builtin.sidebar-mcp.description": "Sidebar · MCP server connection status",
+  "tui.plugins.builtin.sidebar-task.name": "Background tasks",
+  "tui.plugins.builtin.sidebar-task.description": "Sidebar · background task progress",
+  "tui.plugins.builtin.sidebar-todo.name": "Todo list",
+  "tui.plugins.builtin.sidebar-todo.description": "Sidebar · todos for the current session",
+  "tui.plugins.builtin.home-footer.name": "Home footer",
+  "tui.plugins.builtin.home-footer.description":
+    "Home · working directory, Git branch, MCP status, and version",
+  "tui.plugins.builtin.home-tips.name": "Home tips",
+  "tui.plugins.builtin.home-tips.description": "Home · rotating tips for common features",
+  "tui.plugins.builtin.plugin-manager.name": "Plugin manager",
+  "tui.plugins.builtin.plugin-manager.description":
+    "Manage built-in and external plugins: enable, disable, and install",
+
   // Skills dialog
   "tui.skills.title": "Skills",
   "tui.skills.placeholder": "Search skills...",
   "tui.skills.category": "Skills",
+  "tui.skills.hint": "Type a Chinese name, pinyin, or English name · Enter inserts the skill",
+  "tui.skills.detail.when": "When: {when}",
+  "tui.skills.detail.trigger": "Trigger: {command} — or just describe the task in natural language",
 
   // Instincts dialog
   "tui.instinct.title": "Instincts",

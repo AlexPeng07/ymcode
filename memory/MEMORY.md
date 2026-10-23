@@ -19,7 +19,14 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 独立新仓库、全面改名 ymcode、旧数据复制迁移。
 - instincts：文件格式、service、FTS 类型、工具、CLI、`/instinct`、observer、注入、dream review。
-- 汉化：70 个内置技能、54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
+- 汉化：85 个内置 `SKILL.md`（70 个正文汉化 + 15 个 Anthropic 官方技能汉化介绍）、
+  54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
+- 技能中心：`/skills` 用中文名展示，支持中文/拼音搜索，选中时显示适用场景与触发方式；
+  插件面板补齐 13 个内置插件的中文名、功能解释与全部 `tui.plugins.*` 文案。
+- Anthropic 官方技能：内置 39 个技能目录，新增 algorithmic-art、canvas-design、
+  claude-api、mcp-builder、webapp-testing 等 15 个；4 个文档技能沿用已有的
+  `docx/pdf/pptx/xlsx-official`，Anthropic 版 skill-creator 以
+  `skill-creator-official` 与现有中文版并存。技能包已支持 TTF/PDF/GZ 二进制资源。
 - 门禁与 Windows 构建通过；隔离环境端到端验证通过。
 - 默认主题为蓝色系；小米 OAuth 登录已移除，Xiaomi/MiMo 入口保留并统一走 API Key。
 - CLI `--help` 已全量汉化；小米条款弹窗与 `auth whoami` 已移除。

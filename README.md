@@ -9,7 +9,8 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 
 - **记忆体系**：沿用 `MEMORY.md`、`checkpoint.md`、`notes.md`、任务 progress、SQLite FTS5、`/dream`、`/distill`。
 - **直觉规则**：带证据、置信度、状态（candidate / active / retired）的 instincts；支持晋升、降级、衰减、按预算注入。
-- **全中文内容**：核心 TUI、内置技能正文、agent 提示词、工具描述与用户可见错误为中文；代码标识符、内部日志、命令、路径保持英文。
+- **全中文内容**：核心 TUI、agent 提示词、工具描述与用户可见错误为中文；内置技能的名称、介绍、适用场景与触发方式为中文，Anthropic 官方技能的正文保留英文以保证命令与脚本准确。
+- **内置技能**：39 个技能目录，包含 Anthropic 官方示例技能（Apache-2.0，LICENSE 随技能保留）与中文文档/办公技能。
 - **独立数据目录**：只使用 ymcode 自己的配置与数据目录，不读取、不迁移旧 mimocode 的任何内容。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
 

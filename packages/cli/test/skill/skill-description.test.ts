@@ -1,5 +1,12 @@
 import { describe, test, expect } from "bun:test"
-import { resolveSkillSlash, skillDescription, skillSlashAliases } from "../../src/cli/cmd/tui/i18n/skill"
+import {
+  resolveSkillSlash,
+  skillDescription,
+  skillSlashAliases,
+  skillTitle,
+  skillWhen,
+} from "../../src/cli/cmd/tui/i18n/skill"
+import { slashCommandDescription } from "../../src/cli/cmd/tui/i18n/slash-command"
 import { dict as en } from "../../src/cli/cmd/tui/i18n/en"
 import { dict as es } from "../../src/cli/cmd/tui/i18n/es"
 import { dict as fr } from "../../src/cli/cmd/tui/i18n/fr"
@@ -86,5 +93,54 @@ describe("skillDescription", () => {
       expect(dict["tui.skill.product-design.description"]).toBeTruthy()
       expect(dict["tui.skill.sales.description"]).toBeTruthy()
     }
+  })
+
+  test("every bundled skill has a Chinese title and when hint", () => {
+    const names = Object.keys(zh)
+      .filter((key) => key.startsWith("tui.skill.") && key.endsWith(".description"))
+      .map((key) => key.slice("tui.skill.".length, -".description".length))
+    for (const name of names) {
+      expect(zh[`tui.skill.${name}.title` as keyof typeof zh]).toBeTruthy()
+      expect(zh[`tui.skill.${name}.when` as keyof typeof zh]).toBeTruthy()
+    }
+  })
+})
+
+describe("slashCommandDescription", () => {
+  const builtins = ["init", "review", "dream", "distill", "instinct", "goal", "rebuild", "loops", "deep-research"]
+
+  test("translates every built-in server command", () => {
+    for (const name of builtins) {
+      expect(zh[`tui.slash.${name}.description` as keyof typeof zh]).toBeTruthy()
+      expect(
+        slashCommandDescription((key) => zh[key as keyof typeof zh] ?? "", name, "fallback"),
+      ).not.toBe("fallback")
+    }
+  })
+
+  test("leaves user, MCP, and external command descriptions untouched", () => {
+    expect(slashCommandDescription((key) => zh[key as keyof typeof zh] ?? "", "my-command", "mine")).toBe("mine")
+  })
+})
+
+describe("skillTitle", () => {
+  const t = (key: string) =>
+    ({ "tui.skill.example.title": "示例技能", "tui.skill.example.when": "需要示例时" })[key] as string
+
+  test("returns the localized title for bundled skills", () => {
+    expect(skillTitle(t, "example", undefined, true)).toBe("示例技能")
+  })
+
+  test("falls back to the skill name for non-bundled skills", () => {
+    expect(skillTitle(t, "example", undefined, false)).toBe("example")
+  })
+
+  test("falls back to the skill name when the translation is missing", () => {
+    expect(skillTitle(t, "unknown-bundled", undefined, true)).toBe("unknown-bundled")
+  })
+
+  test("returns the localized when hint only for bundled skills", () => {
+    expect(skillWhen(t, "example", true)).toBe("需要示例时")
+    expect(skillWhen(t, "example", false)).toBe("")
   })
 })

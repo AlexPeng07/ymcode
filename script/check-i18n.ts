@@ -17,9 +17,12 @@ const bundles = (await fs.readdir(bundleRoot, { withFileTypes: true }).catch(() 
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
 const missingSkillDescriptions = bundles.filter((name) => !zhDict[`tui.skill.${name}.description`]?.trim())
+const missingSkillMeta = bundles.filter(
+  (name) => !zhDict[`tui.skill.${name}.title`]?.trim() || !zhDict[`tui.skill.${name}.when`]?.trim(),
+)
 
-const report = { missing, empty, extra, missingSkillDescriptions }
-if (missing.length || empty.length || extra.length || missingSkillDescriptions.length) {
+const report = { missing, empty, extra, missingSkillDescriptions, missingSkillMeta }
+if (missing.length || empty.length || extra.length || missingSkillDescriptions.length || missingSkillMeta.length) {
   console.error(JSON.stringify(report, null, 2))
   process.exit(1)
 }

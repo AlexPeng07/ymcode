@@ -8,6 +8,21 @@ export function skillDescription(
   return t(`tui.skill.${name}.description`) || fallback
 }
 
+export function skillTitle(
+  t: (key: string) => string,
+  name: string,
+  fallback?: string,
+  bundled?: boolean,
+) {
+  if (!bundled) return fallback || name
+  return t(`tui.skill.${name}.title`) || fallback || name
+}
+
+export function skillWhen(t: (key: string) => string, name: string, bundled?: boolean) {
+  if (!bundled) return ""
+  return t(`tui.skill.${name}.when`) || ""
+}
+
 export function skillSlashAliases(t: (key: string) => string, name: string, bundled?: boolean) {
   if (!bundled) return []
   return (t(`tui.skill.${name}.slash`) || "")

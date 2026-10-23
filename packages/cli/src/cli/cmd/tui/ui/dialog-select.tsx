@@ -35,6 +35,8 @@ export interface DialogSelectProps<T> {
   current?: T
   /** Optional muted subtitle shown under the title (e.g. a usage hint). */
   hint?: string
+  /** Optional extra explanation for the highlighted option, rendered below the list. */
+  detail?: (option: DialogSelectOption<T>) => string | undefined
 }
 
 export interface DialogSelectOption<T = any> {
@@ -156,6 +158,12 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const height = createMemo(() => Math.min(rows(), Math.floor(dimensions().height / 2) - 6))
 
   const selected = createMemo(() => flat()[store.selected])
+
+  const detail = createMemo(() => {
+    const option = selected()
+    if (!option || !props.detail) return undefined
+    return props.detail(option)?.trim() || undefined
+  })
 
   createEffect(
     on([() => store.filter, () => props.current], ([filter, current]) => {
@@ -380,6 +388,11 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
             )}
           </For>
         </scrollbox>
+      </Show>
+      <Show when={detail()}>
+        <box paddingLeft={4} paddingRight={4} paddingTop={1}>
+          <text fg={theme.textMuted}>{detail()}</text>
+        </box>
       </Show>
       <Show when={keybinds().length} fallback={<box flexShrink={0} />}>
         <box
