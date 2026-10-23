@@ -19,14 +19,16 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 独立新仓库、全面改名 ymcode、旧数据复制迁移。
 - instincts：文件格式、service、FTS 类型、工具、CLI、`/instinct`、observer、注入、dream review。
-- 汉化：85 个内置 `SKILL.md`（70 个正文汉化 + 15 个 Anthropic 官方技能汉化介绍）、
+- 汉化：90 个内置 `SKILL.md`（70 个正文汉化 + 15 个 Anthropic 官方技能汉化介绍 + 5 个中文自研技能）、
   54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
 - 技能中心：`/skills` 用中文名展示，支持中文/拼音搜索，选中时显示适用场景与触发方式；
   插件面板补齐 13 个内置插件的中文名、功能解释与全部 `tui.plugins.*` 文案。
-- Anthropic 官方技能：内置 39 个技能目录，新增 algorithmic-art、canvas-design、
-  claude-api、mcp-builder、webapp-testing 等 15 个；4 个文档技能沿用已有的
-  `docx/pdf/pptx/xlsx-official`，Anthropic 版 skill-creator 以
-  `skill-creator-official` 与现有中文版并存。技能包已支持 TTF/PDF/GZ 二进制资源。
+- Anthropic 官方技能：新增 algorithmic-art、canvas-design、claude-api、mcp-builder、
+  webapp-testing 等 15 个；4 个文档技能沿用已有的 `docx/pdf/pptx/xlsx-official`，
+  Anthropic 版 skill-creator 以 `skill-creator-official` 与现有中文版并存。
+  技能包已支持 TTF/PDF/GZ 二进制资源。
+- 中文自研技能：`chinese-writing`、`chinese-office-format`、`debugging`、
+  `code-review-cn`、`git-workflow`，共 44 个技能目录。
 - 门禁与 Windows 构建通过；隔离环境端到端验证通过。
 - 默认主题为蓝色系；小米 OAuth 登录已移除，Xiaomi/MiMo 入口保留并统一走 API Key。
 - CLI `--help` 已全量汉化；小米条款弹窗与 `auth whoami` 已移除。
@@ -48,10 +50,11 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   `release.yml` 在 tag 上跑完门禁、测试、macOS 构建并自动上传 12 个 asset。
   本版包含 4 项修正：无凭据时不再默认 Xiaomi 模型、侧栏品牌改为 ymcode、
   删除不可用的 `/login` 与 MiMo 登录对话框、默认主题与 logo/agent 强调色统一为蓝色。
-- **v0.2.2 / v0.2.3 已发布**（2026-10-23，Actions 自动发布）：v0.2.2 彻底移除
-  mimocode 兼容层；v0.2.3 内置 39 个技能（新增 15 个 Anthropic 官方技能）、
-  技能中心与插件面板汉化、补齐斜杠命令描述，并支持 TTF/PDF/GZ 二进制技能资源。
-  两次发布均为 12 个平台 asset。
+- **v0.2.2 / v0.2.3 / v0.2.4 已发布**（2026-10-23，Actions 自动发布）：
+  v0.2.2 彻底移除 mimocode 兼容层；v0.2.3 新增 15 个 Anthropic 官方技能、
+  技能中心与插件面板汉化、补齐斜杠命令描述，并支持 TTF/PDF/GZ 二进制技能资源；
+  v0.2.4 新增中文写作、中文办公排版、系统化调试、代码审查、Git 工作流 5 个技能，
+  内置技能达到 44 个。三次发布均为 12 个平台 asset。
 - **与 mimocode 彻底解耦**：不再启动时迁移旧数据，不提供 `ymcode migrate`，
   不桥接 `MIMOCODE_*` 环境变量，也不回退读取 `.mimocode` 项目配置；内置文档技能
   已把 CLI 名称统一为 `ymcode`。运行时只认 ymcode 自己的目录。

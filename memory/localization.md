@@ -2,10 +2,12 @@
 
 ## 现状
 
-- UI 字典：`en.ts` 872 个 key，`zh.ts` 915 个 key（多出的主要是 `tui.skill.*` 描述/别名/场景说明）。
-- 内置技能：39 个技能目录、85 个 `SKILL.md`。其中 70 个原有 `SKILL.md` 正文已翻译；
+- UI 字典：`en.ts` 890 个 key，`zh.ts` 938 个 key（多出的主要是 `tui.skill.*` 描述/别名/场景说明）。
+- 内置技能：44 个技能目录、90 个 `SKILL.md`。其中 70 个原有 `SKILL.md` 正文已翻译；
   新增的 15 个 Anthropic 官方技能保留英文正文，只中文化 frontmatter `description`
-  和开头的中文简介/适用场景（`check-skills.ts` 用中文简介满足正文检查）。
+  和开头的中文简介/适用场景；5 个中文自研技能（中文写作、办公排版、调试、代码审查、
+  Git 工作流）全文中文，其中代码审查用 `code-review-cn` 避免与常见外部技能重名。
+  `check-skills.ts` 用中文简介或中文正文满足检查。
 - 二进制资源：`bundle.macro.ts` 以 NUL 前缀 + base64 内联 TTF/PDF/GZ 等文件，
   `extract.ts` 再解码写回；`canvas-design` 的 54 款字体、`theme-factory` 的 PDF
   和 `web-artifacts-builder` 的 tar.gz 都走这条路径。
@@ -45,8 +47,8 @@ bun run check:prompts
 ```
 
 - `script/check-brand.ts` + `script/brand-allowlist.json`：第一方旧品牌 token 扫描；允许清单包含迁移/归属/外部 provider/第三方/交接文档。
-- `script/check-i18n.ts`：en/zh key 对齐、空值、39 个顶层技能的中文描述/名称/场景。
-- `script/check-skills.ts`：85 个 `SKILL.md` 的 YAML name、代码围栏、行内代码、URL、中文正文/描述。代码比较会把 `mimo`/`opencode` 命令名规范化为 `ymcode`，允许品牌命令改写；`ymcode-docs/SKILL.md` 因删除旧 vendor schema URL 有显式代码差异允许项，正文与描述仍照常检查。
+- `script/check-i18n.ts`：en/zh key 对齐、空值、44 个顶层技能的中文描述/名称/场景。
+- `script/check-skills.ts`：90 个 `SKILL.md` 的 YAML name、代码围栏、行内代码、URL、中文正文/描述。代码比较会把 `mimo`/`opencode` 命令名规范化为 `ymcode`，允许品牌命令改写；`ymcode-docs/SKILL.md` 因删除旧 vendor schema URL 有显式代码差异允许项，正文与描述仍照常检查。
 - `script/check-prompts.ts`：54 个 `.txt` 的代码围栏、行内代码、URL、受保护路径/锚点、中文正文。
 - `script/i18n-audit.ts`：启发式扫描 UI 硬编码字符串，输出 `docs/verification/i18n-audit.txt`；有误报，只作线索。
 

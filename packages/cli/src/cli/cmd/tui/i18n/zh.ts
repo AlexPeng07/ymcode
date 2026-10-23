@@ -347,6 +347,28 @@ export const dict = {
   "tui.skill.webapp-testing.when": "要验证本地网页功能或排查前端交互问题时",
   "tui.skill.webapp-testing.slash": "网页测试",
 
+  // ymcode first-party workflow skills
+  "tui.skill.chinese-writing.title": "中文写作",
+  "tui.skill.chinese-writing.description": "写周报、邮件、演讲稿、简历、会议纪要和公文，并把口语草稿整理成正式中文",
+  "tui.skill.chinese-writing.when": "要写中文材料或把草稿改成正式中文时",
+  "tui.skill.chinese-writing.slash": "中文写作",
+  "tui.skill.chinese-office-format.title": "中文办公排版",
+  "tui.skill.chinese-office-format.description": "公文格式、中文标点、字体字号、行距和页边距规范",
+  "tui.skill.chinese-office-format.when": "要按公文或正式文档规范排版时",
+  "tui.skill.chinese-office-format.slash": "办公排版",
+  "tui.skill.debugging.title": "系统化调试",
+  "tui.skill.debugging.description": "复现、缩小范围、插桩验证、最小修复并补回归测试",
+  "tui.skill.debugging.when": "遇到 bug、报错、偶发故障或性能回退时",
+  "tui.skill.debugging.slash": "系统调试",
+  "tui.skill.code-review-cn.title": "代码审查",
+  "tui.skill.code-review-cn.description": "按严重级别检查正确性、安全、并发、测试与可维护性",
+  "tui.skill.code-review-cn.when": "要审查 PR、提交或本地改动时",
+  "tui.skill.code-review-cn.slash": "代码审查",
+  "tui.skill.git-workflow.title": "Git 工作流",
+  "tui.skill.git-workflow.description": "分支命名、提交信息、PR 描述、冲突处理、回滚与发布规范",
+  "tui.skill.git-workflow.when": "要提交代码、开 PR 或处理分支冲突时",
+  "tui.skill.git-workflow.slash": "Git工作流",
+
   // Language switching
   "tui.command.language.switch.title": "切换语言",
   "tui.command.language.switch.description": "更改显示语言",

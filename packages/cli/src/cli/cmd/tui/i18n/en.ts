@@ -336,6 +336,29 @@ export const dict: Record<string, string> = {
     "Test local web apps with Playwright: verify frontend behavior, debug UI issues, capture screenshots, and read browser logs",
   "tui.skill.webapp-testing.when": "verifying local web behavior or debugging frontend interactions",
 
+  // ymcode first-party workflow skills
+  "tui.skill.chinese-writing.title": "Chinese writing",
+  "tui.skill.chinese-writing.description":
+    "Write weekly reports, emails, speeches, resumes, meeting notes, and formal Chinese documents",
+  "tui.skill.chinese-writing.when": "writing Chinese materials or turning a draft into formal Chinese",
+  "tui.skill.chinese-office-format.title": "Chinese office formatting",
+  "tui.skill.chinese-office-format.description":
+    "Apply Chinese official-document formatting: punctuation, fonts, line spacing, margins, and GB/T 9704 layout",
+  "tui.skill.chinese-office-format.when":
+    "formatting a document to Chinese official or formal standards",
+  "tui.skill.debugging.title": "Debugging",
+  "tui.skill.debugging.description":
+    "Debug systematically: reproduce, narrow, instrument, test hypotheses, fix minimally, and add regression tests",
+  "tui.skill.debugging.when": "hitting a bug, error, flaky failure, or performance regression",
+  "tui.skill.code-review-cn.title": "Code review",
+  "tui.skill.code-review-cn.description":
+    "Review diffs by severity for correctness, security, concurrency, tests, and maintainability",
+  "tui.skill.code-review-cn.when": "reviewing a PR, commit, or local changes",
+  "tui.skill.git-workflow.title": "Git workflow",
+  "tui.skill.git-workflow.description":
+    "Branch naming, commit messages, PR descriptions, conflict handling, rollback, and releases",
+  "tui.skill.git-workflow.when": "committing, opening a PR, or resolving branch conflicts",
+
   // Language switching
   "tui.command.language.switch.title": "Switch language",
   "tui.command.language.switch.description": "Change the display language",
