@@ -54,11 +54,12 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   `release.yml` 在 tag 上跑完门禁、测试、macOS 构建并自动上传 12 个 asset。
   本版包含 4 项修正：无凭据时不再默认 Xiaomi 模型、侧栏品牌改为 ymcode、
   删除不可用的 `/login` 与 MiMo 登录对话框、默认主题与 logo/agent 强调色统一为蓝色。
-- **v0.2.2 / v0.2.3 / v0.2.4 已发布**（2026-10-23，Actions 自动发布）：
+- **v0.2.2 / v0.2.3 / v0.2.4 / v0.2.5 已发布**（2026-10-23/24，Actions 自动发布）：
   v0.2.2 彻底移除 mimocode 兼容层；v0.2.3 新增 15 个 Anthropic 官方技能、
   技能中心与插件面板汉化、补齐斜杠命令描述，并支持 TTF/PDF/GZ 二进制技能资源；
   v0.2.4 新增中文写作、中文办公排版、系统化调试、代码审查、Git 工作流 5 个技能，
-  内置技能达到 44 个。三次发布均为 12 个平台 asset。
+  内置技能达到 44 个；v0.2.5 修复 Windows 记忆写路径守卫、隔离非 Git 项目记忆，
+  新增 `ymcode memory doctor`。四次发布均为 12 个平台 asset。
 - **与 mimocode 彻底解耦**：不再启动时迁移旧数据，不提供 `ymcode migrate`，
   不桥接 `MIMOCODE_*` 环境变量，也不回退读取 `.mimocode` 项目配置；内置文档技能
   已把 CLI 名称统一为 `ymcode`。运行时只认 ymcode 自己的目录。
