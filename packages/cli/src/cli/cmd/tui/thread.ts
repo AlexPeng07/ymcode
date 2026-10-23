@@ -1,4 +1,3 @@
-import "@/env/legacy-boot"
 import { cmd } from "@/cli/cmd/cmd"
 import { tui } from "./app"
 import { Rpc } from "@/util"

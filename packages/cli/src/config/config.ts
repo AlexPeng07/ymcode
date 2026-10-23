@@ -861,8 +861,8 @@ export const layer = Layer.effect(
         }
 
         for (const dir of directories) {
-          if (dir.endsWith(".ymcode") || dir.endsWith(".mimocode") || dir === Flag.YMCODE_CONFIG_DIR) {
-            for (const file of ["mimocode.json", "mimocode.jsonc", "ymcode.json", "ymcode.jsonc"]) {
+          if (dir.endsWith(".ymcode") || dir === Flag.YMCODE_CONFIG_DIR) {
+            for (const file of ["ymcode.json", "ymcode.jsonc"]) {
               const source = path.join(dir, file)
               log.debug(`loading config from ${source}`)
               yield* merge(source, yield* loadFile(source, modelsOnly))

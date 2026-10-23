@@ -73,21 +73,16 @@ function up(start: string) {
 }
 
 async function configCandidates(directory: string) {
-  const found: { file: string; legacy: boolean }[] = []
+  const found: { file: string }[] = []
   for (const dir of up(directory)) {
-    for (const [folder, legacy] of [
-      [".ymcode", false],
-      [".mimocode", true],
-    ] as const) {
-      for (const name of ["ymcode.jsonc", "ymcode.json", "mimocode.jsonc", "mimocode.json"]) {
-        const file = path.join(dir, folder, name)
-        if (await exists(file)) found.push({ file, legacy })
-      }
+    for (const name of ["ymcode.jsonc", "ymcode.json"]) {
+      const file = path.join(dir, ".ymcode", name)
+      if (await exists(file)) found.push({ file })
     }
   }
   for (const name of ["ymcode.jsonc", "ymcode.json", "config.json"]) {
     const file = path.join(Global.Path.config, name)
-    if (await exists(file)) found.push({ file, legacy: false })
+    if (await exists(file)) found.push({ file })
   }
   return found
 }
@@ -233,8 +228,7 @@ export const DoctorCommand = cmd({
         add({
           section: "配置",
           name: entry.file,
-          status: entry.legacy ? "info" : "ok",
-          detail: entry.legacy ? "旧版 mimocode 项目配置（兼容回退）" : undefined,
+          status: "ok",
         })
       }
     }
@@ -401,21 +395,7 @@ export const DoctorCommand = cmd({
         section: "数据",
         name: "会话数据库尚未创建",
         status: "info",
-        detail: "首次运行时会自动创建并迁移",
-      })
-    }
-
-    // --- legacy migration --------------------------------------------------
-    const legacyHome = path.join(Global.Path.home, ".mimocode")
-    if (await exists(legacyHome)) {
-      add({
-        section: "迁移",
-        name: "检测到旧版 mimocode 目录",
-        status: "info",
-        detail: `${legacyHome}；新版使用 ~/.ymcode，自动迁移只在目标目录不存在时发生`,
-        fix: await exists(path.join(Global.Path.home, ".ymcode"))
-          ? "~/.ymcode 已存在，如需保留旧目录中的 command/skills 请手动复制"
-          : undefined,
+        detail: "首次运行时会自动创建",
       })
     }
 

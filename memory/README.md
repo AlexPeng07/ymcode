@@ -12,13 +12,12 @@
 4. [instincts.md](instincts.md) — instincts 设计、配置、命令、测试
 5. [localization.md](localization.md) — i18n 架构、覆盖范围、校验与剩余项
 6. [build.md](build.md) — 工具链、构建命令、离线构建、Windows 坑
-7. [migration.md](migration.md) — mimocode → ymcode 数据迁移
-8. [verification.md](verification.md) — 门禁与端到端证据、已知失败
-9. [decisions.md](decisions.md) — 关键决策与理由（ADR 风格）
-10. [brand-boundary.md](brand-boundary.md) — 哪些名字该改、哪些必须保留
-11. [next-steps.md](next-steps.md) — 按优先级排列的后续工作
-12. [handoff.json](handoff.json) — 机器可读摘要
-13. [continue-prompt.md](continue-prompt.md) — 可直接粘贴给下一个 harness 的提示词
+7. [verification.md](verification.md) — 门禁与端到端证据、已知失败
+8. [decisions.md](decisions.md) — 关键决策与理由（ADR 风格）
+9. [brand-boundary.md](brand-boundary.md) — 哪些名字该改、哪些必须保留
+10. [next-steps.md](next-steps.md) — 按优先级排列的后续工作
+11. [handoff.json](handoff.json) — 机器可读摘要
+12. [continue-prompt.md](continue-prompt.md) — 可直接粘贴给下一个 harness 的提示词
 
 ## 使用约定
 

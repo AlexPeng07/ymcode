@@ -1,4 +1,3 @@
-import "@/env/legacy-boot"
 import { Installation } from "@/installation"
 import { Server } from "@/server/server"
 import { Log } from "@/util"

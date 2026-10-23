@@ -28,23 +28,11 @@ export const directories = Effect.fn("ConfigPaths.directories")(function* (direc
     Global.Path.config,
     ...(!Flag.YMCODE_DISABLE_PROJECT_CONFIG
       ? yield* afs.up({
-          targets: [".mimocode"],
-          start: directory,
-          stop: worktree,
-        })
-      : []),
-    ...(!Flag.YMCODE_DISABLE_PROJECT_CONFIG
-      ? yield* afs.up({
           targets: [".ymcode"],
           start: directory,
           stop: worktree,
         })
       : []),
-    ...(yield* afs.up({
-      targets: [".mimocode"],
-      start: Global.Path.home,
-      stop: Global.Path.home,
-    })),
     ...(yield* afs.up({
       targets: [".ymcode"],
       start: Global.Path.home,

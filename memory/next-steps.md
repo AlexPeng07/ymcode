@@ -34,6 +34,9 @@
   构建与 12 平台发布。包含默认模型、侧栏品牌、移除 `/login`、整体转蓝四项修正。
   注意：用 PowerShell `Set-Content -Encoding utf8` 改 JSON 会写入 BOM，导致 CI 的
   Format/packLibrary 测试失败；改包清单时用无 BOM 的 UTF-8 写入。
+- **与 mimocode 彻底解耦**（v0.2.2）：删除启动时的旧数据迁移、`ymcode migrate` 命令、
+  `MIMOCODE_*` 环境变量桥、`.mimocode` 项目配置回退与 doctor 旧版目录检测；
+  内置 `ymcode-docs` 技能不再把 CLI 写成 `mimo`，并移除失效的 Xiaomi schema 链接。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

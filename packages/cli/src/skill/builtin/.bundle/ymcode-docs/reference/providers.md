@@ -23,7 +23,6 @@
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "custom/MODEL_ID",
   "provider": {
     "custom": {
@@ -59,7 +58,6 @@
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "custom-anthropic/MODEL_ID",
   "provider": {
     "custom-anthropic": {

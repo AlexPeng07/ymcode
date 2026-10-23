@@ -77,7 +77,6 @@
     "observerPrompt": "packages/cli/src/agent/prompt/instinct-observer.txt",
     "injection": "packages/cli/src/session/llm.ts",
     "checkpoint": "packages/cli/src/session/checkpoint.ts",
-    "migration": "packages/cli/src/installation/migrate.ts",
     "i18n": "packages/cli/src/cli/cmd/tui/i18n/zh.ts",
     "brandCheck": "script/check-brand.ts"
   },

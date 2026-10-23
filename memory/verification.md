@@ -94,12 +94,7 @@ instinct review
   -> promoted=none; decayed=0
 ```
 
-迁移 E2E：
-
-- 旧 `mimocode.json`/`mimocode.db`/memory 复制到新目录。
-- 新 `ymcode.json`/`ymcode.db` 存在。
-- 旧文件仍存在。
-- `.migrated-from-mimocode` 存在。
+旧版迁移已移除（v0.2.2 起 ymcode 只使用自己的目录，不读取 mimocode）。
 
 ## 已知失败/未验证
 

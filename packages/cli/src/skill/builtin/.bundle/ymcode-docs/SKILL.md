@@ -9,7 +9,7 @@ description: "当用户询问 ymcode 自身时使用：功能、TUI 或 CLI 命�
 
 ## 身份
 
-ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具，作为 OpenCode 的分支构建。在 OpenCode 核心能力（多提供方、TUI、LSP、MCP、插件）之外，它还提供：持久记忆、智能上下文管理、子代理编排、目标驱动的自主循环、compose-next 端到端交付、Dynamic Workflows，以及通过 dream/distill 的自我改进。
+ymcode（CLI 可执行文件 `ymcode`）是带终端 UI 的智能体编程工具，作为 OpenCode 的分支构建。在 OpenCode 核心能力（多提供方、TUI、LSP、MCP、插件）之外，它还提供：持久记忆、智能上下文管理、子代理编排、目标驱动的自主循环、compose-next 端到端交付、Dynamic Workflows，以及通过 dream/distill 的自我改进。
 
 ## 功能地图
 
@@ -23,7 +23,7 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 | **目标 / 停止条件** | 裁判模型在智能体停止前验证停止条件 | `/goal` |
 | **Compose 模式** | 结构化的 规格→交付 生命周期；入口是 `compose-next` 技能——澄清、规格、实现、验证、审查、收尾。不要与 plan 模式组合使用 | `/compose-next`（见 @reference/guide.md） |
 | **视觉模式** | `vivid`（默认：星空、流星、logo 特效、活动动画）与 `minimal`（安静视觉、稳定活动指示）；与动画覆盖开关相互独立 | `/vivid` 或 `ctrl+p` 中的视觉模式选项 |
-| **语音输入** | 流式 ASR（TenVAD + MiMo ASR）；需要 `sox` | `/voice` |
+| **语音输入** | 流式语音输入（TenVAD），需要 `sox` 与可用的 ASR 模型 | `/voice` |
 | **Dream** | 把近期轨迹整合进项目记忆 | `/dream` |
 | **Distill** | 把重复的手工工作流打包成技能/子代理/命令 | `/distill` |
 | **定时提示词** | Cron/loop：按计划或重复循环注入提示词（UTC，5 字段） | `cron` 工具 · `/loop` · `/loops` |
@@ -39,11 +39,10 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 - **项目级**：`.ymcode/ymcode.json`（或 `.jsonc`）
 - **全局**：`~/.config/ymcode/ymcode.jsonc`（新文件首选）或 `ymcode.json`
 
-加上 `"$schema": "https://mimo.xiaomi.com/ymcode/config.json"` 以获得编辑器校验。所有顶层键都是可选的；项目配置合并覆盖全局配置。
+所有顶层键都是可选的；项目配置合并覆盖全局配置。
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "provider/model",
   "permission": { "external_directory": { "/tmp/**": "allow" } }
 }
@@ -78,7 +77,7 @@ ymcode（CLI 可执行文件 `mimo`）是带终端 UI 的智能体编程工具�
 
 ## 命令
 
-`mimo` 子命令（`mcp`、`run`、`agent`、`models`、`providers`、`upgrade`、`stats`、`export`/`import`、`github`/`pr`、`serve`、……）与斜杠命令（`/goal`、`/dream`、`/distill`、`/vivid`、`/voice`、`/loop`、`/connect`、`/<skill-name>`）记录在 @reference/commands.md 中。
+`ymcode` 子命令（`mcp`、`run`、`agent`、`models`、`providers`、`upgrade`、`stats`、`export`/`import`、`github`/`pr`、`serve`、……）与斜杠命令（`/goal`、`/dream`、`/distill`、`/vivid`、`/voice`、`/loop`、`/connect`、`/<skill-name>`）记录在 @reference/commands.md 中。
 
 ## 帮助用户配置
 

@@ -55,7 +55,7 @@
 | `/mcps` | — | 显示 MCP 服务器状态 |
 | `/variants` | — | 切换模型变体；仅在存在变体时显示 |
 | `/connect` | — | 连接或登录模型提供方 |
-| `/logout` | — | 登出小米 MiMo |
+| `/logout` | — | 登出当前服务商 |
 | `/org` | `/orgs`, `/switch-org` | 切换组织；在存在多个组织时显示 |
 | `/status` | — | 显示系统与会话状态 |
 | `/worktree` | `/wt` | 列出并切换工作树 |
@@ -77,7 +77,7 @@
 | `/editor` | 在外部编辑器中编辑当前提示词 |
 | `/skills` | 浏览并选择可用技能 |
 | `/revoke-consent` | 撤销对免费服务的同意 |
-| `/voice` | 切换流式语音输入（需要 `sox` 与 MiMo API Key） |
+| `/voice` | 切换流式语音输入（需要 `sox` 与可用的 ASR 模型） |
 | `/voice-send` | 允许语音控制在你说「发送」/ "send it" 时提交（ASR 始终负责听写） |
 | `/voice-control` | 切换语音控制 |
 
@@ -136,4 +136,4 @@
 ## 备注
 
 - web 命令当前已禁用；TUI 是受支持的界面。
-- 语音 ASR（`ymcode-v2.5-asr`）仅限 MiMo 平台；语音控制（`ymcode-v2.5`）也可通过 `voice` 配置在 OpenRouter 及兼容中继上运行（见 config.md 与 README 的语音章节）。
+- 语音 ASR 默认使用 `xiaomi/mimo-v2.5-asr`；可通过 `voice.asr_model` 指向其他兼容服务，语音控制模型同理。

@@ -22,14 +22,8 @@
 
 - `NOTICE`、`UPSTREAM.md`、`LICENSE`（归属）
 - `docs/upstream/`（上游 README 快照）
-- `memory/`（交接文档会提到旧路径）
-- `packages/cli/src/env/legacy.ts`（旧环境变量兼容）
-- `packages/cli/src/installation/migrate.ts`（旧数据迁移）
-- `packages/cli/src/cli/cmd/migrate.ts`、`migrate.test.ts`（迁移命令/测试）
-- `packages/cli/src/config/paths.ts`、`config/config.ts`（`.mimocode`/`mimocode.json` 回退）
-- `packages/cli/src/cli/cmd/uninstall.ts`（旧安装检测）
-- `README.md`（说明迁移路径）
-- 个别测试/外部 provider fixture
+- `docs/superpowers/`、`memory/`（历史设计与交接记录）
+- 个别外部 provider fixture
 
 允许清单：`script/brand-allowlist.json`。每条必须有 reason；不要加整目录通配。
 
@@ -39,7 +33,7 @@
 bun run check:brand
 ```
 
-扫描第一方 token：`@mimo-ai/`、`MIMOCODE_*`、`mimocode`、`MiMoCode`、`MiMo Code`、`MiMo-Code`、`mimo.js/exe`、`mimo <命令>`。
+扫描第一方 token：`@mimo-ai/`、`MIMOCODE_*`、`mimocode`、`MiMoCode`、`MiMo Code`、`MiMo-Code`、`mimo.js/exe`、`mimo <命令>`。运行时与文档中不应再出现旧 harness 名称；Xiaomi provider/model 名称属于外部名称，保留。
 
 ## 改名时不要做的事
 

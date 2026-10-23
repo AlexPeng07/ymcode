@@ -41,6 +41,9 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   `release.yml` 在 tag 上跑完门禁、测试、macOS 构建并自动上传 12 个 asset。
   本版包含 4 项修正：无凭据时不再默认 Xiaomi 模型、侧栏品牌改为 ymcode、
   删除不可用的 `/login` 与 MiMo 登录对话框、默认主题与 logo/agent 强调色统一为蓝色。
+- **与 mimocode 彻底解耦**：不再启动时迁移旧数据，不提供 `ymcode migrate`，
+  不桥接 `MIMOCODE_*` 环境变量，也不回退读取 `.mimocode` 项目配置；内置文档技能
+  已把 CLI 名称统一为 `ymcode`。运行时只认 ymcode 自己的目录。
 
 未验证/未完成：
 
@@ -54,8 +57,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - 已发布的 `packages/cli/migration/*/migration.sql` 不再修改；新 schema 用新迁移目录。
 - 第一方标识用 ymcode；Xiaomi MiMo provider/model、opencode 上游、`.opencode` 兼容根、第三方品牌保留。
 - 代码标识符/内部日志英文；用户可见文案中文。
-- 运行时数据目录：`~/.config/ymcode`、`~/.local/share/ymcode`、`~/.ymcode`；项目配置 `.ymcode/`。
-- 首次启动自动迁移旧 mimocode 数据；只复制，不删除旧目录。
+- 运行时数据目录完全独立：只使用 `~/.config/ymcode`、`~/.local/share/ymcode`、`~/.ymcode`，不读取或迁移旧 mimocode 内容；项目配置 `.ymcode/`。
 
 ## 快速开始
 
@@ -89,7 +91,6 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 - [instincts.md](instincts.md)
 - [localization.md](localization.md)
 - [build.md](build.md)
-- [migration.md](migration.md)
 - [verification.md](verification.md)
 - [decisions.md](decisions.md)
 - [brand-boundary.md](brand-boundary.md)

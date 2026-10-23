@@ -53,11 +53,9 @@ packages/cli/src/skill/builtin/  内置技能（.bundle）
 | 注入 active instincts | `packages/cli/src/session/llm.ts` |
 | checkpoint 成功后触发 | `packages/cli/src/session/checkpoint.ts` |
 | instincts 配置 schema | `packages/cli/src/config/config.ts` |
-| 迁移 | `packages/cli/src/installation/migrate.ts` |
-| 旧环境变量桥 | `packages/cli/src/env/legacy.ts` |
 | 全局路径 | `packages/shared/src/global.ts`、`packages/cli/src/global/index.ts` |
 | 数据库文件名 | `packages/cli/src/storage/db.ts` |
-| 配置发现/旧回退 | `packages/cli/src/config/paths.ts`、`config/config.ts` |
+| 配置发现 | `packages/cli/src/config/paths.ts`、`config/config.ts` |
 | i18n 字典 | `packages/cli/src/cli/cmd/tui/i18n/{en,zh}.ts` |
 | 语言上下文 | `packages/cli/src/cli/cmd/tui/context/language.tsx` |
 | 系统语言检测 | `packages/cli/src/cli/cmd/tui/util/system-locale.ts` |

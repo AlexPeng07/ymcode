@@ -8,7 +8,7 @@
 - 全局：`~/.config/ymcode/ymcode.jsonc` 或 `ymcode.json`（XDG 配置目录）。新安装会生成 `ymcode.jsonc`。
 - 额外的配置目录也会通过 `$YMCODE_CONFIG_DIR` 搜索。
 
-项目配置**覆盖**全局配置。始终包含 `"$schema": "https://mimo.xiaomi.com/ymcode/config.json"` 以获得校验。
+项目配置**覆盖**全局配置。
 
 ## 磁盘数据布局
 
@@ -35,7 +35,6 @@
 - `YMCODE_TEXT_TOOL_CALL_RETRY_LIMIT` — 模型把工具调用作为散文标记而非结构化调用发出时的重试次数（默认 2）。
 - `YMCODE_EXPERIMENTAL_CRON` — 定时提示词（cron/loop）；**默认开启**。`YMCODE_DISABLE_CRON` 在运行时关闭它。用 `YMCODE_LOOP_KEEPALIVE_BUDGET`（默认 1）与 `YMCODE_LOOP_KEEPALIVE_DELAY_S`（默认 1200）调整循环保活。
 - `YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY_HEURISTIC` — 基于形状的 bash 输出压缩以节省 token；默认关闭。
-- `YMCODE_MIMO_ONLY` — 纯 MiMo 模式：不继承 Claude Code 设置（CLAUDE.md、`~/.claude/CLAUDE.md`），不从环境读取提供方 API key，回退到 mimo-auto 模型。
 - **外部技能根目录** — 默认加载面为 `.ymcode` + 开放标准 `.agents`。品牌根目录需显式开启：`YMCODE_ENABLE_CLAUDE_CODE_SKILLS`、`YMCODE_ENABLE_CODEX_SKILLS`、`YMCODE_ENABLE_OPENCODE_SKILLS`。用 `YMCODE_DISABLE_AGENTS_SKILLS` 关闭 agents。外部扫描会跳过 `skills/` 下的点号路径段。
 - `YMCODE_ENABLE_CLAUDE_IMPORT` — 启动时自动导入 Claude Code 会话；默认关闭。设为 `true` 或 `1` 启用。手动导入会话仍可用；Codex 会话仅在显式请求时导入。
 - `YMCODE_DISABLE_BUILTIN_SKILLS`、`_PROJECT_CONFIG` — 功能开关。
@@ -63,7 +62,6 @@
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model_groups": {
     // string shorthand: the group IS its default model
     "lite": "anthropic/claude-haiku",
@@ -165,7 +163,6 @@
 
 ```jsonc
 {
-  "$schema": "https://mimo.xiaomi.com/ymcode/config.json",
   "model": "anthropic/claude-opus-4-8",
   "model_groups": { "lite": "anthropic/claude-haiku" },
   "dream": { "auto": true, "interval_days": 3 },

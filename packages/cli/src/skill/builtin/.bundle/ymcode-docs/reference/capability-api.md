@@ -16,7 +16,7 @@
 需要*固定*端口时，传入网络标志。那是显式情形，行为一如既往，在回环上无需凭据——SSH 下的 `ymcode attach` 用的就是它：
 
 ```bash
-mimo --port 4096                 # TUI plus a listener on a port you chose
+ymcode --port 4096               # TUI plus a listener on a port you chose
 ymcode serve --port 4096           # headless, same endpoints
 ```
 

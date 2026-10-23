@@ -56,7 +56,7 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe --v
 YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe instinct list
 ```
 
-- 首次启动会自动迁移旧 mimocode 数据（复制）。
+- 数据目录与旧 mimocode 完全隔离；启动时不读取、不迁移任何旧目录。
 - 隔离数据：`YMCODE_HOME=/tmp/example`。
 - 强制语言：`YMCODE_LOCALE=zh` / `YMCODE_LOCALE=en`。
 
@@ -66,7 +66,7 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 .ymcode/                 项目级配置（新）
 ~/.config/ymcode         全局配置
 ~/.local/share/ymcode    数据/记忆/DB
-~/.ymcode                安装目录（旧 ~/.mimocode 迁移）
+~/.ymcode                安装目录
 _upstream_mimo/          上游只读快照（gitignore）
 .scratch/                构建临时文件（gitignore）
 packages/cli/dist/       构建产物（gitignore）

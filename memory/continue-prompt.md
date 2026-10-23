@@ -17,13 +17,12 @@
 - 不改已发布的 packages/cli/migration/*/migration.sql；新 schema 用新迁移目录。
 - 第一方标识用 ymcode；Xiaomi MiMo provider/model、opencode 上游、.opencode 兼容根、第三方品牌保留。
 - 代码标识符/内部日志英文；用户可见文案中文。
-- 运行时数据目录 ~/.config/ymcode、~/.local/share/ymcode、~/.ymcode；项目配置 .ymcode/。
-- 旧 mimocode 数据只复制迁移，不删除旧目录。
+- 运行时数据目录完全独立：只使用 ~/.config/ymcode、~/.local/share/ymcode、~/.ymcode；项目配置 .ymcode/。
 - 不要把 token/凭据写入仓库或打印到会话；真实 provider 冒烟前先向用户确认凭据。
 - 不要用“跳过测试”冒充通过；区分功能失败和环境清理失败。
 
 当前已完成，不要重做：
-- 改名 ymcode、数据迁移、instincts 核心与接线、70 个技能/54 个提示词汉化、核心 TUI/CLI 汉化、Windows 构建。
+- 改名 ymcode、instincts 核心与接线、70 个技能/54 个提示词汉化、核心 TUI/CLI 汉化、Windows 构建。
 - 代码 HEAD（交接时）3dbd34b；二进制已构建。
 
 先跑门禁确认基线：

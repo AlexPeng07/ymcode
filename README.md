@@ -10,7 +10,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 - **记忆体系**：沿用 `MEMORY.md`、`checkpoint.md`、`notes.md`、任务 progress、SQLite FTS5、`/dream`、`/distill`。
 - **直觉规则**：带证据、置信度、状态（candidate / active / retired）的 instincts；支持晋升、降级、衰减、按预算注入。
 - **全中文内容**：核心 TUI、内置技能正文、agent 提示词、工具描述与用户可见错误为中文；代码标识符、内部日志、命令、路径保持英文。
-- **数据迁移**：首次启动把旧 mimocode 配置、记忆与数据库复制到 ymcode 目录，旧目录不删除。
+- **独立数据目录**：只使用 ymcode 自己的配置与数据目录，不读取、不迁移旧 mimocode 的任何内容。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
 
 ## 安装
@@ -25,7 +25,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | ba
 powershell -ep Bypass -c "irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex"
 ```
 
-指定版本：Unix 追加 `-s -- --version 0.2.0`，Windows 设置 `$env:VERSION`。
+指定版本：Unix 追加 `-s -- --version 0.2.2`，Windows 设置 `$env:VERSION`。
 镜像或私有托管：设置 `YMCODE_RELEASE_BASE`，并可用 `YMCODE_RELEASE_LATEST_URL` 指向返回 `tag_name` JSON 或纯版本文本的地址。`ymcode upgrade` 会从同一发布通道获取最新版本。
 
 ## 构建
@@ -59,7 +59,6 @@ ymcode run "..."       # 非交互执行
 ymcode serve           # headless server
 ymcode doctor          # 检查环境、配置与凭据
 ymcode instinct list   # 查看直觉规则
-ymcode migrate --dry-run
 ```
 
 隔离测试时设置 `YMCODE_HOME=/tmp/example`。强制界面语言可用 `YMCODE_LOCALE=zh` 或 `YMCODE_LOCALE=en`。
@@ -68,8 +67,7 @@ ymcode migrate --dry-run
 
 - 配置：`~/.config/ymcode`
 - 数据与记忆：`~/.local/share/ymcode`（数据库 `ymcode.db`，记忆在 `memory/`）
-- 项目级配置：`.ymcode/`（只读回退 `.mimocode/`）
-- 旧安装目录：`~/.mimocode`（迁移时复制到 `~/.ymcode`，不删除）
+- 项目级配置：`.ymcode/`
 
 ## 记忆与 instincts
 
@@ -84,8 +82,8 @@ ymcode migrate --dry-run
 
 ## 发布
 
-1. 让根 `package.json` 与 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.0`）。
-2. 提交后打 tag 并推送：`git tag v0.2.0 && git push origin main --tags`。
+1. 让 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.2`）。
+2. 提交后打 tag 并推送：`git tag v0.2.2 && git push origin main --tags`。
 
 `release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 
