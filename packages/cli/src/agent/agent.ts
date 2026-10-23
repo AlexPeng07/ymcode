@@ -151,7 +151,7 @@ export const layer = Layer.effect(
         const agents: Record<string, Info> = {
           build: {
             name: "build",
-            color: "#fb8147",
+            color: "#38bdf8",
             description: "根据配置的权限执行工具。",
             options: {},
             permission: Permission.merge(

@@ -930,7 +930,7 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; animated?: boolean;
     }
   }
 
-  const YMCODE_ORANGE = RGBA.fromInts(251, 129, 71)
+  const YMCODE_BLUE = RGBA.fromInts(56, 189, 248)
   const YMCODE_GRAY = RGBA.fromInts(160, 160, 160)
 
   return (
@@ -958,7 +958,7 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; animated?: boolean;
           return (
             <box flexDirection="row" gap={1}>
               <box flexDirection="row">
-                {renderLine(line, index(), props.ink ?? YMCODE_ORANGE, true, 0, frame(), dusk(), idleState())}
+                {renderLine(line, index(), props.ink ?? YMCODE_BLUE, true, 0, frame(), dusk(), idleState())}
               </box>
               <box flexDirection="row">
                 {renderLine(
