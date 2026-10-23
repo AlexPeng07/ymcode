@@ -32,8 +32,11 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   删除、review 与项目/全局切换；数据经 `/instinct` HTTP 路由与重新生成的 SDK 读取。
 - 快捷记忆：会话中 `/remember <规则>` 写入带会话证据的候选；`POST /instinct` 同时支持脚本调用。
 - 发布通道：安装脚本、npm launcher 与 `ymcode upgrade` 默认从 GitHub Releases 取二进制；
-  FDS/npm 发布步骤由 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM` 仓库变量控制。仓库当前仍为
-  private，匿名安装前需转 public 或配置 `YMCODE_RELEASE_BASE` 镜像。
+  FDS/npm 发布步骤由 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM` 仓库变量控制。
+  仓库已公开，匿名安装可用；受限网络可配置 `YMCODE_RELEASE_BASE` 镜像。
+- **v0.2.0 已发布**（2026-10-23）：仓库已公开，12 个平台 asset 上传到 GitHub Releases；
+  Windows 安装脚本实测下载并运行 `ymcode --version` 返回 `0.2.0`。Actions 额度未恢复，
+  本次为 C: 盘本机构建 + `gh release create` 手动发布。
 
 未验证/未完成：
 

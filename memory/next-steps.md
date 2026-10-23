@@ -27,8 +27,9 @@
   无参数时弹出输入框；随后可在 `/instincts` 中一键晋升。
 - **发布通道切到 GitHub Releases**：`install` / `install.ps1`、npm launcher 与
   `ymcode upgrade` 默认从 `github.com/AlexPeng07/ymcode/releases` 下载；FDS/npm 发布
-  改为可选（仓库变量 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM=1`）。仓库需转 public
-  或配置 `YMCODE_RELEASE_BASE` 镜像后才能匿名安装。
+  改为可选（仓库变量 `YMCODE_PUBLISH_FDS` / `YMCODE_PUBLISH_NPM=1`）。
+- **v0.2.0 已发布**：12 平台 asset 已上传，Windows 安装脚本实测可用；Actions 恢复前，
+  按 memory/build.md 的 C: 盘本机构建 + `gh release create` 流程手动发布。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

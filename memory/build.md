@@ -72,6 +72,37 @@ _upstream_mimo/          上游只读快照（gitignore）
 packages/cli/dist/       构建产物（gitignore）
 ```
 
+## 跨平台发布构建（Windows 本机）
+
+GitHub Actions 额度不可用时，可在本机构建全部 12 个平台并手动创建 Release。注意 Bun 在
+Windows 上**不能从 F: 盘交叉编译**（报 `Failed to extract executable for 'bun-linux-*'`），
+把构建目录放到 C: 盘即可：
+
+```powershell
+# 1. 版本号一致后提交并打 tag
+git tag v0.2.0
+git push origin main --tags
+
+# 2. 复制源码到 C: 盘（排除 node_modules/dist/.git 等），并把各层 node_modules 也复制过去
+robocopy F:\AllProjects\ymcode C:\Users\<user>\ymcode-release /E /XD node_modules dist _upstream_mimo .upstream .scratch .trae .git .ymcode
+robocopy F:\AllProjects\ymcode\node_modules C:\Users\<user>\ymcode-release\node_modules /E
+robocopy F:\AllProjects\ymcode\packages\cli\node_modules C:\Users\<user>\ymcode-release\packages\cli\node_modules /E
+
+# 3. 在 C: 副本构建全部平台（--archive 用 tar -a 生成 zip，无需 zip.exe）
+cd C:\Users\<user>\ymcode-release\packages\cli
+$env:YMCODE_VERSION="0.2.0"; $env:YMCODE_CHANNEL="latest"
+$env:MODELS_DEV_API_JSON="C:\Users\<user>\.cache\ymcode\models.json"
+bun run script/build.ts --archive
+
+# 4. 用产物创建 Release
+$files = Get-ChildItem dist -File | Where-Object { $_.Extension -in ".zip", ".gz" } | Select-Object -ExpandProperty FullName
+gh release create v0.2.0 --verify-tag --title v0.2.0 --generate-notes $files
+```
+
+- 每个 archive 约 32–46 MB，共 ~500 MB。
+- GitHub Actions 恢复后可直接推 tag 走 `release.yml`；npm/FDS 由仓库变量控制。
+- 安装脚本按 AVX2 自动选择 `-baseline` 归档，asset 名必须与 `ymcode-<os>-<arch>[-baseline][-musl]` 完全一致。
+
 ## Windows 坑
 
 - 测试临时目录清理可能 `EBUSY`：fixture 已加 30 次重试；plugin 测试仍可能因模块缓存持有句柄失败，属于环境清理失败，不是功能失败。
