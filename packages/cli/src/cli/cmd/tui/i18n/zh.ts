@@ -1036,4 +1036,131 @@ export const dict = {
   "tui.go_upsell.description": "顶级开源模型，每月仅 $5 起。",
   "tui.go_upsell.dismiss": "不再显示",
   "tui.go_upsell.subscribe": "订阅",
+
+  // Sidebar panels
+  "tui.sidebar.context.title": "上下文",
+  "tui.sidebar.context.tokens": "{{tokens}} 个 token",
+  "tui.sidebar.context.used": "已使用 {{percent}}%",
+  "tui.sidebar.context.limit": "上限 {{limit}}",
+  "tui.sidebar.context.limit_of": "上限 {{limit}}，最大 {{hard}}",
+  "tui.sidebar.context.spent": "已花费 {{cost}}",
+  "tui.sidebar.goal.title": "目标",
+  "tui.sidebar.goal.judge": "评判：{{status}}",
+  "tui.sidebar.goal.status.error": "错误（已停止）",
+  "tui.sidebar.goal.status.met": "已达成",
+  "tui.sidebar.goal.status.impossible": "无法达成",
+  "tui.sidebar.goal.status.round": "第 {{attempt}} 轮 · 未达成",
+  "tui.sidebar.mcp.title": "MCP",
+  "tui.sidebar.tasks.title": "任务",
+  "tui.sidebar.tasks.fewer_done": "▾ 收起已完成",
+  "tui.sidebar.tasks.more_done": "▸ 还有 {{count}} 项已完成",
+  "tui.sidebar.todo.title": "待办",
+  "tui.sidebar.files.title": "修改的文件",
+  "tui.sidebar.lsp.title": "LSP",
+  "tui.sidebar.lsp.disabled": "已在设置中禁用 LSP",
+  "tui.sidebar.lsp.pending": "读取文件后将自动启用 LSP",
+  "tui.sidebar.footer.getting_started": "开始使用",
+  "tui.sidebar.footer.free_models": "ymcode 内置免费模型，可立即开始使用。",
+  "tui.sidebar.footer.providers": "可连接 75+ 家提供商以使用其他模型，包括 Claude、GPT、Gemini 等",
+  "tui.sidebar.footer.connect_provider": "连接提供商",
+  "tui.sidebar.mcp.active": "{{count}} 个已连接",
+  "tui.sidebar.mcp.errors": "{{count}} 个错误",
+  "tui.sidebar.mcp.connected": "已连接",
+  "tui.sidebar.mcp.pending": "等待批准",
+  "tui.sidebar.mcp.disabled": "已禁用",
+  "tui.sidebar.mcp.needs_auth": "需要认证",
+  "tui.sidebar.mcp.needs_client_id": "需要客户端 ID",
+
+  // Model picker
+  "tui.dialog.model.title": "选择模型",
+  "tui.dialog.model.favorites": "收藏",
+  "tui.dialog.model.recent": "最近使用",
+  "tui.dialog.model.popular": "热门提供商",
+  "tui.dialog.model.free": "免费",
+  "tui.dialog.model.add": "+ 添加模型",
+  "tui.dialog.model.connect_provider": "连接提供商",
+  "tui.dialog.model.favorite": "收藏",
+  "tui.dialog.model.add.id": "模型 ID",
+  "tui.dialog.model.add.id_placeholder": "网关模型 ID",
+  "tui.dialog.model.add.name": "显示名称",
+  "tui.dialog.model.add.name_placeholder": "显示在模型选择器中",
+
+  // Session list
+  "tui.dialog.session_list.title": "会话",
+  "tui.dialog.session_list.today": "今天",
+  "tui.dialog.session_list.confirm_delete": "再按一次 {{key}} 确认",
+  "tui.dialog.session_list.delete": "删除",
+  "tui.dialog.session_list.rename": "重命名",
+  "tui.dialog.session_list.new_workspace": "新建工作区",
+  "tui.dialog.session_list.delete_failed": "删除会话失败",
+  "tui.dialog.session_list.delete_workspace_failed": "删除工作区失败",
+  "tui.dialog.session_list.unknown_workspace": "未知",
+
+  // Message actions
+  "tui.dialog.message.title": "消息操作",
+  "tui.dialog.message.revert": "回退",
+  "tui.dialog.message.revert_desc": "撤销消息与文件改动",
+  "tui.dialog.message.copy": "复制",
+  "tui.dialog.message.copy_desc": "复制消息文本到剪贴板",
+  "tui.dialog.message.fork": "派生",
+  "tui.dialog.message.fork_desc": "创建一个新会话",
+
+  // Worktree picker
+  "tui.dialog.worktree.title": "工作树",
+  "tui.dialog.worktree.loading": "正在加载工作树...",
+  "tui.dialog.worktree.create": "+ 新建工作树",
+  "tui.dialog.worktree.switching": "正在切换工作树...",
+  "tui.dialog.worktree.creating": "正在创建工作树...",
+  "tui.dialog.worktree.create_failed": "创建工作树失败",
+  "tui.dialog.worktree.outside": "无法切换到 {{directory}}：该目录不在当前服务器的工作目录内",
+  "tui.dialog.worktree.switch_failed": "切换到 {{name}} 失败",
+  "tui.dialog.worktree.switched": "已切换到 {{name}}",
+
+  // Variant picker
+  "tui.dialog.variant.title": "选择变体",
+  "tui.dialog.variant.default": "默认",
+
+  // Workflow runs
+  "tui.dialog.workflows.title": "工作流",
+  "tui.dialog.workflows.empty": "（暂无工作流运行记录）",
+
+  // Workspace creation
+  "tui.dialog.workspace.new_title": "新建工作区",
+  "tui.dialog.workspace.creating_title": "正在创建工作区",
+  "tui.dialog.workspace.loading": "正在加载工作区...",
+  "tui.dialog.workspace.loading_desc": "正在获取可用的工作区适配器",
+  "tui.dialog.workspace.creating": "正在创建 {{type}} 工作区...",
+  "tui.dialog.workspace.creating_desc": "远程环境可能需要较长时间",
+  "tui.dialog.workspace.load_failed": "加载工作区适配器失败",
+  "tui.dialog.workspace.create_failed": "创建工作区失败",
+  "tui.dialog.workspace.create_failed_detail": "创建工作区失败：{{error}}",
+  "tui.workspace.create.failed_session": "创建工作区会话失败",
+  "tui.workspace.restore.failed": "恢复会话失败：{{error}}",
+  "tui.workspace.restore.no_response": "无响应",
+  "tui.workspace.restore.success": "会话已恢复",
+
+  // Subagents
+  "tui.dialog.subagent.title": "子代理",
+  "tui.dialog.subagent.empty": "（此会话暂无子代理）",
+  "tui.dialog.subagent.empty_desc": "通过 actor 工具创建一个",
+
+  // Console org
+  "tui.dialog.console_org.title": "切换组织",
+  "tui.dialog.console_org.loading": "正在加载组织...",
+  "tui.dialog.console_org.empty": "未找到组织",
+  "tui.dialog.console_org.switched": "已切换到 {{name}}",
+
+  // Prompt stash
+  "tui.dialog.stash.title": "暂存",
+  "tui.dialog.stash.delete": "删除",
+  "tui.dialog.stash.confirm_delete": "再按一次 {{key}} 确认",
+  "tui.dialog.stash.just_now": "刚刚",
+  "tui.dialog.stash.minutes_ago": "{{count}} 分钟前",
+  "tui.dialog.stash.hours_ago": "{{count}} 小时前",
+  "tui.dialog.stash.days_ago": "{{count}} 天前",
+  "tui.dialog.stash.lines": "约 {{count}} 行",
+
+  // Fork session
+  "tui.dialog.fork.title": "派生会话",
+  "tui.dialog.fork.full_session": "完整会话",
 } satisfies Partial<Record<Keys, string>>

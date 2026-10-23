@@ -9,7 +9,7 @@ import { renderSkillContent } from "./skill-content"
 import DESCRIPTION from "./skill.txt"
 
 const Parameters = z.object({
-  name: z.string().describe("The name of the skill from available_skills"),
+  name: z.string().describe("The name of the skill from the skills catalog"),
 })
 
 export const SkillTool = Tool.define(

@@ -181,9 +181,9 @@ export const layer = Layer.effect(
 
         return [
           "Skills available in this session:",
-          // the agents seem to ingest the information about skills a bit better if we present a more verbose
-          // version of them here and a less verbose version in tool description, rather than vice versa.
-          Skill.fmt(list, { verbose: true }),
+          // Compact name+description entries: the catalog sits in the cached
+          // system prefix, so every extra field is a fixed cost on each request.
+          Skill.fmt(list),
         ].join("\n")
       }),
 

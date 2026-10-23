@@ -36,7 +36,7 @@ function View(props: { api: TuiPluginApi }) {
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>
           <text fg={theme().text}>
-            <b>MCP</b>
+            <b>{t("tui.sidebar.mcp.title")}</b>
             <Show when={!open()}>
               <span style={{ fg: theme().textMuted }}>
                 {" "}

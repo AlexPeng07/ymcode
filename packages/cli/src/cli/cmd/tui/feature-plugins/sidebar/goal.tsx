@@ -1,10 +1,12 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@ymcode/plugin/tui"
 import { createMemo, Show } from "solid-js"
+import { useLanguage } from "@tui/context/language"
 
 const id = "internal:sidebar-goal"
 
 function View(props: { api: TuiPluginApi; session_id: string }) {
   const theme = () => props.api.theme.current
+  const t = useLanguage().t
   const goal = createMemo(() => props.api.state.session.goal(props.session_id))
   // The latest verdict (keyed by the most recently judged turn) drives the
   // status line; per-turn reasons live inline on the message stream.
@@ -21,10 +23,10 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
   const status = createMemo(() => {
     const v = latest()
     if (!v) return undefined
-    if (v.error) return { dot: theme().textMuted, label: "error (stopped)" }
-    if (v.ok) return { dot: theme().success, label: "met" }
-    if (v.impossible) return { dot: theme().error, label: "impossible" }
-    return { dot: theme().warning, label: `round ${v.attempt} · not met` }
+    if (v.error) return { dot: theme().textMuted, label: t("tui.sidebar.goal.status.error") }
+    if (v.ok) return { dot: theme().success, label: t("tui.sidebar.goal.status.met") }
+    if (v.impossible) return { dot: theme().error, label: t("tui.sidebar.goal.status.impossible") }
+    return { dot: theme().warning, label: t("tui.sidebar.goal.status.round", { attempt: v.attempt }) }
   })
 
   return (
@@ -32,7 +34,7 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
       <box>
         <box flexDirection="row" gap={1}>
           <text fg={theme().text}>
-            <b>Goal</b>
+            <b>{t("tui.sidebar.goal.title")}</b>
           </text>
         </box>
         <Show when={goal()?.condition}>
@@ -54,7 +56,7 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
                 •
               </text>
               <text fg={theme().textMuted} wrapMode="word">
-                Judge: {s().label}
+                {t("tui.sidebar.goal.judge", { status: s().label })}
               </text>
             </box>
           )}

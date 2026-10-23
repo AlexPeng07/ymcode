@@ -55,6 +55,7 @@ export function DialogSessionList() {
             sdk,
             sync,
             toast,
+            t,
             workspaceID,
           })
         }
@@ -77,7 +78,7 @@ export function DialogSessionList() {
           if (result.error) {
             toast.show({
               variant: "error",
-              title: "Failed to delete workspace",
+              title: t("tui.dialog.session_list.delete_workspace_failed"),
               message: errorMessage(result.error),
             })
             return false
@@ -100,6 +101,7 @@ export function DialogSessionList() {
                   sync,
                   project,
                   toast,
+                  t,
                   workspaceID,
                   sessionID: session.id,
                   done: list,
@@ -163,7 +165,7 @@ export function DialogSessionList() {
         let footer = ""
         if (Flag.YMCODE_EXPERIMENTAL_WORKSPACES) {
           if (x.workspaceID) {
-            let desc = "unknown"
+            let desc = t("tui.dialog.session_list.unknown_workspace")
             if (workspace) {
               desc = `${workspace.type}: ${workspace.name}`
             }
@@ -188,14 +190,14 @@ export function DialogSessionList() {
         const date = new Date(x.time.updated)
         let category = date.toDateString()
         if (category === today) {
-          category = "Today"
+          category = t("tui.dialog.session_list.today")
         }
         const isDeleting = toDelete() === x.id
         const status = sync.data.session_status?.[x.id]
         const isWorking = status?.type === "busy"
         return {
           title: isDeleting
-            ? `Press ${keybind.print("session_delete")} again to confirm`
+            ? t("tui.dialog.session_list.confirm_delete", { key: keybind.print("session_delete") })
             : isChildOfCurrent(x)
               ? `↳ ${x.title}`
               : isSystemSession(x)
@@ -216,7 +218,7 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
-      title="Sessions"
+      title={t("tui.dialog.session_list.title")}
       options={options()}
       skipFilter={true}
       current={currentSessionID()}
@@ -234,7 +236,7 @@ export function DialogSessionList() {
       keybind={[
         {
           keybind: keybind.all.session_delete?.[0],
-          title: "delete",
+          title: t("tui.dialog.session_list.delete"),
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
               const session = sessions().find((item) => item.id === option.value)
@@ -250,7 +252,7 @@ export function DialogSessionList() {
                   } else {
                     toast.show({
                       variant: "error",
-                      title: "Failed to delete session",
+                      title: t("tui.dialog.session_list.delete_failed"),
                       message: errorMessage(result.error),
                     })
                   }
@@ -263,7 +265,7 @@ export function DialogSessionList() {
                 } else {
                   toast.show({
                     variant: "error",
-                    title: "Failed to delete session",
+                    title: t("tui.dialog.session_list.delete_failed"),
                     message: errorMessage(err),
                   })
                 }
@@ -282,14 +284,14 @@ export function DialogSessionList() {
         },
         {
           keybind: keybind.all.session_rename?.[0],
-          title: "rename",
+          title: t("tui.dialog.session_list.rename"),
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
           },
         },
         {
           keybind: Keybind.parse("ctrl+w")[0],
-          title: "new workspace",
+          title: t("tui.dialog.session_list.new_workspace"),
           side: "right",
           disabled: !Flag.YMCODE_EXPERIMENTAL_WORKSPACES,
           onTrigger: () => {

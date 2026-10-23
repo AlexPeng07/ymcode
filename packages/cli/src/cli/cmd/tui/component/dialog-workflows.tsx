@@ -3,11 +3,13 @@ import { DialogSelect, type DialogSelectOption } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { createMemo, onCleanup, onMount } from "solid-js"
+import { useLanguage } from "@tui/context/language"
 
 export function DialogWorkflows() {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
+  const t = useLanguage().t
 
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
 
@@ -34,7 +36,7 @@ export function DialogWorkflows() {
   const options = createMemo<DialogSelectOption<string>[]>(() => {
     const list = runs()
     if (list.length === 0)
-      return [{ title: "(no workflow runs)", value: "empty", onSelect: (d) => d.clear() }]
+      return [{ title: t("tui.dialog.workflows.empty"), value: "empty", onSelect: (d) => d.clear() }]
     return list.map((r) => ({
       title: `${r.name}  ${r.status}  ${r.currentPhase ?? "-"}  ${r.succeeded}✓ ${r.failed}✗ ${r.running}⟳`,
       value: r.runID,
@@ -47,5 +49,5 @@ export function DialogWorkflows() {
     }))
   })
 
-  return <DialogSelect title="Workflows" options={options()} />
+  return <DialogSelect title={t("tui.dialog.workflows.title")} options={options()} />
 }

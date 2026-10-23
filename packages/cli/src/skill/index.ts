@@ -1,6 +1,5 @@
 import os from "os"
 import path from "path"
-import { pathToFileURL } from "url"
 import z from "zod"
 import { Duration, Effect, Layer, Context } from "effect"
 import { NamedError } from "@ymcode/shared/util/error"
@@ -365,24 +364,11 @@ export const defaultLayer = layer.pipe(
   Layer.provide(AppFileSystem.defaultLayer),
 )
 
-export function fmt(list: Info[], opts: { verbose: boolean }) {
+export function fmt(list: Info[]) {
   if (list.length === 0) return "No skills are currently available."
-  if (opts.verbose) {
-    return [
-      "<available_skills>",
-      ...list
-        .toSorted((a, b) => a.name.localeCompare(b.name))
-        .flatMap((skill) => [
-          "  <skill>",
-          `    <name>${skill.name}</name>`,
-          `    <description>${skill.description}</description>`,
-          `    <location>${pathToFileURL(skill.location).href}</location>`,
-          "  </skill>",
-        ]),
-      "</available_skills>",
-    ].join("\n")
-  }
 
+  // Compact name+description entries keep the fixed catalog small. The skill
+  // tool loads content by name, so catalog locations would only add tokens.
   return [
     "## Available Skills",
     ...list

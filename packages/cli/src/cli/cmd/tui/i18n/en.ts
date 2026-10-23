@@ -1030,4 +1030,131 @@ export const dict: Record<string, string> = {
   "tui.go_upsell.description": "best open-source models, starting at $5/month.",
   "tui.go_upsell.dismiss": "don't show again",
   "tui.go_upsell.subscribe": "subscribe",
+
+  // Sidebar panels
+  "tui.sidebar.context.title": "Context",
+  "tui.sidebar.context.tokens": "{{tokens}} tokens",
+  "tui.sidebar.context.used": "{{percent}}% used",
+  "tui.sidebar.context.limit": "limit {{limit}}",
+  "tui.sidebar.context.limit_of": "limit {{limit}} of {{hard}}",
+  "tui.sidebar.context.spent": "{{cost}} spent",
+  "tui.sidebar.goal.title": "Goal",
+  "tui.sidebar.goal.judge": "Judge: {{status}}",
+  "tui.sidebar.goal.status.error": "error (stopped)",
+  "tui.sidebar.goal.status.met": "met",
+  "tui.sidebar.goal.status.impossible": "impossible",
+  "tui.sidebar.goal.status.round": "round {{attempt}} · not met",
+  "tui.sidebar.mcp.title": "MCP",
+  "tui.sidebar.tasks.title": "Tasks",
+  "tui.sidebar.tasks.fewer_done": "▾ fewer done",
+  "tui.sidebar.tasks.more_done": "▸ {{count}} more done",
+  "tui.sidebar.todo.title": "Todo",
+  "tui.sidebar.files.title": "Modified Files",
+  "tui.sidebar.lsp.title": "LSP",
+  "tui.sidebar.lsp.disabled": "LSPs have been disabled in settings",
+  "tui.sidebar.lsp.pending": "LSPs will activate as files are read",
+  "tui.sidebar.footer.getting_started": "Getting started",
+  "tui.sidebar.footer.free_models": "ymcode includes free models so you can start immediately.",
+  "tui.sidebar.footer.providers": "Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc",
+  "tui.sidebar.footer.connect_provider": "Connect provider",
+  "tui.sidebar.mcp.active": "{{count}} active",
+  "tui.sidebar.mcp.errors": "{{count}} errors",
+  "tui.sidebar.mcp.connected": "Connected",
+  "tui.sidebar.mcp.pending": "Pending approval",
+  "tui.sidebar.mcp.disabled": "Disabled",
+  "tui.sidebar.mcp.needs_auth": "Needs auth",
+  "tui.sidebar.mcp.needs_client_id": "Needs client ID",
+
+  // Model picker
+  "tui.dialog.model.title": "Select model",
+  "tui.dialog.model.favorites": "Favorites",
+  "tui.dialog.model.recent": "Recent",
+  "tui.dialog.model.popular": "Popular providers",
+  "tui.dialog.model.free": "Free",
+  "tui.dialog.model.add": "+ Add model",
+  "tui.dialog.model.connect_provider": "Connect provider",
+  "tui.dialog.model.favorite": "Favorite",
+  "tui.dialog.model.add.id": "Model id",
+  "tui.dialog.model.add.id_placeholder": "gateway model id",
+  "tui.dialog.model.add.name": "Display name",
+  "tui.dialog.model.add.name_placeholder": "shown in model picker",
+
+  // Session list
+  "tui.dialog.session_list.title": "Sessions",
+  "tui.dialog.session_list.today": "Today",
+  "tui.dialog.session_list.confirm_delete": "Press {{key}} again to confirm",
+  "tui.dialog.session_list.delete": "delete",
+  "tui.dialog.session_list.rename": "rename",
+  "tui.dialog.session_list.new_workspace": "new workspace",
+  "tui.dialog.session_list.delete_failed": "Failed to delete session",
+  "tui.dialog.session_list.delete_workspace_failed": "Failed to delete workspace",
+  "tui.dialog.session_list.unknown_workspace": "unknown",
+
+  // Message actions
+  "tui.dialog.message.title": "Message Actions",
+  "tui.dialog.message.revert": "Revert",
+  "tui.dialog.message.revert_desc": "undo messages and file changes",
+  "tui.dialog.message.copy": "Copy",
+  "tui.dialog.message.copy_desc": "message text to clipboard",
+  "tui.dialog.message.fork": "Fork",
+  "tui.dialog.message.fork_desc": "create a new session",
+
+  // Worktree picker
+  "tui.dialog.worktree.title": "Worktrees",
+  "tui.dialog.worktree.loading": "Loading worktrees...",
+  "tui.dialog.worktree.create": "+ Create new worktree",
+  "tui.dialog.worktree.switching": "Switching to worktree...",
+  "tui.dialog.worktree.creating": "Creating worktree...",
+  "tui.dialog.worktree.create_failed": "Failed to create worktree",
+  "tui.dialog.worktree.outside": "Cannot switch to {{directory}}: outside this server's working directory",
+  "tui.dialog.worktree.switch_failed": "Failed to switch to {{name}}",
+  "tui.dialog.worktree.switched": "Switched to {{name}}",
+
+  // Variant picker
+  "tui.dialog.variant.title": "Select variant",
+  "tui.dialog.variant.default": "Default",
+
+  // Workflow runs
+  "tui.dialog.workflows.title": "Workflows",
+  "tui.dialog.workflows.empty": "(no workflow runs)",
+
+  // Workspace creation
+  "tui.dialog.workspace.new_title": "New Workspace",
+  "tui.dialog.workspace.creating_title": "Creating Workspace",
+  "tui.dialog.workspace.loading": "Loading workspaces...",
+  "tui.dialog.workspace.loading_desc": "Fetching available workspace adaptors",
+  "tui.dialog.workspace.creating": "Creating {{type}} workspace...",
+  "tui.dialog.workspace.creating_desc": "This can take a while for remote environments",
+  "tui.dialog.workspace.load_failed": "Failed to load workspace adaptors",
+  "tui.dialog.workspace.create_failed": "Creating workspace failed",
+  "tui.dialog.workspace.create_failed_detail": "Failed to create workspace: {{error}}",
+  "tui.workspace.create.failed_session": "Failed to create workspace session",
+  "tui.workspace.restore.failed": "Failed to restore session: {{error}}",
+  "tui.workspace.restore.no_response": "no response",
+  "tui.workspace.restore.success": "Session restored",
+
+  // Subagents
+  "tui.dialog.subagent.title": "Subagents",
+  "tui.dialog.subagent.empty": "(no subagents in this session)",
+  "tui.dialog.subagent.empty_desc": "spawn one via the actor tool",
+
+  // Console org
+  "tui.dialog.console_org.title": "Switch org",
+  "tui.dialog.console_org.loading": "Loading orgs...",
+  "tui.dialog.console_org.empty": "No orgs found",
+  "tui.dialog.console_org.switched": "Switched to {{name}}",
+
+  // Prompt stash
+  "tui.dialog.stash.title": "Stash",
+  "tui.dialog.stash.delete": "delete",
+  "tui.dialog.stash.confirm_delete": "Press {{key}} again to confirm",
+  "tui.dialog.stash.just_now": "just now",
+  "tui.dialog.stash.minutes_ago": "{{count}}m ago",
+  "tui.dialog.stash.hours_ago": "{{count}}h ago",
+  "tui.dialog.stash.days_ago": "{{count}}d ago",
+  "tui.dialog.stash.lines": "~{{count}} lines",
+
+  // Fork session
+  "tui.dialog.fork.title": "Fork session",
+  "tui.dialog.fork.full_session": "Full session",
 }

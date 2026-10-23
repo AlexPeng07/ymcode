@@ -274,8 +274,8 @@ describe("skill command with additional mentions", () => {
           })
 
           const firstRequest = JSON.stringify((yield* llm.inputs)[0].messages ?? [])
-          expect(firstRequest).toContain("<name>skill-alpha</name>")
-          expect(firstRequest).not.toContain("<name>skill-beta</name>")
+          expect(firstRequest).toContain("- **skill-alpha**")
+          expect(firstRequest).not.toContain("- **skill-beta**")
 
           yield* writeSkill(dir, "skill-beta", "BETA_BODY_MARKER")
           yield* registry.reload()
@@ -296,8 +296,8 @@ describe("skill command with additional mentions", () => {
 
           const request = JSON.stringify((yield* llm.inputs)[1].messages ?? [])
           expect(request.match(/Skills available in this session:/g)).toHaveLength(1)
-          expect(request).toContain("<name>skill-alpha</name>")
-          expect(request).not.toContain("<name>skill-beta</name>")
+          expect(request).toContain("- **skill-alpha**")
+          expect(request).not.toContain("- **skill-beta**")
 
           yield* sessions.remove(session.id)
         }),
@@ -385,7 +385,7 @@ describe("skill command with additional mentions", () => {
           const request = (yield* llm.inputs)[0]
           const messages = JSON.stringify(request.messages ?? [])
           expect(messages).toContain("skill-alpha")
-          expect(messages).not.toContain("<name>skill-beta</name>")
+          expect(messages).not.toContain("- **skill-beta**")
           expect(messages).not.toContain("BETA_BODY_MARKER")
 
           yield* sessions.remove(session.id)
@@ -431,8 +431,8 @@ describe("skill command with additional mentions", () => {
             (message) => message.role === "system" && typeof message.content === "string" ? [message.content] : [],
           )
           expect(catalog).toHaveLength(1)
-          expect(catalog[0]).toContain("<name>skill-alpha</name>")
-          expect(catalog[0]).not.toContain("<name>skill-gated</name>")
+          expect(catalog[0]).toContain("- **skill-alpha**")
+          expect(catalog[0]).not.toContain("- **skill-gated**")
 
           yield* sessions.remove(session.id)
         }),

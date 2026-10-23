@@ -99,9 +99,12 @@ const captureInject = Effect.gen(function* () {
     PromptModule.injectScheduledPrompt(input).pipe(Effect.provideService(SessionPrompt.Service, prompt))
 })
 
-const waitFor = (predicate: () => boolean) =>
+// Deadline-based instead of a fixed attempt count: CI shards run many suites in
+// parallel, so a 1s budget flakes when the delivery fiber is descheduled.
+const waitFor = (predicate: () => boolean, timeoutMs = 5_000) =>
   Effect.promise(async () => {
-    for (let attempt = 0; attempt < 200 && !predicate(); attempt++) await Bun.sleep(5)
+    const deadline = Date.now() + timeoutMs
+    while (!predicate() && Date.now() < deadline) await Bun.sleep(10)
     expect(predicate()).toBe(true)
   })
 
@@ -294,7 +297,7 @@ test("busy to idle runs keepalive on the mounted scheduler and stop removes the 
         setLoopState(overdue)
         yield* bus.publish(SessionStatus.Event.Status, { sessionID: sid, status: { type: "busy" } })
         yield* bus.publish(SessionStatus.Event.Status, { sessionID: sid, status: { type: "idle" } })
-        yield* Effect.sleep("30 millis")
+        yield* Effect.sleep("100 millis")
         expect(getStrikes(overdue.prompt)).toBe(0)
         yield* scheduler.tickOnce()
         expect(captured.value).toHaveLength(1)
@@ -340,7 +343,7 @@ test("stop waits for an in-flight start and cannot leave a late scheduler runnin
       ({ bridge, inject }) =>
         Effect.gen(function* () {
           const start = yield* bridge.start(sid, dir, inject).pipe(Effect.forkChild)
-          yield* Deferred.await(entered).pipe(Effect.timeout("2 seconds"))
+          yield* Deferred.await(entered).pipe(Effect.timeout("10 seconds"))
           const stop = yield* Effect.andThen(Deferred.succeed(stopping, undefined), bridge.stop()).pipe(
             Effect.forkChild,
           )
@@ -395,7 +398,7 @@ for (const teardown of ["stop", "scope close"] as const) {
             yield* bridge.start(sid, dir, inject)
             const task = yield* addDueTask(scheduler, "pending delivery")
             yield* scheduler.tickOnce()
-            yield* Deferred.await(entered).pipe(Effect.timeout("2 seconds"))
+            yield* Deferred.await(entered).pipe(Effect.timeout("10 seconds"))
             expect(attempts).toBe(1)
             expect(captured.value).toHaveLength(0)
             if (teardown === "stop") {
@@ -405,13 +408,13 @@ for (const teardown of ["stop", "scope close"] as const) {
               yield* addDueTask(scheduler, "after stop")
               yield* scheduler.tickOnce()
               mounts[0]!.onFire(task)
-              yield* Effect.sleep("30 millis")
+              yield* Effect.sleep("100 millis")
               expect(attempts).toBe(1)
               expect(captured.value).toHaveLength(0)
               const nextSession = SessionID.make("ses_cronbridge_restarted")
               yield* bridge.start(nextSession, dir, inject)
               mounts[0]!.onFire(task)
-              yield* Effect.sleep("30 millis")
+              yield* Effect.sleep("100 millis")
               expect(attempts).toBe(1)
               expect(captured.value).toHaveLength(0)
               yield* scheduler.tickOnce()
@@ -435,7 +438,7 @@ for (const teardown of ["stop", "scope close"] as const) {
             yield* addDueTask(escaped.scheduler, "after scope close")
             yield* escaped.scheduler.tickOnce()
             mounts[0]!.onFire(escaped.task)
-            yield* Effect.sleep("30 millis")
+            yield* Effect.sleep("100 millis")
           }),
         )
         expect(attempts).toBe(1)

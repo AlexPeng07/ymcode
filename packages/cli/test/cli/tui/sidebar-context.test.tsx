@@ -2,6 +2,8 @@
 import { expect, test } from "bun:test"
 import { testRender } from "@opentui/solid"
 import { ContextSidebar } from "../../../src/cli/cmd/tui/feature-plugins/sidebar/context"
+import { KVProvider } from "../../../src/cli/cmd/tui/context/kv"
+import { LanguageProvider } from "../../../src/cli/cmd/tui/context/language"
 import { createTuiPluginApi } from "../../fixture/tui-plugin"
 
 test("sidebar compares the configured context limit with the model limit", async () => {
@@ -38,9 +40,22 @@ test("sidebar compares the configured context limit with the model limit", async
     },
   })
 
-  const app = await testRender(() => <ContextSidebar api={api} session_id="ses" />)
-  await app.renderOnce()
+  const app = await testRender(() => (
+    <KVProvider>
+      <LanguageProvider>
+        <ContextSidebar api={api} session_id="ses" />
+      </LanguageProvider>
+    </KVProvider>
+  ))
+  // KVProvider gates its children until the async kv.json read settles, so the
+  // first frame can be blank; poll instead of asserting on a single render.
+  let frame = ""
+  for (let attempt = 0; attempt < 100 && !frame.includes("33% used"); attempt++) {
+    await app.renderOnce()
+    frame = app.captureCharFrame()
+    if (!frame.includes("33% used")) await Bun.sleep(10)
+  }
 
-  expect(app.captureCharFrame()).toContain("33% used")
-  expect(app.captureCharFrame()).toContain("limit 300K of 922K")
+  expect(frame).toContain("33% used")
+  expect(frame).toContain("limit 300K of 922K")
 })

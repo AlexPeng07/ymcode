@@ -38,6 +38,18 @@
   `MIMOCODE_*` 环境变量桥、`.mimocode` 项目配置回退与 doctor 旧版目录检测；
   内置 `ymcode-docs` 技能不再把 CLI 写成 `mimo`，并移除失效的 Xiaomi schema 链接。
 
+## 本轮已完成（2026-10-24）
+
+- TUI 文案补齐：侧栏 Context/Goal/MCP/Tasks/Todo/Modified Files/LSP 面板标题与状态，
+  以及模型选择、会话列表、消息操作、工作树、变体、工作流、工作区、子代理、
+  控制台组织、暂存、派生会话等常用对话框全部接入 `useLanguage().t`；
+  顺带补齐此前遗漏的 `tui.sidebar.footer.*`、`tui.sidebar.mcp.*`、`tui.workspace.*` 词条。
+- 技能目录减负：`Skill.fmt` 去掉 verbose 分支，系统提示只保留 name+description；
+  44 个内置技能的目录体积约从 20.9K 字符降至 14.4K（约 31%），
+  对应测试断言同步改为紧凑格式。
+- CI 时序稳定：`cron-bridge.integration.test.ts` 的 `waitFor` 改为 5 秒截止轮询，
+  `Effect.timeout("2 seconds")` 放宽到 10 秒，负向断言等待从 30ms 提高到 100ms。
+
 ## P1：测试整修轮次（Linux 全量已定性）
 
 Linux 全量（自有服务器逐文件串行）结果：pass=5948 / fail=207 / skip=50，41 个文件有失败；

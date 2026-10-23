@@ -6,6 +6,7 @@ import { useSync } from "@tui/context/sync"
 import { useRoute } from "@tui/context/route"
 import { useToast } from "../ui/toast"
 import { isDirectoryDeniedError } from "@/server/routes/instance/access"
+import { useLanguage } from "@tui/context/language"
 import path from "path"
 
 const CREATE_SENTINEL = "__create_worktree__"
@@ -16,6 +17,7 @@ export function DialogWorktree() {
   const sync = useSync()
   const route = useRoute()
   const toast = useToast()
+  const t = useLanguage().t
   const [worktrees, setWorktrees] = createSignal<string[]>()
   const [busy, setBusy] = createSignal<string>()
 
@@ -33,7 +35,7 @@ export function DialogWorktree() {
 
     const list = worktrees()
     if (!list) {
-      return [{ title: "Loading worktrees...", value: "__loading__" }]
+      return [{ title: t("tui.dialog.worktree.loading"), value: "__loading__" }]
     }
 
     const items = list.map((dir) => ({
@@ -45,7 +47,7 @@ export function DialogWorktree() {
     return [
       ...items,
       {
-        title: "+ Create new worktree",
+        title: t("tui.dialog.worktree.create"),
         value: CREATE_SENTINEL,
         description: undefined as string | undefined,
       },
@@ -53,7 +55,7 @@ export function DialogWorktree() {
   })
 
   async function switchTo(directory: string) {
-    setBusy("Switching to worktree...")
+    setBusy(t("tui.dialog.worktree.switching"))
     const previous = sdk.directory
     await sdk.client.instance.dispose().catch(() => {})
     sdk.switchDirectory(directory)
@@ -73,22 +75,25 @@ export function DialogWorktree() {
       dialog.clear()
       toast.show({
         message: isDirectoryDeniedError(failure)
-          ? `Cannot switch to ${directory}: outside this server's working directory`
-          : `Failed to switch to ${path.basename(directory)}`,
+          ? t("tui.dialog.worktree.outside", { directory })
+          : t("tui.dialog.worktree.switch_failed", { name: path.basename(directory) }),
         variant: "error",
       })
       return
     }
     route.navigate({ type: "home" })
     dialog.clear()
-    toast.show({ message: `Switched to ${path.basename(directory)}`, variant: "success" })
+    toast.show({
+      message: t("tui.dialog.worktree.switched", { name: path.basename(directory) }),
+      variant: "success",
+    })
   }
 
   async function create() {
-    setBusy("Creating worktree...")
+    setBusy(t("tui.dialog.worktree.creating"))
     const result = await sdk.client.worktree.create().catch(() => undefined)
     if (!result?.data) {
-      toast.show({ message: "Failed to create worktree", variant: "error" })
+      toast.show({ message: t("tui.dialog.worktree.create_failed"), variant: "error" })
       setBusy(undefined)
       return
     }
@@ -97,7 +102,7 @@ export function DialogWorktree() {
 
   return (
     <DialogSelect
-      title="Worktrees"
+      title={t("tui.dialog.worktree.title")}
       options={options()}
       skipFilter={true}
       onSelect={(option) => {

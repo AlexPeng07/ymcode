@@ -193,6 +193,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
   const project = useProject()
   const sdk = useSDK()
   const toast = useToast()
+  const t = useLanguage().t
   const [creating, setCreating] = createSignal<string>()
   const [adaptors, setAdaptors] = createSignal<Adaptor[]>()
 
@@ -208,7 +209,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
         .catch(() => undefined)
       if (!res) {
         toast.show({
-          message: "Failed to load workspace adaptors",
+          message: t("tui.dialog.workspace.load_failed"),
           variant: "error",
         })
         return
@@ -222,9 +223,9 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
     if (type) {
       return [
         {
-          title: `Creating ${type} workspace...`,
+          title: t("tui.dialog.workspace.creating", { type }),
           value: "creating" as const,
-          description: "This can take a while for remote environments",
+          description: t("tui.dialog.workspace.creating_desc"),
         },
       ]
     }
@@ -232,9 +233,9 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
     if (!list) {
       return [
         {
-          title: "Loading workspaces...",
+          title: t("tui.dialog.workspace.loading"),
           value: "loading" as const,
-          description: "Fetching available workspace adaptors",
+          description: t("tui.dialog.workspace.loading_desc"),
         },
       ]
     }
@@ -254,7 +255,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
 
     const result = await sdk.client.experimental.workspace.create({ type, branch: null }).catch((err) => {
       toast.show({
-        message: "Creating workspace failed",
+        message: t("tui.dialog.workspace.create_failed"),
         variant: "error",
       })
       log.error("workspace create request failed", {
@@ -273,7 +274,9 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
         error: result?.error ? errorData(result.error) : undefined,
       })
       toast.show({
-        message: `Failed to create workspace: ${errorMessage(result?.error ?? "no response")}`,
+        message: t("tui.dialog.workspace.create_failed_detail", {
+          error: errorMessage(result?.error ?? t("tui.workspace.restore.no_response")),
+        }),
         variant: "error",
       })
       return
@@ -295,7 +298,11 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
 
   return (
     <DialogSelect
-      title={creating() ? "Creating Workspace" : "New Workspace"}
+      title={
+        creating()
+          ? t("tui.dialog.workspace.creating_title")
+          : t("tui.dialog.workspace.new_title")
+      }
       skipFilter={true}
       options={options()}
       onSelect={(option) => {

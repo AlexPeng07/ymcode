@@ -66,7 +66,8 @@ export function DialogModel(props: { providerID?: string }) {
             description: provider.name,
             category,
             disabled: provider.id === "opencode" && model.id.includes("-nano"),
-            footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+            footer:
+              model.cost?.input === 0 && provider.id === "opencode" ? t("tui.dialog.model.free") : undefined,
             onSelect: () => {
               onSelect(provider.id, model.id)
             },
@@ -75,12 +76,12 @@ export function DialogModel(props: { providerID?: string }) {
       })
     }
 
-    const favoriteOptions = toOptions(favorites, "Favorites")
+    const favoriteOptions = toOptions(favorites, t("tui.dialog.model.favorites"))
     const recentOptions = toOptions(
       recents.filter(
         (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
       ),
-      "Recent",
+      t("tui.dialog.model.recent"),
     )
 
     // xiaomi provider pinned at top (after favorites/recents)
@@ -116,13 +117,13 @@ export function DialogModel(props: { providerID?: string }) {
                   ? [
                       {
                         value: { providerID: xiaomiProvider.id, modelID: ADD_MODEL_SENTINEL },
-                        title: "+ Add model",
+                        title: t("tui.dialog.model.add"),
                         description: undefined,
                         category: pinnedCategory,
                         disabled: false,
                         footer: undefined as "Free" | undefined,
                         onSelect() {
-                          void runAddModelWizard({ dialog, sdk, sync, toast, providerID: xiaomiProvider.id })
+                          void runAddModelWizard({ dialog, sdk, sync, toast, t, providerID: xiaomiProvider.id })
                         },
                       },
                     ]
@@ -155,7 +156,8 @@ export function DialogModel(props: { providerID?: string }) {
             description: undefined as string | undefined,
             category: connected() ? provider.name : undefined,
             disabled: provider.id === "opencode" && model.includes("-nano"),
-            footer: info.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+            footer:
+              info.cost?.input === 0 && provider.id === "opencode" ? t("tui.dialog.model.free") : undefined,
             onSelect() {
               onSelect(provider.id, model)
             },
@@ -166,7 +168,7 @@ export function DialogModel(props: { providerID?: string }) {
             return !inShortcuts(x.value.providerID, x.value.modelID)
           }),
           sortBy(
-            (x) => x.footer !== "Free",
+            (x) => x.footer !== t("tui.dialog.model.free"),
             (x) => x.title,
           ),
         )
@@ -176,13 +178,13 @@ export function DialogModel(props: { providerID?: string }) {
           ...models,
           {
             value: { providerID: provider.id, modelID: ADD_MODEL_SENTINEL },
-            title: "+ Add model",
+            title: t("tui.dialog.model.add"),
             description: undefined,
             category: connected() ? provider.name : undefined,
             disabled: false,
             footer: undefined as "Free" | undefined,
             onSelect() {
-              void runAddModelWizard({ dialog, sdk, sync, toast, providerID: provider.id })
+              void runAddModelWizard({ dialog, sdk, sync, toast, t, providerID: provider.id })
             },
           },
         ]
@@ -194,7 +196,7 @@ export function DialogModel(props: { providerID?: string }) {
           providers(),
           map((option) => ({
             ...option,
-            category: "Popular providers",
+            category: t("tui.dialog.model.popular"),
           })),
           take(6),
         )
@@ -217,7 +219,7 @@ export function DialogModel(props: { providerID?: string }) {
 
   const title = createMemo(() => {
     const value = provider()
-    if (!value) return "Select model"
+    if (!value) return t("tui.dialog.model.title")
     return value.name
   })
 
@@ -242,14 +244,14 @@ export function DialogModel(props: { providerID?: string }) {
       keybind={[
         {
           keybind: keybind.all.model_provider_list?.[0],
-          title: "Connect provider",
+          title: t("tui.dialog.model.connect_provider"),
           onTrigger() {
             dialog.replace(() => <DialogProvider />)
           },
         },
         {
           keybind: keybind.all.model_favorite_toggle?.[0],
-          title: "Favorite",
+          title: t("tui.dialog.model.favorite"),
           disabled: !connected(),
           onTrigger: (option) => {
             const v = option.value as { providerID: string; modelID: string }
@@ -272,20 +274,32 @@ async function runAddModelWizard(opts: {
   sdk: ReturnType<typeof useSDK>
   sync: ReturnType<typeof useSync>
   toast: ToastContext
+  t: (key: string, params?: Record<string, string | number | boolean>) => string
   providerID: string
 }) {
-  const { dialog, sdk, sync, toast, providerID } = opts
+  const { dialog, sdk, sync, toast, t, providerID } = opts
 
   function step(n: number, total: number, title: string, placeholder?: string, value?: string) {
     return DialogPrompt.show(dialog, `${title} (${n}/${total})`, { placeholder, value })
   }
 
-  const modelIDRaw = await step(1, 2, "Model id", "gateway model id")
+  const modelIDRaw = await step(
+    1,
+    2,
+    t("tui.dialog.model.add.id"),
+    t("tui.dialog.model.add.id_placeholder"),
+  )
   if (modelIDRaw === null) return
   const modelID = modelIDRaw.trim()
   if (!modelID) return
 
-  const modelNameRaw = await step(2, 2, "Display name", "shown in model picker", modelID)
+  const modelNameRaw = await step(
+    2,
+    2,
+    t("tui.dialog.model.add.name"),
+    t("tui.dialog.model.add.name_placeholder"),
+    modelID,
+  )
   if (modelNameRaw === null) return
   const modelName = modelNameRaw.trim() || modelID
 

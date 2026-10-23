@@ -3,6 +3,7 @@ import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@ymcode/plugin/tu
 import { Show, createEffect, createMemo, createSignal, onCleanup } from "solid-js"
 import { completedTPS, formatTPS, streamingTPS } from "./tps"
 import * as Model from "@tui/util/model"
+import { useLanguage } from "@tui/context/language"
 import { Token } from "@/util"
 
 const id = "internal:sidebar-context"
@@ -15,6 +16,7 @@ const money = new Intl.NumberFormat("en-US", {
 
 export function ContextSidebar(props: { api: TuiPluginApi; session_id: string }) {
   const theme = () => props.api.theme.current
+  const t = useLanguage().t
   const msg = createMemo(() => props.api.state.session.messages(props.session_id))
   const cost = createMemo(() => msg().reduce((sum, item) => sum + (item.role === "assistant" ? item.cost : 0), 0))
 
@@ -90,20 +92,26 @@ export function ContextSidebar(props: { api: TuiPluginApi; session_id: string })
   return (
     <box>
       <text fg={theme().text}>
-        <b>Context</b>
+        <b>{t("tui.sidebar.context.title")}</b>
       </text>
-      <text fg={theme().textMuted}>{state().tokens.toLocaleString()} tokens</text>
-      <text fg={theme().textMuted}>{state().percent ?? 0}% used</text>
+      <text fg={theme().textMuted}>
+        {t("tui.sidebar.context.tokens", { tokens: state().tokens.toLocaleString() })}
+      </text>
+      <text fg={theme().textMuted}>{t("tui.sidebar.context.used", { percent: state().percent ?? 0 })}</text>
       <Show when={state().limit}>
         {(win) => (
           <text fg={theme().textMuted}>
-            limit {Token.format(win().effective)}
-            {win().source === "config" ? ` of ${Token.format(win().hard)}` : ""}
+            {win().source === "config"
+              ? t("tui.sidebar.context.limit_of", {
+                  limit: Token.format(win().effective),
+                  hard: Token.format(win().hard),
+                })
+              : t("tui.sidebar.context.limit", { limit: Token.format(win().effective) })}
           </text>
         )}
       </Show>
       <Show when={tpsLabel()}>{(label) => <text fg={theme().textMuted}>{label()}</text>}</Show>
-      <text fg={theme().textMuted}>{money.format(cost())} spent</text>
+      <text fg={theme().textMuted}>{t("tui.sidebar.context.spent", { cost: money.format(cost()) })}</text>
     </box>
   )
 }
