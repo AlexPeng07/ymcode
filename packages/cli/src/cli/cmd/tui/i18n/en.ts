@@ -1157,4 +1157,31 @@ export const dict: Record<string, string> = {
   // Fork session
   "tui.dialog.fork.title": "Fork session",
   "tui.dialog.fork.full_session": "Full session",
+
+  // Prompt composer
+  "tui.prompt.error.no_provider": "Connect a provider to send prompts",
+  "tui.prompt.error.create_session": "Creating a session failed. Open console for more details.",
+  "tui.prompt.error.send_failed": "Failed to send message",
+  "tui.prompt.attachment.svg": "[SVG: {{name}}]",
+  "tui.prompt.attachment.image_name": "image",
+  "tui.prompt.attachment.pasted": "[Pasted ~{{count}} lines]",
+  "tui.prompt.attachment.pdf": "[PDF: {{name}}]",
+  "tui.prompt.attachment.image": "[Image: {{name}}]",
+  "tui.prompt.mode.shell": "Shell",
+  "tui.prompt.voice.button": "[ 🎙  Voice ]",
+  "tui.prompt.retry.gemini_hot": "gemini is way too hot right now",
+  "tui.prompt.retry.error_title": "Retry Error",
+  "tui.prompt.retry.attempt": "attempt #{{attempt}}",
+  "tui.prompt.retry.retrying_in": " · retrying in {{duration}}",
+  "tui.prompt.retry.retrying": " · retrying",
+  "tui.prompt.retry.expand": "(click to expand)",
+  "tui.prompt.interrupt.again": "again to interrupt",
+  "tui.prompt.interrupt.label": "interrupt",
+  "tui.prompt.hint.exit_shell": "exit shell mode",
+
+  // Workflow view
+  "tui.workflow.tools": "{{count}} tools",
+  "tui.workflow.isolated": "isolated",
+  "tui.workflow.sub": "sub-workflow",
+  "tui.workflow.empty": "(no activity yet)",
 }

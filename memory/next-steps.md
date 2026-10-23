@@ -49,6 +49,9 @@
   对应测试断言同步改为紧凑格式。
 - CI 时序稳定：`cron-bridge.integration.test.ts` 的 `waitFor` 改为 5 秒截止轮询，
   `Effect.timeout("2 seconds")` 放宽到 10 秒，负向断言等待从 30ms 提高到 100ms。
+- 补齐历史遗漏词条：`tui.prompt.*`（错误、附件占位、重试、中断、退出 Shell）与
+  `tui.workflow.*`（工具数、隔离、子工作流、空状态）共 23 个键；
+  `check:i18n` 新增静态 `t()` 引用扫描（731 处引用），缺失词条会直接让门禁失败。
 
 ## P1：测试整修轮次（Linux 全量已定性）
 

@@ -1,4 +1,5 @@
 import fs from "fs/promises"
+import { Glob } from "bun"
 import { dict as en } from "../packages/cli/src/cli/cmd/tui/i18n/en"
 import { dict as zh } from "../packages/cli/src/cli/cmd/tui/i18n/zh"
 
@@ -21,8 +22,28 @@ const missingSkillMeta = bundles.filter(
   (name) => !zhDict[`tui.skill.${name}.title`]?.trim() || !zhDict[`tui.skill.${name}.when`]?.trim(),
 )
 
-const report = { missing, empty, extra, missingSkillDescriptions, missingSkillMeta }
-if (missing.length || empty.length || extra.length || missingSkillDescriptions.length || missingSkillMeta.length) {
+// en/zh parity cannot catch a t("...") call whose key was never added: the
+// translator returns undefined at runtime and the UI renders blank. Scan every
+// static reference under the TUI tree and require it to exist in the base dict.
+const tuiRoot = "packages/cli/src/cli/cmd/tui"
+const missingReferences = new Set<string>()
+for await (const relative of new Glob("**/*.{ts,tsx}").scan(tuiRoot)) {
+  const file = `${tuiRoot}/${relative}`
+  const source = await Bun.file(file).text()
+  for (const match of source.matchAll(/\bt\(\s*["']([^"']+)["']/g)) {
+    if (!(match[1] in enDict)) missingReferences.add(`${file}: ${match[1]}`)
+  }
+}
+
+const report = { missing, empty, extra, missingSkillDescriptions, missingSkillMeta, missingReferences: [...missingReferences] }
+if (
+  missing.length ||
+  empty.length ||
+  extra.length ||
+  missingSkillDescriptions.length ||
+  missingSkillMeta.length ||
+  missingReferences.size
+) {
   console.error(JSON.stringify(report, null, 2))
   process.exit(1)
 }

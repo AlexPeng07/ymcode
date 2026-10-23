@@ -1163,4 +1163,31 @@ export const dict = {
   // Fork session
   "tui.dialog.fork.title": "派生会话",
   "tui.dialog.fork.full_session": "完整会话",
+
+  // Prompt composer
+  "tui.prompt.error.no_provider": "请先连接提供商后再发送消息",
+  "tui.prompt.error.create_session": "创建会话失败，请打开控制台查看详情。",
+  "tui.prompt.error.send_failed": "发送消息失败",
+  "tui.prompt.attachment.svg": "[SVG：{{name}}]",
+  "tui.prompt.attachment.image_name": "图片",
+  "tui.prompt.attachment.pasted": "[已粘贴约 {{count}} 行]",
+  "tui.prompt.attachment.pdf": "[PDF：{{name}}]",
+  "tui.prompt.attachment.image": "[图片：{{name}}]",
+  "tui.prompt.mode.shell": "Shell",
+  "tui.prompt.voice.button": "[ 🎙  语音 ]",
+  "tui.prompt.retry.gemini_hot": "Gemini 现在太火爆了",
+  "tui.prompt.retry.error_title": "重试错误",
+  "tui.prompt.retry.attempt": "第 {{attempt}} 次尝试",
+  "tui.prompt.retry.retrying_in": " · {{duration}} 后重试",
+  "tui.prompt.retry.retrying": " · 正在重试",
+  "tui.prompt.retry.expand": "（点击展开）",
+  "tui.prompt.interrupt.again": "再次按下以中断",
+  "tui.prompt.interrupt.label": "中断",
+  "tui.prompt.hint.exit_shell": "退出 Shell 模式",
+
+  // Workflow view
+  "tui.workflow.tools": "{{count}} 个工具",
+  "tui.workflow.isolated": "隔离",
+  "tui.workflow.sub": "子工作流",
+  "tui.workflow.empty": "（暂无活动）",
 } satisfies Partial<Record<Keys, string>>

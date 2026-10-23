@@ -65,6 +65,8 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   技能目录改为 name+description 紧凑格式（去掉 `<location>` 与 XML 包装），44 个技能的
   固定目录开销从约 20.9K 字符降到 14.4K（约 31%）；cron-bridge 集成测试改用 5 秒
   截止轮询，2 秒等待放宽到 10 秒，并延长负向断言窗口以消除 CI 负载抖动。
+  随后补齐 `tui.prompt.*` 与 `tui.workflow.*` 共 23 个历史遗漏词条，并在
+  `check:i18n` 中新增静态 `t()` 引用扫描，避免缺失词条再次静默渲染为空。
 - **与 mimocode 彻底解耦**：不再启动时迁移旧数据，不提供 `ymcode migrate`，
   不桥接 `MIMOCODE_*` 环境变量，也不回退读取 `.mimocode` 项目配置；内置文档技能
   已把 CLI 名称统一为 `ymcode`。运行时只认 ymcode 自己的目录。
