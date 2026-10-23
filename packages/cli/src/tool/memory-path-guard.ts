@@ -166,13 +166,17 @@ export function assertMemoryWriteAllowed(input: {
   /** Whether memory writing is enabled. Omitted → enabled (the default). */
   writeEnabled?: boolean
 }): void {
-  const { target, agentName, memoryRoot, projectID, sessionID } = input
+  // Resolve both sides before comparing. Callers (write/edit/apply_patch) may
+  // pass mixed separators or `..` segments; a raw prefix check would then fail
+  // open on Windows and silently allow writes that should be refused.
+  const target = path.resolve(input.target)
+  const memoryRoot = path.resolve(input.memoryRoot)
+  const { agentName, projectID, sessionID } = input
   const memoryFile = path.join(memoryRoot, "projects", projectID, "MEMORY.md")
   const notesFile = path.join(memoryRoot, "sessions", sessionID, "notes.md")
   const checkpointFile = path.join(memoryRoot, "sessions", sessionID, "checkpoint.md")
   const taskMemDir = path.join(memoryRoot, "sessions", sessionID, "tasks")
-  const normalizedRoot = memoryRoot.endsWith(path.sep) ? memoryRoot : memoryRoot + path.sep
-  if (!target.startsWith(normalizedRoot)) return
+  if (!pathContains(memoryRoot, target)) return
 
   // Memory write switch. Deliberately worded so the refusal cannot be mistaken
   // for a path/permission problem — a model that reads "not allowed here" tends to
