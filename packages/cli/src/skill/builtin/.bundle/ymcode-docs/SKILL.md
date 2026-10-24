@@ -27,6 +27,7 @@ ymcode（CLI 可执行文件 `ymcode`）是带终端 UI 的智能体编程工具
 | **Dream** | 把近期轨迹整合进项目记忆 | `/dream` |
 | **Distill** | 把重复的手工工作流打包成技能/子代理/命令 | `/distill` |
 | **定时提示词** | Cron/loop：按计划或重复循环注入提示词（UTC，5 字段） | `cron` 工具 · `/loop` · `/loops` |
+| **后台长任务** | bash 工具 `run_in_background` 立即返回任务 id（如 `bg-1`），最多 5 个并发、30 分钟硬超时；`bg` 操作轮询输出（`wait_seconds` 可阻塞等待）或停止任务；进程退出时自动向所属会话注入完成通知（含输出尾部） | bash 工具参数 |
 | **Dynamic Workflow** | 用 JS 脚本确定性地编排大量子代理（扇出、流水线、嵌套）；内置包括 `deep-research`、`fact-check` 与 `research-experiment` | `.ymcode/workflows/*.js` + `workflow` 工具 |
 | **自定义技能** | 在 `.ymcode/skills/` 下添加可复用的任务指令 | 见 `skill-creator` 技能 |
 | **技能发现** | `/skill-name` 斜杠调用（一条消息中出现 2 个及以上会自动加载并给出编排计划）；`skill_search` 工具按精确名称/别名 + BM25 匹配并自动加载高置信命中；用户消息命中技能的触发关键词时，新对话第一步会注入一行提示；部分内置技能（`claude-code`、`codex`）仅在其 CLI 已安装时出现 | `/` 自动补全 · 自动 |

@@ -14,6 +14,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 - **独立数据目录**：只使用 ymcode 自己的配置与数据目录，不读取、不迁移旧 mimocode 的任何内容。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
 - **确定性 hooks**：在 `ymcode.json` 里声明 shell 命令钩子（编辑后 lint、拦截危险命令），与文件级 TS hooks 走同一分发路径（超时、熔断、输出回滚）。
+- **后台长任务**：bash 工具 `run_in_background` 让全量测试/长构建立即返回任务 id，`bg` 操作随时轮询输出或停止，退出自动通知会话（最多 5 个并发，30 分钟硬超时）。
 
 ## 用户级 hooks
 

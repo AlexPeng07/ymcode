@@ -201,6 +201,7 @@ import {
 } from "@/tool/mcp-tool-search"
 import { mcpToolSearchMode, usesGPTToolset } from "@/tool/gpt"
 import { GPT_TOP_LEVEL_TOOLS } from "@/tool/tool-script-ref"
+import * as Background from "@/tool/bash-background"
 import { SessionPrefixSnapshot } from "./prefix-snapshot"
 
 // @ts-ignore
@@ -5265,6 +5266,33 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                 log.error("cron-bridge start failed", { sessionID, error: Cause.pretty(cause) }),
               )))
             }
+
+            // Background bash tasks announce their exit into the owning session
+            // at 'later' priority, mirroring cron fires. Re-armed on every turn
+            // start; last write wins, and any impl routes by sessionID.
+            Background.setNotifier((info) => {
+              const firedAt = new Date().toISOString()
+              // AppRuntime is imported dynamically (not at module top level) to keep
+              // the import graph of this hot module light — same as auto-dream above.
+              void import("@/effect/app-runtime")
+                .then(({ AppRuntime }) =>
+                  AppRuntime.runPromise(
+                    injectScheduledPrompt({
+                      sessionID: SessionID.make(info.sessionID),
+                      value: [
+                        `[bg exit @ ${firedAt}] Background task ${info.id} exited (code ${info.exitCode ?? "null"}${info.timedOut ? "; killed after the 30-minute hard timeout" : info.stopped ? "; stopped" : ""}): ${info.command}`,
+                        info.output ? `Output tail:\n${info.output.slice(-4000)}` : "(no output)",
+                      ].join("\n"),
+                      origin: { kind: "background", taskId: info.id },
+                      priority: "later",
+                      isMeta: true,
+                    }).pipe(Effect.provideService(Service, impl)),
+                  ),
+                )
+                .catch((err: unknown) =>
+                  log.error("background task notification failed", { id: info.id, error: String(err) }),
+                )
+            })
           }
 
           const modelProviderID = modelOverride ? ProviderID.make(modelOverride.providerID) : lastUser.model.providerID
@@ -7858,18 +7886,23 @@ const quoteTrimRegex = /^["']|["']$/g
  * render a clock icon. Sentinel expansion is intentionally NOT done here — T19
  * will wrap `value` before this call.
  */
-export type ScheduledPromptOrigin = {
-  kind: "cron"
-  taskId: string
-  kindOfTask: "cron" | "loop"
-  /**
-   * ISO-8601 timestamp of when the scheduler tick fired this task. Set by the
-   * cron bridge in `onFire`; persisted on the synthetic part's metadata so the
-   * TUI and downstream consumers can recover fire time without parsing the
-   * prepended text prefix.
-   */
-  firedAt?: string
-}
+export type ScheduledPromptOrigin =
+  | {
+      kind: "cron"
+      taskId: string
+      kindOfTask: "cron" | "loop"
+      /**
+       * ISO-8601 timestamp of when the scheduler tick fired this task. Set by
+       * the cron bridge in `onFire`; persisted on the synthetic part's metadata so the
+       * TUI and downstream consumers can recover fire time without parsing the
+       * prepended text prefix.
+       */
+      firedAt?: string
+    }
+  | {
+      kind: "background"
+      taskId: string
+    }
 
 export type InjectScheduledPromptInput = {
   sessionID: SessionID

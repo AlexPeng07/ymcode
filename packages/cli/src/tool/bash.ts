@@ -28,6 +28,7 @@ import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner
 import * as BashInteractive from "./bash-interactive"
 import * as BashTokenEfficient from "./bash_token_efficient_pipeline"
 import * as BashTokenEfficientHeuristic from "./bash_token_efficient_heuristic"
+import * as Background from "./bash-background"
 
 const MAX_METADATA_LENGTH = 30_000
 export const DEFAULT_MAX_OUTPUT_TOKENS = 30_000
@@ -162,6 +163,30 @@ const Parameters = z.object({
     .describe(
       "Set to true when the command requires user interaction (password input, y/N confirmation, SSH key passphrase, etc). The terminal will be handed to the user for direct interaction.",
     )
+    .optional(),
+  run_in_background: z
+    .boolean()
+    .describe(
+      "Start the command as a background task and return immediately with a task id instead of waiting for completion. Use for long-running commands (full test suites, builds, watchers). Poll or stop it later through the bg operation; completion is announced automatically when the process exits.",
+    )
+    .optional(),
+  bg: z
+    .object({
+      operation: z
+        .enum(["output", "stop"])
+        .describe(
+          "'output' returns the task's status and output tail (optionally blocking up to wait_seconds for exit or more output); 'stop' terminates the task.",
+        ),
+      id: z.string().describe("Background task id returned by a run_in_background start, e.g. bg-1"),
+      wait_seconds: z
+        .number()
+        .int()
+        .min(0)
+        .max(60)
+        .describe("For 'output': block up to this many seconds waiting for the task to exit or produce output.")
+        .optional(),
+    })
+    .describe("Inspect or control a previously started background task (the command field is ignored for bg operations).")
     .optional(),
   description: z
     .string()
@@ -908,6 +933,29 @@ export const BashTool = Tool.define(
           parameters: Parameters,
           execute: (params: z.infer<typeof Parameters>, ctx: Tool.Context) =>
             Effect.gen(function* () {
+              if (params.bg) {
+                if (params.bg.operation === "stop") {
+                  const { info, stoppedNow } = yield* Background.stop(params.bg.id).pipe(Effect.orDie)
+                  const state = stoppedNow
+                    ? `stopped${info.exitCode !== null ? ` (process reported code ${info.exitCode})` : ""}`
+                    : `already exited (code ${info.exitCode ?? "null"})`
+                  return {
+                    title: `stop ${info.id}`,
+                    metadata: { output: preview(info.output), exit: info.exitCode, description: `stop ${info.id}`, truncated: false },
+                    output: `Background task ${info.id} ${state}.\n${info.output ? `Output tail:\n${info.output}` : "(no output)"}`,
+                  }
+                }
+                const info = yield* Background.wait(params.bg.id, (params.bg.wait_seconds ?? 0) * 1000).pipe(Effect.orDie)
+                const state = info.exited
+                  ? `exited (code ${info.exitCode ?? "null"})${info.timedOut ? " — killed after the 30-minute hard timeout" : ""}`
+                  : `still running (${Math.round((Date.now() - info.startedAt) / 1000)}s elapsed, ${info.totalBytes} bytes so far)`
+                return {
+                  title: `bg ${info.id}`,
+                  metadata: { output: preview(info.output), exit: info.exitCode, description: `bg ${info.id}`, truncated: info.truncated },
+                  output: `Background task ${info.id}: ${state}\n${info.output ? `Output tail:\n${info.output}` : "(no output yet)"}${info.truncated ? "\n(older output was truncated; total " + info.totalBytes + " bytes)" : ""}`,
+                }
+              }
+
               const effectiveCwd = SessionCwd.get(ctx.sessionID)
               const cwd = params.workdir
                 ? yield* resolvePath(params.workdir, effectiveCwd, shell)
@@ -943,6 +991,51 @@ export const BashTool = Tool.define(
               }
 
               // Interactive mode: hand terminal to user for direct interaction
+              if (params.interactive && params.run_in_background) {
+                throw new Error("interactive and run_in_background cannot be combined")
+              }
+
+              if (params.run_in_background) {
+                const env = yield* shellEnv(ctx, cwd)
+                const id = yield* Background.start({
+                  spawn: spawner.spawn(cmd(shell, name, params.command, cwd, env)),
+                  command: params.command,
+                  description: params.description,
+                  sessionID: ctx.sessionID,
+                }).pipe(
+                  Effect.catch((error) =>
+                    Effect.die(
+                      error instanceof Background.TooManyRunningError
+                        ? new Error(
+                            `cannot start background task: ${error.running} tasks are already running (max ${Background.MAX_RUNNING}); stop one first with the bg stop operation`,
+                          )
+                        : error instanceof Error
+                          ? error
+                          : new Error(String(error)),
+                    ),
+                  ),
+                )
+                const snap = yield* Background.wait(id, 1500).pipe(Effect.orDie)
+                const state = snap.exited
+                  ? `exited already (code ${snap.exitCode ?? "null"})`
+                  : "running"
+                return {
+                  title: params.description,
+                  metadata: {
+                    output: preview(snap.output),
+                    exit: snap.exitCode,
+                    description: params.description,
+                    truncated: false,
+                  },
+                  output: [
+                    `Background task ${id} started: ${params.command}`,
+                    `Status: ${state}`,
+                    snap.output ? `Initial output:\n${snap.output}` : "Initial output: (none yet)",
+                    `Poll: bg operation "output" with id "${id}" (optionally wait_seconds up to 60); stop: operation "stop". Completion is announced automatically when the process exits.`,
+                  ].join("\n"),
+                }
+              }
+
               if (params.interactive) {
                 const env = yield* shellEnv(ctx, cwd)
                 yield* ctx.metadata({
