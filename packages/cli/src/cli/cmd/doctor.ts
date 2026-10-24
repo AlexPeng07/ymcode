@@ -236,6 +236,9 @@ export const DoctorCommand = cmd({
     // Load through the real config service so parse/schema errors surface with
     // the same wording the runtime would use. Dies are inspected via Exit.
     let model: string | undefined
+    // Survives the config block's early returns — the credential probe below
+    // needs provider endpoints even when the model config is empty.
+    let providersSnapshot: Record<string, unknown> = {}
     await Instance.provide({
       directory: process.cwd(),
       async fn() {
@@ -246,6 +249,7 @@ export const DoctorCommand = cmd({
             return { cfg, providers }
           }).pipe(Effect.exit),
         )
+        if (Exit.isSuccess(exit)) providersSnapshot = exit.value.providers as Record<string, unknown>
         if (Exit.isFailure(exit)) {
           add({
             section: "配置",
@@ -321,11 +325,13 @@ export const DoctorCommand = cmd({
     // --- credentials -------------------------------------------------------
     const authFile = path.join(Global.Path.data, "auth.json")
     let authProviders: string[] = []
+    let authEntries: Record<string, { type?: string; key?: string }> = {}
     if (await exists(authFile)) {
       const text = await fs.readFile(authFile, "utf8").catch(() => "")
       try {
         const parsed = JSON.parse(text) as Record<string, unknown>
         authProviders = Object.keys(parsed)
+        authEntries = parsed as typeof authEntries
       } catch {
         add({
           section: "凭据",
@@ -343,6 +349,61 @@ export const DoctorCommand = cmd({
         status: "ok",
         detail: authFile,
       })
+      // Presence is not validity: a rotated/expired key only surfaces as a
+      // mid-run provider error. Probe each stored key with a cheap
+      // authenticated GET {baseURL}/models so doctor can say which key is
+      // actually dead. Never prints key material.
+      await Promise.all(
+        authProviders.map(async (providerID) => {
+          const entry = authEntries[providerID]
+          if (!entry?.key) return
+          const info = providersSnapshot[providerID] as
+            | { options?: Record<string, unknown>; models?: Record<string, { api?: { url?: string } }> }
+            | undefined
+          const first = info && Object.values(info.models ?? {})[0]
+          const baseURL =
+            ((info?.options?.["baseURL"] as string | undefined) || first?.api?.url || "").replace(/\/+$/, "")
+          if (!baseURL) return
+          const url = `${baseURL}/models`
+          try {
+            const res = await fetch(url, {
+              headers: { Authorization: `Bearer ${entry.key}` },
+              signal: AbortSignal.timeout(6000),
+            })
+            if (res.ok) {
+              add({
+                section: "凭据",
+                name: `provider「${providerID}」key 联网验证通过`,
+                status: "ok",
+                detail: url,
+              })
+            } else if (res.status === 401 || res.status === 403) {
+              add({
+                section: "凭据",
+                name: `provider「${providerID}」的 API key 已失效`,
+                status: "error",
+                detail: `服务端返回 HTTP ${res.status}（key 可能已过期或被轮换）`,
+                fix: "运行 ymcode setup 重新配置该 provider 的 API key，或编辑 auth.json 对应条目后重试",
+              })
+            } else {
+              add({
+                section: "凭据",
+                name: `provider「${providerID}」key 验证返回 HTTP ${res.status}`,
+                status: "warn",
+                detail: `${url}（无法据此判定 key 有效性）`,
+              })
+            }
+          } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error)
+            add({
+              section: "凭据",
+              name: `provider「${providerID}」key 无法联网验证`,
+              status: "warn",
+              detail: `${url}（${reason.slice(0, 120)}）`,
+            })
+          }
+        }),
+      )
     }
     const envKeys = credentialEnv.filter((key) => !!process.env[key])
     if (envKeys.length) {

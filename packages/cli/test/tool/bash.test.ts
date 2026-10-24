@@ -207,12 +207,18 @@ describe("tool.bash git identity floor", () => {
       else process.env[k] = v
     }
   }
-  const printGitEnv =
-    process.platform === "win32"
-      ? "echo GIT_AUTHOR_NAME=$env:GIT_AUTHOR_NAME; echo GIT_AUTHOR_EMAIL=$env:GIT_AUTHOR_EMAIL; echo GIT_COMMITTER_NAME=$env:GIT_COMMITTER_NAME; echo GIT_COMMITTER_EMAIL=$env:GIT_COMMITTER_EMAIL"
-      : "echo GIT_AUTHOR_NAME=$GIT_AUTHOR_NAME; echo GIT_AUTHOR_EMAIL=$GIT_AUTHOR_EMAIL; echo GIT_COMMITTER_NAME=$GIT_COMMITTER_NAME; echo GIT_COMMITTER_EMAIL=$GIT_COMMITTER_EMAIL"
+  // Shell-aware probe: the fixed PowerShell spelling silently printed
+  // "$env:..." literals under bash/cmd, failing only those variants on
+  // Windows while the feature itself worked everywhere.
+  const printGitEnv = (label: string) => {
+    const vars = ["GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"]
+    if (label === "powershell" || label === "pwsh")
+      return vars.map((v) => `echo ${v}=$env:${v}`).join("; ")
+    if (label === "cmd") return vars.map((v) => `echo ${v}=%${v}%`).join(" & ")
+    return vars.map((v) => `echo ${v}=$${v}`).join("; ")
+  }
 
-  each("injects the 4 GIT_* vars inherited from the repo config", async () => {
+  each("injects the 4 GIT_* vars inherited from the repo config", async (item) => {
     const saved = savedEnv()
     restoreEnv({
       GIT_AUTHOR_NAME: undefined,
@@ -227,7 +233,7 @@ describe("tool.bash git identity floor", () => {
         fn: async () => {
           const bash = await initBash()
           const result = await Effect.runPromise(
-            bash.execute({ command: printGitEnv, description: "print git env" }, ctx),
+            bash.execute({ command: printGitEnv(item.label), description: "print git env" }, ctx),
           )
           // The tmpdir git fixture sets user.name=Test / user.email=test@ymcode.test.
           expect(result.metadata.output).toContain("GIT_AUTHOR_NAME=Test")
@@ -241,7 +247,7 @@ describe("tool.bash git identity floor", () => {
     }
   })
 
-  each("injects NO GIT_* vars for a non-git project (worktree=/), leaving authorship to git", async () => {
+  each("injects NO GIT_* vars for a non-git project (worktree=/), leaving authorship to git", async (item) => {
     const saved = savedEnv()
     restoreEnv({
       GIT_AUTHOR_NAME: undefined,
@@ -262,14 +268,18 @@ describe("tool.bash git identity floor", () => {
             expect(Instance.worktree).toBe("/")
             const bash = await initBash()
             const result = await Effect.runPromise(
-              bash.execute({ command: printGitEnv, description: "print git env" }, ctx),
+              bash.execute({ command: printGitEnv(item.label), description: "print git env" }, ctx),
             )
             // There is no project repo to inherit from, so injecting anything would
             // override the config of whatever repo the command actually runs in
             // (GIT_AUTHOR_*/GIT_COMMITTER_* env outrank `user.name`/`user.email`).
             for (const key of ["GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"]) {
               const line = result.metadata.output.split("\n").find((l) => l.trim().startsWith(`${key}=`))
-              expect(line?.trim()).toBe(`${key}=`)
+              let value = line?.trim() ?? ""
+              // cmd leaves UNDEFINED variables as their %NAME% literal instead
+              // of expanding to empty — that IS the "not injected" outcome.
+              if (item.label === "cmd" && value === `${key}=%${key}%`) value = `${key}=`
+              expect(value).toBe(`${key}=`)
             }
           },
         })
@@ -282,7 +292,7 @@ describe("tool.bash git identity floor", () => {
     }
   })
 
-  each("applies the floor per-variable, not all-or-nothing, when only GIT_AUTHOR_NAME is operator-set", async () => {
+  each("applies the floor per-variable, not all-or-nothing, when only GIT_AUTHOR_NAME is operator-set", async (item) => {
     const saved = savedEnv()
     restoreEnv({
       GIT_AUTHOR_NAME: "Operator",
@@ -297,7 +307,7 @@ describe("tool.bash git identity floor", () => {
         fn: async () => {
           const bash = await initBash()
           const result = await Effect.runPromise(
-            bash.execute({ command: printGitEnv, description: "print git env" }, ctx),
+            bash.execute({ command: printGitEnv(item.label), description: "print git env" }, ctx),
           )
           // The one operator-set var wins over the floor.
           expect(result.metadata.output).toContain("GIT_AUTHOR_NAME=Operator")
