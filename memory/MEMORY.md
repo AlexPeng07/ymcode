@@ -6,10 +6,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 最后代码提交（交接时）：`f8ce9ff`（2026-10-24，main 已推送）。最新发布 `v0.2.8`
-  （易用性批次；首次 tag 因 cron-bridge 5s 预算在慢 runner 上耗尽失败，已放宽至 15s
-  并重打 tag）。方向 3（记忆深化，`f8ce9ff`）待发 v0.2.9
-- 最新 Release：`v0.2.8`（12 个平台 asset，见 verification.md 发布记录）
+- 最后代码提交（交接时）：`93768ec`（v0.2.9 版本提交，main 已推送）。最新发布
+  `v0.2.9`（记忆深化轮，workflow `40084609731` success，12 asset）；
+  v0.2.8（易用性批次，workflow `40083784186`）此前已发布
+- 最新 Release：`v0.2.9`（12 个平台 asset）
 - 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
@@ -139,10 +139,11 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `c6674c6`，最新发布 `v0.2.6`。两项已知测试失败已修复（message-v2 file URL、
-prompt-effect lifecycle 预算），未发版。优先：① P1 测试整修轮次（按"两边都挂/仅 Windows/
-仅 Linux"三档拆分）；② 有条件时在 Linux 服务器复跑全量；③ TUI 像素级人工验收（可选）。
-详见 [next-steps.md](next-steps.md)。
+交接点为 `93768ec`，最新发布 `v0.2.9`。四方向路线前三方向已交付（质量闭环 v0.2.7、
+易用性 v0.2.8、记忆深化 v0.2.9）。剩余：方向 4 测试整修——ymcode-docs 与
+memory-path-guard 的历史失败已实测为零（P1 清单彻底过时），Windows 全量重跑
+进行中（日志 `.scratch/full-run-20261024.log`），完成后按
+"两边都挂/仅 Windows/仅 Linux"三档处置。详见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 
