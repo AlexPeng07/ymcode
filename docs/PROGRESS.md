@@ -176,3 +176,25 @@
   服务器启动时间；与同文件姊妹用例对齐。目标用例单独运行通过。
 - 两个修复在 v0.2.6 tag 之后提交，属下一版本内容（`eeaad8c` 为 src 行为修复，
   `c6674c6` 仅测试预算）。
+
+## 2026-10-24 质量闭环轮（v0.2.7）
+
+四方向优化路线（已批准：质量闭环 → 易用性 → 记忆深化 → 测试整修，逐方向做透）第一轮：
+
+- **gray-matter 缓存毒化修复**（`fae46f0`）：gray-matter 按内容缓存且解析前写入，
+  YAML 解析抛错后同内容永久返回空 frontmatter——多实例 server 下同内容技能会
+  静默丢失。`ConfigMarkdown.parse` 传空 options 绕过缓存；技能加载的 schema 校验
+  失败补 warn 日志。该 bug 在触发提示测试中被跨实例技能消失现象暴露，插桩
+  逐层定位（available→discover→load→add→parse）后锁定。
+- **技能触发提示**（`ed185c0`）：66 个 SKILL.md 的 `| Trigger keywords:` 段
+  （本轮新增 6 个，compose-next 有意排除）在新轮次第一步做关键词匹配，
+  命中 ≤3 个未加载技能注入一行 system-reminder；拉丁词边界匹配防 git/github
+  误报，CJK 子串匹配；不与 /mention 全文注入、文档技能附件提示重复。
+- **用户级 shell hooks**（`6207ccb`）：`ymcode.json` 的 `hooks` 声明
+  `tool.execute.before/after` 钩子——before 非零退出取消工具调用（stderr 反馈
+  模型），after 零退出 stdout 追加工具结果；stdin 收 JSON 载荷；合成进文件级
+  hook 分发路径（5 秒超时、3 次熔断、输出回滚）。README 配方 + ymcode-docs 表。
+- **环境注入对齐**（`0d59be6`）：`YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT` 默认开
+  （新增 DISABLE var），非 Claude 模型 `<env>` 块带紧凑 git 快照；prompt-effect
+  全文件 128 pass / 0 fail 确认默认翻转零回归。
+- 发布 v0.2.7（`5931cad`，release workflow `40076610718`）。

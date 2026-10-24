@@ -1,22 +1,29 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-24，v0.2.6 后）
+## 当前交接点（2026-10-24，v0.2.7 发布中）
 
-- 最新 Release：`v0.2.6`（`2add73d`，12 个 asset，workflow `40070224750` success，
-  Windows x64 52,626,649 bytes；发布二进制冒烟 `--version` 0.2.6、中文 `--help` 通过）。
-- 其后两个未发版提交：
-  - `eeaad8c`：message-v2 附件标签对非本平台 file: URL 回退到解码 pathname，
-    修复 Windows `ERR_INVALID_FILE_URL_PATH` 崩溃；message-v2 测试 63 pass / 0 fail。
-  - `c6674c6`：prompt-effect MCP lifecycle 用例预算 5s→30s；生产侧 1 秒通知超时不变。
-- 门禁基线不变：i18n 1016 en / 1064 zh / 44 技能描述，skills 90，prompts 54，typecheck 通过。
-- 发布 v0.2.7 只需改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），
-  提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。
+- 最新 Release：`v0.2.7`（`5931cad`）。质量闭环三项 + gray-matter 缓存毒化修复已包含。
+- **四方向优化路线**（用户已批准，逐方向做透，每方向发一版）：
+  1. ✅ **质量闭环（v0.2.7）**：技能触发提示、用户级 hooks、环境注入对齐。
+  2. ▶ **易用性批次（→ v0.2.8）**：后台 bash 长任务（bash 工具 `run_in_background`
+     参数 + `bg` 操作 + `src/tool/bash-background.ts` 注册表 + TUI 状态栏，并发 5、
+     总超时 30 分钟，win32 注意显式 kill 清理）；locale 空白修复（t() 缺失键回退
+     locale→en，选择器只列 7 个有词典的语言，check:i18n 覆盖率报告）；首次引导
+     （setup 后一次性上手提示）与文档卫生（plans 复选框、release 示例版本）。
+  3. **记忆深化（→ v0.2.9）**：instinct 命中统计（工具 get + 回复中 `ins_<id>` 引用
+     → frontmatter usage_count/last_used_at 原子写）、0 使用 30 天衰减、注入按
+     usage→confidence→recency 排序、promote 近重复提示（FTS/BM25）、memory doctor
+     报告 0 使用与疑似重复。
+  4. **测试整修**：先重跑 Windows 全量拿当下真实失败面（P1 旧分类已过时——
+     main-wait 等已在 2026-10-22 修复轮处理）；ymcode-docs 9 个英文断言更新为中文正文；
+     memory-path-guard Windows 29 fail 复核；两边都挂优先。
+- 硬约束回顾：bun ci 不动 lockfile；无新 DB 表/迁移；instinct 晋升保持确定性；
+  用户可见文案中文、标识符英文；测试合成值。
 
-### 建议顺序
+### 发布 v0.2.8+ 流程（同 v0.2.7）
 
-1. **P1 测试整修轮次**：按“两边都挂 / 仅 Windows / 仅 Linux”三档拆分（见下文 P1 一节）。
-2. **Linux 全量复跑**（可选）：按 verification.md「服务器复用方式」更新代码后逐文件串行。
-3. **TUI 像素级人工验收**（可选）：首屏、命令面板、侧栏、常用对话框、中文宽度与蓝色对比度。
+改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），提交、打 tag、
+推送，`release.yml` 自动完成门禁/测试/12 平台发布。
 
 ## 本轮已完成（2026-10-22）
 

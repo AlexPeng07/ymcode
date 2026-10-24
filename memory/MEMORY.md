@@ -6,10 +6,11 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 最后代码提交（交接时）：`c6674c6`（2026-10-24，main 已推送）。最新发布 `v0.2.6`
-  （`2add73d`，含 `be8bc9f`、`13058ef`），其后两个测试修复提交（`eeaad8c`、`c6674c6`）
-  尚未发版
-- 最新 Release：`v0.2.6`，12 个平台 asset，Windows x64 52,626,649 bytes
+- 最后代码提交（交接时）：`5931cad`（v0.2.7 版本提交，main 已推送）。最新发布 `v0.2.7`
+  （`5931cad`），包含质量闭环三项：技能触发提示（`ed185c0`）、用户级 shell hooks
+  （`6207ccb`）、默认开启的环境注入与紧凑 git 快照（`0d59be6`）；外加 gray-matter
+  缓存毒化产品级修复（`fae46f0`）
+- 最新 Release：`v0.2.7`（12 个平台 asset，见 verification.md 发布记录）
 - 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
@@ -68,6 +69,17 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   其后修复 message-v2 对非本平台 file: URL 的崩溃（`attachmentDisplayPath` 回退，
   `eeaad8c`）并放宽 prompt-effect MCP lifecycle 用例预算到 30 秒（`c6674c6`），
   两个修复未发版。
+- **质量闭环轮（v0.2.7）**：① 技能触发提示——44 技能中 66 个 SKILL.md 的
+  `| Trigger keywords:` 段（新增 6 个）被 `insertReminders` 在新轮次第一步做关键词
+  匹配（拉丁词边界、CJK 子串），命中 ≤3 个未加载技能注入一行 system-reminder；
+  ② 用户级 hooks——`ymcode.json` 的 `hooks."tool.execute.before/after"[]` 声明
+  shell 命令钩子（stdin JSON 载荷、非零退出取消调用、after stdout 追加结果），
+  合成进文件级 hook 分发路径（5 秒超时、3 次熔断、输出回滚）；③ 环境注入对齐——
+  `YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT` 默认开（新增 DISABLE var 关闭），
+  非 Claude 模型 `<env>` 块带紧凑 git 快照（branch/main/status/近 2 commits）。
+- **gray-matter 缓存毒化修复（fae46f0）**：gray-matter 按内容缓存且解析前写入，
+  YAML 解析抛错后同内容永久返回空 frontmatter（多实例 server 下技能静默丢失）；
+  `ConfigMarkdown.parse` 传空 options 绕过缓存。
 - **体验优化（未发布）**：侧栏全部面板标题与状态、模型选择、会话列表、消息操作、
   工作树、变体、工作流、工作区、子代理、控制台组织、暂存与派生会话文案接入中英 i18n；
   技能目录改为 name+description 紧凑格式（去掉 `<location>` 与 XML 包装），44 个技能的

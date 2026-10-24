@@ -391,3 +391,62 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
    验证：目标用例 `-t` 过滤单独运行 → 1 pass / 0 fail。
 
 修复后 typecheck（sdk/plugin/shared/cli + tsconfig.scripts）全部通过。
+
+## 2026-10-24：质量闭环轮（v0.2.7）
+
+### gray-matter 缓存毒化（fae46f0，产品级修复）
+
+症状：同进程第二个实例的技能列表为空（`add()` 拿到 `mdData: {}`）。
+根因链：gray-matter `matter()` 按内容字符串缓存且在解析前写入条目；YAML 解析抛错后
+缓存留下 `{data:{}}`；同内容的后续解析直接命中坏缓存静默返回空 frontmatter，
+永远到不了 fallback 修复路径。多实例 server 下一次边界 YAML 失败会让同内容技能
+在所有实例静默丢失。修复：`ConfigMarkdown.parse` 传空 options 完全绕过缓存；
+`add()` 的 safeParse 失败补 warn 日志。回归测试：`test/config/markdown.test.ts`
+"invalid plain-scalar colon" 两个用例（第一次靠 fallback、第二次同内容仍拿到数据）。
+诱因修复：deep-research/loop/learn-everything 三个 SKILL.md 的 description 原本不带
+引号，追加 `Trigger keywords:`（含 ASCII `: `）后成为非法 YAML plain scalar——
+已全部改为带引号（其余 3 个原本带引号，追加在引号内）。
+
+### 1.1 技能触发提示（ed185c0）
+
+- `src/skill/index.ts`：`parseTriggerPhrases`（Trigger keywords 段 + name 兜底、
+  长度 2–40 过滤）、`matchTriggeredSkills`（拉丁词边界、CJK 子串、按命中数排序、
+  同分按名字母序、上限 3）、`hintDescription`（去触发段、160 字符截断）。
+- `src/session/prompt.ts` insertReminders：新轮次第一步（user 是最后一条消息）对
+  用户自由文本（去代码围栏/行内代码）匹配，排除已加载、已 /mention（已有
+  skill_content 全文注入）、文档技能（附件路径专属），注入一行提示。
+- 6 个高价值技能补触发词：deep-research、loop、memory-search、skill-creator、
+  ymcode-docs、learn-everything；compose-next 有意不加（设计为仅显式请求）。
+- 测试：`test/skill/trigger.test.ts` 11 pass；`test/session/prompt-skill-trigger.test.ts`
+  3 pass（命中/不命中/mention 不降级）；兄弟文件 prompt-skill-command-multi +
+  prompt-skill-mention 17 pass。
+
+### 1.2 用户级 hooks（6207ccb）
+
+- `ymcode.json` 新增 `hooks` 配置：`tool.execute.before/after` 数组
+  `{match?: 工具名|*, command}`；命令在项目目录用默认 shell 执行，stdin 收
+  `{tool, sessionID, callID, args}`（128K 截断），与计划不同处：超时沿用分发层
+  既有的 5 秒（未单独引入 10 秒预算），runner 自身 4.5 秒兜底 killTree。
+- before 非零退出 → `cancel=true`，stderr（500 字符截断）为 cancelReason；
+  after 零退出的 stdout（2000 字符截断）以 `[hook]` 前缀追加到工具结果。
+- 合成进 `plugin/index.ts` 文件级 hook 的 meta 列表——继承熔断（3 次）、
+  快照回滚、超时。测试：`test/plugin/config-hooks.test.ts` 3 pass
+  （真实 spawn fixture 脚本，断言 stdin 载荷形状）；file-hooks 回归 5 pass。
+- 文档：README「用户级 hooks」章节 + ymcode-docs 技能功能表。
+
+### 1.3 环境注入对齐（0d59be6）
+
+- flag 默认翻转：`YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT` 默认 true；
+  `YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT=true` 或兼容路径 ENABLE=false/0 关闭。
+- 非 Claude `<env>` 块新增紧凑 git 快照：Current/Main branch、status（2000 字符
+  截断）、近 2 条 commit（| 连接为单行）；非 git 目录跳过 git 调用。
+  缓存按 `dir\0now\0provider\0api\0compact` 键（now=session.time.created，会话级稳定）。
+- 位置仍在 additions 段（frozen prefix 缓存键不变）。
+- 测试：system.test.ts 重写两个旧语义用例（28 pass）；flag 测试翻转默认（3 pass）；
+  **prompt-effect 全文件 128 pass / 12 skip / 0 fail**（默认翻转零回归）。
+
+### v0.2.7 发布
+
+- tag `v0.2.7`（`5931cad`）→ release.yml workflow `40076610718`（结果见 GitHub；
+  12 平台 asset 预期）。包含提交：fae46f0、ed185c0、6207ccb、0d59be6。
+- 门禁（发布前本地）：brand/i18n/skills/prompts/typecheck 全绿。
