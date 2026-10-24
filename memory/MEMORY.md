@@ -139,11 +139,10 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `93768ec`，最新发布 `v0.2.9`。四方向路线前三方向已交付（质量闭环 v0.2.7、
-易用性 v0.2.8、记忆深化 v0.2.9）。剩余：方向 4 测试整修——ymcode-docs 与
-memory-path-guard 的历史失败已实测为零（P1 清单彻底过时），Windows 全量重跑
-进行中（日志 `.scratch/full-run-20261024.log`），完成后按
-"两边都挂/仅 Windows/仅 Linux"三档处置。详见 [next-steps.md](next-steps.md)。
+交接点为 `31bbbb2`，最新发布 `v0.2.9`。**四方向优化路线已全部交付**：
+质量闭环（v0.2.7）、易用性（v0.2.8）、记忆深化（v0.2.9）、测试整修
+（Windows 全量 277→107 fail 定性 + 首批 10 个修复；真实 Windows 专属
+剩 14 个）。剩余优先级与观察项见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 

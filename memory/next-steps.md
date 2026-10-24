@@ -1,29 +1,32 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-24，v0.2.7 发布中）
+## 当前交接点（2026-10-24，四方向路线全部完成）
 
-- 最新 Release：`v0.2.7`（`5931cad`）。质量闭环三项 + gray-matter 缓存毒化修复已包含。
-- **四方向优化路线**（用户已批准，逐方向做透，每方向发一版）：
-  1. ✅ **质量闭环（v0.2.7）**：技能触发提示、用户级 hooks、环境注入对齐。
-  2. ▶ **易用性批次（→ v0.2.8）**：后台 bash 长任务（bash 工具 `run_in_background`
-     参数 + `bg` 操作 + `src/tool/bash-background.ts` 注册表 + TUI 状态栏，并发 5、
-     总超时 30 分钟，win32 注意显式 kill 清理）；locale 空白修复（t() 缺失键回退
-     locale→en，选择器只列 7 个有词典的语言，check:i18n 覆盖率报告）；首次引导
-     （setup 后一次性上手提示）与文档卫生（plans 复选框、release 示例版本）。
-  3. **记忆深化（→ v0.2.9）**：instinct 命中统计（工具 get + 回复中 `ins_<id>` 引用
-     → frontmatter usage_count/last_used_at 原子写）、0 使用 30 天衰减、注入按
-     usage→confidence→recency 排序、promote 近重复提示（FTS/BM25）、memory doctor
-     报告 0 使用与疑似重复。
-  4. **测试整修**：先重跑 Windows 全量拿当下真实失败面（P1 旧分类已过时——
-     main-wait 等已在 2026-10-22 修复轮处理）；ymcode-docs 9 个英文断言更新为中文正文；
-     memory-path-guard Windows 29 fail 复核；两边都挂优先。
-- 硬约束回顾：bun ci 不动 lockfile；无新 DB 表/迁移；instinct 晋升保持确定性；
-  用户可见文案中文、标识符英文；测试合成值。
+- **四方向优化路线已全部交付**：质量闭环（v0.2.7）、易用性批次（v0.2.8）、
+  记忆深化（v0.2.9）、测试整修定性+首批修复（`31bbbb2`）。
+  发布链路 v0.2.7/0.2.8/0.2.9 均 12 asset。
+- Windows 全量已定性（6195 pass / 107 fail，原基线 277）：三档处置见
+  verification.md「Windows 全量重跑定性」——已修 10、负载伪影 ~83
+  （permission/next 隔离全过、mcp/lifecycle CI 隔离设计）、真实 Windows 专属 14。
 
-### 发布 v0.2.8+ 流程（同 v0.2.7）
+### 建议顺序
 
-改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），提交、打 tag、
-推送，`release.yml` 自动完成门禁/测试/12 平台发布。
+1. **修真实 Windows 专属 14 个**：bash.test.ts 的 git identity floor（6）与
+   external_directory/PowerShell（5）、stdio-exit-observe 的 SIGKILL/close
+   语义（3）。f5a16f3 基线即存在，与近期改动无关。
+2. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
+   中文宽度与蓝色对比度）。
+3. **可选：观察类后续**——instinct usage 数据积累一段时间后回顾注入排序
+   效果；后台 bash 与 config hooks 的实际使用反馈；技能触发提示的命中率
+   （可从会话日志统计 system-reminder 注入频率）。
+4. **可选：Linux 全量对照**（verification.md 服务器复用方式）。
+
+### 发布 v0.3.0+ 流程（同前）
+
+改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），
+提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。
+运维经验：release 上下文偶发正向等待超时——先做 main-push/tag-dispatch 双
+判别，第二次复现即放宽预算（cron-bridge 先例：5s→15s，`c6fcd67`）。
 
 ## 本轮已完成（2026-10-22）
 

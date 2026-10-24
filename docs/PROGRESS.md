@@ -215,3 +215,16 @@
   （CJK 字符二元组 Jaccard）、memory doctor 未使用/疑似重复报告、
   serialize 剔除 undefined 键。
 - 发布 v0.2.8（workflow `40083784186`）。
+- 发布 v0.2.9（workflow `40084609731`，记忆深化轮）。
+
+## 2026-10-24 方向4：Windows 全量重跑定性（277→107 fail）
+
+- 全量单进程：6195 pass / 85 skip / 107 fail（原基线 277 fail）。
+  三档定性见 memory/verification.md：已修 10（`31bbbb2`：URL.pathname/fileURLToPath、
+  path.dirname 替代 POSIX 正则、子进程超时预算）、负载伪影 ~83
+  （permission/next 隔离 80/80 过；mcp/lifecycle 为 CI 隔离设计）、
+  真实 Windows 专属 14（bash git-identity/external-directory 11、
+  stdio-exit-observe 信号语义 3，待下一轮）。
+- P1 旧清单确认彻底过时：ymcode-docs 与 memory-path-guard 实测零失败。
+- **四方向优化路线收官**：v0.2.7 质量闭环、v0.2.8 易用性、v0.2.9 记忆深化、
+  方向 4 定性+首批修复。

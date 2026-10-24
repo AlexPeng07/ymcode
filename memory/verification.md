@@ -516,3 +516,31 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
 - doctor：解析全部 instincts/*.md，报告 active/candidate 统计、未召回 active
   （含最旧 id 与 last_seen）、top5 疑似重复对。
 - 测试：instinct-service 16 pass（含 5 个新用例）；observer 路径回归通过。
+
+## 2026-10-24：Windows 全量重跑定性（方向 4）
+
+### 结果：6195 pass / 85 skip / 107 fail / 5 errors（基线 277 fail → 107）
+
+日志：`.scratch/full-run-20261024.log`（本机单进程全量，非 CI 分片）。
+
+### 三档定性
+
+- **已修复（`31bbbb2`，10 个）**：queue-migration-contracts 5 个——
+  `URL.pathname` 在 Windows 生成 `/F:/...` 非法路径，改 `fileURLToPath`
+  （与 message-v2 file-URL 修复同类）；rebuild-microcompact 4 个——POSIX 正则
+  裁父目录把 checkpoint.md 建成目录（EISDIR），改 `path.dirname`；
+  lib/effect 1 个——子进程超时用例 10s 预算扛不住全量负载，放宽 30s。
+- **负载伪影（约 44 个）**：permission/next 24 个——单文件隔离 80/80 全过；
+  mcp/lifecycle 20 个——CI 设计上就在 shard 4 隔离跑（SDK 模块级 mock 与
+  其他套件互斥），CI 全绿；全量单进程混跑必然互撞，非缺陷。
+- **真实 Windows 专属（14 个，记录待修）**：bash.test.ts 11 个
+  （git identity floor 6 + external_directory/PowerShell 5，自 f5a16f3 基线
+  即存在）；stdio-exit-observe 3 个（SIGKILL/close 语义在 win32 的差异，
+  需专门调查信号处理路径）。
+- 其余 ~39 个为单发时序用例（cron-lock、snapshot-race、oauth 等），
+  CI 分片全绿，按负载伪影记录。
+
+### 遗留
+
+- 真实 Windows 专属 14 个（上表第三档）是下一轮测试整修的明确目标。
+- Linux 全量对照按需（服务器复用方式见上文），当前 CI 分片已足够定性。
