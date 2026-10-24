@@ -99,6 +99,26 @@ const NonNegativeInt = Schema.Number.check(Schema.isInt()).check(Schema.isGreate
 // Token count as a number or a shorthand string ("300K", "1.5M", "50%").
 const TokenQuantity = Schema.Union([NonNegativeInt, Schema.String])
 
+const ConfigHookCommand = Schema.Struct({
+  match: Schema.optional(Schema.String).annotate({
+    description: 'Tool name this hook applies to; omit or "*" for every tool.',
+  }),
+  command: Schema.String.annotate({
+    description:
+      'Shell command. Receives a JSON payload ({tool, sessionID, callID, args}) on stdin and runs in the project directory with the default shell.',
+  }),
+})
+
+const ConfigHooks = Schema.Struct({
+  "tool.execute.before": Schema.optional(Schema.Array(ConfigHookCommand)).annotate({
+    description:
+      "Runs before a tool call; a non-zero exit cancels the call and stderr is shown to the model as the reason.",
+  }),
+  "tool.execute.after": Schema.optional(Schema.Array(ConfigHookCommand)).annotate({
+    description: "Runs after a tool call; stdout of a zero exit is appended to the tool result.",
+  }),
+})
+
 const InfoSchema = Schema.Struct({
   $schema: Schema.optional(Schema.String).annotate({
     description: "JSON schema reference for configuration validation",
@@ -112,6 +132,10 @@ const InfoSchema = Schema.Struct({
   }),
   command: Schema.optional(Schema.Record(Schema.String, ConfigCommand.Info)).annotate({
     description: "Command configuration; see the repository documentation.",
+  }),
+  hooks: Schema.optional(ConfigHooks).annotate({
+    description:
+      "User-level shell hooks for deterministic gates (e.g. lint after edit, block dangerous commands); same timeout and circuit-breaker semantics as file hooks.",
   }),
   skills: Schema.optional(ConfigSkills.Info).annotate({ description: "Additional skill folder paths" }),
   watcher: Schema.optional(

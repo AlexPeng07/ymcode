@@ -13,6 +13,32 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 - **内置技能**：44 个技能目录，包含 Anthropic 官方示例技能（Apache-2.0，LICENSE 随技能保留）、中文写作/办公技能，以及调试、代码审查、Git 工作流等工程技能。
 - **独立数据目录**：只使用 ymcode 自己的配置与数据目录，不读取、不迁移旧 mimocode 的任何内容。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
+- **确定性 hooks**：在 `ymcode.json` 里声明 shell 命令钩子（编辑后 lint、拦截危险命令），与文件级 TS hooks 走同一分发路径（超时、熔断、输出回滚）。
+
+## 用户级 hooks
+
+在项目 `.ymcode/ymcode.json`（或全局配置）中声明 shell 钩子。命令在项目目录下用默认 shell 执行，
+stdin 收到 JSON 载荷 `{tool, sessionID, callID, args}`，超时 5 秒，连续失败 3 次熔断：
+
+```json
+{
+  "hooks": {
+    "tool.execute.before": [
+      { "match": "bash", "command": "node scripts/block-dangerous.js" }
+    ],
+    "tool.execute.after": [
+      { "match": "edit", "command": "node scripts/lint-changed.js" }
+    ]
+  }
+}
+```
+
+- `tool.execute.before`：退出码非 0 → 取消本次工具调用，stderr 作为原因反馈给模型。
+- `tool.execute.after`：退出码为 0 时 stdout 追加到工具结果，模型下一轮可见。
+
+两个配方脚本都从 stdin 读 JSON 载荷：`lint-changed.js` 取 `args.filePath` 跑 lint 并把结论打到 stdout；
+`block-dangerous.js` 取 `args.command`，命中危险模式时 `process.exit(2)` 并把原因写到 stderr。需要更复杂的
+逻辑（改参数、订阅事件）时改用 `.ymcode/hooks/*.ts` 文件级钩子（TS 模块，默认导出 hook 对象）。
 
 ## 安装
 

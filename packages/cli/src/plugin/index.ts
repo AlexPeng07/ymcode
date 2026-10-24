@@ -11,6 +11,7 @@ import type {
 } from "@ymcode/plugin"
 import { z } from "zod"
 import { matchesActor } from "./matcher"
+import { configHooks } from "./config-hooks"
 import { Config } from "../config"
 import { Global } from "../global"
 import { Bus } from "../bus"
@@ -389,7 +390,7 @@ export const layer = Layer.effect(
         const hooks: Hooks[] = []
         const meta: HookEntry[] = []
         const files: Record<string, number> = {}
-        yield* config.get()
+        const cfg = yield* config.get()
         // Exclude home-level file hooks from both initial discovery and reloads.
         const candidates = (yield* config.directories()).filter(
           (dir) => path.resolve(dir) !== path.resolve(Global.Path.home, ".ymcode"),
@@ -445,6 +446,18 @@ export const layer = Layer.effect(
               log.info("loaded file hook", { path: match, name })
             }
           }
+        }
+
+        // Config-declared shell hooks ride the same dispatch path as file
+        // hooks (timeout, circuit breaker, output rollback).
+        const synthesized = configHooks(cfg.hooks, yield* InstanceState.directory)
+        if (synthesized) {
+          hooks.push(synthesized)
+          meta.push({
+            hook: synthesized,
+            pluginName: "config:hooks",
+            hookIDFor: (event: string) => `config:hooks#${event}`,
+          })
         }
 
         // Dispatch bus events to file hooks' `event` handlers. Scoped to this

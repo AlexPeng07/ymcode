@@ -29,8 +29,9 @@ ymcode（CLI 可执行文件 `ymcode`）是带终端 UI 的智能体编程工具
 | **定时提示词** | Cron/loop：按计划或重复循环注入提示词（UTC，5 字段） | `cron` 工具 · `/loop` · `/loops` |
 | **Dynamic Workflow** | 用 JS 脚本确定性地编排大量子代理（扇出、流水线、嵌套）；内置包括 `deep-research`、`fact-check` 与 `research-experiment` | `.ymcode/workflows/*.js` + `workflow` 工具 |
 | **自定义技能** | 在 `.ymcode/skills/` 下添加可复用的任务指令 | 见 `skill-creator` 技能 |
-| **技能发现** | `/skill-name` 斜杠调用（一条消息中出现 2 个及以上会自动加载并给出编排计划）；`skill_search` 工具按精确名称/别名 + BM25 匹配并自动加载高置信命中；部分内置技能（`claude-code`、`codex`）仅在其 CLI 已安装时出现 | `/` 自动补全 · 自动 |
+| **技能发现** | `/skill-name` 斜杠调用（一条消息中出现 2 个及以上会自动加载并给出编排计划）；`skill_search` 工具按精确名称/别名 + BM25 匹配并自动加载高置信命中；用户消息命中技能的触发关键词时，新对话第一步会注入一行提示；部分内置技能（`claude-code`、`codex`）仅在其 CLI 已安装时出现 | `/` 自动补全 · 自动 |
 | **MCP** | 本地与远程 Model Context Protocol 服务器 | `mcp` 配置 + `ymcode mcp` |
+| **用户级 hooks** | 在 `ymcode.json` 的 `hooks` 里声明 shell 命令钩子：`tool.execute.before` 非零退出即取消调用（stderr 反馈给模型），`tool.execute.after` 零退出的 stdout 追加到工具结果；stdin 收到 `{tool, sessionID, callID, args}`；5 秒超时、3 次熔断，与 `.ymcode/hooks/*.ts` 文件级钩子同一分发路径 | 配置 `hooks` |
 | **Capability API** | 每个会话已在回环端口上以 OpenAI 兼容的 `/v1` 提供本项目的聊天模型，因此技能或子进程可以借用模型而不必持有提供方密钥 | `ymcode llm-server issue` 签发限定范围的 token 并打印 base URL（见 @reference/capability-api.md） |
 
 ## 配置基础
