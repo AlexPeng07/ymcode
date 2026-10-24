@@ -101,7 +101,10 @@ const captureInject = Effect.gen(function* () {
 
 // Deadline-based instead of a fixed attempt count: CI shards run many suites in
 // parallel, so a 1s budget flakes when the delivery fiber is descheduled.
-const waitFor = (predicate: () => boolean, timeoutMs = 5_000) =>
+// Positive-delivery waits: assert eventual delivery, not delivery speed —
+// slow CI runners have repeatedly exhausted a 5s budget (release shard 3,
+// four separate runs). Negative assertions elsewhere keep their tight windows.
+const waitFor = (predicate: () => boolean, timeoutMs = 15_000) =>
   Effect.promise(async () => {
     const deadline = Date.now() + timeoutMs
     while (!predicate() && Date.now() < deadline) await Bun.sleep(10)
