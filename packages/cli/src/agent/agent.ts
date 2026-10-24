@@ -292,6 +292,10 @@ export const layer = Layer.effect(
             options: {},
             native: true,
             hidden: true,
+            // Activity-log rendering is mechanical — a lite model is plenty.
+            // Compaction deliberately stays on the session model: summary
+            // fidelity is context-window quality.
+            modelRef: "lite",
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({

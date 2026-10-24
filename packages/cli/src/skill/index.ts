@@ -375,11 +375,14 @@ export function fmt(list: Info[]) {
 
   // Compact name+description entries keep the fixed catalog small. The skill
   // tool loads content by name, so catalog locations would only add tokens.
+  // The trigger-keyword segment is matching input for the hint path, not
+  // prose the model needs — strip it from the catalog (29% of description
+  // bytes across the bundled skills).
   return [
     "## Available Skills",
     ...list
       .toSorted((a, b) => a.name.localeCompare(b.name))
-      .map((skill) => `- **${skill.name}**: ${skill.description}`),
+      .map((skill) => `- **${skill.name}**: ${stripTriggerSegment(skill.description)}`),
   ].join("\n")
 }
 
@@ -390,6 +393,10 @@ export function fmt(list: Info[]) {
 // at matching skills turn-locally, so no separate metadata source is needed.
 
 const TRIGGER_SEGMENT_RE = /\|\s*Trigger keywords:\s*([^|]+)/i
+
+export function stripTriggerSegment(description: string): string {
+  return description.split(/\|\s*Trigger keywords:/i)[0].trim()
+}
 
 export function parseTriggerPhrases(skill: Pick<Info, "name" | "description">): string[] {
   const phrases = [skill.name.toLowerCase()]
@@ -438,7 +445,7 @@ export function matchTriggeredSkills(
 // Hint lines show the description without the trigger segment; the phrases are
 // matching input, not something the model needs to read again.
 export function hintDescription(skill: Pick<Info, "description">): string {
-  const body = skill.description.split(/\|\s*Trigger keywords:/i)[0].trim()
+  const body = stripTriggerSegment(skill.description)
   return body.length > 160 ? body.slice(0, 157) + "..." : body
 }
 

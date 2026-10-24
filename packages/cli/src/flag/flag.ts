@@ -361,8 +361,16 @@ export const Flag = {
   // secrets / elide super-long lines from bash tool output before it is
   // returned to the model. Only applies when the output fits inline — if the
   // output spills to a truncation file, cleaning is skipped so the on-disk
-  // archive stays raw. Off by default. Set to 1/true to opt in.
-  YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY: truthy("YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY"),
+  // archive stays raw. Defaults to on (never-worse contract: a clean that
+  // grows the output is discarded); disable with
+  // YMCODE_DISABLE_TOKEN_EFFICIENCY=true or (compat) ENABLE=false/0.
+  get YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY() {
+    if (truthy("YMCODE_DISABLE_TOKEN_EFFICIENCY")) return false
+    if (process.env["YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY"] !== undefined) {
+      return truthy("YMCODE_EXPERIMENTAL_TOKEN_EFFICIENCY")
+    }
+    return true
+  },
   // Tunables for the token-efficient post-cleanse pipeline (see
   // src/tool/bash_token_efficient_pipeline.ts). Positive integers only;
   // unset / non-positive values fall back to the documented defaults.

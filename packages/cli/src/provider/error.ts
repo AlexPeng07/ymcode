@@ -264,17 +264,24 @@ function message(providerID: ProviderID, e: APICallError) {
     }
 
     const msg = e.message
+    // A dead key is the single most common "harness suddenly broken" cause and
+    // the raw provider text never says how to recover. Point at the two
+    // commands that fix it. Key material is never echoed.
+    const authHint =
+      e.statusCode === 401 || e.statusCode === 403
+        ? " Your API key may be missing, expired or revoked — run `ymcode setup` to reconfigure it, or `ymcode doctor` to live-check credentials."
+        : ""
     if (msg === "") {
       if (e.responseBody) return e.responseBody
       if (e.statusCode) {
         const err = STATUS_CODES[e.statusCode]
-        if (err) return err
+        if (err) return err + authHint
       }
       return "Unknown error"
     }
 
     if (!e.responseBody || (e.statusCode && msg !== STATUS_CODES[e.statusCode])) {
-      return msg
+      return msg + authHint
     }
 
     try {
@@ -282,7 +289,7 @@ function message(providerID: ProviderID, e: APICallError) {
       // try to extract common error message fields
       const errMsg = body.message || body.error || body.error?.message
       if (errMsg && typeof errMsg === "string") {
-        return `${msg}: ${errMsg}`
+        return `${msg}: ${errMsg}${authHint}`
       }
     } catch {}
 
@@ -290,15 +297,21 @@ function message(providerID: ProviderID, e: APICallError) {
     // provide a human-readable message instead of dumping raw markup
     if (/^\s*<!doctype|^\s*<html/i.test(e.responseBody)) {
       if (e.statusCode === 401) {
-        return "Unauthorized: request was blocked by a gateway or proxy. Your authentication token may be missing or expired — try running `ymcode auth login <your provider URL>` to re-authenticate."
+        return (
+          "Unauthorized: request was blocked by a gateway or proxy. Your authentication token may be missing or expired." +
+          authHint
+        )
       }
       if (e.statusCode === 403) {
-        return "Forbidden: request was blocked by a gateway or proxy. You may not have permission to access this resource — check your account and provider settings."
+        return (
+          "Forbidden: request was blocked by a gateway or proxy. You may not have permission to access this resource — check your account and provider settings." +
+          authHint
+        )
       }
       return msg
     }
 
-    return `${msg}: ${e.responseBody}`
+    return `${msg}: ${e.responseBody}${authHint}`
   }).trim()
 }
 
