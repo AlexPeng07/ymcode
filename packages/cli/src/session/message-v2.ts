@@ -982,6 +982,17 @@ export function assertResumeModelBoundary(messages: ModelMessage[]) {
   // must hold when there is model input.
 }
 
+// file: URLs written by another platform (e.g. POSIX paths read on Windows)
+// have no local absolute path; keep the label usable by showing the decoded
+// URL path instead of failing the whole message conversion.
+function attachmentDisplayPath(url: string): string {
+  try {
+    return fileURLToPath(url)
+  } catch {
+    return decodeURIComponent(new URL(url).pathname)
+  }
+}
+
 export const toModelMessagesEffect = Effect.fnUntraced(function* (
   input: WithParts[],
   model: Provider.Model,
@@ -1094,7 +1105,7 @@ export const toModelMessagesEffect = Effect.fnUntraced(function* (
         // text/plain and directory files are converted into text parts, ignore them
         if (part.type === "file" && part.mime !== "text/plain" && part.mime !== "application/x-directory") {
           if (part.url.startsWith("file:") && part.mime !== "application/pdf" && !/^(?:image|audio|video)\//.test(part.mime)) {
-            userMessage.parts.push({ type: "text", text: `[Attached local file: ${fileURLToPath(part.url)}]` })
+            userMessage.parts.push({ type: "text", text: `[Attached local file: ${attachmentDisplayPath(part.url)}]` })
           } else if (options?.stripMedia && isMedia(part.mime)) {
             userMessage.parts.push({
               type: "text",
