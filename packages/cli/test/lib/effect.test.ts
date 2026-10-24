@@ -50,5 +50,8 @@ if (process.env.YMCODE_EFFECT_TIMEOUT_TEST === "1") {
     expect(stdout).toContain("effect timeout cleanup verified")
     expect(stderr).not.toContain("Session not found")
     expect(stderr).not.toContain("MaxListenersExceeded")
-  }, 10_000)
+    // Spawns a child bun process running two tests (one a deliberate 1s
+    // timeout); under full-suite load child startup alone can eat most of a
+    // 10s budget.
+  }, 30_000)
 }
