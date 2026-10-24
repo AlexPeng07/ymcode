@@ -1,6 +1,6 @@
 ---
 name: ymcode-docs
-description: "当用户询问 ymcode 自身时使用：功能、TUI 或 CLI 命令、快捷键、终端兼容性、渲染异常、TUI 卡顿、SSH 或远程渲染、智能体模式（build / plan）及切换方式、配置、文件位置、提供方、模型、认证，或自定义的 OpenAI 兼容 / Anthropic 兼容 API 端点。提示词给出或要求配置 base URL/baseURL、API key/apiKey、模型名或 ID、provider、Anthropic Messages API，或全局/项目级 ymcode.json/jsonc 时尤其应触发；用户询问如何进入或退出 plan 模式时也应触发。当技能、任务、子进程或外部客户端需要借用本实例的模型时同样触发——每个 ymcode 服务器都提供的 OpenAI 兼容 /v1 聊天端点、`ymcode llm-server` 任务 token，或如何为它们暴露监听端口。用本技能安全地查看现有配置、做最小改动并在不猜 schema 字段或模型能力的前提下验证。 | ymcode features, CLI/TUI commands, config, providers, models, auth, capability API."
+description: "当用户询问 ymcode 自身时使用：功能、TUI 或 CLI 命令、快捷键、终端兼容性、渲染异常、TUI 卡顿、SSH 或远程渲染、智能体模式（build / plan）及切换方式、配置、文件位置、提供方、模型、认证，或自定义的 OpenAI 兼容 / Anthropic 兼容 API 端点。提示词给出或要求配置 base URL/baseURL、API key/apiKey、模型名或 ID、provider、Anthropic Messages API，或全局/项目级 ymcode.json/jsonc 时尤其应触发；用户询问如何进入或退出 plan 模式时也应触发。当技能、任务、子进程或外部客户端需要借用本实例的模型时同样触发——每个 ymcode 服务器都提供的 OpenAI 兼容 /v1 聊天端点、`ymcode llm-server` 任务 token，或如何为它们暴露监听端口。用本技能安全地查看现有配置、做最小改动并在不猜 schema 字段或模型能力的前提下验证。 | ymcode features, CLI/TUI commands, config, providers, models, auth, capability API. | Trigger keywords: ymcode 配置, ymcode 命令, plan 模式, base url, baseurl, api key, llm-server."
 ---
 
 # ymcode

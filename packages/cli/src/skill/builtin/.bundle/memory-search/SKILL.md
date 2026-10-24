@@ -1,6 +1,6 @@
 ---
 name: "memory-search"
-description: "当内置的记忆与历史工具不够用时，直接查询原始轨迹 SQLite 数据库。适用于需要跨会话做结构化分析的场景：查找重复出现的错误、按模式归组工具调用、核实实际执行了什么，或定位文本搜索无法浮现的特定历史命令/决策。本技能提供数据库结构、可直接使用的 SQL 查询模板，以及按目标划分的检索策略。 | Query the trajectory SQLite database directly for cross-session structured analysis."
+description: "当内置的记忆与历史工具不够用时，直接查询原始轨迹 SQLite 数据库。适用于需要跨会话做结构化分析的场景：查找重复出现的错误、按模式归组工具调用、核实实际执行了什么，或定位文本搜索无法浮现的特定历史命令/决策。本技能提供数据库结构、可直接使用的 SQL 查询模板，以及按目标划分的检索策略。 | Query the trajectory SQLite database directly for cross-session structured analysis. | Trigger keywords: sqlite, 轨迹数据库, trajectory database, 跨会话查询, raw sql."
 ---
 
 # 记忆检索：SQLite 轨迹数据库

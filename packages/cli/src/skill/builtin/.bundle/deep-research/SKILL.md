@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: 使用并行子代理和内置工具（WebSearch/WebFetch + 免费 API，无需密钥）对任意主题做深度研究。当用户要求带引用的多来源彻底调研时使用，例如「深度调研X」「deep research」「帮我全面研究一下」「多方求证」「写一份调研报告」。不适用于简单查证（一次 WebSearch 即可），也不适用于学术文献综述（请改用 auto-research 技能）。 | Deep multi-source investigation with a cited report; not for simple lookups or academic literature surveys.
+description: "使用并行子代理和内置工具（WebSearch/WebFetch + 免费 API，无需密钥）对任意主题做深度研究。当用户要求带引用的多来源彻底调研时使用，例如「深度调研X」「deep research」「帮我全面研究一下」「多方求证」「写一份调研报告」。不适用于简单查证（一次 WebSearch 即可），也不适用于学术文献综述（请改用 auto-research 技能）。 | Deep multi-source investigation with a cited report; not for simple lookups or academic literature surveys. | Trigger keywords: deep research, 深度调研, 全面研究, 多方求证, 调研报告."
 ---
 
 # Deep Research

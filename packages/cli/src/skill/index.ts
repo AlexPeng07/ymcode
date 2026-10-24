@@ -124,7 +124,13 @@ const add = Effect.fnUntraced(function* (state: State, match: string, bundledRoo
   if (!md) return
 
   const parsed = Frontmatter.safeParse(md.data)
-  if (!parsed.success) return
+  if (!parsed.success) {
+    log.warn("skill frontmatter failed schema validation", {
+      skill: match,
+      issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
+    })
+    return
+  }
 
   const isBundled = bundledRoots.some((root) => match.startsWith(root))
   const existing = state.skills[parsed.data.name]
@@ -375,6 +381,65 @@ export function fmt(list: Info[]) {
       .toSorted((a, b) => a.name.localeCompare(b.name))
       .map((skill) => `- **${skill.name}**: ${skill.description}`),
   ].join("\n")
+}
+
+// --- Turn-local trigger hints -------------------------------------------------
+//
+// Descriptions may embed a "| Trigger keywords: a, b, c" segment. The catalog
+// carries it to every turn already; the hint path reuses the same data to point
+// at matching skills turn-locally, so no separate metadata source is needed.
+
+const TRIGGER_SEGMENT_RE = /\|\s*Trigger keywords:\s*([^|]+)/i
+
+export function parseTriggerPhrases(skill: Pick<Info, "name" | "description">): string[] {
+  const phrases = [skill.name.toLowerCase()]
+  const segment = skill.description.match(TRIGGER_SEGMENT_RE)?.[1]
+  if (segment) {
+    for (const raw of segment.split(/[,，、]/)) {
+      const phrase = raw.trim().toLowerCase().replace(/[.。;；]$/, "")
+      // Single characters and sentence-length phrases are noise in both
+      // directions: the former matches everything, the latter never matches.
+      if (phrase.length >= 2 && phrase.length <= 40) phrases.push(phrase)
+    }
+  }
+  return [...new Set(phrases)]
+}
+
+const CJK_RE = /[\u3000-\u9fff\uff00-\uffef]/
+
+function phraseInText(phrase: string, haystack: string): boolean {
+  // CJK phrases match by substring; Latin phrases need word boundaries so
+  // "git" does not hit "github" and "review" does not hit "reviewer".
+  if (CJK_RE.test(phrase)) return haystack.includes(phrase)
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  return new RegExp(`(^|[^a-z0-9])${escaped}(?![a-z0-9])`).test(haystack)
+}
+
+export function matchTriggeredSkills(
+  text: string,
+  skills: Array<Pick<Info, "name" | "description">>,
+  limit = 3,
+): Array<Pick<Info, "name" | "description">> {
+  const haystack = text.toLowerCase()
+  const scored: Array<{ skill: Pick<Info, "name" | "description">; score: number }> = []
+  for (const skill of skills) {
+    let score = 0
+    for (const phrase of parseTriggerPhrases(skill)) {
+      if (phraseInText(phrase, haystack)) score++
+    }
+    if (score > 0) scored.push({ skill, score })
+  }
+  return scored
+    .toSorted((a, b) => b.score - a.score || a.skill.name.localeCompare(b.skill.name))
+    .slice(0, limit)
+    .map((entry) => entry.skill)
+}
+
+// Hint lines show the description without the trigger segment; the phrases are
+// matching input, not something the model needs to read again.
+export function hintDescription(skill: Pick<Info, "description">): string {
+  const body = skill.description.split(/\|\s*Trigger keywords:/i)[0].trim()
+  return body.length > 160 ? body.slice(0, 157) + "..." : body
 }
 
 export * as Skill from "."

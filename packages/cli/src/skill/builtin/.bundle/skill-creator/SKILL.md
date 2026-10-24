@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "创建、审查与改进智能体技能（SKILL.md 文件夹）的交互式指南。适用于用户想新建技能（‘create a skill’、‘make a skill for X’、‘write a SKILL.md’、‘turn this workflow into a skill’），审查或改进已有技能，修复从不触发或触发过于频繁的技能，或在分享前校验技能文件夹。不适用于通用提示词撰写、MCP 服务器开发或编辑任意 markdown 文件。 | Create, review, and validate agent skills."
+description: "创建、审查与改进智能体技能（SKILL.md 文件夹）的交互式指南。适用于用户想新建技能（‘create a skill’、‘make a skill for X’、‘write a SKILL.md’、‘turn this workflow into a skill’），审查或改进已有技能，修复从不触发或触发过于频繁的技能，或在分享前校验技能文件夹。不适用于通用提示词撰写、MCP 服务器开发或编辑任意 markdown 文件。 | Create, review, and validate agent skills. | Trigger keywords: create a skill, make a skill, SKILL.md, 创建技能, 新建技能."
 version: 1.0.0
 license: MIT
 platforms: [linux, macos, windows]

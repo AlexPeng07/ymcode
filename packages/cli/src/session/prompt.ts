@@ -116,7 +116,8 @@ import {
   TEXT_NGRAM_RECOVERY_REMIND,
   TEXT_NGRAM_RECOVERY_REPLAN,
 } from "../session/prompt/text-ngram-detection"
-import { builtinSkillRoot, matchDocumentSkills } from "@/skill/builtin/extract"
+import { builtinSkillRoot, DOCUMENT_SKILL_NAMES, matchDocumentSkills } from "@/skill/builtin/extract"
+import { hintDescription, matchTriggeredSkills } from "@/skill"
 import { ToolRegistry } from "../tool"
 import { MCP } from "../mcp"
 import { normalizeToolResult } from "../mcp/tool-result"
@@ -1637,6 +1638,34 @@ Keep planning proportional to task complexity: for simple combinations, two or t
               userMessage.parts.push(part)
             }
           }
+
+        // Turn-local trigger hints. Fresh turn only: at step 1 the user message
+        // is the last message (the assistant reply is appended after
+        // insertReminders); injecting later steps would stack duplicates.
+        // Explicitly referenced skills are excluded — they got the full
+        // skill_content treatment above, a one-line hint would be a downgrade.
+        if (input.messages.at(-1) === userMessage) {
+          const hinted = matchTriggeredSkills(stripped, allSkills).filter(
+            (skill) =>
+              !loaded.has(skill.name) && !mentioned.includes(skill.name) && !DOCUMENT_SKILL_NAMES.has(skill.name),
+          )
+          if (hinted.length > 0) {
+            const entries = hinted.map((skill) => `- ${skill.name}: ${hintDescription(skill)}`).join("\n")
+            const part = yield* sessions.updatePart({
+              id: PartID.ascending(),
+              messageID: userMessage.info.id,
+              sessionID: userMessage.info.sessionID,
+              type: "text",
+              text: `<system-reminder>
+The user's request matches trigger keywords of these available skills:
+${entries}
+Load the SKILL.md of a listed skill with the skill tool when it genuinely fits the task; otherwise continue without it.
+</system-reminder>`,
+              synthetic: true,
+            })
+            userMessage.parts.push(part)
+          }
+        }
       }
 
       if (input.agent.name !== "plan" && assistantMessage?.info.agent === "plan") {

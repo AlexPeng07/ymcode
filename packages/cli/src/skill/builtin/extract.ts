@@ -69,6 +69,10 @@ const DOCUMENT_SKILL_TRIGGERS: Array<{
   },
 ]
 
+// Document skills trigger on attachments (matchDocumentSkills), so they are
+// excluded from the free-text trigger-hint path.
+export const DOCUMENT_SKILL_NAMES = new Set(DOCUMENT_SKILL_TRIGGERS.map((t) => t.skill))
+
 export function builtinSkillRoot() {
   return path.join(GlobalPath.data, "builtin_skills", InstallationVersion, "skills")
 }

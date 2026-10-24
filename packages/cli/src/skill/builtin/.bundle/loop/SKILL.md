@@ -1,6 +1,6 @@
 ---
 name: loop
-description: 按固定节奏触发提示词（周期性循环）。当用户要求「每 N 分钟/小时/天跑一次 X」「loop X」「babysit Y」「每 N 主动关注 Y」，或直接调用 `/loop` 时使用。解析 `[interval] <prompt>`，挑选干净的 cron 表达式，通过 `cron` 工具注册任务，并立即执行一次提示词，让用户无需等待第一个 cron 触发就能看到动作。 | Schedule a recurring prompt (run X every N minutes/hours/days, loop X, babysit Y).
+description: "按固定节奏触发提示词（周期性循环）。当用户要求「每 N 分钟/小时/天跑一次 X」「loop X」「babysit Y」「每 N 主动关注 Y」，或直接调用 `/loop` 时使用。解析 `[interval] <prompt>`，挑选干净的 cron 表达式，通过 `cron` 工具注册任务，并立即执行一次提示词，让用户无需等待第一个 cron 触发就能看到动作。 | Schedule a recurring prompt (run X every N minutes/hours/days, loop X, babysit Y). | Trigger keywords: loop, babysit, 周期性执行, 定时执行, 循环执行."
 ---
 
 # /loop — 安排周期性提示词

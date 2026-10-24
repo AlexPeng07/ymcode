@@ -1,6 +1,6 @@
 ---
 name: learn-everything
-description: 把上传的 PDF、论文、书籍章节、文档、URL 或用户自选的主题，变成结构化、可交互的学习课程。适用于用户想逐章学习、研读、理解、掌握、复习或练习某个主题；想要基于素材的教程或课程体系；想要练习、测验、答案批改、提示、间隔复习或结课测评；或说「教我这个」「learn this PDF」「分章节教学」「带我学」等类似表达；或回来继续之前的课程（「continue my course」「接着上次学」），或提供了已保存的课程状态文件/状态块。解释与练习要适配学员水平，为文档保留页码或章节引用，并增量教学，而不是一次倾倒全部内容。 | Turn a PDF/paper/URL/topic into an interactive course; continue a saved course.
+description: "把上传的 PDF、论文、书籍章节、文档、URL 或用户自选的主题，变成结构化、可交互的学习课程。适用于用户想逐章学习、研读、理解、掌握、复习或练习某个主题；想要基于素材的教程或课程体系；想要练习、测验、答案批改、提示、间隔复习或结课测评；或说「教我这个」「learn this PDF」「分章节教学」「带我学」等类似表达；或回来继续之前的课程（「continue my course」「接着上次学」），或提供了已保存的课程状态文件/状态块。解释与练习要适配学员水平，为文档保留页码或章节引用，并增量教学，而不是一次倾倒全部内容。 | Turn a PDF/paper/URL/topic into an interactive course; continue a saved course. | Trigger keywords: 教我这个, 带我学, 分章节教学, 制作课程, learn this, interactive course."
 ---
 
 # Learn Everything
