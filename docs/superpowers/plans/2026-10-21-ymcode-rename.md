@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **状态（2026-10-24 回填）**：本计划已执行完毕并随 v0.2.0 交付；§3.4 的一次性迁移按 PROGRESS.md 记录在 v0.2.2 被有意移除（与 mimocode 彻底解耦）。复选框未逐项回填，实际状态以 `docs/PROGRESS.md` 为准。
+
 **Goal:** 把 MiMo-Code 基线完整改名为 ymcode，并把本机已有 mimocode 配置/记忆/数据库无损迁移到 ymcode 目录。
 
 **Architecture:** 先改包名与入口，再改运行时路径与环境变量，随后加一次性复制迁移与兼容回退，最后用品牌扫描脚本兜底。所有旧目录只复制不删除；外部 provider、上游归属、第三方品牌不改。

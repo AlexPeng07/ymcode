@@ -24,6 +24,10 @@ const PRIORITY_WEIGHTS: Record<string, number> = {
   "tui.tips.doc": 30,
   "tui.tips.models": 30,
   "tui.tips.connect": 30,
+
+  "tui.tips.skills_center": 65,
+  "tui.tips.bg_bash": 55,
+  "tui.tips.hooks": 45,
 }
 
 const TIP_KEYS = [
@@ -127,6 +131,9 @@ const TIP_KEYS = [
   "tui.tips.review",
   "tui.tips.help",
   "tui.tips.rename",
+  "tui.tips.skills_center",
+  "tui.tips.bg_bash",
+  "tui.tips.hooks",
 ] as const
 
 export function tipWeight(key: string) {

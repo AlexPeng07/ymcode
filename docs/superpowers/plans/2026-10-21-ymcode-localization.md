@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **状态（2026-10-24 回填）**：本计划已执行完毕并随 v0.2.0–v0.2.3 交付（Anthropic 官方技能正文按 PROGRESS.md 记录保留英文）。复选框未逐项回填，实际交付状态以 `docs/PROGRESS.md` 为准。
+
 **Goal:** 把 ymcode 的界面、内置技能正文、agent/工具提示词、用户可见错误提示全部改为中文；代码标识符、内部日志、命令、路径保持英文。
 
 **Architecture:** 内容层与代码层分开：UI 文案抽到 en/zh 字典；技能与提示词做文件级翻译，用“代码块 hash 不变 + 受保护 token 不变”的机械校验兜底；所有检查接入 `package.json` 脚本与 CI。

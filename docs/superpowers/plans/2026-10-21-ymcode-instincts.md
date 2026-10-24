@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **状态（2026-10-24 回填）**：本计划已执行完毕并随 v0.2.0 交付。复选框未逐项回填，实际交付状态以 `docs/PROGRESS.md` 与 `memory/verification.md` 为准。
+
 **Goal:** 在现有 `MEMORY.md` / `checkpoint.md` / FTS5 / dream / distill 之上，增加带证据与置信度的 instincts（直觉规则）捕获、晋升、降级、衰减和预算注入。
 
 **Architecture:** Markdown 文件为唯一存储（不新增数据库表）；`instinct` 类型复用现有 FTS 索引。独立 `instinct-observer` 子代理在 checkpoint 成功后节流捕获候选；`instinct` 工具与 CLI 做确定性晋升/降级；`llm.ts` 只注入 active 规则。

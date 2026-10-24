@@ -111,8 +111,8 @@ ymcode instinct list   # 查看直觉规则
 
 ## 发布
 
-1. 让 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.5`）。
-2. 提交后打 tag 并推送：`git tag v0.2.5 && git push origin main --tags`。
+1. 让 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.8`）。
+2. 提交后打 tag 并推送：`git tag v0.2.8 && git push origin main --tags`。
 
 `release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 

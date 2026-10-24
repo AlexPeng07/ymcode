@@ -163,6 +163,9 @@ export const dict: Record<string, string> = {
   "tui.tips.review": "Use {highlight}/review{/highlight} to review uncommitted changes, branches, or PRs",
   "tui.tips.help": "Run {highlight}/help{/highlight} or {highlight}Ctrl+X H{/highlight} to show the help dialog",
   "tui.tips.rename": "Use {highlight}/rename{/highlight} to rename the current session",
+  "tui.tips.skills_center": "Run {highlight}/skills{/highlight} to browse the built-in skill center, and {highlight}/instincts{/highlight} to review learned rules",
+  "tui.tips.bg_bash": "Long command? Pass {highlight}run_in_background{/highlight} to the bash tool; poll it later and get notified when it exits",
+  "tui.tips.hooks": "Declare shell hooks in {highlight}ymcode.json{/highlight} to lint after edits or block dangerous commands before they run",
   "tui.tips.suspend.unix": "Press {highlight}Ctrl+Z{/highlight} to suspend the terminal and return to your shell",
   "tui.tips.suspend.win": "Press {highlight}Ctrl+Z{/highlight} to undo changes in your prompt",
 
