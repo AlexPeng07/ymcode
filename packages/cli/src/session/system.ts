@@ -30,7 +30,36 @@ function renderGitResult(result: Git.Result, fallback = "(none)") {
   return result.text().trim() || fallback
 }
 
-const anthropicEnvironment = new Map<string, string>()
+const ENV_SNAPSHOT_CAP = 2_000
+
+const environmentCache = new Map<string, string>()
+
+// Compact one-line git snapshot for non-Anthropic env blocks. The full
+// multi-section layout stays Claude-only; every other provider gets the same
+// facts in a few lines so git awareness no longer depends on model family.
+const compactGitSnapshot = Effect.fn("SystemPrompt.compactGitSnapshot")(function* (
+  git: Git.Interface,
+  directory: string,
+) {
+  const project = Instance.project
+  if (project.vcs !== "git") return []
+  const [branch, base, status, commits] = yield* Effect.all(
+    [
+      git.branch(directory),
+      git.defaultBranch(directory),
+      git.run(["status", "--short", "--untracked-files=all"], { cwd: directory }),
+      git.run(["log", "-2", "--oneline", "--decorate=no"], { cwd: directory }),
+    ],
+    { concurrency: 4 },
+  )
+  const statusText = renderGitResult(status, "(clean)")
+  return [
+    `  Current branch: ${branch ?? "(detached or unavailable)"}`,
+    `  Main branch: ${base?.name ?? "(unknown)"}`,
+    `  Git status: ${statusText.length > ENV_SNAPSHOT_CAP ? statusText.slice(0, ENV_SNAPSHOT_CAP) + " (truncated)" : statusText}`,
+    `  Recent commits: ${renderGitResult(commits).replace(/\n/g, " | ")}`,
+  ]
+})
 
 export function provider(model: Provider.Model, harness?: HarnessMode) {
   if (usesGPTToolset(model.id, harness, model.api.id, model.family)) return [PROMPT_GPT]
@@ -80,7 +109,7 @@ export const layer = Layer.effect(
         const project = Instance.project
         if (provider(model, harness)[0] === PROMPT_ANTHROPIC) {
           const key = `${Instance.directory}\0${now}\0${model.providerID}\0${model.api.id}`
-          const cached = anthropicEnvironment.get(key)
+          const cached = environmentCache.get(key)
           if (cached)
             return [cached, `IMPORTANT: Your response must ALWAYS strictly follow the same major language as the user.`]
 
@@ -119,11 +148,14 @@ export const layer = Layer.effect(
             `Recent commits:`,
             renderGitResult(commits),
           ].join("\n")
-          anthropicEnvironment.set(key, prompt)
+          environmentCache.set(key, prompt)
           return [prompt, `IMPORTANT: Your response must ALWAYS strictly follow the same major language as the user.`]
         }
-        const base = [
-          [
+        const envKey = `${Instance.directory}\0${now}\0${model.providerID}\0${model.api.id}\0compact`
+        let envBlock = environmentCache.get(envKey)
+        if (!envBlock) {
+          const gitLines = yield* compactGitSnapshot(git, Instance.directory)
+          envBlock = [
             `You are ymcode Agent, built by Xiaomi MiMo Team. You are an interactive agent that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.`,
             `You are powered by the model named ${model.api.id}. The exact model ID is ${model.providerID}/${model.api.id}`,
             `Here is some useful information about the environment you are running in:`,
@@ -132,8 +164,13 @@ export const layer = Layer.effect(
             `  Workspace root folder: ${Instance.worktree}`,
             `  Is directory a git repo: ${project.vcs === "git" ? "yes" : "no"}`,
             `  Platform: ${process.platform}`,
+            ...gitLines,
             `</env>`,
-          ].join("\n"),
+          ].join("\n")
+          environmentCache.set(envKey, envBlock)
+        }
+        const base = [
+          envBlock,
           `IMPORTANT: Your response must ALWAYS strictly follow the same major language as the user.`,
         ]
         const maskVisionCapability = [model.id, model.api.id, model.providerID].some((id) =>

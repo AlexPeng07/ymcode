@@ -30,20 +30,35 @@ afterEach(() => {
 })
 
 describe("session.system", () => {
-  test("does not render dynamic environment information by default", async () => {
+  test("renders the environment by default and renders none when explicitly disabled", async () => {
+    const previousDisable = process.env.YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT
     delete process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT
+    delete process.env.YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT
     await using tmp = await tmpdir({ git: true })
 
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const prompt = await Effect.runPromise(
-          Effect.gen(function* () {
-            return yield* (yield* SystemPrompt.Service).environment(ProviderTest.model(), Date.now())
-          }).pipe(Effect.provide(SystemPrompt.defaultLayer)),
-        )
+        const run = () =>
+          Effect.runPromise(
+            Effect.gen(function* () {
+              return yield* (yield* SystemPrompt.Service).environment(ProviderTest.model(), Date.now())
+            }).pipe(Effect.provide(SystemPrompt.defaultLayer)),
+          )
 
-        expect(prompt).toEqual([])
+        const on = (await run()).join("\n")
+        expect(on).toContain("<env>")
+        expect(on).toContain(`Working directory: ${tmp.path}`)
+
+        process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = "0"
+        expect(await run()).toEqual([])
+
+        process.env.YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT = "1"
+        process.env.YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT = "true"
+        expect(await run()).toEqual([])
+
+        if (previousDisable === undefined) delete process.env.YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT
+        else process.env.YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT = previousDisable
       },
     })
   })
@@ -84,7 +99,7 @@ describe("session.system", () => {
     expect(SystemPrompt.provider(responses, "default")[0]).not.toContain("你是 Codex")
   })
 
-  test("renders machine and repository environment only for Claude models", async () => {
+  test("renders the full environment for Claude and a compact git snapshot for other models", async () => {
     await using tmp = await tmpdir({ git: true })
     await $`git branch -M prompt-test`.cwd(tmp.path).quiet()
     await $`git config init.defaultBranch prompt-test`.cwd(tmp.path).quiet()
@@ -124,9 +139,14 @@ describe("session.system", () => {
         expect(claude).toContain("Git user: Test")
         expect(claude).toContain("?? dirty.txt")
         expect(claude).toContain("root commit")
+        expect(gpt).not.toContain("# Environment")
         expect(gpt).not.toContain("gitStatus:")
-        expect(gpt).not.toContain("Current branch:")
         expect(gpt).not.toContain("Git user:")
+        // The compact block carries the same repo facts in a few lines.
+        expect(gpt).toContain("Current branch: prompt-test")
+        expect(gpt).toContain("Main branch: prompt-test")
+        expect(gpt).toContain("?? dirty.txt")
+        expect(gpt).toContain("Recent commits:")
       },
     })
   })

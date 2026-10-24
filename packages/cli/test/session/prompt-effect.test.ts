@@ -196,7 +196,7 @@ function dynamicSystemPrompt<A, E, R>(value: string | undefined, fx: () => Effec
   )
 }
 
-const withoutDynamicSystemPrompt = <A, E, R>(fx: () => Effect.Effect<A, E, R>) => dynamicSystemPrompt(undefined, fx)
+const withoutDynamicSystemPrompt = <A, E, R>(fx: () => Effect.Effect<A, E, R>) => dynamicSystemPrompt("0", fx)
 const withDynamicSystemPrompt = <A, E, R>(fx: () => Effect.Effect<A, E, R>) => dynamicSystemPrompt("true", fx)
 
 function toolPart(parts: MessageV2.Part[]) {

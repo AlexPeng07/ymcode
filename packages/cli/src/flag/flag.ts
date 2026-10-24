@@ -314,14 +314,20 @@ export const Flag = {
   // enable try-best loop detection, automatic turn pausing, and handoff UI.
   YMCODE_ENABLE_TRY_BEST_HANDOFF: truthy("YMCODE_ENABLE_TRY_BEST_HANDOFF"),
 
-  // Defaults to false. Opt in to append the runtime-derived environment block
-  // (working directory, platform, shell, git status/branch/commits) to the model's
-  // system prompt. Instruction files (AGENTS.md / CLAUDE.md) are appended
-  // regardless — suppress the whole block with YMCODE_DISABLE_INSTRUCTIONS, or
-  // individual sources with YMCODE_DISABLE_PROJECT_CONFIG /
-  // YMCODE_DISABLE_CLAUDE_CODE_PROMPT.
+  // Defaults to true: the runtime-derived environment block (working
+  // directory, platform, shell, git status/branch/commits) is appended to the
+  // model's system prompt for every provider. Disable with
+  // YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT=true (or, for compatibility,
+  // YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT=false/0). Instruction files
+  // (AGENTS.md / CLAUDE.md) are appended regardless — suppress the whole
+  // block with YMCODE_DISABLE_INSTRUCTIONS, or individual sources with
+  // YMCODE_DISABLE_PROJECT_CONFIG / YMCODE_DISABLE_CLAUDE_CODE_PROMPT.
   get YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT() {
-    return truthy("YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT")
+    if (truthy("YMCODE_DISABLE_DYNAMIC_SYSTEM_PROMPT")) return false
+    if (process.env["YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT"] !== undefined) {
+      return truthy("YMCODE_ENABLE_DYNAMIC_SYSTEM_PROMPT")
+    }
+    return true
   },
 
   // Defaults to false (enabled): instruction-file content (AGENTS.md / CLAUDE.md)
