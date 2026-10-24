@@ -1879,6 +1879,24 @@ const layer: Layer.Layer<
       const group = cfg.model_groups?.[ref]
       if (!group) {
         if (BUILTIN_TIERS.has(ref)) {
+          // Built-in tiers are provider-aware: a helper agent (summary, title,
+          // small-model callers) must not silently jump to an unrelated
+          // provider — that desyncs scripted harnesses in tests and quietly
+          // routes real traffic to another provider's key and billing. Prefer
+          // the cheapest model on the caller's loaded provider; fall back to
+          // the global default only when that provider has nothing to offer.
+          if (contextProviderID) {
+            const state = yield* getState()
+            const models = state.providers[contextProviderID]
+              ? Object.values(state.providers[contextProviderID]!.models)
+              : []
+            const cheapest = models.toSorted(
+              (a, b) =>
+                (a.cost?.input ?? Number.POSITIVE_INFINITY) - (b.cost?.input ?? Number.POSITIVE_INFINITY) ||
+                a.id.localeCompare(b.id),
+            )[0]
+            if (cheapest) return cheapest
+          }
           const fallback = yield* defaultModel()
           return yield* getModel(fallback.providerID, fallback.modelID)
         }

@@ -308,6 +308,35 @@ test("built-in tiers fall back to the default model when no model_groups configu
   })
 })
 
+// With a context provider, built-in tiers stay ON that provider (cheapest
+// loaded model) instead of jumping to the global default — helper agents like
+// summary/title must not silently switch provider (scripted harnesses in tests
+// desync; real traffic would move to another provider's key and billing).
+test("built-in tiers are provider-aware before the default fallback", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "ymcode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          provider: PROVIDERS,
+          // defaultModel() would return alpha here — the context must win.
+          model: "alpha/alpha-1",
+        }),
+      )
+    },
+  })
+
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const model = await resolve("lite", ProviderID.make("beta"))
+      expect(String(model.providerID)).toBe("beta")
+      expect(String(model.id)).toBe("beta-1")
+    },
+  })
+})
+
 // A configured built-in tier still wins over the default-model fallback, and the
 // two coexist: an unconfigured built-in tier falls back to the default while a
 // configured one uses its group.
