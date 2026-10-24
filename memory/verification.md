@@ -542,5 +542,32 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
 
 ### 遗留
 
-- 真实 Windows 专属 14 个（上表第三档）是下一轮测试整修的明确目标。
+- 真实 Windows 专属剩 8 个：bash external_directory/PowerShell 权限组 5 个
+  （产品代码的平台路径解析问题，非测试 bug）+ stdio-exit-observe 信号语义 3 个。
 - Linux 全量对照按需（服务器复用方式见上文），当前 CI 分片已足够定性。
+
+## 2026-10-24：生产力评估取证与修复（d5589bd）
+
+### E2E 实测（真实安装、v0.2.7 发布二进制、真实 auth.json）
+
+- `ymcode run`（deepseek 与 xiaomi 两个 provider）均报 **API key 无效**——
+  两把真实凭据都已失效（deepseek ****18f3 被服务端拒绝；xiaomi Invalid API Key）。
+- 旧版 `ymcode doctor` 对此完全沉默：凭据检查只看存在性，报告 ✓ 一切正常。
+- 会话库 110.7 MB——承载过大量真实使用；系统 PATH 无 ymcode（用发布二进制直跑）。
+- 网络环境注记：本机有 TLS 拦截（自签证书链），bun 内置 CA 不信任；
+  curl 走系统证书库正常。运行时 provider 调用此前可通。
+
+### 修复（d5589bd）
+
+- **doctor 凭据实测校验**：对 auth.json 每个 key 发 6 秒超时的
+  `GET {baseURL}/models`（URL 取 provider options.baseURL，回退首个模型
+  的 api.url）；401/403 → 明确"key 已失效"+ setup 修复指引；其他状态码/
+  TLS 失败 → warn 带原因（不误判）。密钥不外印。实测：抓到 xiaomi 死 key；
+  deepseek 因 TLS 拦截报 warn（诚实降级）。providers 快照提升到早退之外
+  （无默认模型时探针仍可用——正是本机状态）。
+- **bash git-identity 测试探针修复**：printGitEnv 固定用 PS 语法导致
+  bash/cmd 变体必然失败（功能本身正常）；改为按 shell 生成
+  （$env:/%%VAR%%/$VAR），cmd 未定义变量保留字面量的语义在断言处注记。
+  6/6 修复；Windows 专属失败 14 → 8。
+- 验证：doctor 对真实环境输出 ✗ xiaomi key 失效 + 修复指引；
+  bash.test.ts 97 pass / 4 fail（仅剩 external_directory/PowerShell 组）。

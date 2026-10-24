@@ -11,9 +11,11 @@
 
 ### 建议顺序
 
-1. **修真实 Windows 专属 14 个**：bash.test.ts 的 git identity floor（6）与
-   external_directory/PowerShell（5）、stdio-exit-observe 的 SIGKILL/close
-   语义（3）。f5a16f3 基线即存在，与近期改动无关。
+0. **恢复可用（立即）**：本机两把 API key 均已失效（E2E 实测）——运行
+   `ymcode setup` 重新配置 provider key，再 `ymcode doctor` 确认
+   「联网验证通过」（d5589bd 起 doctor 能实测 key 有效性）。
+1. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
+   （5，产品代码平台路径解析）+ stdio-exit-observe 信号语义（3）。
 2. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
    中文宽度与蓝色对比度）。
 3. **可选：观察类后续**——instinct usage 数据积累一段时间后回顾注入排序
