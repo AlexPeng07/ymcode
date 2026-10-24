@@ -226,3 +226,23 @@ describe("ConfigMarkdown: frontmatter has weird model id", async () => {
     expect(result.content.trim()).toBe("Strictly follow da rules")
   })
 })
+
+describe("ConfigMarkdown: invalid plain-scalar colon", async () => {
+  const fixture = import.meta.dir + "/fixtures/colon-plain-scalar.md"
+  const first = await ConfigMarkdown.parse(fixture)
+
+  test("first parse is rescued by the fallback sanitizer", () => {
+    expect(first.data["name"]).toBe("synthetic-skill")
+    expect(first.data["description"]).toContain("Trigger keywords: synthetic marker")
+  })
+
+  // gray-matter caches by content and stores the cache entry before parsing.
+  // A throwing first parse used to leave that entry behind as empty data, so
+  // every later parse of identical content (the same skill in another project
+  // instance) silently got {} and never reached the fallback.
+  test("second parse of identical content still gets the data", async () => {
+    const second = await ConfigMarkdown.parse(fixture)
+    expect(second.data["name"]).toBe("synthetic-skill")
+    expect(second.data["description"]).toContain("Trigger keywords: synthetic marker")
+  })
+})

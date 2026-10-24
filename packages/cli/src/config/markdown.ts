@@ -70,12 +70,17 @@ export function fallbackSanitization(content: string): string {
 export async function parse(filePath: string) {
   const template = await Filesystem.readText(filePath)
 
+  // Pass explicit options so gray-matter skips its content-keyed cache: the
+  // cache entry is stored before parsing, and when YAML parsing throws the
+  // entry stays behind as {data: {}} forever — every later parse of identical
+  // content (e.g. the same skill in another project instance) would silently
+  // get empty frontmatter and never reach the fallback below.
+  const opts = {}
   try {
-    const md = matter(template)
-    return md
+    return matter(template, opts)
   } catch {
     try {
-      return matter(fallbackSanitization(template))
+      return matter(fallbackSanitization(template), opts)
     } catch (err) {
       throw new FrontmatterError(
         {
