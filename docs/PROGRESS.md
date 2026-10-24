@@ -198,3 +198,20 @@
   （新增 DISABLE var），非 Claude 模型 `<env>` 块带紧凑 git 快照；prompt-effect
   全文件 128 pass / 0 fail 确认默认翻转零回归。
 - 发布 v0.2.7（`5931cad`，release workflow `40076610718`）。
+
+## 2026-10-24 易用性批次（v0.2.8）与记忆深化
+
+- **后台 bash 长任务**（`54884f8`）：`run_in_background` + `bg` 操作 + 注册表
+  （并发 5、30 分钟硬超时、256KB 输出环）；退出经 `injectScheduledPrompt`
+  自动注入完成通知（新 `background` origin kind）。
+- **语言选择器修复**（`7f7f9e0`）：只列 7 个有词典的语言；check:i18n 输出
+  可选语言覆盖率报告。
+- **引导与文档卫生**（`80a92d7`）：tips 轮播补 3 条高权重引导；plans 回填
+  状态注记；README 发布示例更新。
+- **cron 预算**（`c6fcd67`）：正向等待 5s→15s（该用例在 release 上下文 4/5
+  超时）；v0.2.8 首 tag 因此失败，删 tag 重打到修复提交。
+- **记忆深化**（`f8ce9ff`，待 v0.2.9）：instinct usage_count/last_used_at、
+  get 记召回、注入按 usage 排序、未召回加速衰减、promote 近重复警告
+  （CJK 字符二元组 Jaccard）、memory doctor 未使用/疑似重复报告、
+  serialize 剔除 undefined 键。
+- 发布 v0.2.8（workflow `40083784186`）。

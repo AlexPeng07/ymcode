@@ -459,3 +459,60 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
 - 发布二进制冒烟：Windows x64 asset `--version` = 0.2.7（网络限速，下载慢，
   结果以后台任务输出为准）。
 - 门禁（发布前本地）：brand/i18n/skills/prompts/typecheck 全绿。
+
+## 2026-10-24：易用性批次（v0.2.8）与记忆深化（待 v0.2.9）
+
+### 2.1 后台 bash（54884f8）
+
+- `src/tool/bash-background.ts` 注册表：并发上限 5、30 分钟硬超时自动 kill、
+  256KB 输出环（每次快照取 8KB 尾部）、退出即 resolve 等待者并触发通知。
+  生命周期自持（永不关闭的 Scope）；stop 先标记再 kill（避免 exit-watcher
+  竞态把"用户停止"标成退出码）。
+- bash 工具新参数 `run_in_background`（权限路径不变，返回 id+初始输出+轮询指引）
+  与 `bg {operation: output|stop, id, wait_seconds≤60}`（免重复权限提示）。
+- 完成通知：`injectScheduledPrompt` priority=later、新 `ScheduledPromptOrigin`
+  kind `background`（TUI 只匹配 cron，不受影响）；通知器在 prompt 循环每轮
+  重挂（AppRuntime 按文件惯例动态导入）。
+- 测试：`test/tool/bash-background.test.ts` 4 pass（启动/轮询/退出码、stop 幂等、
+  未知 id、并发上限；Windows 下显式 stop 全部任务再结束避免 tmpdir EBUSY）。
+  bash.test.ts 10 个失败均为已归因的 Windows 既有集（git identity floor ×6、
+  external_directory/PowerShell ×4），与本改动无关。
+
+### 2.2 语言选择器（7f7f9e0）
+
+- 词典层回退本就存在（无词典语言→英文 base，部分词典 merge over base），
+  真实缺口是选择器列出 17 个语言而 10 个无词典。`locales.ts` 新增 `TRANSLATED`
+  （en/zh/zht/es/fr/ja/ru），选择器只列这些；`language.*` 标签键在全部词典齐备。
+- check:i18n 输出可选语言覆盖率（当前 zht 461、es 407、fr 415、ja 415、ru 412
+  /1019 en 基准）——警告不拦门禁。
+- TUI 回归 377 tests / 0 fail。
+
+### 2.3 引导与文档卫生（80a92d7）
+
+- tips 轮播补 3 条高权重：skills_center(65)、bg_bash(55)、hooks(45)；
+  en/zh 词典同步（i18n 门禁 1019/1067 keys 通过）。
+- 三个 plan 文档头部回填状态注记；README 发布示例 v0.2.5→v0.2.8。
+
+### cron 预算修复（c6fcd67）与 v0.2.8 发布事件
+
+- v0.2.8 首个 tag（`a7f412a`）的 release shard 3 又因 cron-bridge
+  "stop interrupts pending delivery" 的 5s waitFor 耗尽失败（该用例在
+  v0.2.7/v0.2.8 共 5 次 release 尝试中 4 次超时，main-push 均过）。
+  正向等待断言"最终送达"而非速度——预算放宽到 15s（负向断言窗口不变），
+  删 tag 重打到修复提交（`c6fcd67`），workflow `40083784186`。
+- 教训更新：此类"仅 release 上下文超时"的正向等待用例，第二次出现就应放宽
+  预算而不是继续重试轮盘。
+
+### 3.x 记忆深化（f8ce9ff）
+
+- schema：`usage_count`（default 0）+ `last_used_at`（optional）；
+  `serialize` 剔除 undefined 键（js-yaml 3 不能 dump undefined——
+  该问题会让全部 instinct-service 测试秒挂，属前置修复）。
+- `similarity`：归一化 token Jaccard；CJK 连续段用字符二元组（中文无空格，
+  整句单 token 会把相似度压到 0.3 以下）；警告阈值 0.6。
+- 服务面：`touch`（get 记召回，失败走 Exit 不抛）；`write` 保留 usage 字段；
+  `promote` 返回 `similarTo`（非阻断）；`decay` 增加 active+0 召回+>30 天
+  的加速档；`renderInjection` 排序 usage→confidence→last_seen→id。
+- doctor：解析全部 instincts/*.md，报告 active/candidate 统计、未召回 active
+  （含最旧 id 与 last_seen）、top5 疑似重复对。
+- 测试：instinct-service 16 pass（含 5 个新用例）；observer 路径回归通过。

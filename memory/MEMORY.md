@@ -6,11 +6,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 最后代码提交（交接时）：`5931cad`（v0.2.7 版本提交，main 已推送）。最新发布 `v0.2.7`
-  （`5931cad`），包含质量闭环三项：技能触发提示（`ed185c0`）、用户级 shell hooks
-  （`6207ccb`）、默认开启的环境注入与紧凑 git 快照（`0d59be6`）；外加 gray-matter
-  缓存毒化产品级修复（`fae46f0`）
-- 最新 Release：`v0.2.7`（12 个平台 asset，见 verification.md 发布记录）
+- 最后代码提交（交接时）：`f8ce9ff`（2026-10-24，main 已推送）。最新发布 `v0.2.8`
+  （易用性批次；首次 tag 因 cron-bridge 5s 预算在慢 runner 上耗尽失败，已放宽至 15s
+  并重打 tag）。方向 3（记忆深化，`f8ce9ff`）待发 v0.2.9
+- 最新 Release：`v0.2.8`（12 个平台 asset，见 verification.md 发布记录）
 - 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
@@ -80,6 +79,18 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - **gray-matter 缓存毒化修复（fae46f0）**：gray-matter 按内容缓存且解析前写入，
   YAML 解析抛错后同内容永久返回空 frontmatter（多实例 server 下技能静默丢失）；
   `ConfigMarkdown.parse` 传空 options 绕过缓存。
+- **易用性批次（v0.2.8）**：① 后台 bash 长任务——`run_in_background` 立即返回
+  `bg-N`（并发 5、30 分钟硬超时、256KB 输出环），`bg {operation,id,wait_seconds}`
+  轮询/停止，退出经 `injectScheduledPrompt`（新 `background` origin）自动注入
+  完成通知（`54884f8`）；② 语言选择器只列 7 个有词典的语言，check:i18n 输出
+  各语言覆盖率（`7f7f9e0`）；③ tips 轮播补 3 条高权重引导（/skills+/instincts、
+  后台任务、hooks），plans 文档回填状态注记（`80a92d7`）；cron-bridge 正向等待
+  预算 5s→15s（`c6fcd67`，v0.2.8 首个 tag 因此测试失败被删重打）。
+- **记忆深化（f8ce9ff，待 v0.2.9）**：instinct Info 增加 `usage_count/last_used_at`
+  （可选，旧文件按 0 解析）；instinct 工具 get 记一次召回，observer 重写保留计数；
+  注入按 usage→confidence→recency 排序；decay 增加"active 且 30 天未召回"加速档；
+  promote 返回近重复警告（Jaccard，CJK 用字符二元组）；memory doctor 报告
+  active 统计、未召回规则与疑似重复对；serialize 剔除 undefined 键（js-yaml 限制）。
 - **体验优化（未发布）**：侧栏全部面板标题与状态、模型选择、会话列表、消息操作、
   工作树、变体、工作流、工作区、子代理、控制台组织、暂存与派生会话文案接入中英 i18n；
   技能目录改为 name+description 紧凑格式（去掉 `<location>` 与 XML 包装），44 个技能的
