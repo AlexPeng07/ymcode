@@ -9,6 +9,7 @@
     "license": "MIT"
   },
   "codeHeadAtHandoff": "13058ef",
+  "headNote": "13058ef is the last code commit; later commits are handoff docs only. Run git log -1 for the current main HEAD.",
   "latestRelease": {
     "tag": "v0.2.5",
     "commit": "a3547e4",

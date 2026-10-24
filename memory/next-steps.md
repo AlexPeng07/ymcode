@@ -2,8 +2,9 @@
 
 ## 当前交接点（2026-10-24）
 
-- 代码 HEAD：`13058ef`（main 已推送）；最新 Release：`v0.2.5`（`a3547e4`，12 个 asset）。
-- 工作区比 `v0.2.5` 多两个提交：`be8bc9f`（侧栏/对话框汉化、技能目录紧凑化、cron 测试稳定）、
+- 最后代码提交：`13058ef`（main 已推送）；其后为交接文档提交，当前 HEAD 用
+  `git log -1 --oneline` 查看。最新 Release：`v0.2.5`（`a3547e4`，12 个 asset）。
+- 工作区比 `v0.2.5` 多两个代码提交：`be8bc9f`（侧栏/对话框汉化、技能目录紧凑化、cron 测试稳定）、
   `13058ef`（补齐 prompt/workflow 词条 + i18n 引用门禁）。
 - 版本文件仍是 `0.2.5`；发布 `v0.2.6` 只需改 `packages/{cli,sdk,plugin,shared}/package.json`
   为同一版本（无 BOM），提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。

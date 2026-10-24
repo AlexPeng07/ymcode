@@ -158,4 +158,5 @@
   TUI 测试 353 pass / 24 skip / 0 fail；受影响 session 测试 39 pass / 0 fail。
 - 已知失败（与本轮无关）：`message-v2` 的 Windows file URL、`prompt-effect` 的 MCP lifecycle
   5 秒硬超时；Windows plugin 23 例按平台 skip。
-- 未发版：HEAD `13058ef` 比 v0.2.5 多两个提交，下一步发 v0.2.6。
+- 未发版：最后代码提交 `13058ef` 比 v0.2.5 多两个提交；其后为交接文档提交，不改变版本。
+  下一步发 v0.2.6。

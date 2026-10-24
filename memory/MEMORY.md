@@ -6,8 +6,9 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 代码 HEAD（交接时）：`13058ef`（2026-10-24，main 已推送）；最新发布 `v0.2.5`（`a3547e4`），
-  之后两个提交（`be8bc9f`、`13058ef`）尚未发版
+- 最后代码提交（交接时）：`13058ef`（2026-10-24，main 已推送）；其后为交接文档提交，
+  当前 main HEAD 用 `git log -1 --oneline` 查看。最新发布 `v0.2.5`（`a3547e4`），
+  之后两个代码提交（`be8bc9f`、`13058ef`）尚未发版
 - 最新 Release：`v0.2.5`，12 个平台 asset，Windows x64 52,622,388 bytes
 - 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`

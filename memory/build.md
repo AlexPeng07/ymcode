@@ -28,8 +28,9 @@ packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe
 
 - 最新 Release：`v0.2.5`（tag 指向 `a3547e4`），由 `release.yml` 自动发布，12 个平台 asset；
   Windows x64 `ymcode-windows-x64.zip` 为 52,622,388 bytes。
-- 当前代码 HEAD：`13058ef`，比 `v0.2.5` 多两个提交（TUI 汉化/技能目录减负/cron 时序/i18n 词条），
-  尚未发版；`packages/{cli,sdk,plugin,shared}/package.json` 仍为 `0.2.5`。
+- 最后代码提交：`13058ef`，比 `v0.2.5` 多两个代码提交（TUI 汉化/技能目录减负/cron 时序/i18n 词条），
+  尚未发版；其后为交接文档提交，当前 HEAD 用 `git log -1 --oneline` 查看。
+  `packages/{cli,sdk,plugin,shared}/package.json` 仍为 `0.2.5`。
 - 本轮未重新构建本地二进制；`packages/cli/dist/` 里的产物对应 v0.2.5，验证新 HEAD 前需重新构建。
 - 发布 `v0.2.6`：把四个 `package.json` 版本改为同一值（用无 BOM 的 UTF-8 写入，避免
   PowerShell `Set-Content -Encoding utf8` 写入 BOM 导致 CI JSON 解析失败），跑门禁后提交、
