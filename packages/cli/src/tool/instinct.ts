@@ -82,6 +82,9 @@ export const InstinctTool = Tool.define(
           if (args.operation === "get") {
             if (!args.id) throw new Error("id is required")
             const item = yield* instinct.get({ scope, projectID, id: args.id })
+            // Explicit recall feeds the usage loop (injection ranking and the
+            // unused-decay ladder); accounting is best-effort.
+            yield* instinct.touch({ scope, projectID, id: args.id }).pipe(Effect.ignore)
             return {
               title: item.info.id,
               output: `# ${item.info.description}\n\n${item.body}`,

@@ -3,7 +3,8 @@ import { Effect } from "effect"
 import fs from "fs/promises"
 import os from "os"
 import path from "path"
-import { make, defaultSettings, settingsFromConfig } from "../../src/memory/instinct-service"
+import { make, defaultSettings, settingsFromConfig, similarity } from "../../src/memory/instinct-service"
+import { parse as parseInstinct } from "../../src/memory/instinct"
 
 const MEMORY = `# Project memory
 
@@ -277,5 +278,152 @@ describe("instinct service", () => {
     const active = await Effect.runPromise(instinct.list({ scope: "projects", projectID: "p1", status: "active" }))
     expect(candidates).toHaveLength(1)
     expect(active).toHaveLength(0)
+  })
+
+  test("touch counts recalls and ranks injection by usage", async () => {
+    const { instinct } = await fixture()
+    const low = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "低频但高置信的规则",
+        source: "correction",
+        confidence: 0.95,
+        evidence: [{ session: "ses_1", date: "2026-10-21" }],
+        body: "",
+      }),
+    )
+    const high = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "高频召回的规则",
+        source: "correction",
+        confidence: 0.7,
+        evidence: [{ session: "ses_1", date: "2026-10-21" }],
+        body: "",
+      }),
+    )
+    await Effect.runPromise(instinct.promote({ scope: "projects", projectID: "p1", id: low.id, force: true }))
+    await Effect.runPromise(instinct.promote({ scope: "projects", projectID: "p1", id: high.id, force: true }))
+
+    await Effect.runPromise(instinct.touch({ scope: "projects", projectID: "p1", id: high.id }))
+    await Effect.runPromise(instinct.touch({ scope: "projects", projectID: "p1", id: high.id }))
+
+    const listed = await Effect.runPromise(instinct.list({ scope: "projects", projectID: "p1" }))
+    const highInfo = listed.find((item) => item.id === high.id)!
+    const lowInfo = listed.find((item) => item.id === low.id)!
+    expect(highInfo.usage_count).toBe(2)
+    expect(highInfo.last_used_at).toBeTruthy()
+    expect(lowInfo.usage_count).toBe(0)
+
+    // Usage outranks confidence in the injection order.
+    const injection = await Effect.runPromise(
+      instinct.renderInjection({ scope: "projects", projectID: "p1", budget: 1200 }),
+    )
+    expect(injection.indexOf("高频召回的规则")).toBeLessThan(injection.indexOf("低频但高置信的规则"))
+
+    // touch failures exit instead of throwing (best-effort accounting).
+    const missing = await Effect.runPromise(instinct.touch({ scope: "projects", projectID: "p1", id: "ins_missing00" }))
+    expect(missing._tag).toBe("Failure")
+  })
+
+  test("observer rewrites preserve usage accounting", async () => {
+    const { instinct } = await fixture()
+    const written = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "会再次观察到的规则",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [{ session: "ses_1", date: "2026-10-21" }],
+        body: "",
+      }),
+    )
+    await Effect.runPromise(instinct.touch({ scope: "projects", projectID: "p1", id: written.id }))
+    await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        id: written.id,
+        description: "会再次观察到的规则",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [{ session: "ses_2", date: "2026-10-24" }],
+        body: "",
+      }),
+    )
+    const listed = await Effect.runPromise(instinct.list({ scope: "projects", projectID: "p1" }))
+    expect(listed.find((item) => item.id === written.id)?.usage_count).toBe(1)
+  })
+
+  test("decays never-recalled active rules on the unused ladder", async () => {
+    const { root, instinct } = await fixture()
+    const written = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "从未被召回的老规则",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [{ session: "ses_1", date: "2026-10-21" }],
+        body: "",
+      }),
+    )
+    await Effect.runPromise(instinct.promote({ scope: "projects", projectID: "p1", id: written.id, force: true }))
+
+    // Age the rule past the 30-day unused window without touching decayDays.
+    const file = path.join(root, "projects", "p1", "instincts", `${written.id}.md`)
+    const parsed = parseInstinct(await fs.readFile(file, "utf8"))
+    const stale = new Date(Date.now() - 40 * 86_400_000).toISOString()
+    const { serialize } = await import("../../src/memory/instinct")
+    await fs.writeFile(file, serialize({ ...parsed.info, last_seen_at: stale }, parsed.body))
+
+    const decayed = await Effect.runPromise(instinct.decay({ scope: "projects", projectID: "p1" }))
+    expect(decayed).toBe(1)
+    const listed = await Effect.runPromise(instinct.list({ scope: "projects", projectID: "p1" }))
+    expect(listed.find((item) => item.id === written.id)?.confidence).toBeCloseTo(0.8)
+  })
+
+  test("promote warns about near-duplicate active rules", async () => {
+    const { instinct } = await fixture()
+    const first = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "提交前必须运行 typecheck",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [{ session: "ses_1", date: "2026-10-21" }],
+        body: "",
+      }),
+    )
+    await Effect.runPromise(instinct.promote({ scope: "projects", projectID: "p1", id: first.id, force: true }))
+
+    const second = await Effect.runPromise(
+      instinct.write({
+        scope: "projects",
+        projectID: "p1",
+        description: "提交前必须运行 typecheck 与 lint",
+        source: "correction",
+        confidence: 0.9,
+        evidence: [{ session: "ses_2", date: "2026-10-22" }],
+        body: "",
+      }),
+    )
+    const promoted = await Effect.runPromise(
+      instinct.promote({ scope: "projects", projectID: "p1", id: second.id, force: true }),
+    )
+    expect(promoted.similarTo).toHaveLength(1)
+    expect(promoted.similarTo[0]!.id).toBe(first.id)
+    expect(promoted.similarTo[0]!.score).toBeGreaterThan(0.6)
+  })
+
+  test("similarity separates real duplicates from unrelated rules", () => {
+    expect(similarity("提交前必须运行 typecheck", "提交前必须运行 typecheck 与 lint")).toBeGreaterThan(0.6)
+    expect(similarity("提交前必须运行 typecheck", "会议纪要用正式中文文体")).toBeLessThan(0.2)
+    expect(similarity("same", "same")).toBe(1)
+    expect(similarity("", "x")).toBe(0)
   })
 })

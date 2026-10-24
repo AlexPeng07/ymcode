@@ -25,6 +25,12 @@ export const Info = z.object({
   updated_at: z.string(),
   last_seen_at: z.string(),
   contradictions: z.number().int().min(0).default(0),
+  // Usage loop: how often the rule was actually recalled (instinct tool get),
+  // and when. Never-recalled active rules decay faster than their evidence age
+  // alone suggests. Both optional so files written before the field existed
+  // parse with usage_count 0.
+  usage_count: z.number().int().min(0).default(0),
+  last_used_at: z.string().optional(),
 })
 export type Info = z.infer<typeof Info>
 
@@ -53,5 +59,11 @@ export function parse(text: string): { info: Info; body: string } {
 }
 
 export function serialize(info: Info, body: string): string {
-  return matter.stringify(body.trim() + "\n", Info.parse(info))
+  const parsed = Info.parse(info)
+  // js-yaml cannot dump undefined values; optional fields (last_used_at) may
+  // legitimately be absent, so drop them from the frontmatter payload.
+  for (const key of Object.keys(parsed)) {
+    if (parsed[key as keyof typeof parsed] === undefined) delete parsed[key as keyof typeof parsed]
+  }
+  return matter.stringify(body.trim() + "\n", parsed)
 }

@@ -6,6 +6,8 @@ import { AppRuntime } from "@/effect/app-runtime"
 import { Memory } from "../../memory"
 import { walkMemoryDir } from "../../memory/reconcile"
 import { MemoryFtsTable } from "../../memory/fts.sql"
+import { parse as parseInstinct, type Info as InstinctInfo } from "../../memory/instinct"
+import { similarity } from "../../memory/instinct-service"
 import { Database } from "../../storage"
 import { Token } from "../../util"
 import { bootstrap } from "../bootstrap"
@@ -116,6 +118,46 @@ const MemoryDoctorCommand = cmd({
         `文件: ${files.length}（global ${scope.global}、projects ${scope.projects}、sessions ${scope.sessions}），约 ${totalTokens.toLocaleString()} tokens`,
         `索引: ${files.length}/${rows.length}（本次 reconcile: 更新 ${reconciled.indexed}、清理 ${reconciled.pruned}）`,
       ]
+
+      // Instinct usage loop: parse every instinct file and report active rules
+      // that were never recalled, plus near-duplicate active pairs.
+      const instincts: Array<{ rel: string; info: InstinctInfo }> = []
+      for (const file of files) {
+        if (!/instincts[/\\][^/\\]+\.md$/.test(path.relative(root, file))) continue
+        try {
+          instincts.push({
+            rel: path.relative(root, file).replaceAll("\\", "/"),
+            info: parseInstinct(await fs.readFile(file, "utf8")).info,
+          })
+        } catch {
+          // malformed instinct files are reported by the generic FTS/dup checks
+        }
+      }
+      const active = instincts.filter((entry) => entry.info.status === "active")
+      if (instincts.length > 0) {
+        lines.push(`直觉: 共 ${instincts.length} 条，active ${active.length}，candidate ${instincts.length - active.length}`)
+      }
+      const unused = active.filter((entry) => entry.info.usage_count === 0)
+      if (unused.length > 0) {
+        const oldest = unused.toSorted((a, b) => a.info.last_seen_at.localeCompare(b.info.last_seen_at))[0]!
+        issues.push({
+          kind: "未使用",
+          detail: `${unused.length} 条 active 规则从未被召回（instinct get）；最旧 ${oldest.info.id}，last_seen ${oldest.info.last_seen_at.slice(0, 10)}。未召回超 30 天的规则会在 review 时加速衰减`,
+        })
+      }
+      const pairs: Array<{ a: InstinctInfo; b: InstinctInfo; score: number }> = []
+      for (let i = 0; i < active.length; i++) {
+        for (let j = i + 1; j < active.length; j++) {
+          const score = similarity(active[i]!.info.description, active[j]!.info.description)
+          if (score >= 0.6) pairs.push({ a: active[i]!.info, b: active[j]!.info, score })
+        }
+      }
+      for (const pair of pairs.sort((x, y) => y.score - x.score).slice(0, 5)) {
+        issues.push({
+          kind: "疑似重复",
+          detail: `${pair.a.id} ≈ ${pair.b.id}（相似度 ${pair.score.toFixed(2)}）：${pair.a.description.slice(0, 50)}`,
+        })
+      }
 
       if (issues.length === 0) {
         lines.push("", "未发现明显问题。")

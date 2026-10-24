@@ -51,10 +51,13 @@ export interface Interface {
   readonly promote: (input: { scope: Scope; projectID: string; id: string; force?: boolean }) => Effect.Effect<{
     info: Info
     appended: boolean
+    /** Near-duplicate active rules (word-overlap >= 0.6); warning only. */
+    similarTo: Array<{ id: string; description: string; score: number }>
   }>
   readonly demote: (input: { scope: Scope; projectID: string; id: string; reason: string }) => Effect.Effect<Info>
   readonly forget: (input: { scope: Scope; projectID: string; id: string }) => Effect.Effect<void>
   readonly decay: (input: { scope: Scope; projectID: string }) => Effect.Effect<number>
+  readonly touch: (input: { scope: Scope; projectID: string; id: string }) => Effect.Effect<Exit.Exit<Info, unknown>>
   readonly review: (input: { scope: Scope; projectID: string }) => Effect.Effect<{ promoted: string[]; decayed: number }>
   readonly renderInjection: (input: { scope: Scope; projectID: string; budget?: number }) => Effect.Effect<string>
   readonly exportAll: (input: { scope: Scope; projectID: string; status?: Status }) => Effect.Effect<Bundle>
@@ -77,6 +80,37 @@ type Stored = { info: Info; body: string; file: string }
 function normalize(text: string): string {
   return text.toLowerCase().replace(/\s+/g, " ").trim()
 }
+
+// Jaccard overlap of normalized description tokens; 0..1. CJK runs (no
+// whitespace) are tokenized as character bigrams so Chinese rules compare
+// meaningfully without a segmenter. Used to warn about near-duplicate rules
+// at promote time and in memory doctor — deterministic, no index dependency.
+export function similarity(a: string, b: string): number {
+  const tokens = (text: string) => {
+    const out = new Set<string>()
+    for (const word of normalize(text).split(/\s+/)) {
+      const cjk = [...word].filter((char) => /[\u4e00-\u9fff]/.test(char))
+      if (cjk.length > 0) {
+        for (let i = 0; i + 1 < cjk.length; i++) out.add(cjk[i]! + cjk[i + 1]!)
+        if (cjk.length === 1) out.add(cjk[0]!)
+      } else if (word.length > 1) {
+        out.add(word)
+      }
+    }
+    return out
+  }
+  const left = tokens(a)
+  const right = tokens(b)
+  if (left.size === 0 || right.size === 0) return 0
+  let shared = 0
+  for (const token of left) if (right.has(token)) shared++
+  return shared / (left.size + right.size - shared)
+}
+
+const SIMILARITY_WARN = 0.6
+// Active rules with zero recalls older than this decay one confidence step
+// faster than plain evidence-age decay would suggest.
+const UNUSED_DECAY_DAYS = 30
 
 function sectionFor(source: Source): string {
   if (source === "correction") return "## Rules"
@@ -216,6 +250,8 @@ export function make(root: string, settings: Settings | SettingsSource = default
         updated_at: now,
         last_seen_at: !existing || newEvidence ? now : existing.last_seen_at,
         contradictions: existing?.contradictions ?? 0,
+        usage_count: existing?.usage_count ?? 0,
+        last_used_at: existing?.last_used_at,
       })
       await fs.mkdir(dir(input.scope, input.projectID), { recursive: true })
       await fs.writeFile(path.join(dir(input.scope, input.projectID), `${id}.md`), serialize(info, input.body))
@@ -249,7 +285,18 @@ export function make(root: string, settings: Settings | SettingsSource = default
         const info = Info.parse({ ...item.info, status: "active", updated_at: new Date().toISOString() })
         await fs.writeFile(item.file, serialize(info, item.body))
         await rebuildIndex(input.scope, input.projectID)
-        return { info, appended }
+        // Non-blocking near-duplicate warning: high word overlap with another
+        // active rule usually means the layer is drifting toward redundancy.
+        const similarTo = (await readAll(input.scope, input.projectID))
+          .filter((entry) => entry.info.status === "active" && entry.info.id !== item.info.id)
+          .map((entry) => ({
+            id: entry.info.id,
+            description: entry.info.description,
+            score: Number(similarity(item.info.description, entry.info.description).toFixed(2)),
+          }))
+          .filter((entry) => entry.score >= SIMILARITY_WARN)
+          .sort((a, b) => b.score - a.score)
+        return { info, appended, similarTo }
       })
     })
 
@@ -262,7 +309,10 @@ export function make(root: string, settings: Settings | SettingsSource = default
         for (const item of items) {
           if (item.info.status === "retired") continue
           const days = (Date.now() - Date.parse(item.info.last_seen_at)) / DAY_MS
-          if (days <= settings.decayDays) continue
+          // A rule that has been active for a while but was never recalled is
+          // suspect regardless of fresh evidence: decay it on the same ladder.
+          const unused = item.info.status === "active" && item.info.usage_count === 0 && days > UNUSED_DECAY_DAYS
+          if (days <= settings.decayDays && !unused) continue
           const confidence = clampConfidence(item.info.confidence - 0.1)
           const info = Info.parse({
             ...item.info,
@@ -284,6 +334,25 @@ export function make(root: string, settings: Settings | SettingsSource = default
     write,
     promote,
     decay,
+
+    // Records an explicit recall (instinct tool get). Best-effort accounting:
+    // usage_count/last_used_at feed injection ranking and the unused-decay
+    // ladder; failures here must never fail the calling tool.
+    touch: (input: { scope: Scope; projectID: string; id: string }) =>
+      Effect.gen(function* () {
+        return yield* Effect.promise(async () => {
+          const item = await readItem(input.scope, input.projectID, input.id)
+          const info = Info.parse({
+            ...item.info,
+            usage_count: item.info.usage_count + 1,
+            last_used_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          await fs.writeFile(item.file, serialize(info, item.body))
+          await rebuildIndex(input.scope, input.projectID)
+          return info
+        })
+      }).pipe(Effect.exit),
 
     exportAll: (input) =>
       Effect.promise(async () => {
@@ -374,7 +443,13 @@ export function make(root: string, settings: Settings | SettingsSource = default
           const budget = input.budget ?? settings.injectTokenBudget
           const active = (await readAll(input.scope, input.projectID))
             .filter((entry) => entry.info.status === "active")
-            .sort((a, b) => b.info.confidence - a.info.confidence || a.info.id.localeCompare(b.info.id))
+            .sort(
+              (a, b) =>
+                b.info.usage_count - a.info.usage_count ||
+                b.info.confidence - a.info.confidence ||
+                b.info.last_seen_at.localeCompare(a.info.last_seen_at) ||
+                a.info.id.localeCompare(b.info.id),
+            )
           if (active.length === 0) return ""
           const lines = [
             "# Active instincts",
