@@ -6,8 +6,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 代码 HEAD（交接时）：`3dbd34b`；最终二进制由 `6de24e8` 构建
-- 二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`
+- 代码 HEAD（交接时）：`13058ef`（2026-10-24，main 已推送）；最新发布 `v0.2.5`（`a3547e4`），
+  之后两个提交（`be8bc9f`、`13058ef`）尚未发版
+- 最新 Release：`v0.2.5`，12 个平台 asset，Windows x64 52,622,388 bytes
+- 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
 - 项目进度：`docs/PROGRESS.md`
@@ -17,7 +19,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 已可用：
 
-- 独立新仓库、全面改名 ymcode、旧数据复制迁移。
+- 独立新仓库、全面改名 ymcode；运行时目录与 mimocode 完全隔离（v0.2.2 起不再迁移旧数据）。
 - instincts：文件格式、service、FTS 类型、工具、CLI、`/instinct`、observer、注入、dream review。
 - 汉化：90 个内置 `SKILL.md`（70 个正文汉化 + 15 个 Anthropic 官方技能汉化介绍 + 5 个中文自研技能）、
   54 个提示词/工具描述、核心 TUI 与 CLI（instinct/mcp）中文。
@@ -108,7 +110,9 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-优先做真实 provider 下的 observer 冒烟，再补 CLI help 与 Windows 测试清理。详见 [next-steps.md](next-steps.md)。
+交接点为 `13058ef`，最新发布 `v0.2.5`。优先：① 发布 `v0.2.6`（4 个 `package.json` 升版本后打
+tag）；② 修 `test/session/message-v2.test.ts` 的 Windows 文件 URL 失败与 `prompt-effect` 的
+MCP lifecycle 5 秒硬超时；③ 有条件时在 Linux 服务器复跑全量。详见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 

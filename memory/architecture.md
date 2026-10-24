@@ -59,8 +59,10 @@ packages/cli/src/skill/builtin/  内置技能（.bundle）
 | 数据库文件名 | `packages/cli/src/storage/db.ts` |
 | 配置发现 | `packages/cli/src/config/paths.ts`、`config/config.ts` |
 | i18n 字典 | `packages/cli/src/cli/cmd/tui/i18n/{en,zh}.ts` |
+| i18n 门禁（含 `t()` 引用扫描） | `script/check-i18n.ts` |
 | 语言上下文 | `packages/cli/src/cli/cmd/tui/context/language.tsx` |
 | 系统语言检测 | `packages/cli/src/cli/cmd/tui/util/system-locale.ts` |
+| 技能目录注入 | `packages/cli/src/session/system.ts`、`Skill.fmt`（`src/skill/index.ts`） |
 | 内置技能 | `packages/cli/src/skill/builtin/.bundle/**/SKILL.md` |
 | 提示词/工具描述 | `packages/cli/src/{agent/prompt,tool,command/template,session/prompt}/*.txt` |
 
@@ -78,3 +80,7 @@ packages/cli/src/skill/builtin/  内置技能（.bundle）
 - `MEMORY.md` 超过 10KB 时拒绝晋升，要求先 `/dream` 合并。
 - 去重按规范化 description；同一规则重复晋升返回 `appended=false`。
 - 注入只包含 `active`；candidate 不自动注入，只能通过 `memory` 工具检索。
+- 技能目录使用紧凑格式（每行 `- **name**: description`，不含 `<location>`），
+  由 `SystemPrompt.skills` 注入；`skill` 工具按名称加载正文，因此目录不需要文件路径。
+- 非 Git 项目没有稳定的 `project.id`，记忆层用 `memoryProjectID()` 生成 `dir-<sha256前12位>`
+  作为项目 ID，避免所有非 Git 目录共用 `projects/global/MEMORY.md`。

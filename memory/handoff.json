@@ -1,15 +1,25 @@
 {
   "project": "ymcode",
   "workspace": "F:/AllProjects/ymcode",
-  "createdAt": "2026-10-21",
+  "updatedAt": "2026-10-24",
   "baseline": {
     "name": "MiMo-Code",
     "repo": "https://github.com/XiaomiMiMo/MiMo-Code",
     "commit": "88673c41732fcd57bf46abe485b547c00ba78221",
     "license": "MIT"
   },
-  "codeHeadAtHandoff": "3dbd34b",
-  "binaryBuiltFromCodeCommit": "6de24e8",
+  "codeHeadAtHandoff": "13058ef",
+  "latestRelease": {
+    "tag": "v0.2.5",
+    "commit": "a3547e4",
+    "assets": 12,
+    "windowsX64Bytes": 52622388
+  },
+  "unreleasedCommits": [
+    "be8bc9f feat(tui): localize remaining panels and trim skill catalog tokens",
+    "13058ef fix(i18n): add missing prompt and workflow UI keys"
+  ],
+  "binaryBuiltFromCodeCommit": "a3547e4",
   "binary": "packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe",
   "toolchain": {
     "bun": "1.3.14",
@@ -30,39 +40,40 @@
       "bun run typecheck"
     ]
   },
-  "verified": {
+  "gatesAtHandoff": {
     "brand": "pass",
     "i18n": {
-      "enKeys": 717,
-      "zhKeys": 742,
-      "skillDescriptions": 24
+      "enKeys": 1016,
+      "zhKeys": 1064,
+      "skillDescriptions": 44,
+      "tuiFilesScanned": 162,
+      "tReferencesScanned": 731
     },
-    "skills": 70,
-    "prompts": 54,
-    "typecheck": "pass",
-    "targetedTests": "301 pass / 9 skip / 0 fail",
-    "permissionTests": "28 pass / 0 fail",
-    "build": "pass; smoke --version = local",
-    "instinctE2E": [
-      "list sees candidate",
-      "promote writes MEMORY.md ## Rules",
-      "active list works",
-      "forget without --yes refused",
-      "review returns promoted=none; decayed=0"
-    ],
-    "migrationE2E": [
-      "legacy config copied and renamed",
-      "legacy db copied and renamed",
-      "memory tree copied",
-      "old files retained",
-      "marker written"
-    ]
+    "skills": "90 files",
+    "prompts": "54 files",
+    "typecheck": "pass (sdk/plugin/shared/cli + tsconfig.scripts)"
+  },
+  "testsAtHandoff": {
+    "tui": "353 pass / 24 skip / 0 fail across 55 files",
+    "affectedSession": "39 pass / 0 fail (system, prompt-skill-command-multi, cron-bridge)",
+    "broaderSession": "201 pass / 12 skip / 2 fail (message-v2 Windows file URL, prompt-effect MCP lifecycle 5s timeout)"
+  },
+  "verified": {
+    "releaseV025": "release workflow 39985918524 success; 12 assets; published binary smoke passed",
+    "skillCatalog": "44 builtin skills: 20911 -> 14443 chars (-31%, about 1.8K tokens)",
+    "tuiLocalization": "sidebar panels, common dialogs, prompt composer and workflow view localized",
+    "cronStability": "deadline-based waits (5s) and 10s timeouts replace 1s/2s budgets"
   },
   "notVerified": [
-    "instinct observer with a real LLM provider",
-    "manual TUI visual acceptance",
-    "full bun test green on Windows (plugin temp-dir EBUSY)",
-    "top-level CLI help fully Chinese"
+    "full bun test green on Windows (known failures below)",
+    "MCP lifecycle timeout test under heavy load",
+    "TUI pixel-level manual visual acceptance",
+    "Linux full suite on current HEAD"
+  ],
+  "knownFailures": [
+    "test/session/message-v2.test.ts: Windows fileURLToPath rejects non-absolute file:// URL at src/session/message-v2.ts:1097",
+    "test/session/prompt-effect.test.ts: MCP lifecycle timeout test has a 5s hard timeout",
+    "test/cli/tui/plugin-*.test.ts: 23 cases skip on Windows (Bun keeps plugin entrypoints cached, fixture EBUSY)"
   ],
   "keyFiles": {
     "design": "docs/superpowers/specs/2026-10-21-ymcode-harness-design.md",
@@ -71,20 +82,22 @@
     "readme": "README.md",
     "instinctFormat": "packages/cli/src/memory/instinct.ts",
     "instinctService": "packages/cli/src/memory/instinct-service.ts",
-    "instinctTool": "packages/cli/src/tool/instinct.ts",
-    "instinctCLI": "packages/cli/src/cli/cmd/instinct.ts",
+    "memoryProjectID": "packages/cli/src/memory/project-id.ts",
+    "memoryDoctor": "packages/cli/src/cli/cmd/memory.ts",
     "observer": "packages/cli/src/session/instinct-observer.ts",
-    "observerPrompt": "packages/cli/src/agent/prompt/instinct-observer.txt",
     "injection": "packages/cli/src/session/llm.ts",
     "checkpoint": "packages/cli/src/session/checkpoint.ts",
+    "skillCatalog": "packages/cli/src/session/system.ts",
+    "skillFormat": "packages/cli/src/skill/index.ts",
     "i18n": "packages/cli/src/cli/cmd/tui/i18n/zh.ts",
+    "i18nCheck": "script/check-i18n.ts",
     "brandCheck": "script/check-brand.ts"
   },
   "nextSteps": [
-    "P0: real-provider observer smoke in isolated YMCODE_HOME",
-    "P1: finish top-level CLI help and secondary English strings",
-    "P2: resolve Windows plugin test EBUSY / run full suite on Linux",
-    "P3: manual TUI visual acceptance",
-    "P4: upstream diff script + optional publishing"
+    "Release v0.2.6: bump the four package.json versions, commit, tag, push",
+    "Fix the Windows message-v2 file URL test",
+    "Investigate or widen the prompt-effect MCP lifecycle 5s timeout",
+    "Optional: re-run the Linux full suite on current HEAD",
+    "Optional: manual TUI visual acceptance"
   ]
 }

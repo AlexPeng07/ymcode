@@ -103,3 +103,59 @@
 - 基线对照（git worktree @ `f5a16f3` + node_modules junction）：memory-path-guard 基线 29 fail == 当前 29 fail；main-wait / permission-next / mcp-lifecycle / turn-queue-admission / bash / ymcode-docs 六文件基线 136 fail ≈ 当前 135 fail。**剩余 277 fail 全部为既有 Windows 失败，本次改动零回归**；tips-view 的 276 为日志汇总段误计，单独运行全绿。
 - 失败性质：守卫函数未按预期抛出（memory-path-guard / permission-next）、ymcode-docs 测试仍断言英文正文（技能已汉化，早于本批次）、PTY / git identity / MCP stdio 平台差异。
 - 后续建议：先在 Linux CI 跑一次全量确认这些用例的平台相关性，再决定逐个修复或平台 skip；Windows skip 清单以 verification.md 为准。
+
+## 2026-10-23
+
+### v0.2.1：默认模型、品牌、登录与蓝色主题
+
+- 无凭据时不再默认 Xiaomi 模型；侧栏品牌改为 ymcode；移除不可用的 `/login` 与 MiMo 登录对话框；
+  默认主题、logo 与 agent 强调色统一为蓝色。
+- Release v0.2.1 由 tag 触发 `release.yml` 自动发布，12 个资产。
+
+### v0.2.2：彻底移除 mimocode 兼容层
+
+- 删除启动旧数据迁移、`ymcode migrate`、`MIMOCODE_*` 环境变量桥、`.mimocode` 配置回退与
+  doctor 旧版目录检测；内置 `ymcode-docs` 技能统一 CLI 名称为 `ymcode`。
+- 运行时只使用 ymcode 自己的配置/数据目录；Release v0.2.2 自动发布 12 个资产。
+
+### v0.2.3：技能中心、Anthropic 技能与插件汉化
+
+- 新增 15 个 Anthropic 官方技能；技能中心使用中文名/说明，支持中文与拼音搜索，
+  选中时显示适用场景与触发方式；插件面板补齐 13 个内置插件的中文名与解释；
+  补齐 9 个内置斜杠命令的描述。
+- 技能包支持 TTF/PDF/GZ 二进制资源（NUL + base64 内联，extract 解码写回）。
+- Release v0.2.3 自动发布 12 个资产。
+
+### v0.2.4：5 个中文自研技能
+
+- 新增中文写作、中文办公排版、系统化调试、代码审查（`code-review-cn`）、Git 工作流；
+  内置技能达到 44 个目录、90 个 `SKILL.md`。
+- CI shard 3 曾因 `cron-bridge.integration.test.ts` 时序抖动失败，`gh run rerun --failed` 后通过；
+  Release v0.2.4 自动发布 12 个资产。
+
+### v0.2.5：记忆隔离与 memory doctor
+
+- 修复 Windows 记忆写路径守卫：先 `path.resolve` 两侧再比较，避免混合分隔符导致 fail-open
+  （`38d6743`）。
+- 非 Git 项目新增 `dir-<sha256前12位>` 记忆项目 ID，不再共用 `projects/global/MEMORY.md`；
+  新增 `ymcode memory doctor` 检查文件数/体积、重复行、陈旧文件与 FTS 索引一致性（`f5f7e84`）。
+- `memory doctor` 只扫描 `global|projects|sessions`，FTS 行过滤到 memory root（`870cd04`）。
+- Release workflow `39985918524` success，12 个资产；Windows x64 52,622,388 bytes；
+  发布二进制冒烟（`--version` 0.2.5、中文 `--help`、`memory doctor`、44 个内置技能）通过。
+
+## 2026-10-24 体验优化与交接同步
+
+- TUI 汉化补齐：侧栏 Context/Goal/MCP/Tasks/Todo/Modified Files/LSP；模型选择、会话列表、
+  消息操作、工作树、变体、工作流、工作区、子代理、控制台组织、暂存、派生会话；
+  输入框附件/重试/中断；工作流视图。新增 116 条 en/zh 词条。
+- 技能目录紧凑化：`Skill.fmt` 只输出 `- **name**: description`，去掉 `<location>` 与 XML 包装；
+  44 个技能目录约 20,911 → 14,443 字符（-31%，约 1.8K tokens）。同步 skill 工具参数描述与测试断言。
+- CI 时序：`cron-bridge.integration.test.ts` 的 `waitFor` 改为 5 秒截止轮询；2 秒等待放宽到
+  10 秒；负向断言窗口 30→100ms。
+- 补齐 `tui.prompt.*` / `tui.workflow.*` 共 23 个历史缺失词条（原本渲染为空），
+  英文按上游基线恢复；`check:i18n` 新增静态 `t()` 引用扫描（162 文件、731 处）。
+- 门禁与测试：i18n 1016 en / 1064 zh / 44 技能描述；skills 90；prompts 54；typecheck 通过；
+  TUI 测试 353 pass / 24 skip / 0 fail；受影响 session 测试 39 pass / 0 fail。
+- 已知失败（与本轮无关）：`message-v2` 的 Windows file URL、`prompt-effect` 的 MCP lifecycle
+  5 秒硬超时；Windows plugin 23 例按平台 skip。
+- 未发版：HEAD `13058ef` 比 v0.2.5 多两个提交，下一步发 v0.2.6。

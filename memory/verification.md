@@ -12,7 +12,7 @@ bun run check:prompts
 bun run typecheck
 ```
 
-交接时结果：
+交接时结果（2026-10-21，历史记录；当前结果见文末 2026-10-24 一节）：
 
 ```text
 brand check passed
@@ -305,3 +305,65 @@ app-runtime-logger、inbox/queue、history、ripgrep、grep 等大批文件的�
   不是泄漏——结论是重型套件要串行跑。
 - Linux 复跑 43 个原失败文件：装备 Node 24 + rg 后 **全部全绿**（含 main-wait 46/46）。
 - typecheck 通过；brand/i18n/lint 门禁通过。
+
+## 2026-10-23 ~ 2026-10-24：v0.2.2–v0.2.5 发布与体验优化
+
+### 发布记录
+
+- **v0.2.2**：移除全部 mimocode 兼容层（启动迁移、`ymcode migrate`、`MIMOCODE_*` 桥、
+  `.mimocode` 配置回退、doctor 旧版目录检测）；运行时只认 ymcode 自己的目录。
+- **v0.2.3**：新增 15 个 Anthropic 官方技能；技能中心中文名/说明/拼音搜索；插件面板中文解释；
+  斜杠命令描述补齐；技能包支持 TTF/PDF/GZ 二进制资源（NUL + base64 内联）。
+- **v0.2.4**：新增中文写作、中文办公排版、系统化调试、代码审查（`code-review-cn`）、Git 工作流
+  5 个技能；内置技能达到 44 个。曾因 `cron-bridge` 时序抖动重跑 CI 一次。
+- **v0.2.5**：Windows 记忆写路径守卫先 `resolve` 再比较（`38d6743`）；非 Git 项目按
+  `dir-<sha256前12位>` 隔离记忆；新增 `ymcode memory doctor`（`f5f7e84`）；`memory doctor`
+  只扫描 `global|projects|sessions`、FTS 行过滤到 memory root（`870cd04`）。
+  Release workflow `39985918524` success，12 个平台 asset；Windows x64 52,622,388 bytes；
+  发布二进制冒烟（`--version` 0.2.5、中文 `--help`、`memory doctor`、44 个内置技能、字体头 `00-01-00-00`）通过。
+
+### 当前交接点的门禁与测试（2026-10-24，HEAD `13058ef`）
+
+```text
+brand check passed
+i18n check passed: 1016 en keys, 1064 zh keys, 44 skill descriptions
+  （含 162 个 TUI 文件、731 处静态 t() 引用扫描）
+skill check passed: 90 files
+prompt check passed: 54 files
+typecheck: @ymcode/{sdk,plugin,shared,cli} + tsconfig.scripts 全部通过
+```
+
+定向测试（`cd packages/cli`）：
+
+```text
+test/session/system.test.ts
+test/session/prompt-skill-command-multi.test.ts
+test/session/cron-bridge.integration.test.ts
+  -> 39 pass / 0 fail
+
+test/cli/tui + test/cli/cmd/tui
+  -> 353 pass / 24 skip / 0 fail（55 个文件）
+
+test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.test.ts
+  -> 201 pass / 12 skip / 2 fail（见下方已知失败）
+```
+
+### 本轮改动摘要
+
+- TUI 汉化补齐：侧栏 Context/Goal/MCP/Tasks/Todo/Modified Files/LSP；模型选择、会话列表、
+  消息操作、工作树、变体、工作流、工作区、子代理、控制台组织、暂存、派生会话；输入框附件
+  占位/重试/中断；工作流视图。
+- 技能目录紧凑化：`Skill.fmt` 只输出 name+description；44 个技能目录约 20,911 → 14,443
+  字符（-31%，约 1.8K tokens），去掉 `<location>`；同步 skill 工具参数描述与测试断言。
+- cron 时序稳定：`waitFor` 改为 5 秒截止轮询；2 秒等待放宽到 10 秒；负向断言窗口 30→100ms。
+- i18n 门禁：新增静态 `t()` 引用扫描，补齐 23 个历史缺失词条（prompt composer / workflow view）。
+
+### 已知失败（与 2026-10-24 改动无关）
+
+1. `test/session/message-v2.test.ts` “local binary and structured text references become paths
+   instead of uploads”：Windows `fileURLToPath` 对非绝对 `file://` URL 抛
+   `ERR_INVALID_FILE_URL_PATH`（`src/session/message-v2.ts:1097`）。
+2. `test/session/prompt-effect.test.ts` “MCP lifecycle timeout lets the outer run finalizer
+   complete when a notification hangs”：5 秒硬超时，负载下超时；单独重跑可过。
+3. Windows plugin loader 23 个用例仍按平台 skip（Bun 模块缓存持有目录句柄，fixture EBUSY）。
+4. TUI 像素级人工视觉验收未做。

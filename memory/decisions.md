@@ -79,3 +79,39 @@
 **Decision**：从已生成的 `src/provider/models-snapshot.js` 提取 JSON，设 `MODELS_DEV_API_JSON`，并 `--skip-install` 构建。
 
 **Consequence**：本机可重复构建；模型目录是快照，不自动更新。网络恢复后可正常 `build:local`。
+
+## D11：非 Git 项目用目录哈希隔离记忆
+
+**Context**：`ProjectID.global` 是 Git 项目的默认值，所有非 Git 目录会共用
+`projects/global/MEMORY.md`，不同项目的记忆互相污染。
+
+**Decision**：新增 `memoryProjectID(project, directory)`；Git 项目原样使用 `project.id`，
+非 Git 项目用规范化绝对路径的 `sha256` 前 12 位生成 `dir-<hash>`。所有写记忆/检索的调用点
+（checkpoint、llm、prompt、external-directory、instinct、server 路由）统一走该 helper。
+
+**Consequence**：不同非 Git 目录记忆互相隔离；Windows 路径大小写先归一化再哈希。
+运行时目录变化不影响 Git 项目。
+
+## D12：技能目录用紧凑 name+description，不注入 location
+
+**Context**：44 个内置技能的系统提示目录约 20.9K 字符，其中 `<location>` 文件 URL 占
+约 4.8K；`skill` 工具本身按名称加载正文，模型不需要目录里的路径。
+
+**Decision**：`Skill.fmt` 只输出 `## Available Skills` + 每行 `- **name**: description`，
+删除 verbose XML 包装与 `<location>`；同步更新 skill 工具参数描述、子代理提示词中的
+目录说明与测试断言。
+
+**Consequence**：目录体积降到约 14.4K 字符（-31%，约 1.8K tokens）；模型仍能按名称调用。
+若未来需要模型直接读取技能文件路径，再评估恢复 location。
+
+## D13：i18n 门禁扫描静态 t() 引用
+
+**Context**：`check:i18n` 只比较 en/zh key 对齐，无法发现“组件里 `t("key")` 但 key 从未加入
+词典”的情况；`i18n.translator` 对缺失 key 返回 `undefined`，界面会静默空白。
+v0.2.3 的汉化轮就遗漏了 prompt composer 与 workflow view 共 23 个 key。
+
+**Decision**：`script/check-i18n.ts` 增加 `packages/cli/src/cli/cmd/tui` 下静态
+`t("...")`/`t('...')` 引用扫描；引用不在 en 字典中即门禁失败。
+
+**Consequence**：覆盖 162 个文件、731 处引用；动态拼接的 key 仍无法覆盖，新增文案时优先写
+静态 key。

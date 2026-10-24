@@ -9,7 +9,7 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 [MiMo-Code](https://g
 
 - **记忆体系**：沿用 `MEMORY.md`、`checkpoint.md`、`notes.md`、任务 progress、SQLite FTS5、`/dream`、`/distill`。
 - **直觉规则**：带证据、置信度、状态（candidate / active / retired）的 instincts；支持晋升、降级、衰减、按预算注入。
-- **全中文内容**：核心 TUI、agent 提示词、工具描述与用户可见错误为中文；内置技能的名称、介绍、适用场景与触发方式为中文，Anthropic 官方技能的正文保留英文以保证命令与脚本准确。
+- **全中文内容**：核心 TUI（含侧栏面板、常用对话框、输入框与工作流视图）、agent 提示词、工具描述与用户可见错误为中文；内置技能的名称、介绍、适用场景与触发方式为中文，Anthropic 官方技能的正文保留英文以保证命令与脚本准确。
 - **内置技能**：44 个技能目录，包含 Anthropic 官方示例技能（Apache-2.0，LICENSE 随技能保留）、中文写作/办公技能，以及调试、代码审查、Git 工作流等工程技能。
 - **独立数据目录**：只使用 ymcode 自己的配置与数据目录，不读取、不迁移旧 mimocode 的任何内容。
 - **可验证门禁**：品牌检查、i18n 字典检查、技能代码围栏检查、提示词受保护 token 检查。
@@ -26,7 +26,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install | ba
 powershell -ep Bypass -c "irm https://raw.githubusercontent.com/AlexPeng07/ymcode/main/install.ps1 | iex"
 ```
 
-指定版本：Unix 追加 `-s -- --version 0.2.2`，Windows 设置 `$env:VERSION`。
+指定版本：Unix 追加 `-s -- --version 0.2.5`，Windows 设置 `$env:VERSION`。
 镜像或私有托管：设置 `YMCODE_RELEASE_BASE`，并可用 `YMCODE_RELEASE_LATEST_URL` 指向返回 `tag_name` JSON 或纯版本文本的地址。`ymcode upgrade` 会从同一发布通道获取最新版本。
 
 ## 构建
@@ -72,7 +72,8 @@ ymcode instinct list   # 查看直觉规则
 
 ## 记忆与 instincts
 
-- 项目记忆：`memory/projects/<project_id>/MEMORY.md`
+- 项目记忆：`memory/projects/<project_id>/MEMORY.md`；非 Git 项目使用 `dir-<hash>` 隔离，避免不同目录互相污染。
+- 体检：`ymcode memory doctor` 检查记忆文件数/体积、重复行、陈旧文件与 FTS 索引一致性。
 - 直觉规则：`memory/projects/<project_id>/instincts/*.md`，索引 `INSTINCTS.md`
 - 捕获：checkpoint 成功后由 `instinct-observer` 子代理节流生成候选；只写候选，不晋升。
 - 晋升：`ymcode instinct promote <id>`（需达到置信度与证据阈值）或 `/instinct`；`/dream` 会执行 review。
@@ -83,8 +84,8 @@ ymcode instinct list   # 查看直觉规则
 
 ## 发布
 
-1. 让 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.2`）。
-2. 提交后打 tag 并推送：`git tag v0.2.2 && git push origin main --tags`。
+1. 让 `packages/{cli,sdk,plugin,shared}/package.json` 的版本一致（例如 `0.2.5`）。
+2. 提交后打 tag 并推送：`git tag v0.2.5 && git push origin main --tags`。
 
 `release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 
@@ -98,8 +99,8 @@ bun run check:prompts
 ```
 
 - `check:brand`：第一方旧品牌 token 扫描（外部 Xiaomi MiMo 模型、opencode 上游与第三方品牌在允许清单内）。
-- `check:i18n`：en/zh 字典对齐、空值、内置技能描述。
-- `check:skills`：70 个内置 `SKILL.md` 的代码围栏、行内代码、URL 与中文正文。
+- `check:i18n`：en/zh 字典对齐、空值、内置技能描述，并扫描 TUI 组件中静态 `t()` 引用是否都有对应词条。
+- `check:skills`：90 个内置 `SKILL.md` 的代码围栏、行内代码、URL 与中文正文。
 - `check:prompts`：提示词的代码围栏、受保护路径/工具名与中文正文。
 
 ## 上游同步

@@ -1,5 +1,25 @@
 # 下一步（按优先级）
 
+## 当前交接点（2026-10-24）
+
+- 代码 HEAD：`13058ef`（main 已推送）；最新 Release：`v0.2.5`（`a3547e4`，12 个 asset）。
+- 工作区比 `v0.2.5` 多两个提交：`be8bc9f`（侧栏/对话框汉化、技能目录紧凑化、cron 测试稳定）、
+  `13058ef`（补齐 prompt/workflow 词条 + i18n 引用门禁）。
+- 版本文件仍是 `0.2.5`；发布 `v0.2.6` 只需改 `packages/{cli,sdk,plugin,shared}/package.json`
+  为同一版本（无 BOM），提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。
+
+### 建议顺序
+
+1. **发布 v0.2.6**：包含本轮 TUI 汉化、技能目录减负与 CI 时序修复。
+2. **修既有测试失败**（与 v0.2.6 无关联，可独立提交）：
+   - `test/session/message-v2.test.ts` 的 “local binary and structured text references become
+     paths instead of uploads”：Windows 下 `fileURLToPath` 对非绝对 `file://` URL 抛
+     `ERR_INVALID_FILE_URL_PATH`（`src/session/message-v2.ts:1097`）。
+   - `test/session/prompt-effect.test.ts` 的 “MCP lifecycle timeout lets the outer run finalizer
+     complete when a notification hangs”：该用例有 5 秒硬超时，负载下会超时。
+3. **Linux 全量复跑**（可选）：按 verification.md「服务器复用方式」更新代码后逐文件串行。
+4. **TUI 像素级人工验收**（可选）：首屏、命令面板、侧栏、常用对话框、中文宽度与蓝色对比度。
+
 ## 本轮已完成（2026-10-22）
 
 - 移除小米条款弹窗与 `auth whoami`；默认模型改为优先选择已有凭据的 provider。
