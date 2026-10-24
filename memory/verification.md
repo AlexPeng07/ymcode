@@ -593,3 +593,24 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   ——真实产品级 PS 路径语义工作，留作专项。Windows 专属失败仍为 8。
 - 验证：bash 140 pass / 4 fail（既有组）；目录相关 5 文件 57 pass；
   全门禁绿。发布 v0.2.10（workflow 见 watch 日志）。
+
+### v0.2.10 发布事故与真回归（996488a 修复）
+
+- v0.2.10 首个 tag 的 CI：resumeMainCascading（8.4s 预算耗尽）与 cron
+  "stop interrupts"（15s 新预算也耗尽）连续两次失败，且**同代码的 main-push
+  test 也失败**——这与 v0.2.7 的"仅 release 上下文"模式不同，是真回归。
+- 根因：54b8d74 把 summary 路由到 `modelRef: "lite"`，而
+  `resolveModelRef` 对内置 tier 的无配置回退**忽略 contextProviderID**，
+  直接 `defaultModel()`（in-house 优先）——summary 子代理跳到无关
+  provider，scripted LLM 的脚本编排被打乱（测试）；生产语义同样错误
+  （静默切到别的 key/账单）。cron 用例同链路受害。
+- 修复（`996488a`）：内置 tier 回退改为 provider-aware——优先调用方已加载
+  provider 里最便宜模型（cost.input 升序、id 决胜），无上下文或该 provider
+  无可用模型才落回 defaultModel。回归测试：`model-groups.test.ts`
+  "built-in tiers are provider-aware before the default fallback"
+  （model: alpha + 上下文 beta → 必须 beta，旧行为返回 alpha）。
+- 本地验证：resume 用例、cron-bridge 14/14、provider/agent/actor
+  941 pass / 9 fail（9 个为既有 provider/refresh Windows 时序集，CI 隔离跑）。
+- **协议修订**：CI 失败判别必须对比**同一提交**的 main-push 结果——
+  main-push 绿 = 环境抖动（v0.2.7 先例）；main-push 也挂 = 真回归
+  （本次先例），应立即怀疑最近批次并做机制级归因，不要重跑轮盘。
