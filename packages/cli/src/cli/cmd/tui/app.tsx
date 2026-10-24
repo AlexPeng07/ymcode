@@ -60,7 +60,7 @@ import { KVProvider, useKV } from "./context/kv"
 import { resolveVisualMode, toggleVisualMode } from "./context/visual"
 import { LanguageProvider, useLanguage } from "./context/language"
 import type { Locale } from "./i18n/locales"
-import { LOCALES } from "./i18n/locales"
+import { TRANSLATED } from "./i18n/locales"
 import { DialogSelect } from "./ui/dialog-select"
 import { Provider } from "@/provider"
 import { ArgsProvider, useArgs, type Args } from "./context/args"
@@ -1015,7 +1015,7 @@ export function App(props: { onSnapshot?: () => Promise<string[]> }) {
           <DialogSelect<Locale | "auto">
             title={t("tui.command.language.dialog.title")}
             current={lang.preference()}
-            options={(["auto", ...LOCALES] as const).map((locale) => ({
+            options={(["auto", ...TRANSLATED] as const).map((locale) => ({
               value: locale,
               title: locale === "auto" ? t("tui.language.auto") : lang.label(locale as Locale),
               description: locale === lang.preference() ? t("tui.language.current") : undefined,

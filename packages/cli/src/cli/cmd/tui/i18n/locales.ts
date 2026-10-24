@@ -37,6 +37,12 @@ export const LOCALES: readonly Locale[] = [
   "tr",
 ]
 
+// Locales that actually ship a dictionary (i18n/{locale}.ts). The picker only
+// offers these; any other configured or system-detected locale still resolves
+// through normalizeLocale and falls back to the English base dict via the
+// merge in context/language.tsx.
+export const TRANSLATED: readonly Locale[] = ["en", "zh", "zht", "es", "fr", "ja", "ru"]
+
 export const INTL: Record<Locale, string> = {
   en: "en",
   zh: "zh-Hans",

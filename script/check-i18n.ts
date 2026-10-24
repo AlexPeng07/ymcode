@@ -6,6 +6,19 @@ import { dict as zh } from "../packages/cli/src/cli/cmd/tui/i18n/zh"
 const enDict = en as Record<string, string | undefined>
 const zhDict = zh as Record<string, string | undefined>
 
+// Coverage of the optional locale dictionaries (warning only — they merge over
+// the English base at runtime, so partial coverage degrades gracefully).
+const OPTIONAL_LOCALES = ["zht", "es", "fr", "ja", "ru"] as const
+const coverage = await Promise.all(
+  OPTIONAL_LOCALES.map(async (locale) => {
+    const mod = (await import(`../packages/cli/src/cli/cmd/tui/i18n/${locale}`)) as {
+      dict: Record<string, string | undefined>
+    }
+    const keys = Object.keys(mod.dict)
+    return `${locale}: ${keys.length}/${Object.keys(enDict).length}`
+  }),
+)
+
 const missing = Object.keys(enDict).filter((key) => !(key in zhDict))
 const empty = Object.keys(zhDict).filter((key) => {
   const required = Boolean(enDict[key]?.trim()) || key.startsWith("tui.skill.")
@@ -51,3 +64,4 @@ if (
 console.log(
   `i18n check passed: ${Object.keys(enDict).length} en keys, ${Object.keys(zhDict).length} zh keys, ${bundles.length} skill descriptions`,
 )
+console.log(`i18n locale coverage (optional, en-base fallback): ${coverage.join(", ")}`)
