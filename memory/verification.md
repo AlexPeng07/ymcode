@@ -447,6 +447,15 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
 
 ### v0.2.7 发布
 
-- tag `v0.2.7`（`5931cad`）→ release.yml workflow `40076610718`（结果见 GitHub；
-  12 平台 asset 预期）。包含提交：fae46f0、ed185c0、6207ccb、0d59be6。
+- tag `v0.2.7`（`5931cad`）→ release.yml workflow `40076610718`，最终 success（12 个平台
+  asset，published 2026-10-24T08:54Z）。包含提交：fae46f0、ed185c0、6207ccb、0d59be6。
+- **CI 事件记录（重要运维经验）**：release 测试 shard 2/3 前 3 次尝试失败——
+  `resumeMainCascading`（8.3s 轮询耗尽，子代理未投递）与 cron-bridge 的
+  "stop interrupts pending delivery"（5s waitFor 耗尽）。判别取证：同代码在 main push
+  （该用例 646ms）与 workflow_dispatch 直接跑 tag（547ms）均全绿；工作流逐行对比
+  无触发类型差异；零代码改动第 4 次重跑全绿。结论：runner 时间窗效应（疑似镜像
+  滚动/宿主抖动），非代码回归。处置：遇此类失败先做"main push + dispatch tag"双
+  判别再重跑，不要急着改代码或放宽预算。
+- 发布二进制冒烟：Windows x64 asset `--version` = 0.2.7（网络限速，下载慢，
+  结果以后台任务输出为准）。
 - 门禁（发布前本地）：brand/i18n/skills/prompts/typecheck 全绿。
