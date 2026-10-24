@@ -160,3 +160,19 @@
   5 秒硬超时；Windows plugin 23 例按平台 skip。
 - 未发版：最后代码提交 `13058ef` 比 v0.2.5 多两个提交；其后为交接文档提交，不改变版本。
   下一步发 v0.2.6。
+
+## 2026-10-24 v0.2.6 发布与已知失败修复
+
+- 发布 v0.2.6：4 个 `package.json` 升到 0.2.6（`2add73d`），tag 触发 `release.yml`
+  （workflow `40070224750`）success，12 个资产；Windows x64 52,626,649 bytes；
+  发布二进制冒烟（`--version` 0.2.6、中文 `--help`）通过。注意发布 asset 内部布局是
+  根目录 `ymcode.exe`，与本地构建的 `ymcode-windows-x64/bin/` 不同。
+- 修复 `message-v2` Windows file URL 失败（`eeaad8c`）：`fileURLToPath` 对非本平台
+  绝对路径的 file: URL（如 POSIX 风格）抛 `ERR_INVALID_FILE_URL_PATH`，会让整次
+  消息转换崩溃；新增 `attachmentDisplayPath` 回退到解码后的 URL pathname。
+  message-v2 测试 63 pass / 0 fail（Windows）。
+- 放宽 `prompt-effect` MCP lifecycle 用例预算到 30 秒（`c6674c6`）：生产侧通知超时
+  `TURN_LIFECYCLE_NOTIFICATION_TIMEOUT` 为 1 秒不变，5 秒预算只衡量了负载下的
+  服务器启动时间；与同文件姊妹用例对齐。目标用例单独运行通过。
+- 两个修复在 v0.2.6 tag 之后提交，属下一版本内容（`eeaad8c` 为 src 行为修复，
+  `c6674c6` 仅测试预算）。

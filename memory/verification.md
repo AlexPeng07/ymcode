@@ -367,3 +367,27 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
    complete when a notification hangs”：5 秒硬超时，负载下超时；单独重跑可过。
 3. Windows plugin loader 23 个用例仍按平台 skip（Bun 模块缓存持有目录句柄，fixture EBUSY）。
 4. TUI 像素级人工视觉验收未做。
+
+## 2026-10-24：v0.2.6 发布与两个已知失败修复
+
+### 发布
+
+- tag `v0.2.6`（`2add73d`）触发 release.yml workflow `40070224750`（06:26–06:39 UTC，
+  conclusion success），12 个平台 asset；Windows x64 52,626,649 bytes。
+- 发布二进制冒烟（Windows x64 asset 解压后实测）：`--version` = 0.2.6；中文 `--help` 正常。
+- 注意：发布 asset 的内部布局是根目录一个 `ymcode.exe`，与本地 `build:local` 产物的
+  `ymcode-windows-x64/bin/ymcode.exe` 不同，冒烟时不要按后者找路径。
+
+### 修复（均在 tag 之后提交，属下一版本）
+
+1. `eeaad8c` fix(session): tolerate non-native file URLs in attachment path labels —
+   `src/session/message-v2.ts` 新增 `attachmentDisplayPath`：`fileURLToPath` 抛错时
+   （Windows 上 POSIX 风格 file: URL 报 `ERR_INVALID_FILE_URL_PATH`）回退到
+   `decodeURIComponent(new URL(url).pathname)`，三平台期望输出一致。
+   验证：`bun test --timeout 60000 test/session/message-v2.test.ts` → 63 pass / 0 fail（Windows）。
+2. `c6674c6` test(session): raise MCP lifecycle hang case budget to 30s —
+   生产侧 `TURN_LIFECYCLE_NOTIFICATION_TIMEOUT` = 1s 不变；仅放宽 bun test 预算
+   5s→30s，与同文件姊妹用例一致。
+   验证：目标用例 `-t` 过滤单独运行 → 1 pass / 0 fail。
+
+修复后 typecheck（sdk/plugin/shared/cli + tsconfig.scripts）全部通过。

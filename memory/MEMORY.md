@@ -6,10 +6,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 最后代码提交（交接时）：`13058ef`（2026-10-24，main 已推送）；其后为交接文档提交，
-  当前 main HEAD 用 `git log -1 --oneline` 查看。最新发布 `v0.2.5`（`a3547e4`），
-  之后两个代码提交（`be8bc9f`、`13058ef`）尚未发版
-- 最新 Release：`v0.2.5`，12 个平台 asset，Windows x64 52,622,388 bytes
+- 最后代码提交（交接时）：`c6674c6`（2026-10-24，main 已推送）。最新发布 `v0.2.6`
+  （`2add73d`，含 `be8bc9f`、`13058ef`），其后两个测试修复提交（`eeaad8c`、`c6674c6`）
+  尚未发版
+- 最新 Release：`v0.2.6`，12 个平台 asset，Windows x64 52,626,649 bytes
 - 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
@@ -63,6 +63,11 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   v0.2.4 新增中文写作、中文办公排版、系统化调试、代码审查、Git 工作流 5 个技能，
   内置技能达到 44 个；v0.2.5 修复 Windows 记忆写路径守卫、隔离非 Git 项目记忆，
   新增 `ymcode memory doctor`。四次发布均为 12 个平台 asset。
+- **v0.2.6 已发布**（2026-10-24，Actions 自动发布）：包含 TUI 面板/对话框汉化补齐、
+  技能目录紧凑化（约 -31%）、cron 测试时序稳定与 i18n `t()` 引用扫描门禁。
+  其后修复 message-v2 对非本平台 file: URL 的崩溃（`attachmentDisplayPath` 回退，
+  `eeaad8c`）并放宽 prompt-effect MCP lifecycle 用例预算到 30 秒（`c6674c6`），
+  两个修复未发版。
 - **体验优化（未发布）**：侧栏全部面板标题与状态、模型选择、会话列表、消息操作、
   工作树、变体、工作流、工作区、子代理、控制台组织、暂存与派生会话文案接入中英 i18n；
   技能目录改为 name+description 紧凑格式（去掉 `<location>` 与 XML 包装），44 个技能的
@@ -111,9 +116,10 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `13058ef`，最新发布 `v0.2.5`。优先：① 发布 `v0.2.6`（4 个 `package.json` 升版本后打
-tag）；② 修 `test/session/message-v2.test.ts` 的 Windows 文件 URL 失败与 `prompt-effect` 的
-MCP lifecycle 5 秒硬超时；③ 有条件时在 Linux 服务器复跑全量。详见 [next-steps.md](next-steps.md)。
+交接点为 `c6674c6`，最新发布 `v0.2.6`。两项已知测试失败已修复（message-v2 file URL、
+prompt-effect lifecycle 预算），未发版。优先：① P1 测试整修轮次（按"两边都挂/仅 Windows/
+仅 Linux"三档拆分）；② 有条件时在 Linux 服务器复跑全量；③ TUI 像素级人工验收（可选）。
+详见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 
