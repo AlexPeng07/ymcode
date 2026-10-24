@@ -571,3 +571,25 @@ test/session/message-v2.test.ts + rebuild-tail-digest.test.ts + prompt-effect.te
   6/6 修复；Windows 专属失败 14 → 8。
 - 验证：doctor 对真实环境输出 ✗ xiaomi key 失效 + 修复指引；
   bash.test.ts 97 pass / 4 fail（仅剩 external_directory/PowerShell 组）。
+
+## 2026-10-24：质量优先效率批次（54b8d74 → v0.2.10）
+
+用户定调"质量优先"。原则：只做质量中性/正向的 token 优化——**compaction 与
+instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量），不路由 lite。
+
+- **目录剥离触发词段**：`Skill.fmt` 输出时剥离 `| Trigger keywords:` 段
+  （匹配器继续读完整 description）。44 技能 description 共 13,884 字符，
+  触发词占 4,105（29%）≈ 每会话省约 1,000 token。实测目录输出不再含
+  "Trigger keywords"。共享 `stripTriggerSegment`，hintDescription 复用。
+- **token-efficient 清洗默认开**：never-worse 契约（变大即丢弃）转正；
+  回退 `YMCODE_DISABLE_TOKEN_EFFICIENCY=true` 或兼容 ENABLE=false。
+  启发式形状过滤仍 opt-in。**bash.test.ts 默认翻转后零新增失败**。
+- **401/403 修复指引**：provider/error.ts 全分支（JSON 错误体、HTML 网关页、
+  裸 status）附加 "run `ymcode setup` … or `ymcode doctor` to live-check"；
+  密钥不回显。provider/error + agent 测试 67/67 过。
+- **summary 走 lite**（活动日志渲染是机械活，与 title 同级）；compaction 不动。
+- **external_directory/PowerShell 组定性**（不赶工）：`contains()` 实现正确；
+  失败集中在 PowerShell 盘符相对式 workdir（`F:foo`）在 resolvePath 的解析
+  ——真实产品级 PS 路径语义工作，留作专项。Windows 专属失败仍为 8。
+- 验证：bash 140 pass / 4 fail（既有组）；目录相关 5 文件 57 pass；
+  全门禁绿。发布 v0.2.10（workflow 见 watch 日志）。

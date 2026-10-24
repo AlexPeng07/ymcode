@@ -139,10 +139,10 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `31bbbb2`，最新发布 `v0.2.9`。**四方向优化路线已全部交付**：
-质量闭环（v0.2.7）、易用性（v0.2.8）、记忆深化（v0.2.9）、测试整修
-（Windows 全量 277→107 fail 定性 + 首批 10 个修复；真实 Windows 专属
-剩 14 个）。剩余优先级与观察项见 [next-steps.md](next-steps.md)。
+交接点为 `fcbe137`，最新发布 `v0.2.10`（质量优先效率批次：目录剥离触发词
+-29%、token-efficient 清洗默认开、401/403 修复指引、summary 走 lite；
+compaction/observer 刻意保留主模型）。四方向路线 + 评估修复 + 本批次均已交付。
+剩余优先级见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 
