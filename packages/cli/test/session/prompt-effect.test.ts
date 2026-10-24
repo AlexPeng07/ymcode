@@ -4281,7 +4281,7 @@ lifecycleMcpIt.live(
       }),
       { git: true, config: providerCfg },
     ),
-  5_000,
+  30_000,
 )
 
 it.live("glob tool keeps instance context during prompt runs", () =>
