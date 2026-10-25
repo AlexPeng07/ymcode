@@ -1,34 +1,39 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-24，四方向路线全部完成）
+## 当前交接点（2026-10-25，v0.2.10 已发布）
 
-- **四方向优化路线已全部交付**：质量闭环（v0.2.7）、易用性批次（v0.2.8）、
-  记忆深化（v0.2.9）、测试整修定性+首批修复（`31bbbb2`）。
-  发布链路 v0.2.7/0.2.8/0.2.9 均 12 asset。
-- Windows 全量已定性（6195 pass / 107 fail，原基线 277）：三档处置见
-  verification.md「Windows 全量重跑定性」——已修 10、负载伪影 ~83
-  （permission/next 隔离全过、mcp/lifecycle CI 隔离设计）、真实 Windows 专属 14。
+- 最新 Release：`v0.2.10`（tag `996488a`，workflow `40098293714` success，12 asset）。
+- 已交付（按时间序）：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 /
+  测试定性+修复）；生产力评估与修复（doctor 凭据实测 `d5589bd`）；质量优先效率批次
+  （`54b8d74`：目录剥离触发词 -29%、token-efficient 清洗默认开、401/403 修复指引、
+  summary→lite）；**provider-aware 内置 tier 修复**（`996488a`，v0.2.10 发布事故的
+  机制级归因——lite 回退忽略 contextProviderID 跳到无关 provider）。
+- Windows 全量定性（6195 pass / 107 fail，原基线 277）：已修 16、负载伪影 ~83、
+  真实 Windows 专属 8（见 verification.md 两份定性记录）。
+- **CI 判别协议（已修订，写进 verification.md）**：对比**同一提交**的 main-push——
+  绿=环境抖动，挂=真回归（本次 summary→lite 先例），直接机制归因，不跑重试轮盘。
 
 ### 建议顺序
 
-0. **恢复可用（立即）**：本机两把 API key 均已失效（E2E 实测）——运行
+0. **恢复可用（立即）**：本机两把 API key 均已失效（E2E 实测，仍未处理）——运行
    `ymcode setup` 重新配置 provider key，再 `ymcode doctor` 确认
-   「联网验证通过」（d5589bd 起 doctor 能实测 key 有效性）。
+   「联网验证通过」（d5589bd 起 doctor 能实测 key 有效性；401/403 错误现已自带指引）。
 1. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
-   （5，产品代码平台路径解析）+ stdio-exit-observe 信号语义（3）。
+   （5，已定性为 resolvePath 对 PS 盘符相对式 `F:foo` 的解析，产品级专项）
+   + stdio-exit-observe 信号语义（3）。
 2. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
    中文宽度与蓝色对比度）。
-3. **可选：观察类后续**——instinct usage 数据积累一段时间后回顾注入排序
-   效果；后台 bash 与 config hooks 的实际使用反馈；技能触发提示的命中率
-   （可从会话日志统计 system-reminder 注入频率）。
+3. **可选：观察类后续**——instinct usage 数据积累后回顾注入排序效果；
+   后台 bash / config hooks / 触发提示的实际使用反馈与命中率；
+   max-mode 自动路由缓行（错判代价 > 收益）。
 4. **可选：Linux 全量对照**（verification.md 服务器复用方式）。
 
-### 发布 v0.3.0+ 流程（同前）
+### 发布 v0.2.11+ 流程（同前）
 
 改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），
 提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。
-运维经验：release 上下文偶发正向等待超时——先做 main-push/tag-dispatch 双
-判别，第二次复现即放宽预算（cron-bridge 先例：5s→15s，`c6fcd67`）。
+发布失败判别：同提交 main-push 绿=抖动可重跑；挂=真回归，先归因最近批次。
+本机网络对 release-assets 偶发 TLS 握手超时，下载冒烟失败先重试再定性。
 
 ## 本轮已完成（2026-10-22）
 

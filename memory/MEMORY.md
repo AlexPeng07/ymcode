@@ -6,11 +6,13 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 
 - 仓库：`F:\AllProjects\ymcode`
 - 上游基线：MiMo-Code `88673c41732fcd57bf46abe485b547c00ba78221`（2026-10-21）
-- 最后代码提交（交接时）：`93768ec`（v0.2.9 版本提交，main 已推送）。最新发布
-  `v0.2.9`（记忆深化轮，workflow `40084609731` success，12 asset）；
-  v0.2.8（易用性批次，workflow `40083784186`）此前已发布
-- 最新 Release：`v0.2.9`（12 个平台 asset）
-- 本地二进制：`packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe`（v0.2.5 构建，可能需重新构建）
+- 最后代码提交（交接时）：`996488a`（provider-aware 内置 tier 修复，main 已推送；
+  其后为交接文档提交）。最新发布 `v0.2.10`（tag 指向 `996488a`，12 个平台 asset），
+  含质量优先效率批次（`54b8d74`）与 tier 回归修复
+- 最新 Release：`v0.2.10`（workflow `40098293714` success；首个 tag 因 tier 回归
+  删掉重打，见 verification.md 发布事故记录）
+- 本地二进制：发布 asset 解压后根目录 `ymcode.exe`（`gh release download v0.2.10`）；
+  `packages/cli/dist/` 下是旧的本地构建
 - 设计规格：`docs/superpowers/specs/2026-10-21-ymcode-harness-design.md`
 - 执行计划：`docs/superpowers/plans/2026-10-21-ymcode-*.md`
 - 项目进度：`docs/PROGRESS.md`
@@ -139,10 +141,10 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `fcbe137`，最新发布 `v0.2.10`（质量优先效率批次：目录剥离触发词
--29%、token-efficient 清洗默认开、401/403 修复指引、summary 走 lite；
-compaction/observer 刻意保留主模型）。四方向路线 + 评估修复 + 本批次均已交付。
-剩余优先级见 [next-steps.md](next-steps.md)。
+交接点为 `6d6e0a0`，最新发布 `v0.2.10`（tag `996488a`）。已交付：四方向路线
+（v0.2.7/0.2.8/0.2.9）、生产力评估与凭据实测修复（d5589bd）、质量优先效率批次
+（54b8d74）+ provider-aware tier 修复（996488a，发布事故归因，协议已修订）。
+下一步优先级见 [next-steps.md](next-steps.md)。
 
 ## 主题文件
 

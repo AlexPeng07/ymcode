@@ -228,3 +228,21 @@
 - P1 旧清单确认彻底过时：ymcode-docs 与 memory-path-guard 实测零失败。
 - **四方向优化路线收官**：v0.2.7 质量闭环、v0.2.8 易用性、v0.2.9 记忆深化、
   方向 4 定性+首批修复。
+
+## 2026-10-24~25 生产力评估、质量优先批次与 v0.2.10
+
+- **生产力评估取证**（`d5589bd`）：真实安装 E2E 实测两把 API key 均失效而旧版
+  doctor 沉默 → doctor 增加凭据联网实测（`GET {baseURL}/models`，401/403 判死
+  + setup 指引，TLS 失败诚实 warn）；修复 bash git-identity 测试探针
+  （按 shell 生成语法，Windows 专属失败 14→8）。
+- **质量优先效率批次**（`54b8d74`，用户定调质量优先）：目录剥离 Trigger keywords
+  段（29%，约 1K token/会话）；token-efficient 清洗默认开（never-worse 契约，
+  回退 `YMCODE_DISABLE_TOKEN_EFFICIENCY`）；401/403 错误全分支附 setup/doctor
+  指引；summary→lite（compaction/observer 刻意保留主模型）。
+  external_directory/PowerShell 组定性为 resolvePath 的 PS 盘符相对式解析，专项延后。
+- **v0.2.10 发布事故与真回归**（`996488a`）：首个 tag CI 失败且同提交 main-push
+  也挂 → 真回归。根因：`resolveModelRef` 内置 tier 无配置回退忽略
+  contextProviderID 跳 defaultModel，summary 静默切 provider。修复为
+  provider-aware（调用方 provider 最便宜模型优先）+ 回归测试。
+  tag 重打后 workflow `40098293714` success，12 asset。
+- **CI 判别协议修订**：同提交 main-push 绿=抖动、挂=真回归，机制归因优先于重跑。
