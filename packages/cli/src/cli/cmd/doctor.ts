@@ -87,26 +87,6 @@ async function configCandidates(directory: string) {
   return found
 }
 
-function nearestModel(model: string, available: string[]) {
-  const needle = model.toLowerCase()
-  const scored = available
-    .map((id) => {
-      const lower = id.toLowerCase()
-      let score = 0
-      if (lower === needle) score = 100
-      else if (lower.startsWith(needle) || needle.startsWith(lower)) score = 60
-      else if (lower.includes(needle) || needle.includes(lower)) score = 40
-      else {
-        const shared = [...new Set(needle.split(/[-_.]/))].filter((part) => part && lower.includes(part)).length
-        score = shared * 10
-      }
-      return { id, score }
-    })
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
-  return scored.slice(0, 3).map((entry) => entry.id)
-}
-
 const credentialEnv = [
   "ANTHROPIC_API_KEY",
   "OPENAI_API_KEY",
@@ -306,7 +286,7 @@ export const DoctorCommand = cmd({
         }
         const available = Object.keys(provider.models)
         if (!available.includes(modelID)) {
-          const near = nearestModel(modelID, available)
+          const near = Provider.nearestModel(modelID, available)
           add({
             section: "配置",
             name: `默认模型 ${model}`,

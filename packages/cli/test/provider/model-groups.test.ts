@@ -400,6 +400,36 @@ test("unknown custom group name still throws", async () => {
   })
 })
 
+// Unknown model errors must carry the nearest-name hint in the *message* —
+// the visible turn error reads Error.message, and the structured suggestions
+// field alone never reaches the user.
+test("unknown model error message suggests nearest models", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "ymcode.json"),
+        JSON.stringify({ $schema: "https://opencode.ai/config.json", provider: PROVIDERS }),
+      )
+    },
+  })
+
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      // Typo'd model on a known provider → did-you-mean with provider-qualified names.
+      const typo = await resolve("alpha/alpha-2").catch((e: unknown) => String(e))
+      expect(typo).toContain("did you mean")
+      expect(typo).toContain("alpha/alpha-1")
+      expect(typo).toContain("ymcode models alpha")
+
+      // Unknown provider entirely → actionable tail without bogus suggestions.
+      const unknownProvider = await resolve("nosuch/m-1").catch((e: unknown) => String(e))
+      expect(unknownProvider).toContain("Unknown model nosuch/m-1")
+      expect(unknownProvider).toContain("ymcode models nosuch")
+    },
+  })
+})
+
 // SDK surface: both PromptInput and ShellInput accept an additive optional
 // `modelRef` string (a group/tier name or a literal provider/model). This is the
 // field HTTP/SDK callers use to start a prompt or shell with a tier name; it is

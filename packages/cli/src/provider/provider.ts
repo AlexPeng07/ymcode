@@ -1,7 +1,6 @@
 import { HostModelTransport } from "./host-transport"
 import z from "zod"
 import os from "os"
-import fuzzysort from "fuzzysort"
 import { Config } from "../config"
 import { mapValues, mergeDeep, omit, pickBy, sortBy } from "remeda"
 import { NoSuchModelError, type Provider as SDK } from "ai"
@@ -1805,16 +1804,12 @@ const layer: Layer.Layer<
       const s = yield* getState()
       const provider = s.providers[providerID]
       if (!provider) {
-        const available = Object.keys(s.providers)
-        const matches = fuzzysort.go(providerID, available, { limit: 3, threshold: -10000 })
-        throw new ModelNotFoundError({ providerID, modelID, suggestions: matches.map((m) => m.target) })
+        throw modelNotFound(providerID, modelID, nearestModel(providerID, Object.keys(s.providers)))
       }
 
       const info = provider.models[modelID]
       if (!info) {
-        const available = Object.keys(provider.models)
-        const matches = fuzzysort.go(modelID, available, { limit: 3, threshold: -10000 })
-        throw new ModelNotFoundError({ providerID, modelID, suggestions: matches.map((m) => m.target) })
+        throw modelNotFound(providerID, modelID, nearestModel(modelID, Object.keys(provider.models)))
       }
       return info
     })
@@ -1839,14 +1834,11 @@ const layer: Layer.Layer<
           s.models.set(key, language)
           return language
         } catch (e) {
-          if (e instanceof NoSuchModelError)
-            throw new ModelNotFoundError(
-              {
-                modelID: model.id,
-                providerID: model.providerID,
-              },
-              { cause: e },
-            )
+          if (e instanceof NoSuchModelError) {
+            throw modelNotFound(model.providerID, model.id, nearestModel(model.id, Object.keys(s.providers[model.providerID]?.models ?? {})), {
+              cause: e,
+            })
+          }
           throw e
         }
       })
@@ -1901,8 +1893,7 @@ const layer: Layer.Layer<
           return yield* getModel(fallback.providerID, fallback.modelID)
         }
         const names = Object.keys(cfg.model_groups ?? {})
-        const matches = fuzzysort.go(ref, names, { limit: 3, threshold: -10000 })
-        throw new ModelGroupNotFoundError({ group: ref, suggestions: matches.map((m) => m.target) })
+        throw new ModelGroupNotFoundError({ group: ref, suggestions: nearestModel(ref, names) })
       }
 
       const def = typeof group === "string" ? group : group.default
@@ -2051,6 +2042,65 @@ export const ModelNotFoundError = NamedError.create(
     suggestions: z.array(z.string()).optional(),
   }),
 )
+
+// errorMessage() (the visible turn error) reads Error.message first, and the
+// structured suggestions field alone never reaches the user — bake the
+// nearest-name hint into the message text at throw time.
+function modelNotFound(providerID: string, modelID: string, suggestions: string[], options?: ErrorOptions) {
+  const error = new ModelNotFoundError({ providerID, modelID, suggestions }, options)
+  const base = `Unknown model ${providerID}/${modelID}`
+  error.message =
+    suggestions.length > 0
+      ? `${base} — did you mean: ${suggestions.map((s) => `${providerID}/${s}`).join(", ")}? Run \`ymcode models ${providerID}\` to list all models.`
+      : `${base}. Run \`ymcode models ${providerID}\` to list available models.`
+  return error
+}
+
+// Nearest-name ranking for unknown-model suggestions. fuzzysort is a
+// subsequence matcher — it returns nothing for substitutions/transpositions
+// ("deepseek-flesh" vs "deepseek-flash"), which is exactly the typo case this
+// exists for. Prefix/substring/segment scoring plus a length-budgeted
+// edit distance covers those.
+export function nearestModel(model: string, available: string[]): string[] {
+  const needle = model.toLowerCase()
+  const scored = available
+    .map((id) => {
+      const lower = id.toLowerCase()
+      let score = 0
+      if (lower === needle) score = 100
+      else if (lower.startsWith(needle) || needle.startsWith(lower)) score = 60
+      else if (lower.includes(needle) || needle.includes(lower)) score = 40
+      else {
+        const shared = [...new Set(needle.split(/[-_.]/))].filter((part) => part && lower.includes(part)).length
+        const distance = levenshtein(needle, lower)
+        const budget = Math.max(2, Math.floor(Math.min(needle.length, lower.length) / 4))
+        score = Math.max(shared * 10, distance <= budget ? (budget - distance + 1) * 10 : 0)
+      }
+      return { id, score }
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
+  return scored.slice(0, 3).map((entry) => entry.id)
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0
+  if (a.length === 0) return b.length
+  if (b.length === 0) return a.length
+  let previous = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    const current = [i]
+    for (let j = 1; j <= b.length; j++) {
+      current[j] = Math.min(
+        previous[j]! + 1,
+        current[j - 1]! + 1,
+        previous[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1),
+      )
+    }
+    previous = current
+  }
+  return previous[b.length]!
+}
 
 export const ModelGroupNotFoundError = NamedError.create(
   "ProviderModelGroupNotFoundError",
