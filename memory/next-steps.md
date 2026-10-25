@@ -15,9 +15,10 @@
 
 ### 建议顺序
 
-0. **恢复可用（立即）**：本机两把 API key 均已失效（E2E 实测，仍未处理）——运行
-   `ymcode setup` 重新配置 provider key，再 `ymcode doctor` 确认
-   「联网验证通过」（d5589bd 起 doctor 能实测 key 有效性；401/403 错误现已自带指引）。
+0. ~~恢复可用~~ **已完成（2026-10-25）**：临时 deepseek key 经
+   `ymcode setup` 写入 auth.json + 默认模型 deepseek/deepseek-flash；
+   doctor 联网验证通过，真实 E2E（模型往返 + bash 工具回路）全通。
+   注意：该 key 为临时性质且出现在会话记录里，用完建议轮换；xiaomi key 仍是死的。
 1. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
    （5，已定性为 resolvePath 对 PS 盘符相对式 `F:foo` 的解析，产品级专项）
    + stdio-exit-observe 信号语义（3）。

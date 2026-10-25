@@ -618,3 +618,16 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   12 个平台 asset，published 2026-10-24T13:39Z。本机对 release-assets 的
   下载冒烟两次遇 TLS 握手超时（已知网络拦截），重试后本机实测
   `--version` = 0.2.10 通过。
+
+## 2026-10-25：凭据恢复（ harness 重新可用）
+
+- 用户提供临时 deepseek key（已出现在会话记录，建议用后轮换；不入仓库/文档）。
+- `ymcode setup --provider deepseek --api-key … --model deepseek-flash --force`
+  一次写入 auth.json + 全局默认模型并验证 provider 加载（注意 --model 要不带
+  provider 前缀的 ID，带前缀会被模型目录校验拒绝）。
+- `ymcode doctor`：deepseek「key 联网验证通过」（此前偶发的自签证书 warn 未复现）；
+  xiaomi 死 key 继续被正确标红 401。
+- 真实 E2E（v0.2.10 发布二进制，真实用户主目录）：
+  `ymcode run "只输出两个字：可用"`（默认模型，无 -m）→「可用」；
+  工具回路：让 agent `cat probe.txt` → bash 工具真实执行并原样回报。
+  **harness 恢复完整可用。**
