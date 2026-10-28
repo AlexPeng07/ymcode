@@ -681,3 +681,12 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   需要可靠时一律 `-File`。
 - 编译产物与源码运行可能有语义差异（`process.exit()`），涉及退出码的修复
   必须在**构建产物**上验证，不能只看 typecheck / 源码跑。
+
+### 发布产物验证（v0.2.11 released binary）
+
+- 下载 v0.2.11 Windows x64 asset（`--version` = 0.2.11，12 asset 齐全）。
+- 失败路径（镜像停 + `upgrade 9.9.9`）：**exit 1** ✓（旧版为 0）。
+- 成功路径（本地镜像 + `upgrade 0.2.99`）：**exit 0 + 「Upgrade complete」+
+  日志 `upgraded Windows binary in-place`** ✓。
+- 结论：修复在编译产物中生效；`process.exit(code)` 的显式传参确有必要
+  （源码运行与编译产物对无参 `process.exit()` 的行为不同）。
