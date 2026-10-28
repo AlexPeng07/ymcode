@@ -141,7 +141,11 @@ describe("resumeMainCascading integration", () => {
               expect(res.status).toBe(202)
 
               let childOk = false
-              for (let i = 0; i < 80 && !childOk; i++) {
+              // Positive-delivery wait: assert eventual delivery, not speed.
+              // 80 × 100ms (8s) exhausted first on slow release runners three
+              // times while the same commit passed on main-push — the cascade
+              // this test drives is correct, just slower under load.
+              for (let i = 0; i < 300 && !childOk; i++) {
                 const msgs = yield* sessions.messages({ sessionID: session.id, agentID: "custom-1" })
                 childOk = msgs.some((m) =>
                   m.parts.some((p) => p.type === "text" && (p.text ?? "").includes("CHILD-RESUME-OK")),
