@@ -116,6 +116,18 @@ ymcode instinct list   # 查看直觉规则
 
 `release.yml` 会校验 tag 与版本、跑门禁与测试、构建 12 个平台的 archive，并创建 GitHub Release。npm 与 FDS 是可选通道，分别由仓库变量 `YMCODE_PUBLISH_NPM=1`、`YMCODE_PUBLISH_FDS=1` 开启。
 
+### 关于杀毒软件告警
+
+`ymcode upgrade` 在 Windows 上会**原地替换正在运行的可执行文件**（先把当前 exe
+改名，再把新版本复制到原路径）——这是自更新程序的常见做法，但它与文件感染型恶意
+软件的行为特征相同。实测卡巴斯基会给出行为判定 `PDM:Trojan.Win32.Generic.nblk`
+并删除文件（`PDM` 前缀表示行为判定，不是对文件内容的签名命中；官方发布资产的
+哈希可自行核对）。
+
+如果遇到：把 ymcode 安装目录加入排除列表即可；更彻底的办法是等待发布二进制
+加入 Authenticode 代码签名。若你从 Releases 下载压缩包手工使用（不跑 `upgrade`），
+不会触发该行为。
+
 ## 汉化门禁
 
 ```bash

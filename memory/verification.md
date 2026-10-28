@@ -703,9 +703,11 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   路径」（`renameSync(targetExe, oldExe)` + `copyFileSync(staged, target)`）——
   这正是文件感染型恶意软件的经典行为特征，卡巴斯基 PDM（行为防护）会拦截。
   次要因素：未签名 + Bun 单文件打包 + `.scratch` 低信誉路径。
-- 卡巴斯基报告为加密格式，无法读出检测名；需用户在 UI 报告/隔离区查看
-  （`PDM:*` = 行为拦截；`HEUR:*`/内容类 = 文件判定），或用哈希在
-  OpenTIP / VirusTotal 查询。
+- **检测名（用户确认）：`PDM:Trojan.Win32.Generic.nblk`**。`PDM` 前缀 =
+  Kaspersky Proactive Defense Module 的**行为**判定，`Generic` 表示无已知家族——
+  不是对文件内容的签名命中。这确认了上述归因：是「运行中的 exe 自我替换」
+  这一行为触发，而非二进制内容被判定为恶意（内容已由哈希证明是官方资产）。
+  同一文件静态放置不会被此规则命中。
 - **产品含义（重要）**：真实用户执行 `ymcode upgrade` 走的是同一自替换逻辑，
   Windows 上可能触发同类行为检测。缓解方向：① Authenticode 代码签名（提升
   信誉，最有效）；② 文档说明升级会原地替换 exe；③ 可考虑改由脱离的辅助进程
