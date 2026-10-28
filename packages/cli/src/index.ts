@@ -288,7 +288,10 @@ try {
   // Some subprocesses don't react properly to SIGTERM and similar signals.
   // Most notably, some docker-container-based MCP servers don't handle such signals unless
   // run using `docker run --init`.
-  // Explicitly exit to avoid any hanging subprocesses.
+  // Explicitly exit to avoid any hanging subprocesses. Pass the code through:
+  // the compiled Bun binary's argument-less exit() has been observed to return
+  // 0 even when process.exitCode was set (a command reporting failure would
+  // then look successful to scripts and CI).
   await Log.shutdown()
-  process.exit()
+  process.exit(process.exitCode ?? 0)
 }

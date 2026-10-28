@@ -62,6 +62,9 @@ export const UpgradeCommand = {
     )
     if (err) {
       spinner.stop("Upgrade failed", 1)
+      // Scripted callers (`ymcode upgrade && …`, CI jobs) must be able to see
+      // the failure: the spinner message alone leaves exit code 0.
+      process.exitCode = 1
       if (err instanceof Installation.UpgradeFailedError) {
         // necessary because choco only allows install/upgrade in elevated terminals
         if (method === "choco" && err.stderr.includes("not running from an elevated command shell")) {

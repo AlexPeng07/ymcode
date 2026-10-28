@@ -6,7 +6,8 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import z from "zod"
 import path from "path"
 import os from "os"
-import { renameSync, copyFileSync, rmSync, unlinkSync, existsSync } from "fs"
+import { renameSync, copyFileSync, rmSync, unlinkSync, existsSync, readdirSync } from "fs"
+import { promises as fs } from "fs"
 import { BusEvent } from "@/bus/bus-event"
 import { Flag } from "../flag/flag"
 import { Log } from "../util"
@@ -204,19 +205,63 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
         const pid = process.pid
         const targetExe = process.execPath
         const stageDir = path.join(os.tmpdir(), `ymcode_upgrade_${pid}`)
-
-        // Download new version to staging dir (reuses install.ps1 logic)
         const scriptUrl = installScriptUrl()
-        const downloadResult = yield* run(
-          ["powershell.exe", "-NoProfile", "-NonInteractive", "-ep", "Bypass", "-c", "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; irm $env:INSTALL_SCRIPT_URL | iex"],
-          { env: { YMCODE_INSTALL_DIR: stageDir, VERSION: target, INSTALL_SCRIPT_URL: scriptUrl } },
-        )
-        if (downloadResult.code !== 0) return downloadResult
+
+        // Run install.ps1 as a FILE, not `irm | iex`. Under iex the script
+        // detects a null MyInvocation path and takes its Exit-Install branch
+        // that sets $LASTEXITCODE and `break`s — which neither propagates a
+        // failure exit code (a failed download still reports 0, so the CLI
+        // believed the staging succeeded) nor reliably terminates PowerShell.
+        // -File makes it take the `exit $Code` branch.
+        //
+        // The script is fetched here; if that fails (e.g. a proxy that only
+        // trusts the Windows certificate store and not the runtime's CA set)
+        // fall back to the previous irm|iex form so those environments keep
+        // working.
+        const scriptPath = yield* Effect.promise(async () => {
+          try {
+            const res = await fetch(scriptUrl)
+            if (!res.ok) return undefined
+            const file = path.join(os.tmpdir(), `ymcode_install_${pid}.ps1`)
+            await fs.writeFile(file, await res.text())
+            return file
+          } catch {
+            return undefined
+          }
+        })
+
+        const downloadResult = scriptPath
+          ? yield* run(
+              ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", scriptPath],
+              { env: { YMCODE_INSTALL_DIR: stageDir, VERSION: target, INSTALL_SCRIPT_URL: scriptUrl } },
+            ).pipe(
+              Effect.ensuring(Effect.promise(() => fs.rm(scriptPath, { force: true }).catch(() => {}))),
+            )
+          : yield* run(
+              ["powershell.exe", "-NoProfile", "-NonInteractive", "-ep", "Bypass", "-c", "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; irm $env:INSTALL_SCRIPT_URL | iex"],
+              { env: { YMCODE_INSTALL_DIR: stageDir, VERSION: target, INSTALL_SCRIPT_URL: scriptUrl } },
+            )
+        if (downloadResult.code !== 0) {
+          rmSync(stageDir, { recursive: true, force: true })
+          return downloadResult
+        }
 
         // Replace in-place: Windows allows renaming a running exe
         const stagedExe = path.join(stageDir, "ymcode.exe")
-        if (!existsSync(stagedExe))
+        if (!existsSync(stagedExe)) {
+          rmSync(stageDir, { recursive: true, force: true })
           return { code: 1 as ChildProcessSpawner.ExitCode, stdout: "", stderr: "staged binary not found at " + stagedExe }
+        }
+        // The previous upgrade's `.old_<pid>` cannot be deleted while its
+        // process still runs (it is that process's image); sweep it here so
+        // repeated upgrades do not accumulate ~150MB files.
+        try {
+          for (const entry of readdirSync(path.dirname(targetExe))) {
+            if (entry.startsWith(path.basename(targetExe) + ".old_")) {
+              try { unlinkSync(path.join(path.dirname(targetExe), entry)) } catch {}
+            }
+          }
+        } catch {}
         const oldExe = targetExe + `.old_${pid}`
         renameSync(targetExe, oldExe)
         try {
