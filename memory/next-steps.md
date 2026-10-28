@@ -26,9 +26,13 @@
 2. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
    （5，已定性为 resolvePath 对 PS 盘符相对式 `F:foo` 的解析，产品级专项）
    + stdio-exit-observe 信号语义（3）。另有 TUI sessions 对话框可见性用例 1 个既有失败。
-3. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
+3. **可选：Windows 发布签名**（AV 误报缓解）——upgrade 自替换行为会触发
+   卡巴斯基 PDM 启发式（2026-10-25 实测：官方 v0.2.10 副本被删，哈希已证
+   为官方资产）。代码签名是最有效缓解；最低限度在 README 说明升级会原地
+   替换 exe 并给出排除指引。
+4. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
    中文宽度与蓝色对比度）。
-4. **可选：Linux 全量对照**（verification.md 服务器复用方式）。
+5. **可选：Linux 全量对照**（verification.md 服务器复用方式）。
 
 ### 发布 v0.2.12+ 流程（同前）
 

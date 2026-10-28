@@ -690,3 +690,25 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   日志 `upgraded Windows binary in-place`** ✓。
 - 结论：修复在编译产物中生效；`process.exit(code)` 的显式传参确有必要
   （源码运行与编译产物对无参 `process.exit()` 的行为不同）。
+
+## 2026-10-25：卡巴斯基误报官方二进制（upgrade 自替换行为）
+
+- 用户报告：卡巴斯基删除 `F:\AllProjects\ymcode\.scratch\uptest\.ymcode\bin\ymcode.exe`
+  （本轮 upgrade 测试沙箱的副本）。
+- **取证**：该文件与 GitHub Releases v0.2.10 asset 解压出的 exe **逐字节一致**
+  （SHA256 `45f3e1de17496b8433e14ea57f68a94e3e5b784894e9b326528cf1595e8104e0`；
+  v0.2.11 为 `cb187ad9afcdfbfb7edf259eb4c971a06d81a2db70f98739e8c71f7fe7e88cac`）。
+  内容即官方发布资产，非恶意代码。
+- **最可能的触发因素**：upgrade 测试执行了「运行中的 exe 改名 + 复制新 exe 覆盖自身
+  路径」（`renameSync(targetExe, oldExe)` + `copyFileSync(staged, target)`）——
+  这正是文件感染型恶意软件的经典行为特征，卡巴斯基 PDM（行为防护）会拦截。
+  次要因素：未签名 + Bun 单文件打包 + `.scratch` 低信誉路径。
+- 卡巴斯基报告为加密格式，无法读出检测名；需用户在 UI 报告/隔离区查看
+  （`PDM:*` = 行为拦截；`HEUR:*`/内容类 = 文件判定），或用哈希在
+  OpenTIP / VirusTotal 查询。
+- **产品含义（重要）**：真实用户执行 `ymcode upgrade` 走的是同一自替换逻辑，
+  Windows 上可能触发同类行为检测。缓解方向：① Authenticode 代码签名（提升
+  信誉，最有效）；② 文档说明升级会原地替换 exe；③ 可考虑改由脱离的辅助进程
+  在新二进制退出后替换，降低「自我修改」特征。
+- 处置：本轮所有测试用 exe/zip 副本已从 `.scratch` 清除（约 523MB），
+  避免重复触发；`.scratch` 在 .gitignore 中，未入库。
