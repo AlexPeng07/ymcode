@@ -1,13 +1,15 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-25，v0.2.10 已发布）
+## 当前交接点（2026-10-25，v0.2.11 已发布）
 
-- 最新 Release：`v0.2.10`（tag `996488a`，workflow `40098293714` success，12 asset）。
+- 最新 Release：`v0.2.11`（含未知模型近似名建议 `27a396d`、Windows upgrade
+  挂起与退出码修复 `7fd8cfd`）。
 - 已交付（按时间序）：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 /
   测试定性+修复）；生产力评估与修复（doctor 凭据实测 `d5589bd`）；质量优先效率批次
   （`54b8d74`：目录剥离触发词 -29%、token-efficient 清洗默认开、401/403 修复指引、
-  summary→lite）；**provider-aware 内置 tier 修复**（`996488a`，v0.2.10 发布事故的
-  机制级归因——lite 回退忽略 contextProviderID 跳到无关 provider）。
+  summary→lite）；**provider-aware 内置 tier 修复**（`996488a`）；
+  **upgrade 全链路实测**（`7fd8cfd`，发现并修复「staging 后挂起」与「失败报成功」，
+  验证方法=本地发布镜像，见 verification.md）。
 - Windows 全量定性（6195 pass / 107 fail，原基线 277）：已修 16、负载伪影 ~83、
   真实 Windows 专属 8（见 verification.md 两份定性记录）。
 - **CI 判别协议（已修订，写进 verification.md）**：对比**同一提交**的 main-push——
@@ -19,22 +21,22 @@
    `ymcode setup` 写入 auth.json + 默认模型 deepseek/deepseek-flash；
    doctor 联网验证通过，真实 E2E（模型往返 + bash 工具回路）全通。
    注意：该 key 为临时性质且出现在会话记录里，用完建议轮换；xiaomi key 仍是死的。
-1. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
+1. **短暂使用验证（建议先做）**：凭据已通，用真实会话跑几天——观察
+   token-efficient 清洗节省、技能触发命中、instinct usage；一周后按数据定下一轮。
+2. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
    （5，已定性为 resolvePath 对 PS 盘符相对式 `F:foo` 的解析，产品级专项）
-   + stdio-exit-observe 信号语义（3）。
-2. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
+   + stdio-exit-observe 信号语义（3）。另有 TUI sessions 对话框可见性用例 1 个既有失败。
+3. **可选：TUI 像素级人工验收**（首屏、命令面板、侧栏、常用对话框、
    中文宽度与蓝色对比度）。
-3. **可选：观察类后续**——instinct usage 数据积累后回顾注入排序效果；
-   后台 bash / config hooks / 触发提示的实际使用反馈与命中率；
-   max-mode 自动路由缓行（错判代价 > 收益）。
 4. **可选：Linux 全量对照**（verification.md 服务器复用方式）。
 
-### 发布 v0.2.11+ 流程（同前）
+### 发布 v0.2.12+ 流程（同前）
 
 改 `packages/{cli,sdk,plugin,shared}/package.json` 为同一版本（无 BOM），
 提交、打 tag、推送，`release.yml` 自动完成门禁/测试/12 平台发布。
 发布失败判别：同提交 main-push 绿=抖动可重跑；挂=真回归，先归因最近批次。
-本机网络对 release-assets 偶发 TLS 握手超时，下载冒烟失败先重试再定性。
+本机网络对 release-assets 偶发 TLS 握手超时，下载冒烟失败先重试再定性；
+**验证安装/升级链路用本地镜像**（verification.md「upgrade 全链路实测」）。
 
 ## 本轮已完成（2026-10-22）
 

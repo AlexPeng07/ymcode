@@ -246,3 +246,19 @@
   provider-aware（调用方 provider 最便宜模型优先）+ 回归测试。
   tag 重打后 workflow `40098293714` success，12 asset。
 - **CI 判别协议修订**：同提交 main-push 绿=抖动、挂=真回归，机制归因优先于重跑。
+
+## 2026-10-25 未知模型建议 + upgrade 全链路实测（v0.2.11）
+
+- **未知模型错误可操作**（`27a396d`）：可见错误文本读 `Error.message`，而
+  suggestions 只在结构化数据里，且其 fuzzysort 匹配器对真实错拼（替换/换位）
+  完全无解。`nearestModel` 提升到 provider 模块并增加按长度自适应的
+  Levenshtein 层；`modelNotFound()` 在抛出时把「did you mean: provider/model +
+  ymcode models」写进 message；doctor 复用同一实现。
+- **upgrade 实测两个幽灵缺陷**（`7fd8cfd`，v0.2.11）：
+  ① `irm | iex` 执行的 install.ps1 走 `break` 分支导致 staging 完成后
+  PowerShell 不退出、CLI 永久等待「Upgrading...」（3/3 复现）；
+  ② 下载失败仍退出 0，脚本/CI 无法感知。修复：脚本落盘用 `-File` 执行
+  （失败回退 iex）、失败分支 `process.exitCode=1`、入口 `process.exit(code)`
+  （编译产物不继承 exitCode）、清理 staging 与陈旧 `.old_*`。
+  验证：本地发布镜像 + 重建二进制，同版本跳过/失败 exit 1/成功原地替换全通过。
+- 交付 v0.2.11 发布。

@@ -631,3 +631,53 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   `ymcode run "只输出两个字：可用"`（默认模型，无 -m）→「可用」；
   工具回路：让 agent `cat probe.txt` → bash 工具真实执行并原样回报。
   **harness 恢复完整可用。**
+
+## 2026-10-25：upgrade 全链路实测 —— 两个幽灵缺陷（7fd8cfd，v0.2.11）
+
+### 方法（可复用）
+
+真实网络下载不可用（release-assets TLS 握手超时），改用**本地发布镜像**：
+`bun -e 'Bun.serve(...)'` 在 127.0.0.1 提供 `install.ps1` +
+`releases/download/vX.Y.Z/ymcode-windows-x64.zip`，配合
+`YMCODE_INSTALL_SCRIPT_URL` / `YMCODE_RELEASE_BASE` 指向镜像；沙箱二进制放在
+`<dir>/.ymcode/bin/ymcode.exe`（命中 method 检测的 curl 分支）。
+用 `upgrade 0.2.99` 让版本比较必然触发（实际资产仍是 v0.2.10 的 zip）。
+
+### 缺陷 1：staging 完成后挂起（用户可见「Upgrading...」永不结束）
+
+- install.ps1 以 `irm | iex` 执行时，`$IS_EXECUTED_FROM_IEX` 为真 → `Exit-Install`
+  走 `$Global:LASTEXITCODE = $Code; break` 分支；`break` 离开 iex 作用域后
+  **PowerShell 进程不终止**，CLI 永远等 `handle.exitCode`。staging 目录里
+  已解压出 exe、孤儿 powershell 进程残留。3/3 可复现；同一命令手工或
+  `Bun.spawn` 直跑 2s 退出——触发条件是 iex 形态本身。
+- 修复：TS 侧取回 install.ps1 写临时文件，`powershell.exe -File <script>` 执行
+  → 走 `exit $Code` 分支。脚本获取失败时回退旧的 `irm | iex`（兼容只信任
+  Windows 证书库的代理环境）。
+
+### 缺陷 2：失败被报告为成功（退出码 0）
+
+- iex 模式下下载失败仍 exit 0（下载失败先 `Write-Err` → `Exit-Install 1` 只设
+  `$LASTEXITCODE`），CLI 打印错误后返回 0，脚本/CI 无法感知失败。
+- 修复：`upgrade` 失败分支设 `process.exitCode = 1`；**入口 `process.exit()`
+  改为 `process.exit(process.exitCode ?? 0)`**——实测 Bun 编译产物对无参
+  `process.exit()` 不继承 `process.exitCode`（源码运行则正常，属编译期差异）。
+
+### 附带修复
+
+- 失败返回时删除 staging 目录（此前泄漏）。
+- 每次升级清扫上一次留下的 `<exe>.old_<pid>`（运行中的镜像无法自删，
+  否则每次升级残留约 150MB）；第二次升级后目录只剩 `ymcode.exe`。
+
+### 验证结果（重建二进制 + 本地镜像）
+
+- 同版本：`upgrade 0.2.10` → 「already installed」跳过。
+- 失败（404 版本）：exit **1**，无 staging 残留。
+- 成功：exit 0、「Upgrade complete」、日志含 `upgraded Windows binary in-place`。
+- 二次升级：上次 `.old_*` 被清扫。
+
+### 教训
+
+- **`irm | iex` 形式的 PowerShell 脚本不可信**：退出码与进程终止都不可靠；
+  需要可靠时一律 `-File`。
+- 编译产物与源码运行可能有语义差异（`process.exit()`），涉及退出码的修复
+  必须在**构建产物**上验证，不能只看 typecheck / 源码跑。
