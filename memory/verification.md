@@ -714,3 +714,20 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   在新二进制退出后替换，降低「自我修改」特征。
 - 处置：本轮所有测试用 exe/zip 副本已从 `.scratch` 清除（约 523MB），
   避免重复触发；`.scratch` 在 .gitignore 中，未入库。
+
+### v0.2.12：延迟替换实装（328e872）
+
+- 目标：消除「运行中的进程替换自身镜像」这一 PDM 行为特征。
+- 实现：`upgrade` 暂存 → 写 `swap.ps1`（worker）+ `swap-launch.ps1`（启动器）→
+  启动器用 `Start-Process` 拉起 worker 后立即返回 → CLI 以
+  「升级已暂存 / deferred=true」结束 → 主进程退出 → worker 依次等待该 pid 消失
+  （120s 上限）、改名、复制、回滚、清理 staging。启动器/脚本失败时回退原地替换。
+- **关键实测发现（分离机制）**：
+  - `spawn(detached: true, stdio: ignore)`：PowerShell **根本不执行脚本**
+    （无控制台），日志为空——不是被杀，是没跑起来。
+  - `spawn(detached: false)` + 父进程立即退出：子进程被连带终止。
+  - `Start-Process` 孙进程：**存活并正常执行**（父进程退出后仍运行）。
+    这是本机唯一可用的分离方式。
+- E2E（两个本地构建二进制：沙箱 0.2.11-local、镜像资产 0.2.99-local）：
+  升级命令返回后约 1–3s，安装位版本变为 0.2.99-local，哈希与镜像资产一致
+  （`f6822c99…`），无 `.old_*`、无 staging 残留；失败路径 exit 1 且无残留。
