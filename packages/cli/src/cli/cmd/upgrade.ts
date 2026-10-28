@@ -57,14 +57,16 @@ export const UpgradeCommand = {
     prompts.log.info(`From ${InstallationVersion} → ${target}`)
     const spinner = prompts.spinner()
     spinner.start("Upgrading...")
-    const err = await AppRuntime.runPromise(Installation.Service.use((svc) => svc.upgrade(method, target))).catch(
-      (err) => err,
-    )
-    if (err) {
+    const outcome = await AppRuntime.runPromise(
+      Installation.Service.use((svc) => svc.upgrade(method, target)),
+    ).catch((err) => err)
+    const deferred = !(outcome instanceof Error) && outcome?.deferred === true
+    if (outcome instanceof Error) {
       spinner.stop("Upgrade failed", 1)
       // Scripted callers (`ymcode upgrade && …`, CI jobs) must be able to see
       // the failure: the spinner message alone leaves exit code 0.
       process.exitCode = 1
+      const err = outcome
       if (err instanceof Installation.UpgradeFailedError) {
         // necessary because choco only allows install/upgrade in elevated terminals
         if (method === "choco" && err.stderr.includes("not running from an elevated command shell")) {
@@ -73,6 +75,14 @@ export const UpgradeCommand = {
           prompts.log.error(err.stderr)
         }
       } else if (err instanceof Error) prompts.log.error(err.message)
+      prompts.outro("Done")
+      return
+    }
+    if (deferred) {
+      // The helper swaps the binary in after this process exits — say so
+      // instead of claiming the new version is already in place.
+      spinner.stop("升级已暂存")
+      prompts.log.info("新版本已下载完成，将在本进程退出后替换；随后运行 `ymcode --version` 确认")
       prompts.outro("Done")
       return
     }

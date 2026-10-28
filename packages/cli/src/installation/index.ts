@@ -118,7 +118,10 @@ export interface Interface {
   readonly info: () => Effect.Effect<Info>
   readonly method: () => Effect.Effect<Method>
   readonly latest: (method?: Method) => Effect.Effect<string>
-  readonly upgrade: (method: Method, target: string) => Effect.Effect<void, UpgradeFailedError>
+  readonly upgrade: (
+    method: Method,
+    target: string,
+  ) => Effect.Effect<{ deferred: boolean }, UpgradeFailedError>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@ymcode/Installation") {}
@@ -201,8 +204,93 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
         Effect.orDie,
       )
 
-      const upgradeCurlWindows = Effect.fnUntraced(function* (target: string) {
-        const pid = process.pid
+      // Windows deferred swap helper. Runs detached: waits for the upgrading
+      // process to exit, then renames the installed exe aside and copies the
+      // staged one into place, rolling back on failure. Written as a script so
+      // no process ever replaces its own running image.
+      const SWAP_SCRIPT = `param([int]$TargetPid,[string]$Target,[string]$Staged,[string]$StageDir)
+$ErrorActionPreference = 'SilentlyContinue'
+$deadline = (Get-Date).AddSeconds(120)
+while (Get-Process -Id $TargetPid -ErrorAction SilentlyContinue) {
+  if ((Get-Date) -gt $deadline) { exit 1 }
+  Start-Sleep -Milliseconds 200
+}
+Start-Sleep -Milliseconds 300
+$old = "$Target.old_$TargetPid"
+$moved = $false
+for ($i = 0; $i -lt 40; $i++) {
+  if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force }
+  try { Move-Item -LiteralPath $Target -Destination $old -Force -ErrorAction Stop; $moved = $true; break }
+  catch { Start-Sleep -Milliseconds 250 }
+}
+if (-not $moved) { exit 1 }
+try { Copy-Item -LiteralPath $Staged -Destination $Target -Force -ErrorAction Stop }
+catch { Move-Item -LiteralPath $old -Destination $Target -Force; exit 1 }
+Remove-Item -LiteralPath $old -Force
+Remove-Item -LiteralPath $StageDir -Recurse -Force
+exit 0
+`
+
+      const spawnDeferredSwap = Effect.fnUntraced(function* (input: {
+        stageDir: string
+        stagedExe: string
+        targetExe: string
+        pid: number
+      }) {
+        const scriptPath = path.join(input.stageDir, "swap.ps1")
+        const launcherPath = path.join(input.stageDir, "swap-launch.ps1")
+        // Start-Process is the only detach that survives this process exiting:
+        // a plain (even detached) child is killed with its parent here, and
+        // detached:true on Windows leaves PowerShell without a console so the
+        // script never runs. The worker therefore runs as a grandchild.
+        const LAUNCHER = `param([string]$Script,[int]$TargetPid,[string]$Target,[string]$Staged,[string]$StageDir)
+$list = @('-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File', ('"'+$Script+'"'), '-TargetPid', $TargetPid, '-Target', ('"'+$Target+'"'), '-Staged', ('"'+$Staged+'"'), '-StageDir', ('"'+$StageDir+'"'))
+Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList $list
+`
+        const prepared = yield* Effect.promise(async () => {
+          try {
+            await fs.writeFile(scriptPath, SWAP_SCRIPT, "utf8")
+            await fs.writeFile(launcherPath, LAUNCHER, "utf8")
+            return true
+          } catch {
+            return false
+          }
+        })
+        if (!prepared) {
+          log.warn("could not write deferred swap scripts; falling back to in-place replace")
+          return false
+        }
+        // Waits for the launcher only (it returns as soon as Start-Process has
+        // created the worker); the worker itself outlives this process.
+        const launched = yield* run([
+          "powershell.exe",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          launcherPath,
+          "-Script",
+          scriptPath,
+          "-TargetPid",
+          String(input.pid),
+          "-Target",
+          input.targetExe,
+          "-Staged",
+          input.stagedExe,
+          "-StageDir",
+          input.stageDir,
+        ])
+        if (launched.code !== 0) {
+          log.warn("deferred swap launcher failed; falling back to in-place replace", {
+            stderr: launched.stderr.slice(0, 400),
+          })
+          return false
+        }
+        return true
+      })
+
+      const upgradeCurlWindows = Effect.fnUntraced(function* (target: string) {        const pid = process.pid
         const targetExe = process.execPath
         const stageDir = path.join(os.tmpdir(), `ymcode_upgrade_${pid}`)
         const scriptUrl = installScriptUrl()
@@ -262,6 +350,23 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
             }
           }
         } catch {}
+        // Prefer a DEFERRED swap: a detached helper replaces the binary after
+        // this process exits. Replacing a running image from inside that same
+        // process is the self-modifying-executable signature antivirus
+        // behavior engines block (Kaspersky: PDM:Trojan.Win32.Generic.nblk);
+        // an installer-style helper doing the swap does not match it.
+        if (yield* spawnDeferredSwap({ stageDir, stagedExe, targetExe, pid })) {
+          log.info("staged Windows upgrade for deferred swap", { target, pid })
+          return {
+            code: 0 as ChildProcessSpawner.ExitCode,
+            stdout: "",
+            stderr: "",
+            deferred: true,
+          }
+        }
+
+        // Fallback (helper could not be started): replace in-place. Windows
+        // allows renaming a running exe.
         const oldExe = targetExe + `.old_${pid}`
         renameSync(targetExe, oldExe)
         try {
@@ -392,7 +497,7 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
       }, Effect.orDie)
 
       const upgradeImpl = Effect.fn("Installation.upgrade")(function* (m: Method, target: string) {
-        let result: { code: ChildProcessSpawner.ExitCode; stdout: string; stderr: string } | undefined
+        let result: { code: ChildProcessSpawner.ExitCode; stdout: string; stderr: string; deferred?: boolean } | undefined
         switch (m) {
           case "curl":
             result = yield* upgradeCurl(target)
@@ -449,10 +554,14 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
         log.info("upgraded", {
           method: m,
           target,
+          deferred: result.deferred ?? false,
           stdout: result.stdout,
           stderr: result.stderr,
         })
-        yield* text([process.execPath, "--version"])
+        // With a deferred swap the on-disk binary is still the old one until
+        // this process exits, so a version probe here would be misleading.
+        if (!result.deferred) yield* text([process.execPath, "--version"])
+        return { deferred: result.deferred ?? false }
       })
 
       return Service.of({
