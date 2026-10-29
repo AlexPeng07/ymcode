@@ -15,15 +15,20 @@
 保留 opencode 的 server/TUI 架构，新增 instincts 记忆层，并完成界面/技能/提示词汉化。
 独立 git 历史，不自动合并上游。
 
-当前交接点（2026-10-24）：
-- 最后代码提交 13058ef（main 已推送；其后是交接文档提交，HEAD 用 git log -1 查看）；
-  最新 Release v0.2.5（a3547e4，12 个平台资产）。
-- 工作区比 v0.2.5 多两个未发版代码提交：be8bc9f（侧栏/对话框汉化、技能目录紧凑化、
-  cron 时序稳定）、13058ef（补齐 prompt/workflow 词条 + i18n 引用门禁）。
-- 版本文件仍是 0.2.5。最新门禁：i18n 1016 en / 1064 zh / 44 技能描述，
-  skills 90 文件，prompts 54 文件，typecheck 通过；TUI 测试 353 pass / 24 skip / 0 fail。
-- 已知失败（与最近改动无关）：message-v2 的 Windows file URL、prompt-effect 的
-  MCP lifecycle 5 秒硬超时；Windows 下 23 个 plugin 用例按平台 skip。
+当前交接点（2026-10-28）：
+- 最新 Release v0.2.12（tag 8a2d050，12 个平台资产）；HEAD 用 git log -1 查看。
+- 已交付：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 / 测试定性）、
+  生产力评估与凭据实测（d5589bd）、质量优先效率批次（54b8d74）、
+  provider-aware tier 修复（996488a）、未知模型近似名（27a396d）、
+  upgrade 挂起+退出码修复（7fd8cfd）、升级延迟替换（328e872——
+  Start-Process 孙进程在主进程退出后替换，规避卡巴斯基 PDM 行为判定）、
+  resume 轮询预算放宽（8a2d050）。
+- 凭据：临时 deepseek key 已生效（会话记录里有，建议轮换）；xiaomi key 已死。
+- 本机网络：代理 127.0.0.1:7890 可能宕机（git push 失败按 memory/build.md
+  的绕行命令直连）；release-assets 下载偶发 TLS 超时，重试再定性；
+  验证安装/升级链路用本地发布镜像（verification.md「upgrade 全链路实测」）。
+- 已知失败：Windows 专属 8 个（external_directory/PowerShell 5 +
+  stdio-exit-observe 3）+ TUI sessions 可见性 1 个既有失败。
 
 硬约束：
 - Bun 固定 1.3.14；依赖用 bun ci，不要随意改 lockfile。
@@ -34,7 +39,7 @@
 - 运行时数据目录完全独立：只使用 ~/.config/ymcode、~/.local/share/ymcode、~/.ymcode；
   项目配置 .ymcode/。
 - 不要把 token/凭据写入仓库或打印到会话。
-- 不要用“跳过测试”冒充通过；区分功能失败和环境清理失败。
+- 不要用"跳过测试"冒充通过；区分功能失败和环境清理失败。
 - 发布版本号时用无 BOM 的 UTF-8 写 package.json。
 
 先跑门禁确认基线：
@@ -45,17 +50,14 @@ bun run check:skills
 bun run check:prompts
 bun run typecheck
 
-建议顺序：
-1. 发布 v0.2.6：把 packages/{cli,sdk,plugin,shared}/package.json 改为 0.2.6，跑门禁，
-   提交、打 tag、push；确认 release.yml 成功且 12 个资产齐全。
-2. 修 message-v2 的 Windows file URL 测试（src/session/message-v2.ts:1097 的
-   fileURLToPath 对非绝对 file:// URL 抛错）。
-3. 排查 prompt-effect 的 MCP lifecycle 5 秒硬超时（单独重跑通常会过）。
-4. 可选：Linux 全量复跑、TUI 人工视觉验收。
+建议顺序（详见 memory/next-steps.md）：
+1. 用几天真实会话，按数据回顾（token-efficient 节省、技能触发命中、instinct usage）。
+2. 修 Windows 专属 8 个测试。
+3. 可选：TUI 像素级人工验收、Linux 全量对照、Authenticode 签名。
 
 不要重做：改名、instincts 核心、44 个技能、核心 TUI 汉化、记忆隔离与 memory doctor、
-v0.2.5 发布。
+v0.2.7–v0.2.12 的已交付内容。
 
-完成后更新 memory/MEMORY.md、memory/next-steps.md、memory/verification.md 和
-docs/PROGRESS.md，并提交。
+完成后更新 memory/MEMORY.md、memory/next-steps.md、memory/verification.md、
+memory/handoff.json 和 docs/PROGRESS.md，并提交。
 ```

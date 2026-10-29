@@ -1,27 +1,24 @@
 {
   "project": "ymcode",
   "workspace": "F:/AllProjects/ymcode",
-  "updatedAt": "2026-10-24",
+  "updatedAt": "2026-10-28",
   "baseline": {
     "name": "MiMo-Code",
     "repo": "https://github.com/XiaomiMiMo/MiMo-Code",
     "commit": "88673c41732fcd57bf46abe485b547c00ba78221",
     "license": "MIT"
   },
-  "codeHeadAtHandoff": "13058ef",
-  "headNote": "13058ef is the last code commit; later commits are handoff docs only. Run git log -1 for the current main HEAD.",
+  "codeHeadAtHandoff": "8a2d050",
+  "headNote": "8a2d050 is the v0.2.12 tag (last code commit: resume-poll budget widened); later commits are handoff docs only. Run git log -1 for the current main HEAD.",
   "latestRelease": {
-    "tag": "v0.2.5",
-    "commit": "a3547e4",
+    "tag": "v0.2.12",
+    "commit": "8a2d050",
     "assets": 12,
-    "windowsX64Bytes": 52622388
+    "workflow": 40663340309,
+    "notes": "upgrade performs a deferred swap via a detached PowerShell helper (Start-Process grandchild) instead of the running image self-replacing; verified on the released binary against a local release mirror"
   },
-  "unreleasedCommits": [
-    "be8bc9f feat(tui): localize remaining panels and trim skill catalog tokens",
-    "13058ef fix(i18n): add missing prompt and workflow UI keys"
-  ],
-  "binaryBuiltFromCodeCommit": "a3547e4",
-  "binary": "packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe",
+  "binaryBuiltFromCodeCommit": "8a2d050",
+  "binary": "GitHub Release asset ymcode-windows-x64.zip (extracts to ./ymcode.exe); packages/cli/dist/ holds an older local build",
   "toolchain": {
     "bun": "1.3.14",
     "node": "24",
@@ -44,38 +41,43 @@
   "gatesAtHandoff": {
     "brand": "pass",
     "i18n": {
-      "enKeys": 1016,
-      "zhKeys": 1064,
+      "enKeys": 1019,
+      "zhKeys": 1067,
       "skillDescriptions": 44,
-      "tuiFilesScanned": 162,
-      "tReferencesScanned": 731
+      "note": "optional-locale coverage printed as warning (zht/es/fr/ja/ru partial over en base)"
     },
     "skills": "90 files",
     "prompts": "54 files",
     "typecheck": "pass (sdk/plugin/shared/cli + tsconfig.scripts)"
   },
   "testsAtHandoff": {
-    "tui": "353 pass / 24 skip / 0 fail across 55 files",
-    "affectedSession": "39 pass / 0 fail (system, prompt-skill-command-multi, cron-bridge)",
-    "broaderSession": "201 pass / 12 skip / 2 fail (message-v2 Windows file URL, prompt-effect MCP lifecycle 5s timeout)"
+    "installation": "46 pass / 0 fail (5 files)",
+    "provider": "provider.test 95 pass, model-groups 11 pass (nearest-name suggestions; provider-aware built-in tiers)",
+    "bashBackground": "4 pass (run_in_background + bg operations)",
+    "instinctService": "16 pass (usage loop, unused decay, near-dup warnings)",
+    "fullRunTriage": "Windows full run 6195 pass / 107 fail (baseline 277): 16 fixed, ~83 load artifacts, 8 genuine Windows-only (external_directory/PowerShell 5, stdio-exit-observe 3)"
   },
   "verified": {
-    "releaseV025": "release workflow 39985918524 success; 12 assets; published binary smoke passed",
-    "skillCatalog": "44 builtin skills: 20911 -> 14443 chars (-31%, about 1.8K tokens)",
-    "tuiLocalization": "sidebar panels, common dialogs, prompt composer and workflow view localized",
-    "cronStability": "deadline-based waits (5s) and 10s timeouts replace 1s/2s budgets"
+    "releases": "v0.2.7 quality loop, v0.2.8 usability, v0.2.9 memory loop, v0.2.10 efficiency batch, v0.2.11 unknown-model suggestions + upgrade hang/exit-code fixes, v0.2.12 deferred-swap upgrade — all 12 assets, CI green",
+    "upgradeE2E": "local release mirror + two locally built binaries and the released v0.2.12 binary: same-version skip, failure exit 1, deferred swap replaces after exit with hash equal to served asset, no leftovers",
+    "credentials": "doctor live-checks auth.json keys (401/403 => dead-key verdict with setup pointer); a temp deepseek key restored usability on 2026-10-25",
+    "tokenEfficiency": "skill catalog strips Trigger keywords segment (-29%); token-efficient bash output cleansing defaults on (never-worse contract)"
   },
   "notVerified": [
-    "full bun test green on Windows (known failures below)",
-    "MCP lifecycle timeout test under heavy load",
     "TUI pixel-level manual visual acceptance",
-    "Linux full suite on current HEAD"
+    "token-efficient cleansing savings and skill trigger hit-rate under real usage",
+    "Linux full-suite comparison against the v0.2.12 tree"
   ],
   "knownFailures": [
-    "test/session/message-v2.test.ts: Windows fileURLToPath rejects non-absolute file:// URL at src/session/message-v2.ts:1097",
-    "test/session/prompt-effect.test.ts: MCP lifecycle timeout test has a 5s hard timeout",
+    "test/tool/bash.test.ts: external_directory/PowerShell permission group (5) — resolvePath drive-relative PS forms, genuine Windows-only",
+    "test/mcp/stdio-exit-observe.test.ts: SIGKILL/close semantics on win32 (3)",
+    "test/cli/tui/session-list-visibility.test.ts: 1 pre-existing visibility-predicate failure",
     "test/cli/tui/plugin-*.test.ts: 23 cases skip on Windows (Bun keeps plugin entrypoints cached, fixture EBUSY)"
   ],
+  "environment": {
+    "proxy": "git and network go through 127.0.0.1:7890 which may be down; bypass with env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u all_proxy git -c remote.origin.proxy= -c http.proxy= push (see memory/build.md)",
+    "tls": "TLS interception present: bun's CA rejects the chain where curl succeeds; release-asset downloads flake — retry, and use a local release mirror for install/upgrade verification"
+  },
   "keyFiles": {
     "design": "docs/superpowers/specs/2026-10-21-ymcode-harness-design.md",
     "plans": "docs/superpowers/plans",
@@ -90,15 +92,13 @@
     "checkpoint": "packages/cli/src/session/checkpoint.ts",
     "skillCatalog": "packages/cli/src/session/system.ts",
     "skillFormat": "packages/cli/src/skill/index.ts",
+    "triggerHints": "packages/cli/src/session/prompt.ts (insertReminders)",
+    "configHooks": "packages/cli/src/plugin/config-hooks.ts",
+    "backgroundBash": "packages/cli/src/tool/bash-background.ts",
+    "deferredUpgradeSwap": "packages/cli/src/installation/index.ts (spawnDeferredSwap + swap.ps1)",
     "i18n": "packages/cli/src/cli/cmd/tui/i18n/zh.ts",
     "i18nCheck": "script/check-i18n.ts",
     "brandCheck": "script/check-brand.ts"
   },
-  "nextSteps": [
-    "Release v0.2.6: bump the four package.json versions, commit, tag, push",
-    "Fix the Windows message-v2 file URL test",
-    "Investigate or widen the prompt-effect MCP lifecycle 5s timeout",
-    "Optional: re-run the Linux full suite on current HEAD",
-    "Optional: manual TUI visual acceptance"
-  ]
+  "nextSteps": "see memory/next-steps.md"
 }

@@ -262,3 +262,21 @@
   （编译产物不继承 exitCode）、清理 staging 与陈旧 `.old_*`。
   验证：本地发布镜像 + 重建二进制，同版本跳过/失败 exit 1/成功原地替换全通过。
 - 交付 v0.2.11 发布。
+
+## 2026-10-28 升级延迟替换（v0.2.12）
+
+- **结构性规避杀毒行为判定**（`328e872`）：v0.2.10 官方二进制在 upgrade 测试中
+  被卡巴斯基按 `PDM:Trojan.Win32.Generic.nblk` 删除（哈希证明是官方资产，
+  行为判定非内容判定）。upgrade 改为：暂存 → `swap.ps1`（worker）+
+  `swap-launch.ps1`（启动器）→ `Start-Process` 拉起 worker → CLI 以
+  「升级已暂存 / deferred=true」结束 → 主进程退出后 worker 等待 pid 消失、
+  改名、复制、回滚保护、清理 staging。启动失败回退原地替换。
+- **Windows 分离机制实测**：`spawn(detached:true)` 的 PowerShell 根本不执行
+  脚本（无控制台）；非 detached 子进程随父进程退出被杀；只有 `Start-Process`
+  孙进程能存活——这是本机唯一可用的分离方式。
+- E2E：两个本地构建（0.2.11-local 安装 / 0.2.99-local 镜像资产）与**发布产物
+  v0.2.12**（对本地镜像升到 0.2.13 占位资产）均验证：升级命令返回后约 1–3s
+  版本翻转、哈希与资产一致、无 `.old_*`、无 staging 残留；失败路径 exit 1。
+- `resumeMainCascading` 轮询预算 8s→30s（`8a2d050`）：该用例第三次在 release
+  上下文超时（同提交 main-push 全绿），按 cron 先例放宽。
+- 交付 v0.2.12 发布（workflow `40663340309`，12 asset）。

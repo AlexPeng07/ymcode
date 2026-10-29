@@ -121,3 +121,23 @@ gh release create v0.2.0 --verify-tag --title v0.2.0 --generate-notes $files
 - `new URL(...).pathname` 在 Windows 会得到 `/F:/...`，`Bun.file` 打不开；用 `fileURLToPath(new URL(...))`。
 - TUI 测试默认英文：`packages/cli/test/preload.ts` 设置 `YMCODE_LOCALE=en`，避免系统时区 zh 导致英文断言失败。
 - tmux 不可用；TUI 交互式驱动/截图未做。
+
+## 网络环境坑（2026-10-25~28 实测）
+
+- **本机代理 `127.0.0.1:7890` 可能宕机**（git 全局配置与 `remote.origin.proxy`
+  都指向它）。git push/ls-remote 报 "Failed to connect to github.com:443 over
+  proxy 127.0.0.1" 时**直连仍然可用**，三层都要清：
+  ```bash
+  env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u all_proxy \
+    git -c remote.origin.proxy= -c http.proxy= push origin main
+  ```
+- **TLS 拦截**：链路中有自签证书，bun 内置 CA 会拒（`self signed certificate in
+  certificate chain`），curl 走系统证书库正常。bun fetch 失败先用 curl 交叉验证，
+  不要急着断定代码问题；ymcode doctor 的凭据探针把这类失败归为 warn（保留该语义）。
+- **release-assets 下载**（`gh release download`）偶发 TLS 握手超时 /
+  PROTOCOL_ERROR 断流，重试通常能过；52MB 资产可能要 2-4 次。
+- **验证安装/升级链路不要依赖真实网络**：本地起 `bun -e 'Bun.serve(...)'` 镜像
+  （提供 install.ps1 + `releases/download/vX.Y.Z/ymcode-windows-x64.zip`），
+  配合 `YMCODE_INSTALL_SCRIPT_URL` / `YMCODE_RELEASE_BASE`；沙箱二进制放
+  `<dir>/.ymcode/bin/ymcode.exe` 命中 curl method 检测。完整方法见
+  verification.md「upgrade 全链路实测」。
