@@ -741,3 +741,37 @@ instinct-observer 刻意保留会话主模型**（摘要保真度即成果质量
   删 tag 重打后发布成功（workflow `40663340309`，12 asset，published 09:33Z）。
 - 教训补充：**同一个"正向等待"用例在 release 上下文失败第二次起，就该放宽预算**
   （已有结论的再次应用）；重跑只是在赌 runner 负载。
+
+## 2026-10-29：Windows 专属失败清零（0c79fec，v0.2.13）
+
+### external_directory/PowerShell 组（bash.test.ts 全文件 101 pass / 0 fail，此前 11 fail）
+
+插桩取证（argPath 同步探针 + 独立 repro）定位三个机制，两处产品 bug + 测试 fixture 误用：
+
+1. **盘符相对式**：Bun 的 `path.resolve` 丢弃 `C:` 设备，`C:../x` 解析到当前盘 cwd，
+   可能落进项目内（`<cwd>\C:..\x`）被 containsPath 判为内部。修复：resolvePath
+   剥掉设备前缀，余量按 spawn cwd 解析（子进程 per-drive 位置的本机型语义）。
+2. **cygpath 歧义映射**：未知 POSIX 顶层（`/AllProjects/...`）被映射到 Git 安装根
+   （`C:\Program Files\Git\...`）。修复：沿 shell 二进制的祖先链识别「恰好是
+   Git 根 + 原样 rest」的映射特征，改用工作目录盘符上真实存在的同构路径
+   （realpathSync 顺带恢复磁盘大小写）；`/tmp` 等真实映射不受影响。
+3. **containsPath worktree 兜底误伤**：非 git 的 scratch 项目继承了外围仓库的
+   worktree（fixture 设计如此），把真正的外部路径判为内部。修复：worktree
+   边界仅当 `project.vcs === "git"` 时生效。三个 win32 守卫内的测试改用
+   `outsideGit` fixture（其本意就是以实例目录为边界）。
+
+### stdio-exit-observe（6/6）
+
+两个用例硬编码 `/bin/sh`（win32 ENOENT）→ 换 `process.execPath -e`；
+SIGKILL 用例的补充断言按平台分化：Windows 无 SIGKILL 升级语义，Bun 把首次
+kill 的信号名原样写进快照（signalCode="SIGTERM"、exitCode=null）。
+
+### TUI sessions 可见性用例
+
+隔离运行通过——定性为负载伪影（与全量定性一致），非缺陷。
+
+### 状态
+
+真实 Windows 专属失败从 8 清零。回归：tool/project/memory/permission +
+session-list-visibility 1131 pass / 0 fail。剩：Windows 全量 107 中的
+负载伪影 ~83（CI 分片隔离跑即绿）。
