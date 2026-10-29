@@ -664,7 +664,10 @@ describe("tool.bash permissions", () => {
       test(
         "asks for nested bash command permissions [bash]",
         withShell({ label: "bash", shell: bash }, async () => {
+          // outsideGit: the read target must be OUTSIDE the instance directory;
+          // the default fixture root sits under cwd (inside it) by design.
           await using outerTmp = await tmpdir({
+            outsideGit: true,
             init: async (dir) => {
               await Bun.write(path.join(dir, "outside.txt"), "x")
             },
@@ -763,7 +766,7 @@ describe("tool.bash permissions", () => {
       test(
         `asks for external_directory permission for drive-relative PowerShell paths [${item.label}]`,
         withShell(item, async () => {
-          await using tmp = await tmpdir()
+          await using tmp = await tmpdir({ outsideGit: true })
           await Instance.provide({
             directory: tmp.path,
             fn: async () => {
@@ -824,7 +827,7 @@ describe("tool.bash permissions", () => {
       test(
         `asks for external_directory permission for $PWD PowerShell paths [${item.label}]`,
         withShell(item, async () => {
-          await using tmp = await tmpdir()
+          await using tmp = await tmpdir({ outsideGit: true })
           await Instance.provide({
             directory: tmp.path,
             fn: async () => {
@@ -1132,8 +1135,10 @@ describe("tool.bash permissions", () => {
   if (process.platform === "win32") {
     test("normalizes external_directory workdir variants on Windows", async () => {
       const err = new Error("stop after permission")
-      await using outerTmp = await tmpdir()
-      await using tmp = await tmpdir()
+      // outsideGit: the boundary under test is the instance directory itself;
+      // sibling fixture dirs inside the repo worktree are NOT external.
+      await using outerTmp = await tmpdir({ outsideGit: true })
+      await using tmp = await tmpdir({ outsideGit: true })
       await Instance.provide({
         directory: tmp.path,
         fn: async () => {

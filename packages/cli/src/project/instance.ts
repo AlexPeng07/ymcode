@@ -253,6 +253,12 @@ export const Instance = {
     // Non-git projects set worktree to "/" which would match ANY absolute path.
     // Skip worktree check in this case to preserve external_directory permissions.
     if (instance.worktree === "/") return false
+    // The worktree boundary is only meaningful when the project IS that git
+    // worktree. A non-git directory (e.g. a scratch project) that merely sits
+    // inside some other repo's tree inherits that worktree value, and treating
+    // it as our own boundary would silently classify genuinely external paths
+    // (siblings of the project dir) as internal.
+    if (instance.project.vcs !== "git") return false
     return AppFileSystem.contains(instance.worktree, filepath)
   },
   /**

@@ -579,9 +579,46 @@ export const BashTool = Tool.define(
 
     const resolvePath = Effect.fn("BashTool.resolvePath")(function* (text: string, root: string, shell: string) {
       if (process.platform === "win32") {
+        // Drive-relative (PowerShell "C:foo"): Bun's path.resolve drops the
+        // device and lands relative to the current drive's cwd, which can let
+        // an escaping path land INSIDE the project ("<cwd>\C:..\x"). Resolve
+        // the remainder against the spawn cwd — where a real PowerShell child
+        // would place its per-drive location.
+        if (/^[A-Za-z]:(?![\\/])/.test(text)) text = text.slice(2)
         if (Shell.posix(shell) && text.startsWith("/") && AppFileSystem.windowsPath(text) === text) {
           const file = yield* cygpath(shell, text)
-          if (file) return file
+          if (file) {
+            // cygpath maps unknown POSIX top-levels onto the Git installation
+            // root ("C:\Program Files\Git\<rest>") — an ambiguous guess. When
+            // the result is exactly that mapping (checked against every
+            // ancestor of the shell binary), prefer the working directory's
+            // drive if the same relative path really exists there;
+            // realpathSync also restores the on-disk casing. Anything else
+            // (e.g. /tmp → the user's temp dir) is cygpath's real answer.
+            const rest = text.slice(1).replaceAll("/", "\\").toLowerCase()
+            const lower = file.toLowerCase()
+            let ambiguous = false
+            for (let dir = path.dirname(shell); ; dir = path.dirname(dir)) {
+              if (lower === path.join(dir, rest).toLowerCase()) {
+                ambiguous = true
+                break
+              }
+              const parent = path.dirname(dir)
+              if (parent === dir) break
+            }
+            const drive = /^[A-Za-z]:/.exec(root)?.[0]
+            if (ambiguous && drive) {
+              const candidate = `${drive}\\${text.slice(1).replaceAll("/", "\\")}`
+              if (existsSync(candidate)) {
+                try {
+                  return realpathSync(candidate)
+                } catch {
+                  return AppFileSystem.normalizePath(candidate)
+                }
+              }
+            }
+            return file
+          }
         }
         return AppFileSystem.normalizePath(path.resolve(root, AppFileSystem.windowsPath(text)))
       }

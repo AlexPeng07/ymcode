@@ -64,8 +64,8 @@ test("close() SIGTERM is flagged as hostShutdown, not the child's failure cause"
 
 test("ObservingStdioTransport captures fast native exits", async () => {
   const transport = new ObservingStdioTransport({
-    command: "/bin/sh",
-    args: ["-c", "echo startup-dead >&2; exit 42"],
+    command: process.execPath,
+    args: ["-e", "console.error('startup-dead'); process.exit(42)"],
   })
   await transport.start()
   await waitFor(() => transport.exitSnapshot()?.exitCode === 42)
@@ -90,6 +90,10 @@ test("close() after SIGKILL leaves hostShutdown set, not an empty natural exit",
   // Never look like a natural exit with no code after host-initiated teardown.
   if (after?.exitCode == null && after?.signalCode == null) {
     expect(after?.hostShutdown).toBe(true)
+  } else if (process.platform === "win32") {
+    // Windows has no SIGKILL escalation: the first kill terminates the process
+    // and Bun reports the requested signal name verbatim (exitCode stays null).
+    expect(after?.signalCode != null || after?.exitCode != null).toBe(true)
   } else {
     expect(after?.signalCode === "SIGKILL" || after?.exitCode != null).toBe(true)
   }
@@ -97,8 +101,8 @@ test("close() after SIGKILL leaves hostShutdown set, not an empty natural exit",
 
 test("natural exit then close() fires onclose exactly once", async () => {
   const transport = new ObservingStdioTransport({
-    command: "/bin/sh",
-    args: ["-c", "exit 0"],
+    command: process.execPath,
+    args: ["-e", "process.exit(0)"],
   })
   let oncloseCount = 0
   transport.onclose = () => {
