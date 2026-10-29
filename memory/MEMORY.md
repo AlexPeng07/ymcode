@@ -10,7 +10,8 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   其后为交接文档（HEAD 用 `git log -1` 查看）。
   最新发布 `v0.2.12`（12 个平台 asset；**Windows 升级改为辅助进程延迟替换**，
   结构性避开卡巴斯基 PDM 行为判定；发布产物升级链路已实测）
-- 最新 Release：`v0.2.12`（tag `8a2d050`，workflow `40663340309` success）；
+- 最新 Release：`v0.2.13`（Windows 专属测试失败清零：盘符相对式/cygpath 歧义/containsPath 边界修复）；
+  此前 `v0.2.12`（tag `8a2d050`，workflow `40663340309` success）；
   此前 v0.2.11（未知模型近似名 + upgrade 挂起/退出码修复）、v0.2.10（效率批次
   + provider-aware tier 修复）
 - 本地二进制：发布 asset 解压后根目录 `ymcode.exe`（`gh release download v0.2.12`）；
@@ -143,7 +144,7 @@ YMCODE_HOME=/tmp/example packages/cli/dist/ymcode-windows-x64/bin/ymcode.exe ins
 
 ## 下一步
 
-交接点为 `858ddfa`（v0.2.12 后文档），最新发布 `v0.2.12`。已交付：四方向路线
+交接点为 `fdac3de`（v0.2.13 版本提交），最新发布 `v0.2.13`。已交付：四方向路线
 （v0.2.7/0.2.8/0.2.9）、生产力评估与凭据实测（d5589bd）、质量优先效率批次
 （54b8d74）+ provider-aware tier 修复（996488a）、未知模型近似名（27a396d）、
 Windows upgrade 挂起+退出码修复（7fd8cfd，验证方法=本地发布镜像）、

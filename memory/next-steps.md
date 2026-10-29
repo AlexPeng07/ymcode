@@ -1,8 +1,8 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-28，v0.2.12 已发布）
+## 当前交接点（2026-10-29，v0.2.13 已发布）
 
-- 最新 Release：`v0.2.12`（tag `8a2d050`，workflow `40663340309` success）。
+- 最新 Release：`v0.2.13`（`0c79fec` + tag；Windows 专属失败清零，见下）。
 - 已交付（按时间序）：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 /
   测试定性+修复）；生产力评估与修复（doctor 凭据实测 `d5589bd`）；质量优先效率批次
   （`54b8d74`：目录剥离触发词 -29%、token-efficient 清洗默认开、401/403 修复指引、
@@ -27,9 +27,14 @@
    注意：该 key 为临时性质且出现在会话记录里，**用完建议轮换**；xiaomi key 仍是死的。
 1. **短暂使用验证（建议先做）**：凭据已通，用真实会话跑几天——观察
    token-efficient 清洗节省、技能触发命中、instinct usage；一周后按数据定下一轮。
-2. **修真实 Windows 专属 8 个**：bash external_directory/PowerShell 权限组
-   （5，已定性为 resolvePath 对 PS 盘符相对式 `F:foo` 的解析，产品级专项）
-   + stdio-exit-observe 信号语义（3）。另有 TUI sessions 对话框可见性用例 1 个既有失败。
+2. ~~修真实 Windows 专属 8 个~~ **已完成（2026-10-29，`0c79fec`）**：
+   ① resolvePath 修盘符相对式（Bun 丢设备导致逃逸路径被判内部）与 cygpath
+   歧义映射（未知顶层落 Git 安装根——按祖先链识别后改用工作目录盘符上
+   真实存在的同构路径）；② containsPath 的 worktree 边界仅对 vcs=git 生效；
+   ③ 三个 win32 守卫内测试改 outsideGit fixture（本意即以实例目录为边界）；
+   ④ stdio-exit-observe 换 execPath + Windows 信号语义断言分化。
+   bash.test 101/101；tool/project/memory/permission 回归 1131/0。
+   TUI sessions 可见性用例隔离即过（负载伪影，无需修）。
 3. ~~Windows 发布签名~~ **已结构性缓解（v0.2.12）**：upgrade 改辅助进程替换，
    不再触发 PDM 自我修改特征。Authenticode 签名仍是可选增强（提升文件信誉，
    需证书或 SignPath 开源额度，属用户决策）。README 已有杀毒说明。

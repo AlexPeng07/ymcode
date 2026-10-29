@@ -280,3 +280,16 @@
 - `resumeMainCascading` 轮询预算 8s→30s（`8a2d050`）：该用例第三次在 release
   上下文超时（同提交 main-push 全绿），按 cron 先例放宽。
 - 交付 v0.2.12 发布（workflow `40663340309`，12 asset）。
+
+## 2026-10-29 Windows 专属失败清零（v0.2.13）
+
+- **resolvePath 两处产品修复**（`0c79fec`）：① 盘符相对式 `C:../x`——Bun 丢设备
+  后解析落当前盘 cwd，逃逸路径可被判内部；剥设备按 spawn cwd 解析。
+  ② cygpath 歧义映射——未知 POSIX 顶层落 Git 安装根；按 shell 祖先链识别后
+  改用工作目录盘符上真实存在的同构路径（realpathSync 恢复大小写）。
+- **containsPath**：worktree 边界仅当 `project.vcs === "git"` 生效——非 git
+  scratch 项目继承外围 worktree 不再吞掉真正的外部路径。
+- 三个 win32 守卫内的测试改 `outsideGit` fixture（本意即以实例目录为边界）；
+  stdio-exit-observe 换 execPath 并按平台分化信号断言（Windows 报首次信号名）。
+- bash.test 101/101（此前 11 fail）；tool/project/memory/permission 回归 1131/0。
+  **真实 Windows 专属失败 8 → 0**；TUI sessions 可见性用例定性为负载伪影。
