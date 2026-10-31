@@ -841,3 +841,40 @@ cronToHuman/buildFtsMatch（仅测试引用）、installation/index.ts 休眠分
 - 未动（记录待后续轮）：provider 层 134 处 any（大工程）；prompt-effect 36 处 500–2500ms 定值 sleep
   与 acp/event-subscription 11 处定值 setTimeout（时序改造富矿）；installation launcher 8 个
   win32 skip 的平台无关化。
+
+## 2026-10-31：测试稳定第二轮（R 轮，接审查轮）
+
+### 已落地
+
+1. **run-completion.test**：`calls > 0` 正向断言从 80ms 定值等待改为 `waitFor` 谓词（integration
+   用例加 ticks 计数）。scheduler.test 的 80ms 过期等待与 instance-state 的 5ms 并发窗口
+   经复核为 floor 型安全（sleep 下限 > 窗口），审查员误标，未动。
+2. **acp/event-subscription.test**：11 处定值 setTimeout 清零——正向断言（事件到达/权限回复/
+   chunk 交付）转 `waitFor` 谓词；纯负向用 `settle()`；工具快照三用例按「该会话更新总数 ≥N」
+   判交付完成后再做精确断言（推入数=更新数，谓词精确）。
+3. **prompt-effect.test**（6597 行）：9 处正向断言定值 sleep 转 `pollUntil`
+   （Effect 版截止轮询，超时 die 带描述性缺陷；uncommitted-hint 5 处、决策日志 1 处、
+   shell 持锁 3 处用 `sessionExecutionSnapshot` 判 busy）。其余为负向/宽限或已有截止
+   轮询（waitIdle、while+timeout 循环），保留。
+   - 教训：**poll 谓词必须覆盖原 sleep 的全部语义**——首版只等 hint 落盘没等 turn settle，
+     "settled.idle" 断言立刻挂；谓词改为 hint===1 && idle 后通过。
+   - 新 helper：`test/lib/wait-for.ts` 增 `pollUntil(condition, {timeout, step})`。
+4. **installation skip 清理（有反转）**：
+   - **产品缺陷修复（launcher.js）**：windows 目标解压原用 `tar -xf` 解 zip——GNU tar
+     根本不支持 zip，且 Git-Bash 遮蔽 PATH 时 tar 优先级高于 System32 bsdtar，
+     真实 Windows 用户的 npm postinstall prefetch 会炸。改为 PowerShell
+     Expand-Archive（带条目遍历扫描与单引号转义，与 src/util/archive.ts 同款）。
+   - postinstall「prefetch 进 vendor」用例去 skip（win32 真实用户路径，Compress-Archive
+     构造真 zip），本机实测通过（5.9s）。
+   - launcher.test 4 个 linux-target tar.gz 用例**保持 skip**（定性反转）：linux 目标在
+     Windows 主机生产不可达（detectTarget 恒为 windows），强测的是生产不可达路径；
+     且本机 GNU tar 对盘符归档路径报 "Cannot connect to C:"，--force-local 连 -C 参数
+     都会被搞坏，不值得为不可达路径改造产品。测试头注释已记录证据。
+   - launcher-bin 3 个 skip 保持（POSIX sh launcher 产物，Windows 走 npm cmd shim，
+     测的是环境不是产品）。
+
+### 验证
+
+- 门禁 5 项全绿；typecheck 四包全过。
+- installation 全套 39 pass / 7 skip / 0 fail（原 8 skip → 7）。
+- prompt-effect 全文件复跑 + acp + run-completion + bus 回归全绿（详见提交）。

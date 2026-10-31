@@ -110,6 +110,11 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
   discovery 遍历校验、archive PS 转义+zip 条目扫描、bg-scope 泄漏）、B2 Effect 规范
   与 console 降级、B3 死代码清理、B4 测试稳定（wait-for helper、bus 谓词化、
   preload stale sweep）。门禁与定向回归全绿；遗留清单见 next-steps.md。
+- **测试稳定第二轮（2026-10-31 R 轮，已提交 10 个提交未发版）**：acp 11 处定值 sleep
+  清零、prompt-effect 9 处正向等待转 pollUntil（全文件 128 pass / 0 fail）、
+  **launcher.js win32 zip 解压真缺陷修复**（GNU tar 不支持 zip + PATH 遮蔽 →
+  Expand-Archive）、postinstall prefetch 用例在 Windows 恢复实跑。发 v0.2.14
+  见 next-steps.md。
 
 未验证/未完成：
 

@@ -22,14 +22,17 @@
   同一正向等待用例在 release 上下文失败第二次起即放宽预算（cron 5s→15s、
   resume 8s→30s 两个先例）。
 
-### 下一轮候选（审查轮遗留，按收益排序）
+### 下一轮候选（按收益排序，2026-10-31 第二次更新）
 
-1. prompt-effect.test 36 处 500–2500ms 定值 sleep 与 acp/event-subscription 11 处
-   定值 setTimeout → 状态驱动等待（wait-for.ts 已就位，模式照 bus 改造）。
-2. installation launcher 8 个 win32 skip 平台无关化（按平台构造 archive，恢复真实覆盖）。
+1. ~~prompt-effect 定值 sleep 与 acp 定值 setTimeout → 状态驱动等待~~ **已完成（R 轮）**：
+   acp 11 处清零；prompt-effect 9 处正向断言转 pollUntil（负向/宽限保留）。
+2. ~~installation launcher 8 个 win32 skip 平台无关化~~ **已完成（R 轮，有反转）**：
+   postinstall prefetch 去 skip（顺带修出 launcher.js win32 解压真缺陷）；launcher 4 个
+   linux-tar 用例定性为生产不可达路径保持 skip；launcher-bin 3 个为 POSIX 产物保持 skip。
 3. provider 层 134 处 any 收窄（provider.ts getModel(sdk:any)×12 最值得，大工程）。
 4. archive.ts POSIX 分支条目扫描（需解决 busybox unzip -Z1 兼容性）。
-5. 发布：本轮改动合入后按常规流程发 v0.2.14（改 4 个 package.json 版本→tag）。
+5. **发布：两轮改动已提交，发 v0.2.14**（改 4 个 package.json 版本→tag→push，
+   release.yml 自动 12 平台；含安全修复与 launcher.js 解压修复，建议尽快发）。
 
 ### 建议顺序
 
