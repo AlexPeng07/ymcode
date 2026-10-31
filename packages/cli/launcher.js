@@ -219,14 +219,41 @@ async function verifySha256(filePath, url) {
   return true
 }
 
+// PowerShell single-quote literals escape `'` by doubling it.
+const psQuote = (value) => value.replaceAll("'", "''")
+
+// Entry names that escape the destination: `..` segments (either separator),
+// drive-absolute and root-absolute paths.
+const TRAVERSAL_PATTERN = `(^|[\\\\/])\\.\\.([\\\\/]|$)|^[A-Za-z]:|^[\\\\/]`
+
+async function extractZipWindows(zipPath, destDir) {
+  const cmd = [
+    `$global:ProgressPreference = 'SilentlyContinue'`,
+    `Add-Type -AssemblyName System.IO.Compression.FileSystem`,
+    `$zip = [System.IO.Compression.ZipFile]::OpenRead('${psQuote(zipPath)}')`,
+    `try {`,
+    `  $bad = @($zip.Entries | Where-Object { $_.FullName -match '${TRAVERSAL_PATTERN}' })`,
+    `  if ($bad.Count -gt 0) { throw ('zip entry escapes destination: ' + $bad[0].FullName) }`,
+    `} finally { $zip.Dispose() }`,
+    `Expand-Archive -Path '${psQuote(zipPath)}' -DestinationPath '${psQuote(destDir)}' -Force`,
+  ].join("; ")
+  await exec("powershell", ["-NoProfile", "-NonInteractive", "-Command", cmd])
+}
+
 async function extractBinary(archivePath, target, dest) {
   const name = binaryNameFor(target)
   const work = await fs.promises.mkdtemp(path.join(os.tmpdir(), "ymcode-extract-"))
   try {
     if (target.includes("linux")) {
       await exec("tar", ["-xzf", archivePath, "-C", work])
+    } else if (process.platform === "win32") {
+      // Never resolve `tar` on Windows: GNU tar (a Git-Bash-shadowed PATH) can
+      // neither read zip nor is guaranteed to lose PATH priority to System32's
+      // bsdtar. Expand-Archive is always present, and entries are scanned for
+      // path traversal before extraction.
+      await extractZipWindows(archivePath, work)
     } else {
-      // bsdtar / macOS tar / Windows tar all handle zip.
+      // bsdtar / macOS tar handle zip and tar.gz alike.
       await exec("tar", ["-xf", archivePath, "-C", work])
     }
     const extracted = path.join(work, name)
