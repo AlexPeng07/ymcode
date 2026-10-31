@@ -6,6 +6,7 @@ import { afterEach, describe, expect, spyOn } from "bun:test"
 import { dynamicTool, jsonSchema, type Tool as AITool } from "ai"
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { Cause, Deferred, Effect, Exit, Fiber, Layer } from "effect"
+import { pollUntil } from "../lib/wait-for"
 import { ResumeTestHooks } from "../../src/session/resume-test-hooks"
 import path from "path"
 import { Agent as AgentSvc } from "../../src/agent/agent"
@@ -802,7 +803,25 @@ it.live("[TP-R1-01][TP-R4-02][TP-R7-01] uncommitted-hint dirty USER turn produce
           variant: "high",
           parts: [{ type: "text", text: "please edit dirty work" }],
         })
-        yield* Effect.sleep("2500 millis")
+        // Wait for the hint to land AND the turn to settle (the fixed sleep
+        // used to cover both; the poll needs both in its predicate).
+        const statusSvc = yield* SessionStatus.Service
+        yield* pollUntil(
+          Effect.gen(function* () {
+            const msgs = yield* sessions.messages({ sessionID: chat.id, agentID: "main" })
+            const landed = msgs.some(
+              (m) =>
+                m.info.role === "user" &&
+                m.parts.some(
+                  (p) => p.type === "text" && p.synthetic === true && String(p.text).includes("uncommitted git changes"),
+                ),
+            )
+            if (!landed) return false
+            const settled = yield* statusSvc.get(chat.id)
+            return settled.type === "idle"
+          }),
+          { timeout: "12 seconds" },
+        )
         const msgs = yield* sessions.messages({ sessionID: chat.id, agentID: "main" })
         const hintUsers = msgs.filter(
           (m) =>
@@ -818,7 +837,6 @@ it.live("[TP-R1-01][TP-R4-02][TP-R7-01] uncommitted-hint dirty USER turn produce
         const hintParts = hintUsers[0]!.parts.filter((p) => p.type === "text")
         expect(hintParts.some((p) => p.type === "text" && String(p.text).includes(" M dirty.txt") || String((p as { text?: string }).text ?? "").includes("dirty.txt"))).toBe(true)
         // Settlement of the original user turn is not blocked by hint inject.
-        const statusSvc = yield* SessionStatus.Service
         const settled = yield* statusSvc.get(chat.id)
         expect(settled.type).toBe("idle")
       } finally {
@@ -872,7 +890,7 @@ it.live("[TP-R4-02] uncommitted-hint cancel hook turn then dirty USER turn re-hi
           parts: [{ type: "text", text: "dirty work first" }],
         })
         // Hint injects then hook runLoop requests LLM → hang reply (not empty-queue auto-ok).
-        yield* Effect.sleep("1500 millis")
+        yield* pollUntil(Effect.map(countHints(chat.id), (n) => n === 1), { timeout: "12 seconds" })
         expect(yield* countHints(chat.id)).toBe(1)
         yield* llm.wait(2)
         const status = yield* SessionStatus.Service
@@ -890,7 +908,7 @@ it.live("[TP-R4-02] uncommitted-hint cancel hook turn then dirty USER turn re-hi
           source: "user",
           parts: [{ type: "text", text: "still dirty" }],
         })
-        yield* Effect.sleep("2000 millis")
+        yield* pollUntil(Effect.map(countHints(chat.id), (n) => n === 2), { timeout: "12 seconds" })
         // 1 (first inject) + 1 (second dirty user turn) = 2
         expect(yield* countHints(chat.id)).toBe(2)
       } finally {
@@ -1310,7 +1328,10 @@ it.live("[TP-R4-01][TP-R7-01] uncommitted-hint busy claim does not inject and do
             parts: [{ type: "text", text: "turn b hangs" }],
           })
           .pipe(Effect.forkChild)
-        yield* Effect.sleep("2000 millis")
+        // Turn B's hung reply must be registered before the not-busy claims below.
+        yield* pollUntil(Effect.map(llm.inputs, (inputs) => inputs.length >= inputsAfterA + 1), {
+          timeout: "5 seconds",
+        })
         const msgs = yield* sessions.messages({ sessionID: chat.id, agentID: "main" })
         const hints = msgs.filter((m) =>
           m.parts.some((p) => p.type === "text" && p.synthetic === true && String(p.text).includes("uncommitted git changes")),
@@ -1616,7 +1637,14 @@ it.live("[TP-R7-01] uncommitted-hint decision logs land in a WARN-level sink", (
           source: "user",
           parts: [{ type: "text", text: "please edit dirty work" }],
         })
-        yield* Effect.sleep("2500 millis")
+        // The decision log is written asynchronously; poll the flushed sink for it.
+        yield* pollUntil(
+          Effect.promise(async () => {
+            await Log.flush()
+            return await Bun.file(Log.file()).text()
+          }).pipe(Effect.map((text) => text.includes("uncommitted-hint") && text.includes("decision"))),
+          { timeout: "8 seconds" },
+        )
         const logged = yield* Effect.promise(async () => {
           await Log.flush()
           return await Bun.file(Log.file()).text()
@@ -4965,7 +4993,12 @@ it.live(
         const sh = yield* prompt
           .shell({ sessionID: chat.id, agent: "build", model: ref, command: "sleep 0.2" })
           .pipe(Effect.forkChild)
-        yield* Effect.sleep(50)
+        // Wait until the shell actually holds the runner; a fixed sleep raced
+        // here on slow CI (this pattern burned two skipped siblings).
+        const run = yield* SessionRunState.Service
+        yield* pollUntil(Effect.map(run.sessionExecutionSnapshot(chat.id), (s) => !s.isIdle()), {
+          timeout: "5 seconds",
+        })
 
         const loop = yield* prompt.loop({ sessionID: chat.id }).pipe(Effect.forkChild)
         yield* Effect.sleep(50)
@@ -5003,7 +5036,11 @@ it.live(
         const sh = yield* prompt
           .shell({ sessionID: chat.id, agent: "build", model: ref, command: "sleep 0.2" })
           .pipe(Effect.forkChild)
-        yield* Effect.sleep(50)
+        // Wait until the shell actually holds the runner (fixed sleeps raced here).
+        const run = yield* SessionRunState.Service
+        yield* pollUntil(Effect.map(run.sessionExecutionSnapshot(chat.id), (s) => !s.isIdle()), {
+          timeout: "5 seconds",
+        })
 
         const a = yield* prompt.loop({ sessionID: chat.id }).pipe(Effect.forkChild)
         const b = yield* prompt.loop({ sessionID: chat.id }).pipe(Effect.forkChild)
@@ -5201,7 +5238,11 @@ unix(
             const a = yield* prompt
               .shell({ sessionID: chat.id, agent: "build", command: "sleep 30" })
               .pipe(Effect.forkChild)
-            yield* Effect.sleep(50)
+            // Wait until shell A actually holds the runner before B's rejection probe.
+            const run = yield* SessionRunState.Service
+            yield* pollUntil(Effect.map(run.sessionExecutionSnapshot(chat.id), (s) => !s.isIdle()), {
+              timeout: "5 seconds",
+            })
 
             const exit = yield* prompt
               .shell({ sessionID: chat.id, agent: "build", command: "echo hi" })
