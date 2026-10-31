@@ -106,6 +106,10 @@ ymcode 是一个个人自用的 AI 编程 harness，基于 MiMo-Code（上游 co
 - **与 mimocode 彻底解耦**：不再启动时迁移旧数据，不提供 `ymcode migrate`，
   不桥接 `MIMOCODE_*` 环境变量，也不回退读取 `.mimocode` 项目配置；内置文档技能
   已把 CLI 名称统一为 `ymcode`。运行时只认 ymcode 自己的目录。
+- **全面审查轮（2026-10-31，未发版）**：B1 安全（glob/write/edit 判写路径统一、
+  discovery 遍历校验、archive PS 转义+zip 条目扫描、bg-scope 泄漏）、B2 Effect 规范
+  与 console 降级、B3 死代码清理、B4 测试稳定（wait-for helper、bus 谓词化、
+  preload stale sweep）。门禁与定向回归全绿；遗留清单见 next-steps.md。
 
 未验证/未完成：
 

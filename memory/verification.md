@@ -775,3 +775,69 @@ kill 的信号名原样写进快照（signalCode="SIGTERM"、exitCode=null）。
 真实 Windows 专属失败从 8 清零。回归：tool/project/memory/permission +
 session-list-visibility 1131 pass / 0 fail。剩：Windows 全量 107 中的
 负载伪影 ~83（CI 分片隔离跑即绿）。
+
+## 2026-10-31：全面审查与优化轮（未发版）
+
+三路并行审查（技术债 / 健壮性安全 / 测试健康）+ 全门禁基线（brand/i18n/skills/prompts/typecheck 全绿）。
+
+### B1 安全修复（产品级缺口）
+
+1. **`tool/glob.ts` 守卫与扫描路径不一致**（external_directory 绕过窗口，v0.2.13 同族漏网）：
+   POSIX 风格绝对路径 `/c/x` 在 Windows 上守卫判 `C:\x`、ripgrep 实际扫当前盘 `\c\x`。
+   修复：search 改走 `AppFileSystem.resolve`（与 grep.ts 同型）。
+2. **`tool/write.ts` / `tool/edit.ts`**：守卫用 normalize 后路径判定、落盘用原始路径。
+   修复：win32 下统一 `AppFileSystem.normalizePath`（与 assertExternalDirectoryEffect 内部同函数，构造性保证判=写）。
+3. **`skill/discovery.ts` 远端索引路径遍历**：`skill.name`/`file` 未校验直接 join+writeWithDirs，
+   被劫持 registry 可 `../` 写出缓存目录。修复：name 单段校验（无分隔符/`..`/`:`/绝对）+
+   file 按 resolve 后 contains(root) 过滤；不安全 name 丢弃整个 skill，不安全 file 剔除单个文件。
+   测试：`test/skill/discovery.test.ts` 新增恶意 registry 用例（本地 Bun.serve 注入 `../evil` 与 `../escaped.txt`）。
+4. **`util/archive.ts`**：`Expand-Archive -Path '${path}'` 单引号拼接（路径含 `'` 即 PS 注入）→
+   `''` 转义；新增提取前 .NET ZipFile::OpenRead 条目扫描（`..` 段/盘符/根绝对 → fail-closed throw）。
+   测试：新增 `test/util/archive.test.ts`（良性 roundtrip + 手工构造 `../evil.txt` 恶意 zip 被拒）。
+   POSIX 分支未加扫描（Info-ZIP 自有防护，busybox unzip 兼容性风险，记录在案）。
+5. **`tool/bash-background.ts`**：spawn 失败时 `Scope.make()` 永不 close →
+   `Effect.onError((cause) => Scope.close(scope, Exit.die(cause)))`。
+
+### B2 Effect 规范与热路径污染
+
+- `auth/index.ts`：Effect.fn 内空 catch 吞 JSON.parse 错误 → `Effect.try` + `orElseSucceed` +
+  warn 日志（fallback 到 auth.json 的行为保留）。
+- `session/session.ts` `removeUnlocked`：整体 try/catch 压平（只捕 defect，typed error 本就穿透）→
+  抽 `removeUnlockedInner` + 外层 `Effect.catchCause(log.error)`，语义等价且走错误通道。
+- `team/index.ts` `readMembersFile`：读失败与坏 JSON 全吞成 `[]` → ENOENT 静默为空队伍、
+  其他读失败/坏 JSON 走 log.error（Interface 错误通道不变）。
+- `catch (e: any)` → unknown/Error 收窄 ×4（session/llm.ts、cli/cmd/github.ts、util/ssrf.ts、shared/filesystem.ts）。
+- `util/fn.ts`：全局 schema 校验失败不再 `console.trace` 打 stderr → Log（service: schema）。
+- `tui/util/clipboard.ts`：6 处 `console.log("clipboard: using ...")` 调试输出（污染 TUI）→ `log.debug`。
+
+### B3 死代码清理
+
+删除 `util/scrap.ts` 整文件 + 9 个零引用导出（逐一 word-match 复核 src+test+script 均无引用）：
+shared path.ts 的 getDirectory/getFileExtension/getFilenameTruncated、encode.ts 的
+base64Encode/base64Decode、locale.ts pluralize、installation isPreview、capability-registry
+declaredAdapters、server/auth serverAuthHeaders（单数形式在用）、claude-import encodeDir、
+skill-catalog canonicalSkillCatalog。保留：workspace-trust listTrusted/revokeTrust（功能意图不明）、
+cronToHuman/buildFtsMatch（仅测试引用）、installation/index.ts 休眠分发渠道注释代码（产品决策）。
+
+### B4 测试稳定性
+
+- 新增共享 helper `test/lib/wait-for.ts`（`waitFor(谓词, deadline)` + `settle()` 负向窗口）。
+- `bus/bus.test.ts`（21 处 10ms 定值 sleep）与 `bus/bus-integration.test.ts`（3 个用例）改谓词等待；
+  pre-publish settle sleep 按「subscribe 即活」契约删除（若契约回归会以 waitFor 超时显式暴露）。
+- `workflow/workspace.test.ts`：4 个 win32 skip（POSIX 断言）改 path.resolve 对照全平台运行；
+  3+1 处无清理 mkdtempSync 改 fixture `await using`（泄漏清零）。
+- `test/preload.ts` 启动时 sweep 陈旧 `.ymcode-test-fixtures-<pid>`（owner pid 不存活才删，
+  并发运行的同类进程不受影响）——修复崩溃残留永久留在仓库的问题。
+- `llm-server/tokens.test.ts` 真实时钟「仍存活」断言裕量放大（1s 窗 600ms→2s 窗 1s；
+  maxAge 500ms→1s 窗 300ms），floor 型「已过期」断言保持。
+
+### 验证
+
+- 门禁：brand / i18n（1019+1067）/ skills（90）/ prompts（54）/ typecheck 四包全绿。
+- 定向（Windows 本机）：archive+discovery+bash-background 13、discovery/glob/write/edit 49、
+  auth/team 12、session.test 4（含 "remove works without an instance"）、bus 20、
+  workspace+tokens 33（原 4 个 skip 转实跑）、memory-path-guard+tool-script+instinct 165、
+  permission/next 80。全部 0 fail。
+- 未动（记录待后续轮）：provider 层 134 处 any（大工程）；prompt-effect 36 处 500–2500ms 定值 sleep
+  与 acp/event-subscription 11 处定值 setTimeout（时序改造富矿）；installation launcher 8 个
+  win32 skip 的平台无关化。

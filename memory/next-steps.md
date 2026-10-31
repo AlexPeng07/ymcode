@@ -1,23 +1,35 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-29，v0.2.13 已发布）
+## 当前交接点（2026-10-31，全面审查轮已交付、未发版）
 
-- 最新 Release：`v0.2.13`（`0c79fec` + tag；Windows 专属失败清零，见下）。
-- 已交付（按时间序）：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 /
+- 最新 Release：`v0.2.13`（`0c79fec` + tag）。
+- **2026-10-31 全面审查与优化轮**（未提交、未发版，详见 verification.md 同名小节）：
+  三路审查（技术债/健壮性安全/测试健康）后落地四批修复——
+  B1 安全：glob 守卫-扫描路径统一、write/edit 判写路径统一（win32 normalize）、
+  skill/discovery 远端索引遍历校验（+恶意 registry 测试）、archive PS 注入转义+zip 条目
+  fail-closed 扫描（+测试）、bash-background spawn 失败 scope 泄漏；
+  B2 规范：auth 空 catch、session.removeUnlocked、team 吞错、catch(any)×4、
+  fn.ts/clipboard.ts console 降级；B3 死代码：scrap.ts+9 个零引用导出；
+  B4 测试稳定：test/lib/wait-for.ts helper、bus 两文件谓词化、workspace.test 跨平台+泄漏清零、
+  preload stale sweep、tokens 裕量。门禁全绿；定向回归 ~380 pass / 0 fail。
+- 已交付（按时间序，历史）：四方向路线（v0.2.7 质量闭环 / v0.2.8 易用性 / v0.2.9 记忆深化 /
   测试定性+修复）；生产力评估与修复（doctor 凭据实测 `d5589bd`）；质量优先效率批次
-  （`54b8d74`：目录剥离触发词 -29%、token-efficient 清洗默认开、401/403 修复指引、
-  summary→lite）；**provider-aware 内置 tier 修复**（`996488a`）；
-  **upgrade 全链路实测**（`7fd8cfd`，发现并修复「staging 后挂起」与「失败报成功」，
-  验证方法=本地发布镜像，见 verification.md）；**升级延迟替换**（`328e872`——
-  运行中的进程不再替换自身镜像，改由 Start-Process 孙进程在主进程退出后执行，
-  规避卡巴斯基 PDM 行为判定；发布产物升级实测通过）；
-  resume 用例轮询预算 8s→30s（`8a2d050`，该用例第三次烧 release CI 后放宽）。
-- Windows 全量定性（6195 pass / 107 fail，原基线 277）：已修 16、负载伪影 ~83、
-  真实 Windows 专属 8（见 verification.md 两份定性记录）。
+  （`54b8d74`）；**provider-aware 内置 tier 修复**（`996488a`）；
+  **upgrade 全链路实测**（`7fd8cfd`）；**升级延迟替换**（`328e872`）；
+  resume 用例轮询预算 8s→30s（`8a2d050`）；Windows 专属失败清零（`0c79fec`）。
 - **CI 判别协议（已修订，写进 verification.md）**：对比**同一提交**的 main-push——
   绿=环境抖动，挂=真回归（summary→lite 先例），直接机制归因，不跑重试轮盘；
   同一正向等待用例在 release 上下文失败第二次起即放宽预算（cron 5s→15s、
   resume 8s→30s 两个先例）。
+
+### 下一轮候选（审查轮遗留，按收益排序）
+
+1. prompt-effect.test 36 处 500–2500ms 定值 sleep 与 acp/event-subscription 11 处
+   定值 setTimeout → 状态驱动等待（wait-for.ts 已就位，模式照 bus 改造）。
+2. installation launcher 8 个 win32 skip 平台无关化（按平台构造 archive，恢复真实覆盖）。
+3. provider 层 134 处 any 收窄（provider.ts getModel(sdk:any)×12 最值得，大工程）。
+4. archive.ts POSIX 分支条目扫描（需解决 busybox unzip -Z1 兼容性）。
+5. 发布：本轮改动合入后按常规流程发 v0.2.14（改 4 个 package.json 版本→tag）。
 
 ### 建议顺序
 
