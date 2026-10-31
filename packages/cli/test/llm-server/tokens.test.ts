@@ -118,17 +118,20 @@ describe("expiry", () => {
 
   test("the idle window is measured from the last use, so activity keeps it alive", async () => {
     await using tmp = await tmpdir()
-    const issued = await LLMServerTokens.issue({ directory: tmp.path, expiry: { idleMs: 1_000 } })
+    // Generous margins on both sides: "still alive" checks must land well under
+    // the window (sleep is only a floor, so the slack absorbs scheduler load),
+    // and the quiet period must clear the window by its own floor.
+    const issued = await LLMServerTokens.issue({ directory: tmp.path, expiry: { idleMs: 2_000 } })
 
     // Two uses spaced under the window each slide it forward, carrying the token
     // past the point where a fixed lifetime would already have killed it.
-    await Bun.sleep(600)
+    await Bun.sleep(1_000)
     expect(await LLMServerTokens.verify(tmp.path, issued.token)).toMatchObject({ ok: true })
-    await Bun.sleep(600)
+    await Bun.sleep(1_000)
     expect(await LLMServerTokens.verify(tmp.path, issued.token)).toMatchObject({ ok: true })
 
     // Then go quiet for longer than the window.
-    await Bun.sleep(1_300)
+    await Bun.sleep(2_100)
     expect(await LLMServerTokens.verify(tmp.path, issued.token)).toMatchObject({ ok: false, reason: "expired" })
   })
 
@@ -143,11 +146,13 @@ describe("expiry", () => {
     await using tmp = await tmpdir()
     const issued = await LLMServerTokens.issue({
       directory: tmp.path,
-      expiry: { idleMs: 60_000, maxAgeMs: 500 },
+      expiry: { idleMs: 60_000, maxAgeMs: 1_000 },
     })
-    await Bun.sleep(200)
+    // The first check must land well under the ceiling; the second is
+    // floor-based (sleep never wakes early) so it only needs to clear maxAge.
+    await Bun.sleep(300)
     expect(await LLMServerTokens.verify(tmp.path, issued.token)).toMatchObject({ ok: true })
-    await Bun.sleep(500)
+    await Bun.sleep(1_100)
     // The idle window is nowhere near elapsed; the ceiling is what ends it.
     expect(await LLMServerTokens.verify(tmp.path, issued.token)).toMatchObject({ ok: false, reason: "expired" })
   })

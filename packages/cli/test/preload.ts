@@ -14,6 +14,28 @@ await fs.mkdir(dir, { recursive: true })
 // containment check (security: unauthenticated servers restrict directory to cwd subtree).
 const fixtureRoot = path.join(process.cwd(), ".ymcode-test-fixtures-" + process.pid)
 await fs.mkdir(fixtureRoot, { recursive: true })
+
+// Sweep stale fixture roots from crashed runs: pid-named dirs are only removed
+// by their own afterAll, so a hard-killed process leaves them in the repo
+// forever. Only sweep roots whose owning pid is gone (a concurrently running
+// sibling test process keeps its own).
+{
+  const prefix = ".ymcode-test-fixtures-"
+  let entries: string[] = []
+  try {
+    entries = await fs.readdir(process.cwd())
+  } catch {}
+  for (const entry of entries) {
+    if (!entry.startsWith(prefix)) continue
+    const owner = Number(entry.slice(prefix.length))
+    if (!Number.isInteger(owner) || owner === process.pid) continue
+    try {
+      process.kill(owner, 0)
+      continue // still alive, not ours to clean
+    } catch {}
+    await fs.rm(path.join(process.cwd(), entry), { recursive: true, force: true }).catch(() => {})
+  }
+}
 process.env["YMCODE_TEST_TMPDIR_ROOT"] = fixtureRoot
 // Keep the TUI test suite deterministic: existing assertions are written
 // against the English dictionary, while production still auto-detects zh-CN.

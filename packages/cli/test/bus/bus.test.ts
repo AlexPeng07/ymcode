@@ -4,6 +4,7 @@ import { Bus } from "../../src/bus"
 import { BusEvent } from "../../src/bus/bus-event"
 import { Instance } from "../../src/project/instance"
 import { tmpdir } from "../fixture/fixture"
+import { settle, waitFor } from "../lib/wait-for"
 
 const TestEvent = {
   Ping: BusEvent.define("test.ping", z.object({ value: z.number() })),
@@ -27,7 +28,7 @@ describe("Bus", () => {
           received.push(evt.properties.value)
         })
         await Bus.publish(TestEvent.Ping, { value: 42 })
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 1)
       })
 
       expect(received).toEqual([42])
@@ -41,12 +42,9 @@ describe("Bus", () => {
         Bus.subscribe(TestEvent.Ping, (evt) => {
           received.push(evt.properties.value)
         })
-        // Give the subscriber fiber time to start consuming
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 42 })
         await Bus.publish(TestEvent.Ping, { value: 99 })
-        // Give subscriber time to process
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 2)
       })
 
       expect(received).toEqual([42, 99])
@@ -60,10 +58,9 @@ describe("Bus", () => {
         Bus.subscribe(TestEvent.Ping, (evt) => {
           pings.push(evt.properties.value)
         })
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Pong, { message: "hello" })
         await Bus.publish(TestEvent.Ping, { value: 1 })
-        await Bun.sleep(10)
+        await waitFor(() => pings.length === 1)
       })
 
       expect(pings).toEqual([1])
@@ -87,13 +84,12 @@ describe("Bus", () => {
         const unsub = Bus.subscribe(TestEvent.Ping, (evt) => {
           received.push(evt.properties.value)
         })
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 1 })
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 1)
         unsub()
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 2 })
-        await Bun.sleep(10)
+        // negative assertion: give delivery a fair bounded window to not happen
+        await settle()
       })
 
       expect(received).toEqual([1])
@@ -110,7 +106,7 @@ describe("Bus", () => {
           received.push(evt.type)
         })
         await Bus.publish(TestEvent.Ping, { value: 1 })
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 1)
       })
 
       expect(received).toEqual(["test.ping"])
@@ -124,10 +120,9 @@ describe("Bus", () => {
         Bus.subscribeAll((evt) => {
           received.push(evt.type)
         })
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 1 })
         await Bus.publish(TestEvent.Pong, { message: "hi" })
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 2)
       })
 
       expect(received).toContain("test.ping")
@@ -148,9 +143,8 @@ describe("Bus", () => {
         Bus.subscribe(TestEvent.Ping, (evt) => {
           b.push(evt.properties.value)
         })
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 7 })
-        await Bun.sleep(10)
+        await waitFor(() => a.length === 1 && b.length === 1)
       })
 
       expect(a).toEqual([7])
@@ -169,24 +163,22 @@ describe("Bus", () => {
         Bus.subscribe(TestEvent.Ping, (evt) => {
           receivedA.push(evt.properties.value)
         })
-        await Bun.sleep(10)
       })
 
       await withInstance(tmpB.path, async () => {
         Bus.subscribe(TestEvent.Ping, (evt) => {
           receivedB.push(evt.properties.value)
         })
-        await Bun.sleep(10)
       })
 
       await withInstance(tmpA.path, async () => {
         await Bus.publish(TestEvent.Ping, { value: 1 })
-        await Bun.sleep(10)
+        await waitFor(() => receivedA.length === 1)
       })
 
       await withInstance(tmpB.path, async () => {
         await Bus.publish(TestEvent.Ping, { value: 2 })
-        await Bun.sleep(10)
+        await waitFor(() => receivedB.length === 1)
       })
 
       expect(receivedA).toEqual([1])
@@ -203,14 +195,13 @@ describe("Bus", () => {
         Bus.subscribeAll((evt) => {
           received.push(evt.type)
         })
-        await Bun.sleep(10)
         await Bus.publish(TestEvent.Ping, { value: 1 })
-        await Bun.sleep(10)
+        await waitFor(() => received.length === 1)
       })
 
       // Instance.disposeAll triggers the finalizer which publishes InstanceDisposed
       await Instance.disposeAll()
-      await Bun.sleep(50)
+      await waitFor(() => received.includes(Bus.InstanceDisposed.type))
 
       expect(received).toContain("test.ping")
       expect(received).toContain(Bus.InstanceDisposed.type)

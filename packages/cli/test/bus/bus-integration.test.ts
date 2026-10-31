@@ -5,6 +5,7 @@ import { BusEvent } from "../../src/bus/bus-event"
 import { Instance } from "../../src/project/instance"
 import { tmpdir } from "../fixture/fixture"
 import { EventRoutes } from "../../src/server/routes/instance/event"
+import { settle, waitFor } from "../lib/wait-for"
 
 const TestEvent = BusEvent.define("test.integration", z.object({ value: z.number() }))
 
@@ -23,17 +24,16 @@ describe("Bus integration: acquireRelease subscriber pattern", () => {
       const unsub = Bus.subscribe(TestEvent, (evt) => {
         received.push(evt.properties.value)
       })
-      await Bun.sleep(10)
       await Bus.publish(TestEvent, { value: 1 })
       await Bus.publish(TestEvent, { value: 2 })
-      await Bun.sleep(10)
+      await waitFor(() => received.length === 2)
 
       expect(received).toEqual([1, 2])
 
       unsub()
-      await Bun.sleep(10)
       await Bus.publish(TestEvent, { value: 3 })
-      await Bun.sleep(10)
+      // negative assertion: give delivery a fair bounded window to not happen
+      await settle()
 
       expect(received).toEqual([1, 2])
     })
@@ -49,10 +49,9 @@ describe("Bus integration: acquireRelease subscriber pattern", () => {
       Bus.subscribeAll((evt) => {
         received.push({ type: evt.type, value: evt.properties.value })
       })
-      await Bun.sleep(10)
       await Bus.publish(TestEvent, { value: 10 })
       await Bus.publish(OtherEvent, { value: 20 })
-      await Bun.sleep(10)
+      await waitFor(() => received.length === 2)
     })
 
     expect(received).toEqual([
@@ -74,13 +73,12 @@ describe("Bus integration: acquireRelease subscriber pattern", () => {
         }
         received.push(evt.properties.value)
       })
-      await Bun.sleep(10)
       await Bus.publish(TestEvent, { value: 1 })
-      await Bun.sleep(10)
+      await waitFor(() => received.length === 1)
     })
 
     await Instance.disposeAll()
-    await Bun.sleep(50)
+    await waitFor(() => disposed)
 
     expect(received).toEqual([1])
     expect(disposed).toBe(true)
