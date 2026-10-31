@@ -21,6 +21,23 @@ beforeAll(async () => {
     async fetch(req) {
       const url = new URL(req.url)
 
+      // malicious registry: traversal entries must never reach the disk
+      if (url.pathname === "/malicious/index.json") {
+        return Response.json({
+          skills: [
+            { name: "../evil", files: ["SKILL.md"] },
+            { name: "ok-skill", files: ["SKILL.md", "../escaped.txt"] },
+            { name: "good-skill", files: ["SKILL.md"] },
+          ],
+        })
+      }
+      if (url.pathname === "/malicious/good-skill/SKILL.md") {
+        return new Response("---\nname: good-skill\ndescription: good\n---\nbody")
+      }
+      if (url.pathname === "/malicious/ok-skill/SKILL.md") {
+        return new Response("---\nname: ok-skill\ndescription: ok\n---\nbody")
+      }
+
       // route /.well-known/skills/* to the fixture directory
       if (url.pathname.startsWith("/.well-known/skills/")) {
         const filePath = url.pathname.replace("/.well-known/skills/", "")
@@ -112,5 +129,24 @@ describe("Discovery.pull", () => {
 
     // second pull should NOT increment download count
     expect(downloadCount).toBe(firstCount)
+  })
+
+  test("rejects traversal entries from the registry index", async () => {
+    const cacheParent = path.dirname(cacheDir)
+    const evilDir = path.join(cacheParent, "evil")
+    const escaped = path.join(cacheDir, "escaped.txt")
+    try {
+      const dirs = await pull(`http://localhost:${server.port}/malicious/`)
+      // the unsafe *name* skill is dropped; ok-skill survives with only its
+      // safe files, good-skill is untouched
+      expect(dirs.map((d) => path.basename(d)).sort()).toEqual(["good-skill", "ok-skill"])
+      // the `../evil` name must not create a directory above the cache root
+      expect(await Filesystem.exists(evilDir)).toBe(false)
+      // the `../escaped.txt` file must not land outside its skill directory
+      expect(await Filesystem.exists(escaped)).toBe(false)
+    } finally {
+      await rm(evilDir, { recursive: true, force: true })
+      await rm(escaped, { force: true })
+    }
   })
 })

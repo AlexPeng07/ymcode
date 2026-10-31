@@ -74,9 +74,12 @@ export const EditTool = Tool.define(
             throw new Error("No changes to apply: old_string and new_string are identical.")
           }
 
-          const filePath = path.isAbsolute(params.file_path)
+          const rawPath = path.isAbsolute(params.file_path)
             ? params.file_path
             : path.join(SessionCwd.get(ctx.sessionID), params.file_path)
+          // Normalize exactly as the write gate does, so the path checked for
+          // permission is the path edited (see write.ts).
+          const filePath = process.platform === "win32" ? AppFileSystem.normalizePath(rawPath) : rawPath
           yield* assertWriteAllowed(ctx, filePath)
 
           let diff = ""

@@ -33,9 +33,14 @@ export const WriteTool = Tool.define(
       }),
       execute: (params: { content: string; file_path: string }, ctx: Tool.Context) =>
         Effect.gen(function* () {
-          const filepath = path.isAbsolute(params.file_path)
+          const raw = path.isAbsolute(params.file_path)
             ? params.file_path
             : path.join(SessionCwd.get(ctx.sessionID), params.file_path)
+          // Normalize exactly as the write gate does (assertExternalDirectoryEffect
+          // normalizes on win32 before judging), so the path checked for permission
+          // is the path written to. A POSIX-style absolute input (`/c/x`) judged as
+          // `C:\x` would otherwise land on the current drive's `\c\x`.
+          const filepath = process.platform === "win32" ? AppFileSystem.normalizePath(raw) : raw
           yield* assertWriteAllowed(ctx, filepath)
 
           const exists = yield* fs.existsSafe(filepath)

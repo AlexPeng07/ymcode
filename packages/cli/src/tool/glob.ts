@@ -40,8 +40,16 @@ export const GlobTool = Tool.define(
             },
           })
 
-          let search = params.path ?? SessionCwd.get(ctx.sessionID)
-          search = path.isAbsolute(search) ? search : path.resolve(SessionCwd.get(ctx.sessionID), search)
+          // Resolve like the guard does, so the path judged by
+          // assertExternalDirectoryEffect is the path ripgrep actually scans:
+          // on Windows a POSIX-style absolute input (`/c/x`) judged as `C:\x`
+          // would otherwise land on the current drive's `\c\x`.
+          const effectiveCwd = SessionCwd.get(ctx.sessionID)
+          const search = AppFileSystem.resolve(
+            path.isAbsolute(params.path ?? effectiveCwd)
+              ? (params.path ?? effectiveCwd)
+              : path.join(effectiveCwd, params.path ?? "."),
+          )
           const info = yield* fs.stat(search).pipe(Effect.catch(() => Effect.succeed(undefined)))
           if (info?.type === "File") {
             throw new Error(`glob path must be a directory: ${search}`)

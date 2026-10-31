@@ -1,4 +1,4 @@
-import { Effect, Scope, Stream } from "effect"
+import { Effect, Exit, Scope, Stream } from "effect"
 import type { ChildProcessHandle } from "effect/unstable/process/ChildProcessSpawner"
 import { Log } from "@/util"
 
@@ -106,7 +106,12 @@ export function start(input: {
     // Registry-owned lifetime: a scope that is never closed. The handle's
     // kill() and the hard timeout own the process instead of scope exit.
     const scope = yield* Scope.make()
-    const handle = yield* input.spawn.pipe(Effect.provideService(Scope.Scope, scope))
+    // If spawning itself fails (unknown command, spawn error) nothing owns the
+    // scope — close it here so its finalizers still run.
+    const handle = yield* input.spawn.pipe(
+      Effect.provideService(Scope.Scope, scope),
+      Effect.onError((cause) => Scope.close(scope, Exit.die(cause))),
+    )
     const id = `bg-${++counter}`
     let resolve: (info: TaskInfo) => void = () => {}
     const task: Task = {

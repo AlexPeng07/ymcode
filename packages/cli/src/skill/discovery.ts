@@ -34,6 +34,24 @@ export const layer: Layer.Layer<Service, never, AppFileSystem.Service | Path.Pat
       const http = HttpClient.filterStatusOk(withTransientReadRetry(yield* HttpClient.HttpClient))
       const cache = path.join(Global.Path.cache, "skills")
 
+      // A registry entry name must be a single safe path segment: it becomes
+      // both a cache directory name and a URL segment. Traversal here would
+      // escape the cache root before any file-level check can run.
+      const isSafeSegment = (value: string) =>
+        value.length > 0 &&
+        !value.includes("/") &&
+        !value.includes("\\") &&
+        !value.includes("..") &&
+        !value.includes(":") &&
+        !path.isAbsolute(value)
+
+      // Files may legitimately live in subdirectories (`references/x.md`), so
+      // they are judged by resolved containment in the skill's cache directory.
+      const isContainedFile = (root: string, file: string) => {
+        const target = path.resolve(root, file)
+        return target !== root && AppFileSystem.contains(root, target)
+      }
+
       const download = Effect.fn("Discovery.download")(function* (url: string, dest: string) {
         if (yield* fs.exists(dest).pipe(Effect.orDie)) return true
 
@@ -73,6 +91,10 @@ export const layer: Layer.Layer<Service, never, AppFileSystem.Service | Path.Pat
         if (!data) return []
 
         const list = data.skills.filter((skill) => {
+          if (!isSafeSegment(skill.name)) {
+            log.warn("skill entry has unsafe name", { url: index, skill: skill.name })
+            return false
+          }
           if (!skill.files.includes("SKILL.md")) {
             log.warn("skill entry missing SKILL.md", { url: index, skill: skill.name })
             return false
@@ -86,8 +108,14 @@ export const layer: Layer.Layer<Service, never, AppFileSystem.Service | Path.Pat
             Effect.gen(function* () {
               const root = path.join(cache, skill.name)
 
+              const safeFiles = skill.files.filter((file) => {
+                if (isContainedFile(root, file)) return true
+                log.warn("skill file escapes its cache directory", { url: index, skill: skill.name, file })
+                return false
+              })
+
               yield* Effect.forEach(
-                skill.files,
+                safeFiles,
                 (file) => download(new URL(file, `${host}/${skill.name}/`).href, path.join(root, file)),
                 {
                   concurrency: fileConcurrency,
