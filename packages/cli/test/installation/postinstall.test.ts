@@ -7,6 +7,8 @@ import os from "os"
 const SCRIPT_PATH = path.join(import.meta.dirname, "../../postinstall.mjs")
 const LAUNCHER_PATH = path.join(import.meta.dirname, "../../launcher.js")
 
+
+
 function stagePackage(dir: string) {
   fs.mkdirSync(path.join(dir, "bin"), { recursive: true })
   fs.copyFileSync(SCRIPT_PATH, path.join(dir, "postinstall.mjs"))
@@ -74,7 +76,7 @@ describe("postinstall", () => {
     expect(combined).toMatch(/skipped binary prefetch|Build the binary locally/i)
   })
 
-  test.skipIf(process.platform === "win32")("prefetches into package-local vendor when the release channel serves the archive", async () => {
+  test("prefetches into package-local vendor when the release channel serves the archive", async () => {
     await using tmp = await tmpdir()
     const dir = tmp.path
     stagePackage(dir)
@@ -90,7 +92,15 @@ describe("postinstall", () => {
       const pack = Bun.spawnSync(["tar", "-czf", archivePath, "-C", work, binaryName])
       expect(pack.exitCode).toBe(0)
     } else {
-      const pack = Bun.spawnSync(["tar", "-cf", archivePath, "-C", work, binaryName])
+      // A real zip: bsdtar -xf autodetects zip by content, same as extractBinary.
+      const esc = (p: string) => p.replaceAll("'", "''")
+      const pack = Bun.spawnSync([
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        `$global:ProgressPreference = 'SilentlyContinue'; Compress-Archive -Path '${esc(path.join(work, binaryName))}' -DestinationPath '${esc(archivePath)}' -Force`,
+      ])
       expect(pack.exitCode).toBe(0)
     }
 

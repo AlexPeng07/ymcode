@@ -17,6 +17,13 @@ import {
   stageWindowsRunCopy,
 } from "../../launcher.js"
 
+// The linux-target tar.gz branch of extractBinary is POSIX-only in production:
+// a Windows host's detectTarget is always a windows target (extracted via
+// Expand-Archive), so forcing tar.gz extraction on win32 would only exercise
+// a path no real install reaches - and GNU tar on a Git-Bash-shadowed PATH
+// cannot handle drive-letter archive paths at all.
+const onWindows = process.platform === "win32"
+
 describe("launcher targets", () => {
   test("covers the full published matrix (12 platforms)", () => {
     expect(PLATFORMS).toHaveLength(12)
@@ -96,7 +103,7 @@ describe("launcher targets", () => {
 })
 
 describe("ensureBinary", () => {
-  test.skipIf(process.platform === "win32")("downloads, extracts, and caches a linux archive", async () => {
+  test.skipIf(onWindows)("downloads, extracts, and caches a linux archive", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
     const target = "ymcode-linux-x64"
@@ -157,7 +164,7 @@ describe("ensureBinary", () => {
     }
   })
 
-  test.skipIf(process.platform === "win32")("prefers a published sha256 and rejects mismatches", async () => {
+  test.skipIf(onWindows)("prefers a published sha256 and rejects mismatches", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
     const target = "ymcode-linux-x64"
@@ -203,7 +210,7 @@ describe("ensureBinary", () => {
     }
   })
 
-  test.skipIf(process.platform === "win32")("checks the archive after an authenticated server releases the same endpoint", async () => {
+  test.skipIf(onWindows)("checks the archive after an authenticated server releases the same endpoint", async () => {
     await using tmp = await tmpdir()
     const target = "ymcode-linux-x64"
     const work = path.join(tmp.path, "build")
@@ -248,7 +255,7 @@ describe("ensureBinary", () => {
     }
   })
 
-  test.skipIf(process.platform === "win32")("skips checksum when the endpoint is missing or unhealthy (does not brick install)", async () => {
+  test.skipIf(onWindows)("skips checksum when the endpoint is missing or unhealthy (does not brick install)", async () => {
     await using tmp = await tmpdir()
     const root = tmp.path
     const target = "ymcode-linux-x64"
