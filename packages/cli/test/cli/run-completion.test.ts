@@ -9,6 +9,7 @@ import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { NodeFileSystem } from "@effect/platform-node"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
+import { waitFor } from "../lib/wait-for"
 
 test("event path: session.status idle event for matching sessionID resolves completion", async () => {
   const tracker = createCompletionTracker({
@@ -55,10 +56,10 @@ test("started latch: poll-observed idle is ignored before tracker is started", a
     intervalMs: 20,
   })
 
-  // Without start, several poll ticks must NOT complete.
-  await new Promise((r) => setTimeout(r, 80))
+  // Without start, poll ticks must NOT complete. Wait for a tick to actually
+  // happen (deadline polling) instead of hoping 80ms was enough for one.
+  await waitFor(() => calls > 0)
   expect(tracker.done).toBe(false)
-  expect(calls).toBeGreaterThan(0)
 
   // Now start; next poll tick completes.
   tracker.markStarted()
@@ -105,9 +106,11 @@ integrationIt.live(
         // set up by provideTmpdirInstance, so InstanceState.get resolves through
         // Instance.current. svc was captured from the outer scope where the
         // layer IS provided, so its closured state is valid here.
+        let ticks = 0
         const query = () =>
           Effect.runPromise(
             Effect.gen(function* () {
+              ticks++
               const map = yield* svc.list()
               return map.get(sessionID)
             }),
@@ -118,7 +121,8 @@ integrationIt.live(
         yield* svc.set(sessionID, { type: "busy" })
         tracker.markStarted()
 
-        yield* Effect.promise(() => new Promise<void>((r) => setTimeout(r, 80)))
+        // The not-done assertion is only meaningful once a poll tick ran.
+        yield* Effect.promise(() => waitFor(() => ticks > 0))
         expect(tracker.done).toBe(false)
 
         yield* svc.set(sessionID, { type: "idle" })
