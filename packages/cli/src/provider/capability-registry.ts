@@ -184,11 +184,6 @@ export function adapterDeclaration(npm: string | undefined): AdapterDeclaration 
   return ADAPTERS[npm] ?? UNDECLARED
 }
 
-/** Adapter packages carrying an explicit declaration. Exported for docs/tests. */
-export function declaredAdapters(): ReadonlyArray<string> {
-  return Object.keys(ADAPTERS)
-}
-
 function modelGate(model: Provider.Model, modality: Modality): boolean {
   if (modality === "text") return model.capabilities.input.text
   if (modality === "image") return model.capabilities.input.image

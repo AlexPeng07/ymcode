@@ -90,10 +90,6 @@ export type Info = z.infer<typeof Info>
 
 export const USER_AGENT = `ymcode/${InstallationChannel}/${InstallationVersion}/${Flag.YMCODE_CLIENT}`
 
-export function isPreview() {
-  return InstallationChannel !== "latest"
-}
-
 export function isLocal() {
   return InstallationChannel === "local"
 }

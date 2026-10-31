@@ -6,12 +6,6 @@ export function isSkillCatalogReminder(text: string) {
   return text.includes(SKILL_CATALOG_REMINDER_MARKER)
 }
 
-export function canonicalSkillCatalog(text: string) {
-  // Skill.fmt already sorts entries and emits stable name/description lines.
-  // Normalize only transport-level whitespace so the content hash does not drift across platforms.
-  return text.replace(/\r\n?/g, "\n").trim()
-}
-
 export function isSkillCatalogSnapshot(text: string) {
   return text.includes(SKILL_CATALOG_SNAPSHOT_MARKER)
 }

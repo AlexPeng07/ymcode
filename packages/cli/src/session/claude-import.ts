@@ -19,11 +19,6 @@ import * as QueueSync from "../inbox/sync"
 
 const log = Log.create({ service: "claude-import" })
 
-// Folder-name encoding Claude Code uses for a cwd (diagnostics only; scanning uses a glob).
-export function encodeDir(cwd: string) {
-  return cwd.replace(/[^a-zA-Z0-9]/g, "-")
-}
-
 function splitModel(model?: string) {
   if (!model) return { providerID: ProviderID.anthropic, modelID: ModelID.make("unknown") }
   const idx = model.indexOf("/")
