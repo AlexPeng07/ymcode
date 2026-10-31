@@ -689,15 +689,15 @@ export const GithubRunCommand = cmd({
             await removeReaction(commentType)
           }
         }
-      } catch (e: any) {
+      } catch (e) {
         exitCode = 1
         console.error(e instanceof Error ? e.message : String(e))
-        let msg = e
-        if (e instanceof Process.RunFailedError) {
-          msg = e.stderr.toString()
-        } else if (e instanceof Error) {
-          msg = e.message
-        }
+        const msg =
+          e instanceof Process.RunFailedError
+            ? e.stderr.toString()
+            : e instanceof Error
+              ? e.message
+              : String(e)
         if (isUserEvent) {
           await createComment(`${msg}${footer()}`)
           await removeReaction(commentType)

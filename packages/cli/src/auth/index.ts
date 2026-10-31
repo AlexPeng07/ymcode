@@ -2,9 +2,12 @@ import path from "path"
 import { Effect, Layer, Record, Result, Schema, Context } from "effect"
 import { zod } from "@/util/effect-zod"
 import { Global } from "../global"
+import { Log } from "../util"
 import { AppFileSystem } from "@ymcode/shared/filesystem"
 
 export const OAUTH_DUMMY_KEY = "ymcode-oauth-dummy-key"
+
+const log = Log.create({ service: "auth" })
 
 const file = path.join(Global.Path.data, "auth.json")
 
@@ -75,9 +78,12 @@ export const layer = Layer.effect(
     const all = Effect.fn("Auth.all")(function* () {
       const raw = injected ?? process.env.YMCODE_AUTH_CONTENT
       if (raw) {
-        try {
-          return JSON.parse(raw)
-        } catch (err) {}
+        const parsed = yield* Effect.try({
+          try: () => JSON.parse(raw) as Record<string, Info>,
+          catch: (cause) => fail("injected auth content is not valid JSON")(cause),
+        }).pipe(Effect.orElseSucceed(() => undefined))
+        if (parsed) return parsed
+        log.warn("injected auth content is not valid JSON; falling back to auth.json")
       }
 
       const data = (yield* fsys.readJson(file).pipe(Effect.orElseSucceed(() => ({})))) as Record<string, unknown>

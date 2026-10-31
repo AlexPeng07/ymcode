@@ -42,14 +42,29 @@ export const layer: Layer.Layer<Service, never, Bus.Service> = Layer.effect(
     const readMembersFile = (teamID: string) =>
       Effect.gen(function* () {
         const filePath = yield* membersFilePath(teamID)
-        return yield* Effect.promise(async () => {
-          try {
-            const raw = await fs.readFile(filePath, "utf-8")
-            return JSON.parse(raw) as TeamMember[]
-          } catch {
-            return [] as TeamMember[]
-          }
-        })
+        const raw = yield* Effect.promise(() =>
+          fs.readFile(filePath, "utf-8").catch((cause: unknown) => {
+            // a missing file is just an empty team; any other read failure must
+            // not masquerade as an empty roster
+            if ((cause as NodeJS.ErrnoException)?.code !== "ENOENT") {
+              log.error("failed to read team members file", { filePath, cause: String(cause) })
+            }
+            return undefined
+          }),
+        )
+        if (raw === undefined) return [] as TeamMember[]
+
+        const members = yield* Effect.promise(() =>
+          Promise.resolve().then(() => {
+            try {
+              return JSON.parse(raw) as TeamMember[]
+            } catch (cause) {
+              log.error("team members file is not valid JSON", { filePath, cause: String(cause) })
+              return undefined
+            }
+          }),
+        )
+        return members ?? ([] as TeamMember[])
       })
 
     const writeMembersFile = (teamID: string, members: TeamMember[]) =>

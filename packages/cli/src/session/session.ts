@@ -649,44 +649,49 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | 
       return rows.filter((r) => peers.has(r.id)).map(fromRow)
     })
 
-    const removeUnlocked: Interface["remove"] = Effect.fnUntraced(function* (sessionID: SessionID) {
-      try {
-        const session = yield* get(sessionID)
-        const kids = yield* children(sessionID)
-        for (const child of kids) {
-          yield* remove(child.id)
-        }
-
-        // `remove` needs to work in all cases, such as a broken
-        // sessions that run cleanup. In certain cases these will
-        // run without any instance state, so we need to turn off
-        // publishing of events in that case
-        const hasInstance = yield* InstanceState.directory.pipe(
-          Effect.as(true),
-          Effect.catchCause(() => Effect.succeed(false)),
-        )
-
-        yield* Effect.sync(() => {
-          SyncEvent.run(Event.Deleted, { sessionID, info: session }, { publish: hasInstance })
-          SyncEvent.remove(sessionID)
-          // Drop this session's published parent-grant snapshot. ask() populates
-          // it process-wide on every call (before the needsAsk short-circuit), so
-          // without this the map grows one entry per session for the life of the
-          // process. Cleared here — the removal point — since a deleted session
-          // can no longer have background children that need to inherit from it.
-          forwardRef.clearParentGrants(sessionID)
-          promptLocks.delete(sessionID)
-        })
-        // uncommitted-hint episode state is process-local; drop it when the session dies.
-        yield* Effect.promise(async () => {
-          try {
-            const mod = await import("./prompt/uncommitted-hint")
-            mod.clearAllHintStateForSession(sessionID)
-          } catch { /* best-effort */ }
-        }).pipe(Effect.ignore)
-      } catch (e) {
-        log.error(e)
+    const removeUnlockedInner = Effect.fnUntraced(function* (sessionID: SessionID) {
+      const session = yield* get(sessionID)
+      const kids = yield* children(sessionID)
+      for (const child of kids) {
+        yield* remove(child.id)
       }
+
+      // `remove` needs to work in all cases, such as a broken
+      // sessions that run cleanup. In certain cases these will
+      // run without any instance state, so we need to turn off
+      // publishing of events in that case
+      const hasInstance = yield* InstanceState.directory.pipe(
+        Effect.as(true),
+        Effect.catchCause(() => Effect.succeed(false)),
+      )
+
+      yield* Effect.sync(() => {
+        SyncEvent.run(Event.Deleted, { sessionID, info: session }, { publish: hasInstance })
+        SyncEvent.remove(sessionID)
+        // Drop this session's published parent-grant snapshot. ask() populates
+        // it process-wide on every call (before the needsAsk short-circuit), so
+        // without this the map grows one entry per session for the life of the
+        // process. Cleared here — the removal point — since a deleted session
+        // can no longer have background children that need to inherit from it.
+        forwardRef.clearParentGrants(sessionID)
+        promptLocks.delete(sessionID)
+      })
+      // uncommitted-hint episode state is process-local; drop it when the session dies.
+      yield* Effect.promise(async () => {
+        try {
+          const mod = await import("./prompt/uncommitted-hint")
+          mod.clearAllHintStateForSession(sessionID)
+        } catch { /* best-effort */ }
+      }).pipe(Effect.ignore)
+    })
+
+    const removeUnlocked: Interface["remove"] = Effect.fnUntraced(function* (sessionID: SessionID) {
+      yield* removeUnlockedInner(sessionID).pipe(
+        // Removal runs from teardown paths that cannot surface failures; keep
+        // the never-throwing guarantee through the error channel instead of
+        // flattening the whole body into a bare try/catch.
+        Effect.catchCause((cause) => Effect.sync(() => log.error(cause))),
+      )
     })
 
     const remove: Interface["remove"] = Effect.fnUntraced(function* (sessionID: SessionID) {
