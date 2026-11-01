@@ -25,7 +25,11 @@
   同一正向等待用例在 release 上下文失败第二次起即放宽预算（cron 5s→15s、
   resume 8s→30s 两个先例）。
 
-### 下一轮候选（按收益排序，2026-10-31 第二次更新）
+### 下一轮候选（按收益排序，2026-11-01 更新）
+
+0. ~~发布链路完整性校验 + runner 固定~~ **已完成（2026-11-01，`ffd5ee7`/`199f4e9`）**：
+   release 发布 12 个 .sha256；install.ps1/install/launcher 三链路强制校验（缺失降级）；
+   ubuntu-24.04 固定。v0.2.15 起生效。
 
 1. ~~prompt-effect 定值 sleep 与 acp 定值 setTimeout → 状态驱动等待~~ **已完成（R 轮）**：
    acp 11 处清零；prompt-effect 9 处正向断言转 pollUntil（负向/宽限保留）。

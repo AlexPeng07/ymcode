@@ -895,3 +895,21 @@ cronToHuman/buildFtsMatch（仅测试引用）、installation/index.ts 休眠分
 - 验收：Windows x64 asset（52,640,077 bytes）下载 + 解压 + `--version` 冒烟
   （见下）。下载注意：gh release download 昨天中断留下 34.5MB 截断 zip（非整文件
   即报 "File is not a zip file"，先 python zipfile.testzip 验完整性再解压）。
+
+## 2026-11-01：发布链路加固（sha256 校验 + runner 固定）
+
+- **release.ts**：`github`/`fds` 发布阶段为 12 个归档生成 `<archive>.sha256`
+  （sha256sum 格式 `<hex>  <name>`）一并上传。Bun.CryptoHasher 计算。
+- **install.ps1 / install**：下载归档后校验——格式合法（64 hex）即强制
+  （不匹配 → 清理临时目录 + 硬失败，Windows 走 Write-Err/Exit-Install 1，
+  POSIX 走 print_message error + exit 1）；缺失/损坏的 checksum 端点降级为
+  跳过（404 页面、非 hex 均不误伤）。与 launcher.js verifySha256 同契约，
+  至此 npm 预取、安装、升级三条链路全部有完整性校验（此前仅 TLS）。
+- **E2E**：`test/installation/install-script.test.ts` 用本地 Bun.serve 镜像覆盖
+  install.ps1（win32，3 子用例）与 POSIX install（POSIX CI）——缺失→跳过+装成、
+  匹配→verified、不匹配→非零退出且不落盘。Windows 侧实测通过。
+- **runner**：全部 workflow `ubuntu-latest` → `ubuntu-24.04`（v0.2.14 release
+  跑出 Ubuntu 26 迁移警告；macos-latest 暂不动）。
+- 验证：installation 全套 40 pass / 8 skip / 0 fail；门禁 5 项 + typecheck 全绿。
+- 注意：v0.2.14 及更早 release 无 .sha256 资产——校验逻辑对这些版本自动降级跳过，
+  下个版本（v0.2.15+）起强制生效。
