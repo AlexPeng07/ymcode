@@ -1,8 +1,11 @@
 # 下一步（按优先级）
 
-## 当前交接点（2026-10-31，全面审查轮已交付、未发版）
+## 当前交接点（2026-11-01，v0.2.14 已发布）
 
-- 最新 Release：`v0.2.13`（`0c79fec` + tag）。
+- 最新 Release：**`v0.2.14`**（`25bc9f9` + tag，workflow `41201170450` 重跑一次后
+  success，12 asset，published 2026-10-31T12:44:57Z）。内容：两轮优化全部修复
+  （安全 5 项 + launcher.js win32 zip 解压修复 + 测试稳定两轮）。发布事件与验收见
+  verification.md；cron-bridge 15s 等待首次再烧 release，下次再挂放宽到 30s。
 - **2026-10-31 全面审查与优化轮**（未提交、未发版，详见 verification.md 同名小节）：
   三路审查（技术债/健壮性安全/测试健康）后落地四批修复——
   B1 安全：glob 守卫-扫描路径统一、write/edit 判写路径统一（win32 normalize）、

@@ -878,3 +878,20 @@ cronToHuman/buildFtsMatch（仅测试引用）、installation/index.ts 休眠分
 - 门禁 5 项全绿；typecheck 四包全过。
 - installation 全套 39 pass / 7 skip / 0 fail（原 8 skip → 7）。
 - prompt-effect 全文件复跑 + acp + run-completion + bus 回归全绿（详见提交）。
+
+## 2026-11-01：v0.2.14 发布
+
+- 内容：两轮优化全部修复（B1 安全 5 项、B2 Effect 规范、B3 死代码、B4 测试稳定、
+  R 轮 acp/prompt-effect 谓词化 + launcher.js win32 zip 解压修复），11 个提交
+  （`38daba5..25bc9f9`）。
+- 流程：4 个 package.json 0.2.13→0.2.14（python 无 BOM 写入）→ brand/typecheck 绿 →
+  `25bc9f9` 提交 + tag → push main + tags（本次代理正常，无需绕行）。
+- **发布事件（判别协议再次生效）**：release workflow `41201170450` 首跑 7m35s 失败于
+  test shard 3 的 cron-bridge.integration.test.ts:111——该文件共享的 15s 正向等待
+  helper（waitFor）耗尽。**同提交 main-push test 8m8s 全绿 → 环境抖动**，按协议重跑
+  failed jobs，第二次 success。cron-bridge 本轮零改动；该用例家族自 v0.2.8 放宽到
+  15s 后这是首次再烧 release，若下次再挂应放宽到 30s（resume 先例）。
+- 发布产物：12 平台 asset（2026-10-31T12:44:57Z published）。
+- 验收：Windows x64 asset（52,640,077 bytes）下载 + 解压 + `--version` 冒烟
+  （见下）。下载注意：gh release download 昨天中断留下 34.5MB 截断 zip（非整文件
+  即报 "File is not a zip file"，先 python zipfile.testzip 验完整性再解压）。
