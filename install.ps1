@@ -170,6 +170,30 @@ try {
     Write-Err "Failed to download from $Url`n$($_.Exception.Message)"
 }
 
+# Optional integrity check: enforce a well-formed <asset>.sha256 when it is
+# published next to the archive (same contract as launcher.js). A missing or
+# broken checksum endpoint must not brick install; a mismatch must fail hard.
+$ExpectedSum = $null
+try {
+    if ($curlExe) {
+        & curl.exe -fsSL --max-time 60 -o "$ZipPath.sha256" "$Url.sha256"
+        if ($LASTEXITCODE -eq 0) { $ExpectedSum = Get-Content "$ZipPath.sha256" -Raw }
+    } else {
+        $ExpectedSum = (Invoke-WebRequest -Uri "$Url.sha256" -UseBasicParsing -TimeoutSec 60).Content
+    }
+} catch { $ExpectedSum = $null }
+if ($ExpectedSum) { $ExpectedSum = ($ExpectedSum.Trim() -split '\s+')[0] }
+if ($ExpectedSum -match '^[a-fA-F0-9]{64}$') {
+    $ActualSum = (Get-FileHash -Path $ZipPath -Algorithm SHA256).Hash
+    if (-not $ActualSum -or ($ActualSum.ToLower() -ne $ExpectedSum.ToLower())) {
+        Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
+        Write-Err "Checksum mismatch for $Url"
+    }
+    Write-Host "Checksum verified." -ForegroundColor DarkGray
+} else {
+    Write-Host "Checksum file unavailable; skipping verification." -ForegroundColor DarkGray
+}
+
 # Extract and install
 try {
     Expand-Archive -Path $ZipPath -DestinationPath $TmpDir -Force

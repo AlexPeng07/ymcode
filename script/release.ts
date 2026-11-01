@@ -186,9 +186,26 @@ async function build(version: string) {
   console.log(`Built ${platforms.length} archives and ${npmGroups.libs.length + npmGroups.cli.length} npm tarballs`)
 }
 
+// Publish `<archive>.sha256` (sha256sum format: `<hex>  <name>`) next to every
+// archive. Installers enforce it when present and degrade gracefully when not
+// (the contract launcher.js and the install scripts implement), so a tampered
+// mirror can no longer pass a silent download.
+async function writeArchiveChecksums() {
+  const written: string[] = []
+  for (const name of platforms) {
+    const file = path.join(out, "archives", archive(name))
+    const hasher = new Bun.CryptoHasher("sha256")
+    hasher.update(new Uint8Array(await Bun.file(file).arrayBuffer()))
+    const sumFile = `${file}.sha256`
+    await Bun.write(sumFile, `${hasher.digest("hex")}  ${path.basename(file)}\n`)
+    written.push(sumFile)
+  }
+  return written
+}
+
 async function github(version: string) {
   const tag = `v${version}`
-  const files = platforms.map((name) => path.join(out, "archives", archive(name)))
+  const files = [...platforms.map((name) => path.join(out, "archives", archive(name))), ...(await writeArchiveChecksums())]
   const existing = await $`gh release view ${tag} --json isDraft --jq .isDraft`.nothrow().quiet()
   if (existing.exitCode !== 0) {
     await $`gh release create ${tag} --verify-tag --title ${tag} --generate-notes ${files}`
@@ -207,6 +224,11 @@ async function fds(version: string) {
   for (const name of platforms) {
     await uploadFile(path.join(out, "archives", archive(name)), `releases/v${version}/${archive(name)}`)
     console.log(`Uploaded to FDS: releases/v${version}/${archive(name)}`)
+    await uploadFile(
+      path.join(out, "archives", `${archive(name)}.sha256`),
+      `releases/v${version}/${archive(name)}.sha256`,
+    )
+    console.log(`Uploaded to FDS: releases/v${version}/${archive(name)}.sha256`)
   }
   // The installer follows releases/latest, so move it only after every archive exists.
   await Bun.write(path.join(out, "latest.txt"), version)

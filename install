@@ -348,6 +348,35 @@ download_and_install() {
         curl -# -L -o "$tmp_dir/$filename" "$url"
     fi
 
+    # Optional integrity check: enforce a well-formed <asset>.sha256 when it is
+    # published next to the archive (same contract as install.ps1/launcher.js).
+    # A missing or broken checksum endpoint must not brick install.
+    sum_expected="$(curl -fsSL --max-time 60 "${url}.sha256" 2>/dev/null | awk '{print $1}' || true)"
+    if ! printf '%s' "$sum_expected" | grep -Eq '^[a-fA-F0-9]{64}$'; then
+        sum_expected=""
+    fi
+    if [ -n "$sum_expected" ]; then
+        sum_cmd=""
+        if command -v sha256sum >/dev/null 2>&1; then
+            sum_cmd="sha256sum"
+        elif command -v shasum >/dev/null 2>&1; then
+            sum_cmd="shasum -a 256"
+        fi
+        if [ -n "$sum_cmd" ]; then
+            sum_actual="$($sum_cmd "$tmp_dir/$filename" | awk '{print $1}')"
+            if [ "$(printf '%s' "$sum_actual" | tr '[:upper:]' '[:lower:]')" != "$(printf '%s' "$sum_expected" | tr '[:upper:]' '[:lower:]')" ]; then
+                rm -rf "$tmp_dir"
+                print_message error "Checksum mismatch for $url"
+                exit 1
+            fi
+            print_message info "Checksum verified."
+        else
+            print_message warning "No sha256 tool found; skipping checksum verification."
+        fi
+    else
+        print_message info "Checksum file unavailable; skipping verification."
+    fi
+
     if [ "$os" = "linux" ]; then
         tar -xzf "$tmp_dir/$filename" -C "$tmp_dir"
     else
